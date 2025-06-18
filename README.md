@@ -1,1 +1,1 @@
-# gp-csy2088
+# checkout: https://ayushkaranjit.github.io/gp-csy2088-brief/index.html
