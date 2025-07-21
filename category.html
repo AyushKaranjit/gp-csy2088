@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOKO - Categories</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-apple-alt logo-icon"></i>
+                <span class="logo-text">DOKO</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="category.html" class="nav-link active">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+            </nav>
+            
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="search" class="search-input">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="wishlist.html" class="action-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart action-icon"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ultimate Shopping Section - Daraz Style -->
+    <section class="ultimate-shopping-section">
+        <div class="container">
+            <!-- Hero Categories Banner -->
+            <div class="hero-categories-banner">
+                <h1 class="main-title">🛒 Ultimate Shopping Experience</h1>
+                <p class="main-subtitle">Discover thousands of products across all categories</p>
+                
+                <!-- Quick Category Pills -->
+                <div class="category-pills">
+                    <button class="pill active" data-target="daily-best-products">⭐ Daily Best</button>
+                    <button class="pill" data-target="fruits-products">🍎 Fruits</button>
+                    <button class="pill" data-target="vegetables-products">🥕 Vegetables</button>
+                    <button class="pill" data-target="meat-products">🥩 Meat</button>
+                    <button class="pill" data-target="dairy-products">🥛 Dairy</button>
+                    <button class="pill" data-target="drinks-products">🥤 Drinks</button>
+                    <button class="pill" data-target="snacks-products">🍿 Snacks</button>
+                    <button class="pill" data-target="all-products">🛍️ All Items</button>
+                </div>
+            </div>
+
+            <!-- Daily Best Sell Products -->
+            <div class="category-block" id="daily-best-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">⭐ Daily Best Sell</h2>
+                        <span class="block-subtitle">Top selling items today</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">6 items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('daily-best')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card featured" data-category="fruit">
+                        <div class="product-badge">🔥 Hot</div>
+                        <div class="product-image apple-image"><img src="images/apple.png" alt="Apple"></div>
+                        <h3 class="product-name">Apple</h3>
+                        <p class="product-price">रू 150 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (124 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Apple" data-price="150">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-image kiwi-image"><img src="images/kiwi.png" alt="Kiwi"></div>
+                        <h3 class="product-name">Kiwi</h3>
+                        <p class="product-price">रू 120 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (89 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Kiwi" data-price="120">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-image banana-image"><img src="images/banana.png" alt="Banana"></div>
+                        <h3 class="product-name">Banana</h3>
+                        <p class="product-price">रू 140 <span class="price-unit">per dozen</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (156 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Banana" data-price="140">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="vegetables">
+                        <div class="product-badge">💚 Fresh</div>
+                        <div class="product-image tomato-image"><img src="images/tomato.png" alt="Tomato"></div>
+                        <h3 class="product-name">Tomato</h3>
+                        <p class="product-price">रू 130 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (67 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Tomato" data-price="130">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="other">
+                        <div class="product-image spices-image"><img src="images/spices.png" alt="Spices"></div>
+                        <h3 class="product-name">Spices</h3>
+                        <p class="product-price">रू 130 <span class="price-unit">per 100g</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (234 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Spices" data-price="130">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="other">
+                        <div class="product-image milk-image"><img src="images/milk.png" alt="Milk"></div>
+                        <h3 class="product-name">Milk</h3>
+                        <p class="product-price">रू 80 <span class="price-unit">per liter</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (178 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Milk" data-price="80">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fresh Fruits Products -->
+            <div class="category-block" id="fruits-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🍎 Fresh Fruits</h2>
+                        <span class="block-subtitle">Farm fresh fruits delivered daily</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">50+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('fruits')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-image apple-image"><img src="images/apple.png" alt="Red Apple"></div>
+                        <h3 class="product-name">Red Apple</h3>
+                        <p class="product-price">रू 180 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (98 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Red Apple" data-price="180">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-image banana-image"><img src="images/banana.png" alt="Fresh Banana"></div>
+                        <h3 class="product-name">Fresh Banana</h3>
+                        <p class="product-price">रू 120 <span class="price-unit">per dozen</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (76 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Banana" data-price="120">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-badge">🌟 Premium</div>
+                        <div class="product-image kiwi-image"><img src="images/kiwi.png" alt="Kiwi Fruit"></div>
+                        <h3 class="product-name">Kiwi Fruit</h3>
+                        <p class="product-price">रू 250 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (134 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Kiwi Fruit" data-price="250">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="fruit">
+                        <div class="product-image apple-image"><img src="images/apple-promo.png" alt="Premium Apple Pack"></div>
+                        <h3 class="product-name">Premium Apple Pack</h3>
+                        <p class="product-price">रू 400 <span class="price-unit">per 2kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (87 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Premium Apple Pack" data-price="400">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fresh Vegetables Products -->
+            <div class="category-block" id="vegetables-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🥕 Fresh Vegetables</h2>
+                        <span class="block-subtitle">Garden fresh vegetables</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">40+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('vegetables')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="vegetables">
+                        <div class="product-image tomato-image"><img src="images/tomato.png" alt="Fresh Tomato"></div>
+                        <h3 class="product-name">Fresh Tomato</h3>
+                        <p class="product-price">रू 80 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (92 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Tomato" data-price="80">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="vegetables">
+                        <div class="product-image vegetable-image"><img src="images/vegetable.png" alt="Mixed Vegetables"></div>
+                        <h3 class="product-name">Mixed Vegetables</h3>
+                        <p class="product-price">रू 150 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (156 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Mixed Vegetables" data-price="150">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="vegetables">
+                        <div class="product-badge">🎁 Bundle</div>
+                        <div class="product-image vegetable-image"><img src="images/vegetable-basket.png" alt="Vegetable Basket"></div>
+                        <h3 class="product-name">Vegetable Basket</h3>
+                        <p class="product-price">रू 350 <span class="price-unit">per basket</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (203 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Vegetable Basket" data-price="350">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="vegetables">
+                        <div class="product-image spices-image"><img src="images/spices.png" alt="Fresh Herbs"></div>
+                        <h3 class="product-name">Fresh Herbs</h3>
+                        <p class="product-price">रू 100 <span class="price-unit">per bunch</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (45 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Herbs" data-price="100">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meat & Seafood Products -->
+            <div class="category-block" id="meat-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🥩 Meat & Seafood</h2>
+                        <span class="block-subtitle">Fresh meat and seafood</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">25+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('meat')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="meat">
+                        <div class="product-badge">🔥 Fresh</div>
+                        <div class="product-image meat-image"><img src="images/meat.png" alt="Fresh Chicken"></div>
+                        <h3 class="product-name">Fresh Chicken</h3>
+                        <p class="product-price">रू 550 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (189 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Chicken" data-price="550">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="meat">
+                        <div class="product-image meat-image"><img src="images/meat.png" alt="Fresh Mutton"></div>
+                        <h3 class="product-name">Fresh Mutton</h3>
+                        <p class="product-price">रू 850 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (67 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Mutton" data-price="850">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="meat">
+                        <div class="product-image meat-image"><img src="images/meat.png" alt="Fresh Fish"></div>
+                        <h3 class="product-name">Fresh Fish</h3>
+                        <p class="product-price">रू 400 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (124 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Fish" data-price="400">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="meat">
+                        <div class="product-image meat-image"><img src="images/meat.png" alt="Fresh Pork"></div>
+                        <h3 class="product-name">Fresh Pork</h3>
+                        <p class="product-price">रू 650 <span class="price-unit">per kg</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (89 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Pork" data-price="650">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dairy Products -->
+            <div class="category-block" id="dairy-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🥛 Dairy Products</h2>
+                        <span class="block-subtitle">Farm fresh dairy products</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">30+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('dairy')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="dairy">
+                        <div class="product-image milk-image"><img src="images/milk.png" alt="Fresh Milk"></div>
+                        <h3 class="product-name">Fresh Milk</h3>
+                        <p class="product-price">रू 70 <span class="price-unit">per liter</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (267 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Milk" data-price="70">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="dairy">
+                        <div class="product-image cheese-image"><img src="images/cheese.png" alt="Local Cheese"></div>
+                        <h3 class="product-name">Local Cheese</h3>
+                        <p class="product-price">रू 200 <span class="price-unit">per 250g</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (134 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Local Cheese" data-price="200">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="dairy">
+                        <div class="product-badge">🌟 Premium</div>
+                        <div class="product-image cheese-image"><img src="images/cheese-promo.png" alt="Premium Cheese"></div>
+                        <h3 class="product-name">Premium Cheese</h3>
+                        <p class="product-price">रू 350 <span class="price-unit">per 500g</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (98 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Premium Cheese" data-price="350">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="dairy">
+                        <div class="product-image milk-image"><img src="images/milk.png" alt="Fresh Yogurt"></div>
+                        <h3 class="product-name">Fresh Yogurt</h3>
+                        <p class="product-price">रू 90 <span class="price-unit">per 500ml</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (167 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Yogurt" data-price="90">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beverages & Drinks -->
+            <div class="category-block" id="drinks-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🥤 Beverages & Drinks</h2>
+                        <span class="block-subtitle">Refreshing drinks and beverages</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">35+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('drinks')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="drinks">
+                        <div class="product-image water-image"><img src="images/water.png" alt="Mineral Water"></div>
+                        <h3 class="product-name">Mineral Water</h3>
+                        <p class="product-price">रू 50 <span class="price-unit">per bottle</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (345 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Mineral Water" data-price="50">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="drinks">
+                        <div class="product-image water-image"><img src="images/water.png" alt="Soft Drink"></div>
+                        <h3 class="product-name">Soft Drink</h3>
+                        <p class="product-price">रू 80 <span class="price-unit">per bottle</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (189 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Soft Drink" data-price="80">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="drinks">
+                        <div class="product-badge">💚 Healthy</div>
+                        <div class="product-image milk-image"><img src="images/milk.png" alt="Fresh Juice"></div>
+                        <h3 class="product-name">Fresh Juice</h3>
+                        <p class="product-price">रू 120 <span class="price-unit">per 500ml</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (223 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Fresh Juice" data-price="120">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="drinks">
+                        <div class="product-image water-image"><img src="images/water.png" alt="Energy Drink"></div>
+                        <h3 class="product-name">Energy Drink</h3>
+                        <p class="product-price">रू 150 <span class="price-unit">per can</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (156 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Energy Drink" data-price="150">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Snacks & Confectionery -->
+            <div class="category-block" id="snacks-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🍿 Snacks & Confectionery</h2>
+                        <span class="block-subtitle">Delicious snacks and treats</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">60+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('snacks')">View All →</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <div class="product-card" data-category="snacks">
+                        <div class="product-badge">🌟 Premium</div>
+                        <div class="product-image snacks-image"><img src="images/snacks.png" alt="Mixed Nuts"></div>
+                        <h3 class="product-name">Mixed Nuts</h3>
+                        <p class="product-price">रू 300 <span class="price-unit">per 500g</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (189 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Mixed Nuts" data-price="300">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="snacks">
+                        <div class="product-image snacks-image"><img src="images/snacks.png" alt="Potato Chips"></div>
+                        <h3 class="product-name">Potato Chips</h3>
+                        <p class="product-price">रू 80 <span class="price-unit">per pack</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (267 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Potato Chips" data-price="80">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="snacks">
+                        <div class="product-image snacks-image"><img src="images/snacks.png" alt="Assorted Biscuits"></div>
+                        <h3 class="product-name">Assorted Biscuits</h3>
+                        <p class="product-price">रू 120 <span class="price-unit">per pack</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐ (145 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Assorted Biscuits" data-price="120">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card" data-category="snacks">
+                        <div class="product-badge">🍫 Sweet</div>
+                        <div class="product-image snacks-image"><img src="images/snacks.png" alt="Premium Chocolate"></div>
+                        <h3 class="product-name">Premium Chocolate</h3>
+                        <p class="product-price">रू 200 <span class="price-unit">per bar</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (234 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Premium Chocolate" data-price="200">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Products Mega Section -->
+            <div class="category-block mega-section" id="all-products">
+                <div class="category-block-header">
+                    <div class="header-left">
+                        <h2 class="block-title">🛍️ All Products</h2>
+                        <span class="block-subtitle">Explore our complete collection</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="item-counter">500+ items</span>
+                        <button class="view-more-btn" onclick="viewMoreItems('all')">Browse All →</button>
+                    </div>
+                </div>
+                
+                <div class="mega-products-grid">
+                    <!-- Mix of all categories showing complete product variety -->
+                    <div class="product-card featured" data-category="other">
+                        <div class="product-badge">🎁 Special</div>
+                        <div class="product-image wooden-image"><img src="images/wooden-crate.png" alt="Gift Box"></div>
+                        <h3 class="product-name">Premium Gift Box</h3>
+                        <p class="product-price">रू 500 <span class="price-unit">per box</span></p>
+                        <div class="product-rating">⭐⭐⭐⭐⭐ (89 reviews)</div>
+                        <div class="product-actions">
+                            <i class="far fa-heart wishlist-icon"></i>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn">-</button>
+                                <span class="quantity-display">1</span>
+                                <button class="quantity-btn plus-btn">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" data-product="Premium Gift Box" data-price="500">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Add more mixed products here to show the variety -->
+                    <div class="load-more-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-plus-circle"></i>
+                            <h3>Load More Products</h3>
+                            <p>Discover thousands more items</p>
+                            <button class="load-more-btn" onclick="loadMoreProducts()">Explore More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-apple-alt footer-logo"></i>
+                        <h3 class="footer-title">Doko Nepal</h3>
+                    </div>
+                    <div class="footer-contact">
+                        <h4 class="footer-subtitle">CONTACT</h4>
+                        <p class="contact-info">Phone : +977-9812345678</p>
+                        <p class="contact-info">Email : info@dokonepal.com</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">SOCIAL MEDIA</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                            <span>INSTAGRAM</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                            <span>TWEETER</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                            <span>FACEBOOK</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">INFORMATION</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">About Us</a>
+                        <a href="#" class="footer-link">Check Out</a>
+                        <a href="#" class="footer-link">Contact</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">MY ACCOUNTS</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">MY Account</a>
+                        <a href="#" class="footer-link">Wish List</a>
+                        <a href="#" class="footer-link">Shopping Cart</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">CATEGORIES</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Fresh Product</a>
+                        <a href="#" class="footer-link">Snacks</a>
+                        <a href="#" class="footer-link">Meat</a>
+                        <a href="#" class="footer-link">Drinks</a>
+                        <a href="#" class="footer-link">Vegetables</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">Copyright © 2025 Doko Nepal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="cart.js"></script>
+    <script>
+        // Category Pills Navigation System
+        document.addEventListener('DOMContentLoaded', function() {
+            const pills = document.querySelectorAll('.pill');
+            const categoryBlocks = document.querySelectorAll('.category-block');
+
+            // Add click event to pills
+            pills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    // Remove active class from all pills
+                    pills.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked pill
+                    this.classList.add('active');
+                    
+                    // Get target section
+                    const targetId = this.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        // Smooth scroll to section
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Add highlight effect
+                        targetSection.style.border = '2px solid #10b981';
+                        targetSection.style.transition = 'border 0.3s ease';
+                        
+                        setTimeout(() => {
+                            targetSection.style.border = '';
+                        }, 1000);
+                    }
+                });
+            });
+
+            // Update active pill on scroll
+            window.addEventListener('scroll', function() {
+                let current = '';
+                categoryBlocks.forEach(block => {
+                    const rect = block.getBoundingClientRect();
+                    if (rect.top <= 150 && rect.bottom >= 150) {
+                        current = block.id;
+                    }
+                });
+
+                if (current) {
+                    pills.forEach(pill => {
+                        pill.classList.remove('active');
+                        if (pill.getAttribute('data-target') === current) {
+                            pill.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Enhanced Navigation Functions
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
+                
+                // Add a subtle highlight effect
+                element.style.background = 'linear-gradient(135deg, #f0fdf4, #dcfce7)';
+                setTimeout(() => {
+                    element.style.background = '';
+                }, 2000);
+            }
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ 
+                top: 0, 
+                behavior: 'smooth' 
+            });
+        }
+        
+        function loadMoreItems(category) {
+            // Show loading animation
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            btn.disabled = true;
+            
+            // Simulate loading more items
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show success message
+                showNotification(`More ${category} items loaded!`, 'success');
+                
+                // You can add actual functionality here to load more products
+                console.log(`Loading more items for category: ${category}`);
+            }, 1500);
+        }
+        
+        function viewMoreItems(category) {
+            // Show loading animation
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            btn.disabled = true;
+            
+            // Simulate viewing all items in category
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show success message
+                showNotification(`Viewing all ${category} items!`, 'info');
+                
+                // You can redirect to a dedicated category page here
+                console.log(`Viewing all items for category: ${category}`);
+                
+                // For demo, we'll just highlight the current section
+                const currentSection = btn.closest('.category-block');
+                if (currentSection) {
+                    currentSection.style.border = '3px solid #10b981';
+                    setTimeout(() => {
+                        currentSection.style.border = '';
+                    }, 2000);
+                }
+            }, 800);
+        }
+        
+        function loadMoreProducts() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showNotification('More products loaded successfully!', 'success');
+                
+                // For demo, add some visual feedback
+                const megaGrid = document.querySelector('.mega-products-grid');
+                if (megaGrid) {
+                    megaGrid.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1))';
+                    setTimeout(() => {
+                        megaGrid.style.background = '';
+                    }, 2000);
+                }
+            }, 1200);
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 500;
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            .notification {
+                font-family: 'Poppins', sans-serif;
+            }
+            
+            .category-block {
+                scroll-margin-top: 100px;
+            }
+            
+            .pill.active {
+                background: #d1d5db !important;
+                border-color: #9ca3af !important;
+                color: #1f2937 !important;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+    <style>
+        .quick-nav-btn.active {
+            background: #10b981 !important;
+            color: white !important;
+            border-color: #10b981 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .section-nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .quick-nav-bar {
+                gap: 10px;
+            }
+            
+            .quick-nav-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .category-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>

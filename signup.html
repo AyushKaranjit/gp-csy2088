@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - DOKO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-apple-alt logo-icon"></i>
+                <span class="logo-text">DOKO</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="category.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+            </nav>
+            
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="search" class="search-input">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="wishlist.html" class="action-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart action-icon"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn active">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Signup Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 class="auth-title">Create Account</h2>
+                    <p class="auth-subtitle">Join DOKO and start shopping</p>
+                    
+                    <form class="auth-form" id="signup-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+977-98XXXXXXXX" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="terms" required>
+                                <span class="checkmark"></span>
+                                I agree to the <a href="#">Terms & Conditions</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="auth-btn">Create Account</button>
+                    </form>
+                    
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <div class="social-login">
+                        <button class="social-btn google-btn">
+                            <i class="fab fa-google"></i>
+                            Sign up with Google
+                        </button>
+                        <button class="social-btn facebook-btn">
+                            <i class="fab fa-facebook"></i>
+                            Sign up with Facebook
+                        </button>
+                    </div>
+                    
+                    <p class="auth-footer">
+                        Already have an account? <a href="login.html">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-apple-alt footer-logo"></i>
+                        <h3 class="footer-title">Doko Nepal</h3>
+                    </div>
+                    <div class="footer-contact">
+                        <h4 class="footer-subtitle">CONTACT</h4>
+                        <p class="contact-info">Phone : +977-9812345678</p>
+                        <p class="contact-info">Email : info@dokonepal.com</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">SOCIAL MEDIA</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                            <span>INSTAGRAM</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                            <span>TWITTER</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                            <span>FACEBOOK</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">INFORMATION</h4>
+                    <div class="footer-links">
+                        <a href="about.html" class="footer-link">About Us</a>
+                        <a href="payment.html" class="footer-link">Payment</a>
+                        <a href="#" class="footer-link">Contact</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">MY ACCOUNTS</h4>
+                    <div class="footer-links">
+                        <a href="login.html" class="footer-link">My Account</a>
+                        <a href="wishlist.html" class="footer-link">Wish List</a>
+                        <a href="#" class="footer-link">Shopping Cart</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">CATEGORIES</h4>
+                    <div class="footer-links">
+                        <a href="category.html" class="footer-link">Fresh Product</a>
+                        <a href="category.html" class="footer-link">Snacks</a>
+                        <a href="category.html" class="footer-link">Meat</a>
+                        <a href="category.html" class="footer-link">Drinks</a>
+                        <a href="category.html" class="footer-link">Vegetables</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">Copyright © 2025 Doko Nepal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

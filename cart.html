@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOKO - Shopping Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-apple-alt logo-icon"></i>
+                <span class="logo-text">DOKO</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="category.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+            </nav>
+            
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="search" class="search-input">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="wishlist.html" class="action-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart action-icon active"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Section -->
+    <section class="cart-section">
+        <div class="container">
+            <h1 class="page-title">Shopping Cart</h1>
+            
+            <div class="cart-content">
+                <div class="cart-items">
+                    <div class="cart-header">
+                        <h2>Your Items</h2>
+                        <button class="clear-cart-btn" onclick="clearCart()">Clear All</button>
+                    </div>
+                    
+                    <div id="cart-items-list" class="cart-items-list">
+                        <!-- Cart items will be dynamically populated here -->
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart empty-cart-icon"></i>
+                            <h3>Your cart is empty</h3>
+                            <p>Add some products to get started!</p>
+                            <a href="category.html" class="continue-shopping-btn">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="summary-card">
+                        <h3>Order Summary</h3>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="cart-subtotal">रू 0</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Delivery Fee:</span>
+                            <span id="delivery-fee">रू 50</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Discount:</span>
+                            <span id="discount" class="discount-amount">- रू 0</span>
+                        </div>
+                        
+                        <hr class="summary-divider">
+                        
+                        <div class="summary-row total-row">
+                            <span>Total:</span>
+                            <span id="cart-total">रू 50</span>
+                        </div>
+                        
+                        <div class="promo-code">
+                            <input type="text" placeholder="Promo code" class="promo-input" id="promo-input">
+                            <button class="apply-promo-btn" onclick="applyPromoCode()">Apply</button>
+                        </div>
+                        
+                        <button class="checkout-btn" onclick="proceedToCheckout()">
+                            <i class="fas fa-lock"></i>
+                            Proceed to Checkout
+                        </button>
+                        
+                        <div class="payment-methods">
+                            <p>We accept:</p>
+                            <div class="payment-icons">
+                                <i class="fab fa-cc-visa"></i>
+                                <i class="fab fa-cc-mastercard"></i>
+                                <i class="fab fa-cc-paypal"></i>
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended Products Section -->
+    <section class="recommended-section">
+        <div class="container">
+            <h2 class="section-title">You might also like</h2>
+            
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image"><img src="images/apple.png" alt="Apple"></div>
+                    <h3 class="product-name">Apple</h3>
+                    <p class="product-price">रू 150</p>
+                    <div class="product-actions">
+                        <i class="far fa-heart wishlist-icon"></i>
+                        <button class="add-to-cart-btn" data-product="Apple" data-price="150">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image"><img src="images/banana.png" alt="Banana"></div>
+                    <h3 class="product-name">Banana</h3>
+                    <p class="product-price">रू 140</p>
+                    <div class="product-actions">
+                        <i class="far fa-heart wishlist-icon"></i>
+                        <button class="add-to-cart-btn" data-product="Banana" data-price="140">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image"><img src="images/kiwi.png" alt="Kiwi"></div>
+                    <h3 class="product-name">Kiwi</h3>
+                    <p class="product-price">रू 120</p>
+                    <div class="product-actions">
+                        <i class="far fa-heart wishlist-icon"></i>
+                        <button class="add-to-cart-btn" data-product="Kiwi" data-price="120">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image"><img src="images/tomato.png" alt="Tomato"></div>
+                    <h3 class="product-name">Tomato</h3>
+                    <p class="product-price">रू 130</p>
+                    <div class="product-actions">
+                        <i class="far fa-heart wishlist-icon"></i>
+                        <button class="add-to-cart-btn" data-product="Tomato" data-price="130">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-apple-alt logo-icon"></i>
+                        <span class="logo-text">DOKO</span>
+                    </div>
+                    <p class="footer-description">Fresh groceries delivered to your door. Quality products at the best prices.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="category.html">Shop</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Customer Service</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Newsletter</h3>
+                    <p>Subscribe to get updates on new products and offers</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email" class="newsletter-input">
+                        <button type="submit" class="newsletter-btn">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 DOKO. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="cart.js"></script>
+</body>
+</html>

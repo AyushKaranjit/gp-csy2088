@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - DOKO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-apple-alt logo-icon"></i>
+                <span class="logo-text">DOKO</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="category.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+            </nav>
+            
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="search" class="search-input">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="wishlist.html" class="action-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart action-icon"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="category.html">Shop</a>
+            <span>/</span>
+            <span>Payment</span>
+        </div>
+    </nav>
+
+    <!-- Payment Section -->
+    <section class="payment-section">
+        <div class="container">
+            <div class="payment-container">
+                <div class="payment-content">
+                    <div class="payment-form-section">
+                        <h2 class="section-title">Payment Details</h2>
+                        
+                        <!-- Payment Methods -->
+                        <div class="payment-methods">
+                            <h3>Select Payment Method</h3>
+                            <div class="payment-options">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="esewa">
+                                    <div class="payment-method-card">
+                                        <img src="https://esewa.com.np/common/images/esewa-icon-large.png" alt="eSewa" class="payment-logo">
+                                        <span>eSewa</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="khalti">
+                                    <div class="payment-method-card">
+                                        <img src="https://khalti.com/static/img/logo1.png" alt="Khalti" class="payment-logo">
+                                        <span>Khalti</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="cod" checked>
+                                    <div class="payment-method-card">
+                                        <i class="fas fa-money-bill-wave payment-icon"></i>
+                                        <span>Cash on Delivery</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="bank">
+                                    <div class="payment-method-card">
+                                        <i class="fas fa-university payment-icon"></i>
+                                        <span>Bank Transfer</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Information -->
+                        <div class="delivery-info">
+                            <h3>Delivery Information</h3>
+                            <form class="delivery-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="fullName">Full Name</label>
+                                        <input type="text" id="fullName" name="fullName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <input type="tel" id="phone" name="phone" placeholder="+977-98XXXXXXXX" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="address">Street Address</label>
+                                    <input type="text" id="address" name="address" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="city">City</label>
+                                        <select id="city" name="city" required>
+                                            <option value="">Select City</option>
+                                            <option value="kathmandu">Kathmandu</option>
+                                            <option value="lalitpur">Lalitpur</option>
+                                            <option value="bhaktapur">Bhaktapur</option>
+                                            <option value="pokhara">Pokhara</option>
+                                            <option value="chitwan">Chitwan</option>
+                                            <option value="biratnagar">Biratnagar</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="area">Area</label>
+                                        <input type="text" id="area" name="area" placeholder="e.g. Thamel, Patan" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="notes">Delivery Notes (Optional)</label>
+                                    <textarea id="notes" name="notes" placeholder="Any special instructions for delivery"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h3>Order Summary</h3>
+                        <div class="order-items">
+                            <div class="order-item">
+                                <span>Subtotal</span>
+                                <span>रू 850</span>
+                            </div>
+                            <div class="order-item">
+                                <span>Delivery Fee</span>
+                                <span>रू 50</span>
+                            </div>
+                            <div class="order-item discount">
+                                <span>Discount</span>
+                                <span>-रू 100</span>
+                            </div>
+                            <div class="order-divider"></div>
+                            <div class="order-item total">
+                                <span>Total</span>
+                                <span>रू 800</span>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-time">
+                            <i class="fas fa-clock"></i>
+                            <span>Expected delivery: 2-3 hours</span>
+                        </div>
+                        
+                        <button class="place-order-btn">
+                            <i class="fas fa-lock"></i>
+                            Place Order
+                        </button>
+                        
+                        <div class="security-info">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Your payment information is secure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-apple-alt footer-logo"></i>
+                        <h3 class="footer-title">Doko Nepal</h3>
+                    </div>
+                    <div class="footer-contact">
+                        <h4 class="footer-subtitle">CONTACT</h4>
+                        <p class="contact-info">Phone : +977-9812345678</p>
+                        <p class="contact-info">Email : info@dokonepal.com</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">SOCIAL MEDIA</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                            <span>INSTAGRAM</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                            <span>TWITTER</span>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                            <span>FACEBOOK</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">INFORMATION</h4>
+                    <div class="footer-links">
+                        <a href="about.html" class="footer-link">About Us</a>
+                        <a href="payment.html" class="footer-link">Payment</a>
+                        <a href="#" class="footer-link">Contact</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">MY ACCOUNTS</h4>
+                    <div class="footer-links">
+                        <a href="login.html" class="footer-link">My Account</a>
+                        <a href="wishlist.html" class="footer-link">Wish List</a>
+                        <a href="#" class="footer-link">Shopping Cart</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">CATEGORIES</h4>
+                    <div class="footer-links">
+                        <a href="category.html" class="footer-link">Fresh Product</a>
+                        <a href="category.html" class="footer-link">Snacks</a>
+                        <a href="category.html" class="footer-link">Meat</a>
+                        <a href="category.html" class="footer-link">Drinks</a>
+                        <a href="category.html" class="footer-link">Vegetables</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">Copyright © 2025 Doko Nepal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
