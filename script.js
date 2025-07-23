@@ -103,16 +103,28 @@ addToCartBtns.forEach(btn => {
 // Helper function to get product image
 function getProductImageForCart(productName) {
     const imageMap = {
-        'Apple': 'images/apple.png',
-        'Banana': 'images/banana.png',
-        'Kiwi': 'images/kiwi.png',
-        'Tomato': 'images/tomato.png',
-        'Spices': 'images/spices.png',
-        'Milk': 'images/milk.png',
-        'Cheese': 'images/cheese.png',
-        'Water': 'images/water.png'
+        'Apple': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop&crop=center',
+        'Fresh Apple': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop&crop=center',
+        'Banana': 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&h=300&fit=crop&crop=center',
+        'Kiwi': 'https://images.unsplash.com/photo-1585059895524-72359e06133a?w=300&h=300&fit=crop&crop=center',
+        'Kiwi Fruit': 'https://images.unsplash.com/photo-1585059895524-72359e06133a?w=300&h=300&fit=crop&crop=center',
+        'Tomato': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&h=300&fit=crop&crop=center',
+        'Fresh Tomato': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&h=300&fit=crop&crop=center',
+        'Spices': 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=300&h=300&fit=crop&crop=center',
+        'Milk': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=300&fit=crop&crop=center',
+        'Fresh Milk': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=300&fit=crop&crop=center',
+        'Cheese': 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=300&h=300&fit=crop&crop=center',
+        'Water': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=300&h=300&fit=crop&crop=center',
+        'Carrot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=300&h=300&fit=crop&crop=center',
+        'Broccoli': 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=300&h=300&fit=crop&crop=center',
+        'Pepper': 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=300&h=300&fit=crop&crop=center',
+        'Onion': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop&crop=center',
+        'Potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop&crop=center',
+        'Orange': 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=300&h=300&fit=crop&crop=center',
+        'Grapes': 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=300&h=300&fit=crop&crop=center',
+        'Strawberry': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=300&h=300&fit=crop&crop=center'
     };
-    return imageMap[productName] || 'images/fruits.png';
+    return imageMap[productName] || 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=300&h=300&fit=crop&crop=center';
 }
 
 // Show cart notification (fallback)
@@ -283,4 +295,153 @@ function updateCartCountFromStorage() {
     if (cartCountDisplay) {
         cartCountDisplay.textContent = totalItems;
     }
+}
+
+// Flash Sale Countdown Timer
+function startFlashSaleTimer() {
+    const hoursElement = document.getElementById('hours');
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    
+    if (!hoursElement || !minutesElement || !secondsElement) return;
+    
+    // Set timer for 6 hours from now
+    const endTime = new Date().getTime() + (6 * 60 * 60 * 1000);
+    
+    function updateTimer() {
+        const now = new Date().getTime();
+        const timeLeft = endTime - now;
+        
+        if (timeLeft <= 0) {
+            // Reset timer when it reaches zero
+            const newEndTime = new Date().getTime() + (6 * 60 * 60 * 1000);
+            endTime = newEndTime;
+            return;
+        }
+        
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        hoursElement.textContent = hours.toString().padStart(2, '0');
+        minutesElement.textContent = minutes.toString().padStart(2, '0');
+        secondsElement.textContent = seconds.toString().padStart(2, '0');
+    }
+    
+    // Update immediately and then every second
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+// Start timer when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startFlashSaleTimer();
+    initializeQuantityControls();
+});
+
+// Add to Cart with Quantity function for featured products
+function addToCartWithQuantity(productName, price, buttonElement) {
+    const productCard = buttonElement.closest('.featured-product-card');
+    const quantityInput = productCard.querySelector('.quantity-display');
+    const quantity = parseInt(quantityInput.value) || 1;
+    
+    // Use cart.js function if available
+    if (typeof addToCart === 'function') {
+        addToCart(productName, price, quantity);
+    } else {
+        // Fallback implementation
+        let cart = JSON.parse(localStorage.getItem('doko-cart')) || [];
+        const existingItem = cart.find(item => item.product === productName);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                id: Date.now(),
+                product: productName,
+                price: parseFloat(price),
+                quantity: quantity,
+                image: getProductImageForCart(productName)
+            });
+        }
+        
+        localStorage.setItem('doko-cart', JSON.stringify(cart));
+        updateCartCountFromStorage();
+        
+        // Show visual feedback
+        buttonElement.classList.add('added');
+        buttonElement.textContent = 'Added!';
+        setTimeout(() => {
+            buttonElement.classList.remove('added');
+            buttonElement.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+        }, 1000);
+        
+        showCartNotificationLocal(`${quantity} x ${productName} added to cart!`);
+    }
+}
+
+// Initialize quantity controls for all products
+function initializeQuantityControls() {
+    const quantityControls = document.querySelectorAll('.quantity-controls');
+    
+    quantityControls.forEach(control => {
+        const minusBtn = control.querySelector('.minus-btn');
+        const plusBtn = control.querySelector('.plus-btn');
+        const quantityInput = control.querySelector('.quantity-display');
+        
+        if (!minusBtn || !plusBtn || !quantityInput) return;
+        
+        // Plus button click
+        plusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let currentValue = parseInt(quantityInput.value) || 1;
+            const maxValue = parseInt(quantityInput.max) || 20;
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+                minusBtn.disabled = false;
+            }
+            if (currentValue + 1 >= maxValue) {
+                plusBtn.disabled = true;
+            }
+        });
+        
+        // Minus button click
+        minusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let currentValue = parseInt(quantityInput.value) || 1;
+            const minValue = parseInt(quantityInput.min) || 1;
+            if (currentValue > minValue) {
+                quantityInput.value = currentValue - 1;
+                plusBtn.disabled = false;
+            }
+            if (currentValue - 1 <= minValue) {
+                minusBtn.disabled = true;
+            }
+        });
+        
+        // Input change validation
+        quantityInput.addEventListener('change', (e) => {
+            const value = parseInt(e.target.value);
+            const minValue = parseInt(e.target.min) || 1;
+            const maxValue = parseInt(e.target.max) || 20;
+            
+            if (isNaN(value) || value < minValue) {
+                e.target.value = minValue;
+            } else if (value > maxValue) {
+                e.target.value = maxValue;
+            }
+            
+            // Update button states
+            minusBtn.disabled = (parseInt(e.target.value) <= minValue);
+            plusBtn.disabled = (parseInt(e.target.value) >= maxValue);
+        });
+        
+        // Initialize button states
+        const initialValue = parseInt(quantityInput.value) || 1;
+        const minValue = parseInt(quantityInput.min) || 1;
+        const maxValue = parseInt(quantityInput.max) || 20;
+        
+        minusBtn.disabled = (initialValue <= minValue);
+        plusBtn.disabled = (initialValue >= maxValue);
+    });
 }

@@ -13,7 +13,7 @@
     <header class="header">
         <div class="container">
             <div class="nav-brand">
-                <i class="fas fa-apple-alt logo-icon"></i>
+                <i class="fas fa-shopping-basket logo-icon"></i>
                 <span class="logo-text">DOKO</span>
             </div>
             
@@ -50,7 +50,176 @@
                 <div class="hero-text">
                     <h1 class="hero-title">DOKO Ultimate Online <span class="text-green">Grocery</span></h1>
                     <p class="hero-subtitle">Enjoy seamless grocery shopping and fast home delivery with DOKO's wide selection of fresh produce and everyday essentials.</p>
-                    <button class="learn-more-btn" onclick="openLearnMoreModal()">Learn More</button>
+                    <div class="hero-actions">
+                        <a href="category.html" class="start-shopping-btn hero-start-btn">Start Shopping</a>
+                        <button class="learn-more-btn hero-learn-btn" onclick="openLearnMoreModal()">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+        <div class="container">
+            <div class="featured-header">
+                <h2 class="featured-title">🔥 Trending Products</h2>
+                <p class="featured-subtitle">Most popular items this week</p>
+            </div>
+            
+            <div class="featured-products-grid">
+                <div class="featured-product-card">
+                    <div class="product-badge trending">🔥 Trending</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=400&fit=crop&crop=center" alt="Fresh Apple">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Fresh Apple</h3>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-count">(124)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 150</span>
+                            <span class="original-price">रू 180</span>
+                            <span class="discount">-17%</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus-btn">-</button>
+                            <input type="number" class="quantity-display" value="1" min="1" max="20">
+                            <button class="quantity-btn plus-btn">+</button>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCartWithQuantity('Fresh Apple', 150, this)">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="featured-product-card">
+                    <div class="product-badge best-seller">⭐ Best Seller</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop&crop=center" alt="Fresh Milk">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Fresh Milk</h3>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-count">(267)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 70</span>
+                            <span class="price-unit">per liter</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus-btn">-</button>
+                            <input type="number" class="quantity-display" value="1" min="1" max="20">
+                            <button class="quantity-btn plus-btn">+</button>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCartWithQuantity('Fresh Milk', 70, this)">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="featured-product-card">
+                    <div class="product-badge new">🆕 New</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1585059895524-72359e06133a?w=400&h=400&fit=crop&crop=center" alt="Kiwi Fruit">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Kiwi Fruit</h3>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐</span>
+                            <span class="rating-count">(89)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 120</span>
+                            <span class="price-unit">per kg</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus-btn">-</button>
+                            <input type="number" class="quantity-display" value="1" min="1" max="20">
+                            <button class="quantity-btn plus-btn">+</button>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCartWithQuantity('Kiwi Fruit', 120, this)">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="featured-product-card">
+                    <div class="product-badge organic">🌱 Organic</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop&crop=center" alt="Fresh Tomato">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Fresh Tomato</h3>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐</span>
+                            <span class="rating-count">(67)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 130</span>
+                            <span class="original-price">रू 150</span>
+                            <span class="discount">-13%</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus-btn">-</button>
+                            <input type="number" class="quantity-display" value="1" min="1" max="20">
+                            <button class="quantity-btn plus-btn">+</button>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCartWithQuantity('Fresh Tomato', 130, this)">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="view-all-products">
+                <a href="category.html" class="view-all-products-btn">
+                    <i class="fas fa-fire"></i>
+                    View All Trending Products
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flash Sale Banner -->
+    <section class="flash-sale-banner">
+        <div class="container">
+            <div class="flash-sale-content">
+                <div class="flash-sale-text">
+                    <div class="flash-badge">⚡ FLASH SALE</div>
+                    <h3 class="flash-title">Super Save Sunday</h3>
+                    <p class="flash-subtitle">Up to 50% off on selected items</p>
+                    <div class="flash-timer">
+                        <div class="timer-box">
+                            <span class="timer-number" id="hours">05</span>
+                            <span class="timer-label">Hours</span>
+                        </div>
+                        <div class="timer-divider">:</div>
+                        <div class="timer-box">
+                            <span class="timer-number" id="minutes">23</span>
+                            <span class="timer-label">Minutes</span>
+                        </div>
+                        <div class="timer-divider">:</div>
+                        <div class="timer-box">
+                            <span class="timer-number" id="seconds">45</span>
+                            <span class="timer-label">Seconds</span>
+                        </div>
+                    </div>
+                    <a href="category.html" class="flash-sale-btn">
+                        <i class="fas fa-bolt"></i>
+                        Shop Flash Sale
+                    </a>
+                </div>
+                <div class="flash-sale-image">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&h=400&fit=crop&crop=center" alt="Flash Sale Products">
                 </div>
             </div>
         </div>
@@ -62,7 +231,7 @@
             <span class="close" onclick="closeLearnMoreModal()">&times;</span>
             <div class="modal-header">
                 <h2>About DOKO Nepal</h2>
-                <img src="images/fruits.png" alt="Fresh Produce" class="modal-image">
+                <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=300&fit=crop&crop=center" alt="Fresh Produce" class="modal-image">
             </div>
             <div class="modal-body">
                 <div class="info-section">
@@ -96,7 +265,7 @@
                 <div class="eco-image">
                     <div class="wooden-crate" style="background:none;border:none;">
                         <div class="crate-vegetables" style="background:none;">
-                            <img src="images/wooden.png" alt="Wooden Crate" class="wooden-crate-img" style="display:block;margin:0 auto;width:100%;max-width:240px;height:auto;object-fit:contain;background:none;" />
+                            <img src="https://images.unsplash.com/photo-1553978297-833d24f5d10a?w=400&h=300&fit=crop&crop=center" alt="Wooden Crate" class="wooden-crate-img" style="display:block;margin:0 auto;width:100%;max-width:240px;height:auto;object-fit:contain;background:none;" />
                             <!-- <div class="veg-broccoli"></div>
                             <div class="veg-pepper"></div>
                             <div class="veg-eggplant"></div>
@@ -107,7 +276,6 @@
                 <div class="eco-text">
                     <h2 class="eco-title"><span class="eco-red">ECO</span>-Friendly</h2>
                     <p class="eco-description">Welcome to our grocery store—where going green feels natural. We've handpicked a wide range of eco-friendly, locally sourced products that not only taste great but also support your community and care for the planet. Shop with purpose, eat with pride, and make every choice count.</p>
-                    <button class="learn-more-btn" onclick="openLearnMoreModal()">Learn More</button>
                 </div>
             </div>
         </div>
@@ -147,7 +315,7 @@
             <div class="promo-grid">
                 <div class="promo-card summer-sale">
                     <div class="promo-image">
-                        <img src="images/apple-promo.png" alt="Summer Sale - Apple" class="promo-img" />
+                        <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400&h=300&fit=crop&crop=center" alt="Summer Sale - Apple" class="promo-img" />
                     </div>
                     <div class="promo-content">
                         <h3 class="promo-title">SUMMER SALE</h3>
@@ -163,7 +331,7 @@
                         <h2 class="delivery-title">Fresh Delivered Daily</h2>
                     </div>
                     <div class="promo-image">
-                        <img src="images/cheese-promo.png" alt="Daily Delivery - Cheese" class="promo-img" />
+                        <img src="https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&h=300&fit=crop&crop=center" alt="Daily Delivery - Cheese" class="promo-img" />
                     </div>
                 </div>
             </div>
@@ -190,7 +358,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <div class="footer-brand">
-                        <i class="fas fa-apple-alt footer-logo"></i>
+                        <i class="fas fa-shopping-basket footer-logo"></i>
                         <h3 class="footer-title">Doko Nepal</h3>
                     </div>
                     <div class="footer-contact">
@@ -206,10 +374,6 @@
                         <a href="#" class="social-link">
                             <i class="fab fa-instagram"></i>
                             <span>INSTAGRAM</span>
-                        </a>
-                        <a href="#" class="social-link">
-                            <i class="fab fa-twitter"></i>
-                            <span>TWEETER</span>
                         </a>
                         <a href="#" class="social-link">
                             <i class="fab fa-facebook"></i>
@@ -256,5 +420,6 @@
 
     <script src="script.js"></script>
     <script src="cart.js"></script>
+    <script src="wishlist.js"></script>
 </body>
 </html>
