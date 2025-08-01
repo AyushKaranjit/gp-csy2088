@@ -64,7 +64,7 @@ body {
 }
 
 .nav-link:hover, .nav-link.active {
-    color: #3b82f6; /* Blue for active/hover */
+    color: #059669; /* Green for active/hover */
 }
 
 .search-bar {
@@ -85,7 +85,7 @@ body {
 }
 
 .search-input:focus {
-    border-color: #3b82f6; /* Blue for search focus */
+    border-color: #059669; /* Green for search focus */
 }
 
 .search-icon {
@@ -111,7 +111,7 @@ body {
 }
 
 .action-icon:hover {
-    color: #2563eb;
+    color: #059669;
 }
 
 .cart-icon-container {
@@ -122,7 +122,7 @@ body {
     position: absolute;
     top: -8px;
     right: -8px;
-    background: #2563eb;
+    background: #059669;
     color: white;
     font-size: 12px;
     padding: 2px 6px;
@@ -256,7 +256,7 @@ body {
 }
 
 .text-green {
-    color: #2563eb;
+    color: #059669;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
@@ -1196,7 +1196,7 @@ body {
 }
 
 .nav-arrow:hover {
-    background: #2563eb;
+    background: #059669;
     color: white;
 }
 
@@ -6473,7 +6473,7 @@ html {
 
 /* Admin Header */
 .admin-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #059669 0%, #065f46 100%);
     color: white;
     padding: 15px 0;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -6532,12 +6532,12 @@ html {
 }
 
 .admin-btn.primary {
-    background: #3b82f6;
+    background: #059669;
     color: white;
 }
 
 .admin-btn.primary:hover {
-    background: #2563eb;
+    background: #047857;
 }
 
 .admin-btn.secondary {
@@ -6599,19 +6599,19 @@ html {
 }
 
 .stat-card:nth-child(1) .stat-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #059669, #047857);
 }
 
 .stat-card:nth-child(2) .stat-icon {
-    background: linear-gradient(135deg, #f093fb, #f5576c);
+    background: linear-gradient(135deg, #10b981, #059669);
 }
 
 .stat-card:nth-child(3) .stat-icon {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    background: linear-gradient(135deg, #34d399, #10b981);
 }
 
 .stat-card:nth-child(4) .stat-icon {
-    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    background: linear-gradient(135deg, #6ee7b7, #34d399);
 }
 
 .stat-content {
@@ -6675,12 +6675,12 @@ html {
 }
 
 .tab-btn.active {
-    background: #3b82f6;
+    background: #059669;
     color: white;
 }
 
 .tab-btn:hover:not(.active) {
-    background: #f1f5f9;
+    background: #f0fdf4;
     color: #374151;
 }
 
@@ -6728,7 +6728,7 @@ html {
 }
 
 .filter-select:focus, .date-input:focus {
-    border-color: #3b82f6;
+    border-color: #059669;
 }
 
 /* Search Container */
@@ -6747,7 +6747,7 @@ html {
 }
 
 .search-container .search-input:focus {
-    border-color: #3b82f6;
+    border-color: #059669;
 }
 
 .search-container .search-icon {
@@ -6850,12 +6850,12 @@ html {
 }
 
 .action-btn.view {
-    background: #dbeafe;
-    color: #2563eb;
+    background: #dcfce7;
+    color: #059669;
 }
 
 .action-btn.view:hover {
-    background: #bfdbfe;
+    background: #bbf7d0;
 }
 
 .action-btn.edit {
@@ -7046,7 +7046,7 @@ html {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: #3b82f6;
+    border-color: #059669;
 }
 
 .form-group textarea {
