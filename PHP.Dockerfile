@@ -1,4 +1,4 @@
-FROM php:fpm-alpine
+FROM php:8.2-fpm-alpine3.18
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
