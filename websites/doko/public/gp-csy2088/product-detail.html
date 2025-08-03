@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - DOKO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-shopping-basket logo-icon"></i>
+                <span class="logo-text">DOKO</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="category.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">About</a>
+            </nav>
+            
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="search" class="search-input">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="wishlist.html" class="action-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart action-icon"></i>
+                    <span class="cart-count">0</span>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+                <a href="signup.html" class="signup-btn">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="category.html">Shop</a>
+            <span>/</span>
+            <span id="breadcrumb-product">Product</span>
+        </div>
+    </nav>
+
+    <!-- Product Detail Section -->
+    <section class="product-detail-section">
+        <div class="container">
+            <div class="product-detail-content">
+                <div class="product-detail-image">
+                    <img src="" alt="Product Image" id="product-image">
+                </div>
+                <div class="product-detail-info">
+                    <h1 id="product-name">Product Name</h1>
+                    <p class="price" id="product-price">$0.00</p>
+                    <p class="description" id="product-description">This is a detailed description of the product. It highlights the key features, benefits, and quality of the item, providing customers with all the information they need to make a purchase decision.</p>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn minus-btn">-</button>
+                        <input type="number" class="quantity-display" value="1" min="1" max="99">
+                        <button class="quantity-btn plus-btn">+</button>
+                    </div>
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-shopping-basket footer-logo"></i>
+                        <h3 class="footer-title">Doko Nepal</h3>
+                    </div>
+                    <div class="footer-contact">
+                        <h4 class="footer-subtitle">CONTACT</h4>
+                        <p class="contact-info">Phone : +977-9812345678</p>
+                        <p class="contact-info">Email : info@dokonepal.com</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">SOCIAL MEDIA</h4>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/doko4155/" class="social-link" target="_blank" rel="noopener">
+                            <i class="fab fa-instagram"></i>
+                            <span>INSTAGRAM</span>
+                        </a>
+                        <a href="https://www.facebook.com/profile.php?id=100062281115284" class="social-link" target="_blank" rel="noopener">
+                            <i class="fab fa-facebook"></i>
+                            <span>FACEBOOK</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">INFORMATION</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">About Us</a>
+                        <a href="#" class="footer-link">Check Out</a>
+                        <a href="#" class="footer-link">Contact</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">MY ACCOUNTS</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">MY Account</a>
+                        <a href="#" class="footer-link">Wish List</a>
+                        <a href="#" class="footer-link">Shopping Cart</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-subtitle">CATEGORIES</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Fresh Product</a>
+                        <a href="#" class="footer-link">Snacks</a>
+                        <a href="#" class="footer-link">Meat</a>
+                        <a href="#" class="footer-link">Drinks</a>
+                        <a href="#" class="footer-link">Vegetables</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">Copyright © 2025 Doko Nepal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Populate product details from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const productName = urlParams.get('name');
+        const productPrice = urlParams.get('price');
+        const productImage = urlParams.get('image');
+        const productCategory = urlParams.get('category');
+
+        if (productName) {
+            document.getElementById('product-name').textContent = productName;
+            document.getElementById('product-price').textContent = productPrice;
+            document.getElementById('product-image').src = productImage;
+            document.getElementById('product-image').alt = productName;
+            
+            // Update page title
+            document.title = `${productName} - DOKO`;
+            
+            // Update breadcrumb
+            const breadcrumbProduct = document.getElementById('breadcrumb-product');
+            if (breadcrumbProduct) {
+                breadcrumbProduct.textContent = productName;
+            }
+            
+            // Generate description based on category
+            const descriptions = {
+                fruits: "Fresh, hand-picked fruits delivered straight from the farm. Rich in vitamins, minerals, and natural goodness.",
+                vegetables: "Farm-fresh vegetables grown with care. Perfect for healthy meals and nutritious cooking.",
+                meat: "Premium quality meat, carefully selected and processed. Fresh, tender, and perfect for all your cooking needs.",
+                dairy: "Fresh dairy products from trusted sources. Creamy, nutritious, and perfect for your daily needs.",
+                snacks: "Delicious and healthy snacks perfect for any time of the day. Made with quality ingredients.",
+                default: "High-quality product carefully selected for our customers. Fresh, reliable, and delivered with care."
+            };
+            
+            const description = descriptions[productCategory] || descriptions.default;
+            document.getElementById('product-description').textContent = description;
+        }
+
+        // Enhanced quantity controls for product detail page
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.querySelector('.quantity-display');
+            const minusBtn = document.querySelector('.minus-btn');
+            const plusBtn = document.querySelector('.plus-btn');
+            const addToCartBtn = document.querySelector('.add-to-cart-btn');
+
+            // Minus button functionality
+            minusBtn.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                if (value > 1) {
+                    quantityInput.value = value - 1;
+                }
+            });
+
+            // Plus button functionality
+            plusBtn.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                if (value < 99) {
+                    quantityInput.value = value + 1;
+                }
+            });
+
+            // Validate quantity input
+            quantityInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (isNaN(value) || value < 1) this.value = 1;
+                if (value > 99) this.value = 99;
+            });
+
+            // Enhanced add to cart functionality
+            addToCartBtn.addEventListener('click', function() {
+                const quantity = parseInt(quantityInput.value);
+                const productName = document.getElementById('product-name').textContent;
+                const productPrice = document.getElementById('product-price').textContent.replace('रू ', '');
+                
+                // Add to cart functionality
+                addToCart(productName, productPrice, quantity);
+                
+                // Visual feedback
+                this.style.background = '#28a745';
+                this.textContent = 'Added to Cart!';
+                setTimeout(() => {
+                    this.style.background = '';
+                    this.textContent = 'Add to Cart';
+                }, 2000);
+            });
+        });
+
+        // Cart functionality
+        function addToCart(productName, price, quantity = 1) {
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            
+            const existingItem = cart.find(item => item.name === productName);
+            if (existingItem) {
+                existingItem.quantity = parseInt(existingItem.quantity) + quantity;
+            } else {
+                cart.push({
+                    name: productName,
+                    price: parseInt(price),
+                    quantity: quantity
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            console.log(`Added ${quantity} ${productName}(s) to cart`);
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCountElement = document.querySelector('.cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = totalItems;
+            }
+        }
+
+        // Initialize cart count on page load
+        updateCartCount();
+    </script>
+    <script src="cart.js"></script>
+    <script src="wishlist.js"></script>
+</body>
+</html>
