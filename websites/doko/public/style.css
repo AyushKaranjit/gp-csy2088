@@ -6,18 +6,18 @@
 }
 
 :root {
-    /* Brand Colors */
-    --primary-color: #ff6b35;
-    --primary-dark: #e55a2e;
-    --primary-light: #ff8559;
-    --secondary-color: #2c3e50;
-    --accent-color: #3498db;
+    /* Brand Colors - Fresh Green Theme */
+    --primary-color: #27AE60; /* Fresh Green */
+    --primary-dark: #229954; /* Darker Green */
+    --primary-light: #2ECC71; /* Lighter Green */
+    --secondary-color: #16A085; /* Teal Green */
+    --accent-color: #52C41A; /* Bright Green */
     
     /* UI Colors */
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --error-color: #e74c3c;
-    --info-color: #3498db;
+    --success-color: #27AE60; /* Green for success */
+    --warning-color: #F39C12; /* Warm orange for warnings only */
+    --error-color: #27AE60; /* Green instead of red */
+    --info-color: #16A085; /* Teal-green */
     
     /* Text Colors */
     --text-primary: #2c3e50;
@@ -142,7 +142,7 @@ body {
 
 /* Header */
 .header {
-    background: var(--bg-white);
+    background: #f8f9fa !important;
     box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
@@ -459,7 +459,7 @@ body {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     padding: var(--spacing-3xl) 0;
     position: relative;
     overflow: hidden;

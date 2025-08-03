@@ -22,39 +22,125 @@ function initializeApp() {
     updateCartCountFromStorage();
     setupProductFilters();
     setupEventListeners();
+    initializeHeaderScrollBehavior();
 }
 
-// Enhanced Product Loading with API
-async function loadFeaturedProducts() {
-    try {
-        if (typeof api !== 'undefined') {
-            const response = await api.getFeaturedProducts(8);
-            if (response.success) {
-                displayProducts(response.data, 'featured-products-grid');
-            }
+// Header Scroll Behavior
+function initializeHeaderScrollBehavior() {
+    let lastScrollTop = 0;
+    let scrollThreshold = 100;
+    const header = document.querySelector('.header');
+    
+    if (!header) return;
+    
+    // Add padding to body to compensate for fixed header
+    document.body.style.paddingTop = header.offsetHeight + 'px';
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Add compact class when scrolled
+        if (scrollTop > 50) {
+            header.classList.add('compact');
         } else {
-            console.log('API not available, using static products');
+            header.classList.remove('compact');
         }
-    } catch (error) {
-        console.error('Failed to load featured products:', error);
+        
+        // Hide/show header on scroll direction
+        if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+            // Scrolling down
+            header.classList.add('hidden');
+        } else {
+            // Scrolling up
+            header.classList.remove('hidden');
+        }
+        
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    }, false);
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+    // Categories dropdown
+    const categoriesBtn = document.querySelector('.categories-btn');
+    const categoriesDropdown = document.querySelector('.categories-dropdown');
+    
+    if (categoriesBtn && categoriesDropdown) {
+        categoriesBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            categoriesDropdown.classList.toggle('show');
+        });
+        
+        document.addEventListener('click', function() {
+            categoriesDropdown.classList.remove('show');
+        });
     }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch(this.value);
+            }
+        });
+    }
+
+    // Newsletter form
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            if (email) {
+                showNotification('Thank you for subscribing to our newsletter!', 'success');
+                this.reset();
+            }
+        });
+    }
+}
+
+// Enhanced Product Loading with Static Data
+function loadFeaturedProducts() {
+    console.log('Loading static featured products');
+    const featuredProducts = [
+        {
+            product_id: 1,
+            name: "iPhone 15 Pro Max",
+            price: 189999,
+            rating: 4.8,
+            primary_image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=500&h=500&fit=crop"
+        },
+        {
+            product_id: 2,
+            name: "Samsung Galaxy S24 Ultra",
+            price: 159999,
+            rating: 4.7,
+            primary_image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&h=500&fit=crop"
+        },
+        {
+            product_id: 3,
+            name: "MacBook Pro 14-inch",
+            price: 249999,
+            rating: 4.9,
+            primary_image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=500&h=500&fit=crop"
+        },
+        {
+            product_id: 4,
+            name: "AirPods Pro",
+            price: 29999,
+            rating: 4.6,
+            primary_image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500&h=500&fit=crop"
+        }
+    ];
+    
+    displayProducts(featuredProducts, 'featured-products-grid');
 }
 
 // Load trending products
-async function loadTrendingProducts() {
-    try {
-        const response = await fetch('/api/products?limit=8');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                displayProducts(data.data, 'trendingProducts');
-            }
-        }
-    } catch (error) {
-        console.error('Failed to load trending products:', error);
-        // Fallback to static products if API fails
-        loadStaticTrendingProducts();
-    }
+function loadTrendingProducts() {
+    console.log('Loading static trending products');
+    loadStaticTrendingProducts();
 }
 
 // Fallback static trending products
@@ -665,6 +751,49 @@ function updateUIForGuestUser() {
     if (userMenu) userMenu.style.display = 'none';
 }
 
+// Search functionality
+function performSearch(query) {
+    if (!query || query.trim() === '') return;
+    
+    // Redirect to category page with search query
+    const searchUrl = `category.html?search=${encodeURIComponent(query.trim())}`;
+    window.location.href = searchUrl;
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        animation: slideInRight 0.3s ease;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
 // Export functions for global use
 window.addProductToCart = addProductToCart;
 window.toggleWishlist = toggleWishlist;
@@ -672,3 +801,4 @@ window.filterProducts = filterProducts;
 window.openLearnMoreModal = openLearnMoreModal;
 window.closeLearnMoreModal = closeLearnMoreModal;
 window.performSearch = performSearch;
+window.showNotification = showNotification;

@@ -3,38 +3,15 @@
 
 class DokoAPI {
     constructor() {
-        this.baseURL = window.location.origin + '/websites/doko/public';
+        this.baseURL = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
         this.apiURL = this.baseURL + '/api.php';
     }
 
-    // Generic API request method
+    // Generic API request method - DISABLED FOR STATIC MODE
     async request(endpoint, options = {}) {
-        const url = `${this.apiURL}${endpoint}`;
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
-        };
-
-        if (config.body && typeof config.body === 'object') {
-            config.body = JSON.stringify(config.body);
-        }
-
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || `HTTP ${response.status}`);
-            }
-
-            return data;
-        } catch (error) {
-            console.error('API Request failed:', error);
-            throw error;
-        }
+        console.log('API request disabled - static mode:', endpoint);
+        // Return mock response to prevent breaking the application
+        return { success: false, error: 'Static mode - API disabled' };
     }
 
     // Authentication methods
@@ -169,16 +146,10 @@ class CartManager {
         this.initializeUser();
     }
 
-    async initializeUser() {
-        try {
-            const response = await api.getCurrentUser();
-            if (response.success) {
-                this.user = response.user;
-            }
-        } catch (error) {
-            // User not logged in, continue as guest
-            console.log('User not logged in');
-        }
+    initializeUser() {
+        // Static mode - no user authentication
+        console.log('Static mode - user authentication disabled');
+        this.user = null;
     }
 
     addToCart(productId, productName, price, quantity = 1, imageUrl = '') {

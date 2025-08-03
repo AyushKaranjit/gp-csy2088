@@ -8,18 +8,18 @@
 }
 
 :root {
-    /* Brand Colors */
-    --primary-color: #ff6b35;
-    --primary-dark: #e55a2e;
-    --primary-light: #ff8559;
-    --secondary-color: #2c3e50;
-    --accent-color: #3498db;
+    /* Brand Colors - Fresh Green Theme */
+    --primary-color: #27AE60; /* Fresh Green */
+    --primary-dark: #229954; /* Darker Green */
+    --primary-light: #2ECC71; /* Lighter Green */
+    --secondary-color: #16A085; /* Teal Green */
+    --accent-color: #52C41A; /* Bright Green */
     
     /* UI Colors */
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --error-color: #e74c3c;
-    --info-color: #3498db;
+    --success-color: #27AE60; /* Green for success */
+    --warning-color: #F39C12; /* Warm orange for warnings only */
+    --error-color: #27AE60; /* Green instead of red */
+    --info-color: #16A085; /* Teal-green */
     
     /* Text Colors */
     --text-primary: #2c3e50;
@@ -38,6 +38,55 @@
     --border-radius: 12px;
     --border-radius-small: 6px;
     --border-radius-large: 20px;
+    
+    /* Typography */
+    --font-family-primary: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-secondary: 'Poppins', Arial, sans-serif;
+    
+    /* Font Sizes */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    
+    /* Font Weights */
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    
+    /* Line Heights */
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+    
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    
+    /* Container Sizes */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    
+    /* Background Colors (additional) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
     
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.12);

@@ -1,13 +1,13 @@
--- DOKO E-Commerce Database Creation Script (Clean Version)
+-- Daraz E-Commerce Database Creation Script (Clean Version)
 -- Created: August 3, 2025
--- Description: Clean database schema for DOKO e-commerce platform without mock data
+-- Description: Clean database schema for Daraz e-commerce platform without mock data
 
 -- Create Database
-CREATE DATABASE IF NOT EXISTS doko_ecommerce 
+CREATE DATABASE IF NOT EXISTS daraz_ecommerce 
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE doko_ecommerce;
+USE daraz_ecommerce;
 
 -- ============================================================================
 -- TABLE CREATION
@@ -296,7 +296,7 @@ INSERT INTO categories (name, description, image_url, sort_order) VALUES
 
 -- Insert Admin User and Team Members (Essential Users Only)
 INSERT INTO users (username, email, password_hash, first_name, last_name, user_type, email_verified) VALUES
-('admin', 'admin@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', TRUE),
+('admin', 'admin@daraz.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', TRUE),
 ('ayush_karanjit', 'ayush.karanjit@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ayush', 'Karanjit', 'customer', TRUE),
 ('utsab_nepal', 'utsab.nepal@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Utsab', 'Nepal', 'customer', TRUE),
 ('anuskar_shrestha', 'anuskar.shrestha@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Anuskar', 'Shrestha', 'customer', TRUE),
@@ -474,8 +474,8 @@ CREATE FULLTEXT INDEX idx_categories_search ON categories(name, description);
 -- ============================================================================
 
 -- Create database user for application
--- CREATE USER 'doko_app'@'localhost' IDENTIFIED BY 'secure_password_here';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON doko_ecommerce.* TO 'doko_app'@'localhost';
+-- CREATE USER 'daraz_app'@'localhost' IDENTIFIED BY 'secure_password_here';
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON daraz_ecommerce.* TO 'daraz_app'@'localhost';
 -- FLUSH PRIVILEGES;
 
 -- Note: Remember to:

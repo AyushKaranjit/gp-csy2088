@@ -4,23 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DOKO - Shop Categories</title>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/test.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/grocery-theme.css">
     <link rel="stylesheet" href="css/category.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="https://img.icons8.com/fluency/48/shopping-bag.png" type="image/png">
 </head>
 <body>
-    <!-- Compact Header -->
-    <header class="header compact">
-        <div class="container">
-            <div class="header-top">
-                <div class="contact-info">
+    <!-- Header -->
+    <header class="header">
+        <!-- Top Bar -->
+        <div class="header-top">
+            <div class="container">
+                <div class="header-top-left">
                     <span><i class="fas fa-phone"></i> +977 9812345678</span>
                     <span><i class="fas fa-envelope"></i> support@doko.com</span>
                 </div>
-                <div class="header-links">
+                <div class="header-top-right">
                     <a href="#" class="header-link">Track Order</a>
                     <a href="#" class="header-link">Help Center</a>
+                    <a href="login.html" class="header-link">Login</a>
+                    <a href="signup.html" class="header-link">Sign Up</a>
                     <div class="language-selector">
                         <i class="fas fa-globe"></i>
                         <select>
@@ -30,17 +38,24 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="header-main">
+        </div>
+        
+        <!-- Main Header -->
+        <div class="header-main">
+            <div class="container">
+                <!-- Logo -->
                 <div class="nav-brand">
                     <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO" class="logo-img">
-                    <span class="logo-text">DOKO</span>
-                    <span class="logo-tagline">Marketplace</span>
+                    <div class="brand-text">
+                        <span class="logo-text">DOKO</span>
+                        <span class="logo-tagline">Fresh Market</span>
+                    </div>
                 </div>
                 
+                <!-- Search Bar -->
                 <div class="search-container">
                     <div class="search-bar">
-                        <input type="text" placeholder="Search for products, brands and more..." class="search-input" id="searchInput">
+                        <input type="text" placeholder="Search for fresh fruits, vegetables, dairy, meat..." class="search-input" id="mainSearch">
                         <button class="search-btn">
                             <i class="fas fa-search"></i>
                         </button>
@@ -50,13 +65,8 @@
                     </div>
                 </div>
                 
+                <!-- Header Actions -->
                 <div class="header-actions">
-                    <div class="action-item">
-                        <a href="login.html" class="action-link">
-                            <i class="fas fa-user"></i>
-                            <span>Account</span>
-                        </a>
-                    </div>
                     <div class="action-item">
                         <a href="wishlist.html" class="action-link">
                             <i class="fas fa-heart"></i>
@@ -68,73 +78,99 @@
                         <a href="cart.html" class="action-link cart-link">
                             <i class="fas fa-shopping-cart"></i>
                             <span>Cart</span>
-                            <span class="badge cart-count">0</span>
+                            <span class="badge cart-count" style="display: none;">0</span>
                         </a>
                     </div>
                 </div>
             </div>
-            
-            <nav class="main-nav">
-                <div class="nav-categories">
-                    <button class="categories-btn">
-                        <i class="fas fa-bars"></i>
-                        All Categories
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="categories-dropdown">
-                        <a href="category.html?category=electronics" class="category-link">
-                            <i class="fas fa-mobile-alt"></i>
-                            Electronics
-                        </a>
-                        <a href="category.html?category=fashion" class="category-link">
-                            <i class="fas fa-tshirt"></i>
-                            Fashion
-                        </a>
-                        <a href="category.html?category=home" class="category-link">
-                            <i class="fas fa-home"></i>
-                            Home & Living
-                        </a>
-                        <a href="category.html?category=beauty" class="category-link">
-                            <i class="fas fa-heart"></i>
-                            Health & Beauty
-                        </a>
-                        <a href="category.html?category=sports" class="category-link">
-                            <i class="fas fa-running"></i>
-                            Sports & Outdoor
-                        </a>
-                        <a href="category.html?category=groceries" class="category-link">
-                            <i class="fas fa-shopping-basket"></i>
-                            Groceries
-                        </a>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <nav class="main-nav">
+            <div class="container">
+                <div class="nav-content">
+                    <!-- Categories Dropdown -->
+                    <div class="nav-categories">
+                        <button class="categories-btn">
+                            <i class="fas fa-bars"></i>
+                            <span>All Categories</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="categories-dropdown">
+                            <a href="category.html?category=daily-best" class="category-link">
+                                <i class="fas fa-star"></i>
+                                Daily Best
+                            </a>
+                            <a href="category.html?category=fruits-vegetables" class="category-link">
+                                <i class="fas fa-apple-alt"></i>
+                                Fruits & Vegetables
+                            </a>
+                            <a href="category.html?category=meat-seafood" class="category-link">
+                                <i class="fas fa-fish"></i>
+                                Meat & Seafood
+                            </a>
+                            <a href="category.html?category=dairy-eggs" class="category-link">
+                                <i class="fas fa-cheese"></i>
+                                Dairy & Eggs
+                            </a>
+                            <a href="category.html?category=beverages" class="category-link">
+                                <i class="fas fa-coffee"></i>
+                                Beverages
+                            </a>
+                            <a href="category.html?category=snacks-confectionery" class="category-link">
+                                <i class="fas fa-cookie-bite"></i>
+                                Snacks & Confectionery
+                            </a>
+                            <a href="category.html?category=pantry-staples" class="category-link">
+                                <i class="fas fa-box"></i>
+                                Pantry & Staples
+                            </a>
+                            <a href="category.html" class="category-link">
+                                <i class="fas fa-th-large"></i>
+                                All Items
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Links -->
+                    <div class="nav-links">
+                        <a href="index.html" class="nav-link">Home</a>
+                        <a href="category.html" class="nav-link active">Shop</a>
+                        <a href="#" class="nav-link">Fresh Deals</a>
+                        <a href="#" class="nav-link">New Arrivals</a>
+                        <a href="about.html" class="nav-link">About</a>
+                    </div>
+                    
+                    <!-- Delivery Info -->
+                    <div class="delivery-info">
+                        <i class="fas fa-truck"></i>
+                        <span>Free Delivery on Orders Over रू 1000</span>
                     </div>
                 </div>
-                
-                <div class="nav-links">
-                    <a href="index.html" class="nav-link">Home</a>
-                    <a href="category.html" class="nav-link active">Shop</a>
-                    <a href="#" class="nav-link">Deals</a>
-                    <a href="#" class="nav-link">New Arrivals</a>
-                    <a href="about.html" class="nav-link">About</a>
-                </div>
-                
-                <div class="delivery-info">
-                    <i class="fas fa-truck"></i>
-                    <span>Free Delivery on Orders Over रू 2000</span>
-                </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </header>
 
-    <!-- Breadcrumb -->
-    <div class="breadcrumb-section">
+    <!-- Page Header -->
+    <section class="page-header">
         <div class="container">
-            <nav class="breadcrumb">
-                <a href="index.html">Home</a>
-                <span class="separator">/</span>
-                <span class="current" id="currentCategory">Shop</span>
-            </nav>
+            <h1 class="main-title">Categories</h1>
+            <p class="main-subtitle">Discover thousands of products across all categories</p>
         </div>
-    </div>
+    </section>
+
+    <!-- Quick Category Pills Section -->
+    <section class="category-pills-section">
+        <div class="container">
+            <div class="category-pills">
+                <button class="pill active" data-target="daily-best-products">⭐ Daily Best</button>
+                <button class="pill" data-target="fruits-products">🍎 Fruits</button>
+                <button class="pill" data-target="vegetables-products">🥕 Vegetables</button>
+                <button class="pill" data-target="meat-products">🥩 Meat</button>
+                <button class="pill" data-target="dairy-products">🥛 Dairy</button>
+            </div>
+        </div>
+    </section>
 
     <!-- Main Content -->
     <div class="shop-container">
@@ -144,21 +180,10 @@
                 <aside class="filters-sidebar">
                     <div class="filter-section">
                         <h3 class="filter-title">Categories</h3>
-                <p class="main-subtitle">Discover thousands of products across all categories</p>
-                
-                <!-- Quick Category Pills -->
-                <div class="category-pills">
-                    <button class="pill active" data-target="daily-best-products">⭐ Daily Best</button>
-                    <button class="pill" data-target="fruits-products">🍎 Fruits</button>
-                    <button class="pill" data-target="vegetables-products">🥕 Vegetables</button>
-                    <button class="pill" data-target="meat-products">🥩 Meat</button>
-                    <button class="pill" data-target="dairy-products">🥛 Dairy</button>
-                    <button class="pill" data-target="drinks-products">🥤 Drinks</button>
                     <button class="pill" data-target="snacks-products">🍿 Snacks</button>
                     <button class="pill" data-target="all-products">🛍️ All Items</button>
                 </div>
             </div>
-
             <!-- Daily Best Sell Products -->
             <div class="category-block" id="daily-best-products">
                 <div class="category-block-header">
@@ -168,17 +193,15 @@
                     </div>
                     <div class="header-right">
                         <span class="item-counter">10 items</span>
-                        <button class="view-more-btn" onclick="viewMoreItems('daily-best')">View All â†’</button>
+                        <button class="view-more-btn" onclick="viewMoreItems('daily-best')">View All</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card featured" data-category="fruit" onclick="openProductDetail('Apple')">
                         <div class="product-badge">Hot</div>
                         <div class="product-image apple-image"><img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop&crop=center" alt="Apple"></div>
                         <h3 class="product-name">Apple</h3>
                         <p class="product-price">रू 150 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (124 reviews)</div>
                         <div class="product-actions" onclick="event.stopPropagation()">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -191,12 +214,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail('Kiwi')">
                         <div class="product-image kiwi-image"><img src="https://images.unsplash.com/photo-1585059895524-72359e06133a?w=300&h=300&fit=crop&crop=center" alt="Kiwi"></div>
                         <h3 class="product-name">Kiwi</h3>
                         <p class="product-price">रू 120 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (89 reviews)</div>
                         <div class="product-actions" onclick="event.stopPropagation()">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -209,12 +230,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail('Banana')">
                         <div class="product-image banana-image"><img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&h=300&fit=crop&crop=center" alt="Banana"></div>
                         <h3 class="product-name">Banana</h3>
                         <p class="product-price">रू 140 <span class="price-unit">per dozen</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (156 reviews)</div>
                         <div class="product-actions" onclick="event.stopPropagation()">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -227,13 +246,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Fresh</div>
                         <div class="product-image tomato-image"><img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&h=300&fit=crop&crop=center" alt="Tomato"></div>
                         <h3 class="product-name">Tomato</h3>
                         <p class="product-price">रू 130 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (67 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -246,12 +263,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="other" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image spices-image"><img src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=300&h=300&fit=crop&crop=center" alt="Spices"></div>
                         <h3 class="product-name">Spices</h3>
                         <p class="product-price">रू 130 <span class="price-unit">per 100g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (234 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -264,12 +279,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="other" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center" alt="Milk"></div>
                         <h3 class="product-name">Milk</h3>
                         <p class="product-price">रू 80 <span class="price-unit">per liter</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (178 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -284,7 +297,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Fresh Fruits Products -->
             <div class="category-block" id="fruits-products">
                 <div class="category-block-header">
@@ -294,16 +306,14 @@
                     </div>
                     <div class="header-right">
                         <span class="item-counter">8 items</span>
-                        <button class="view-more-btn" onclick="viewMoreItems('fruits')">View All â†’</button>
+                        <button class="view-more-btn" onclick="viewMoreItems('fruits')">View All</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image apple-image"><img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop&crop=center" alt="Red Apple"></div>
                         <h3 class="product-name">Red Apple</h3>
                         <p class="product-price">रू 180 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (98 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -316,12 +326,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image banana-image"><img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&h=300&fit=crop&crop=center" alt="Fresh Banana"></div>
                         <h3 class="product-name">Fresh Banana</h3>
                         <p class="product-price">रू 120 <span class="price-unit">per dozen</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (76 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -334,13 +342,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail('Kiwi Fruit')">
                         <div class="product-badge">Premium</div>
                         <div class="product-image kiwi-image"><img src="https://images.unsplash.com/photo-1585059895524-72359e06133a?w=300&h=300&fit=crop&crop=center" alt="Kiwi Fruit"></div>
                         <h3 class="product-name">Kiwi Fruit</h3>
                         <p class="product-price">रू 250 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (134 reviews)</div>
                         <div class="product-actions" onclick="event.stopPropagation()">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -353,13 +359,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image apple-image"><img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop&crop=center" alt="Premium Apple Pack"></div>
                         <h3 class="product-name">Premium Apple Pack</h3>
                         <p class="product-price">रू 400 <span class="price-unit">per 2kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (87 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -372,14 +375,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge"> Fresh</div>
                         <div class="product-image fruits-image"><img src="https://images.unsplash.com/photo-1585059895524-72359e06133a?w=300&h=300&fit=crop&crop=center" alt="Orange"></div>
                         <h3 class="product-name">Fresh Orange</h3>
                         <p class="product-price">रू 180 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (92 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -392,14 +392,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Tropical</div>
                         <div class="product-image fruits-image"><img src="https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300&h=300&fit=crop&crop=center" alt="Mango"></div>
                         <h3 class="product-name">Sweet Mango</h3>
                         <p class="product-price">रू 300 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (156 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -412,14 +409,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="fruit" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image fruits-image"><img src="https://images.unsplash.com/photo-1537640538966-79f369143030?w=300&h=300&fit=crop&crop=center" alt="Grapes"></div>
                         <h3 class="product-name">Fresh Grapes</h3>
                         <p class="product-price">रू 280 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (78 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -434,7 +428,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Fresh Vegetables Products -->
             <div class="category-block" id="vegetables-products">
                 <div class="category-block-header">
@@ -444,16 +437,14 @@
                     </div>
                     <div class="header-right">
                         <span class="item-counter">9 items</span>
-                        <button class="view-more-btn" onclick="viewMoreItems('vegetables')">View All â†’</button>
+                        <button class="view-more-btn" onclick="viewMoreItems('vegetables')">View All</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image tomato-image"><img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&h=300&fit=crop&crop=center" alt="Fresh Tomato"></div>
                         <h3 class="product-name">Fresh Tomato</h3>
                         <p class="product-price">रू 80 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (92 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -466,12 +457,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=300&h=300&fit=crop&crop=center" alt="Mixed Vegetables"></div>
                         <h3 class="product-name">Mixed Vegetables</h3>
                         <p class="product-price">रू 150 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (156 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -484,13 +473,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=300&h=300&fit=crop&crop=center" alt="Vegetable Basket"></div>
                         <h3 class="product-name">Vegetable Basket</h3>
                         <p class="product-price">रू 350 <span class="price-unit">per basket</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (203 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -503,13 +490,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=300&h=300&fit=crop&crop=center" alt="Fresh Herbs"></div>
                         <h3 class="product-name">Fresh Herbs</h3>
                         <p class="product-price">रू 100 <span class="price-unit">per bunch</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (45 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -522,14 +506,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=300&h=300&fit=crop&crop=center" alt="Fresh Cabbage"></div>
                         <h3 class="product-name">Fresh Cabbage</h3>
                         <p class="product-price">रू 60 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (73 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -542,14 +523,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=300&h=300&fit=crop&crop=center" alt="Fresh Carrot"></div>
                         <h3 class="product-name">Fresh Carrot</h3>
                         <p class="product-price">रू 90 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (112 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -562,14 +540,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop&crop=center" alt="Fresh Onion"></div>
                         <h3 class="product-name">Fresh Onion</h3>
                         <p class="product-price">रू 70 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (89 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -582,15 +557,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="vegetables" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image vegetable-image"><img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=300&h=300&fit=crop&crop=center" alt="Green Chili"></div>
                         <h3 class="product-name">Green Chili</h3>
-
                         <p class="product-price">रू 150 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (65 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -605,7 +576,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Meat & Seafood Products -->
             <div class="category-block" id="meat-products">
                 <div class="category-block-header">
@@ -618,19 +588,12 @@
                         <button class="view-more-btn" onclick="viewMoreItems('meat')">View All →</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=300&h=300&fit=crop&crop=center" alt="Fresh Chicken"></div>
                         <h3 class="product-name">Fresh Chicken</h3>
-
                         <p class="product-price">रू 550 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (189 reviews)</div>
-                        <div class="review-summary">
-                            <p class="review-text">"Very fresh and tender meat! Great quality." - Sunita D.</p>
-                            <p class="review-text">"Best chicken in town, always fresh delivery." - Mohan P.</p>
-                        </div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -643,12 +606,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=300&h=300&fit=crop&crop=center" alt="Fresh Mutton"></div>
                         <h3 class="product-name">Fresh Mutton</h3>
                         <p class="product-price">रू 850 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (67 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -661,12 +622,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=300&h=300&fit=crop&crop=center" alt="Fresh Fish"></div>
                         <h3 class="product-name">Fresh Fish</h3>
                         <p class="product-price">रू 400 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (124 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -679,14 +638,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=300&h=300&fit=crop&crop=center" alt="Fresh Pork"></div>
                         <h3 class="product-name">Fresh Pork</h3>
-
                         <p class="product-price">रू 650 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (89 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -699,15 +654,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">🦆 Premium</div>
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=300&h=300&fit=crop&crop=center" alt="Fresh Duck"></div>
                         <h3 class="product-name">Fresh Duck</h3>
-
                         <p class="product-price">रू 750 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (43 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -720,15 +671,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=300&h=300&fit=crop&crop=center" alt="River Fish"></div>
                         <h3 class="product-name">River Fish</h3>
-
                         <p class="product-price">रू 450 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (78 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -741,15 +688,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="meat" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image meat-image"><img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=300&h=300&fit=crop&crop=center" alt="Buffalo Meat"></div>
                         <h3 class="product-name">Buffalo Meat</h3>
-
                         <p class="product-price">रू 580 <span class="price-unit">per kg</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (96 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -764,7 +707,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Dairy Products -->
             <div class="category-block" id="dairy-products">
                 <div class="category-block-header">
@@ -774,21 +716,14 @@
                     </div>
                     <div class="header-right">
                         <span class="item-counter">8 items</span>
-                        <button class="view-more-btn" onclick="viewMoreItems('dairy')">View All â†’</button>
+                        <button class="view-more-btn" onclick="viewMoreItems('dairy')">View All</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center" alt="Fresh Milk"></div>
                         <h3 class="product-name">Fresh Milk</h3>
-
                         <p class="product-price">रू 70 <span class="price-unit">per liter</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (267 reviews)</div>
-                        <div class="review-summary">
-                            <p class="review-text">"Very fresh milk, tastes natural and pure!" - Kamala S.</p>
-                            <p class="review-text">"Best milk in the area, kids love it!" - Deepak R.</p>
-                        </div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -801,12 +736,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image cheese-image"><img src="https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&h=300&fit=crop&crop=center" alt="Local Cheese"></div>
                         <h3 class="product-name">Local Cheese</h3>
                         <p class="product-price">रू 200 <span class="price-unit">per 250g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (134 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -819,13 +752,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image cheese-image"><img src="https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&h=300&fit=crop&crop=center" alt="Premium Cheese"></div>
                         <h3 class="product-name">Premium Cheese</h3>
                         <p class="product-price">रू 350 <span class="price-unit">per 500g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (98 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -838,14 +769,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center" alt="Fresh Yogurt"></div>
                         <h3 class="product-name">Fresh Yogurt</h3>
-
                         <p class="product-price">रू 90 <span class="price-unit">per 500ml</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (167 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -858,15 +785,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">🧈 Organic</div>
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&h=300&fit=crop&crop=center" alt="Fresh Butter"></div>
                         <h3 class="product-name">Fresh Butter</h3>
-
                         <p class="product-price">रू 450 <span class="price-unit">per 500g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (89 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -879,15 +802,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center" alt="Buffalo Milk"></div>
                         <h3 class="product-name">Buffalo Milk</h3>
-
                         <p class="product-price">रू 90 <span class="price-unit">per liter</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (134 reviews)</div>
-
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -900,15 +819,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="dairy" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">🧀 Local</div>
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=300&h=300&fit=crop&crop=center" alt="Cottage Cheese"></div>
                         <h3 class="product-name">Cottage Cheese (Paneer)</h3>
-
                         <p class="product-price">रू 280 <span class="price-unit">per 500g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (76 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -923,7 +838,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Beverages & Drinks -->
             <div class="category-block" id="drinks-products">
                 <div class="category-block-header">
@@ -936,13 +850,11 @@
                         <button class="view-more-btn" onclick="viewMoreItems('drinks')">View All →</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop&crop=center" alt="Mineral Water"></div>
                         <h3 class="product-name">Mineral Water</h3>
                         <p class="product-price">रू 50 <span class="price-unit">per bottle</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (345 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -955,12 +867,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=300&h=300&fit=crop&crop=center" alt="Soft Drink"></div>
                         <h3 class="product-name">Soft Drink</h3>
                         <p class="product-price">रू 80 <span class="price-unit">per bottle</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (189 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -973,13 +883,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image milk-image"><img src="https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&h=300&fit=crop&crop=center" alt="Fresh Juice"></div>
                         <h3 class="product-name">Fresh Juice</h3>
                         <p class="product-price">रू 120 <span class="price-unit">per 500ml</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (223 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -992,14 +900,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1620222071550-a5c7c5b5c031?w=300&h=300&fit=crop&crop=center" alt="Energy Drink"></div>
                         <h3 class="product-name">Energy Drink</h3>
-
                         <p class="product-price">रू 150 <span class="price-unit">per can</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (156 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1012,15 +916,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">☕ Premium</div>
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=300&h=300&fit=crop&crop=center" alt="Coffee"></div>
                         <h3 class="product-name">Premium Coffee</h3>
-
                         <p class="product-price">रू 350 <span class="price-unit">per 250g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (98 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1033,15 +933,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop&crop=center" alt="Herbal Tea"></div>
                         <h3 class="product-name">Herbal Tea</h3>
-
                         <p class="product-price">रू 200 <span class="price-unit">per 100g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (67 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1054,15 +950,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="drinks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image water-image"><img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&crop=center" alt="Coconut Water"></div>
                         <h3 class="product-name">Coconut Water</h3>
-
                         <p class="product-price">रू 100 <span class="price-unit">per bottle</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (145 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1077,7 +969,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Snacks & Confectionery -->
             <div class="category-block" id="snacks-products">
                 <div class="category-block-header">
@@ -1087,17 +978,15 @@
                     </div>
                     <div class="header-right">
                         <span class="item-counter">9 items</span>
-                        <button class="view-more-btn" onclick="viewMoreItems('snacks')">View All â†’</button>
+                        <button class="view-more-btn" onclick="viewMoreItems('snacks')">View All</button>
                     </div>
                 </div>
-                
                 <div class="products-grid">
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=300&h=300&fit=crop&crop=center" alt="Mixed Nuts"></div>
                         <h3 class="product-name">Mixed Nuts</h3>
                         <p class="product-price">रू 300 <span class="price-unit">per 500g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (189 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1110,12 +999,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop&crop=center" alt="Potato Chips"></div>
                         <h3 class="product-name">Potato Chips</h3>
                         <p class="product-price">रू 80 <span class="price-unit">per pack</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (267 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1128,12 +1015,10 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1548365328-8c6db3220e4c?w=300&h=300&fit=crop&crop=center" alt="Assorted Biscuits"></div>
                         <h3 class="product-name">Assorted Biscuits</h3>
                         <p class="product-price">रू 120 <span class="price-unit">per pack</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (145 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1146,15 +1031,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1511381939415-e44015466834?w=300&h=300&fit=crop&crop=center" alt="Premium Chocolate"></div>
                         <h3 class="product-name">Premium Chocolate</h3>
-
                         <p class="product-price">रू 200 <span class="price-unit">per bar</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (234 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1167,15 +1048,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center" alt="Roasted Peanuts"></div>
                         <h3 class="product-name">Roasted Peanuts</h3>
-
                         <p class="product-price">रू 150 <span class="price-unit">per 250g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (178 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1188,15 +1065,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop&crop=center" alt="Nepali Cookies"></div>
                         <h3 class="product-name">Traditional Nepali Cookies</h3>
-
                         <p class="product-price">रू 180 <span class="price-unit">per pack</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (123 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1209,15 +1082,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=300&h=300&fit=crop&crop=center" alt="Granola Mix"></div>
                         <h3 class="product-name">Healthy Granola Mix</h3>
-
                         <p class="product-price">रू 250 <span class="price-unit">per 500g</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (89 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1230,15 +1099,11 @@
                             </button>
                         </div>
                     </div>
-                    
                     <div class="product-card" data-category="snacks" onclick="openProductDetail(this.querySelector('.product-name').textContent)">
                         <div class="product-badge">Premium</div>
                         <div class="product-image snacks-image"><img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=300&fit=crop&crop=center" alt="Spicy Noodles"></div>
                         <h3 class="product-name">Spicy Instant Noodles</h3>
-
                         <p class="product-price">रू 45 <span class="price-unit">per pack</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐ (312 reviews)</div>
-                        
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1253,7 +1118,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- All Products Mega Section -->
             <div class="category-block mega-section" id="all-products">
                 <div class="category-block-header">
@@ -1266,15 +1130,13 @@
                         <button class="view-more-btn" onclick="viewMoreItems('all')">Browse All â†’</button>
                     </div>
                 </div>
-                
                 <div class="mega-products-grid">
                     <!-- Mix of all categories showing complete product variety -->
                     <div class="product-card featured" data-category="other">
                         <div class="product-badge">Premium</div>
-                        <div class="product-image wooden-image"><img src="images/wooden-crate.png" alt="Gift Box"></div>
+                        <div class="product-image wooden-image"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=300&fit=crop&crop=center" alt="Gift Box"></div>
                         <h3 class="product-name">Premium Gift Box</h3>
                         <p class="product-price">रू 500 <span class="price-unit">per box</span></p>
-                        <div class="product-rating">⭐⭐⭐⭐⭐ (89 reviews)</div>
                         <div class="product-actions">
                             <i class="far fa-heart wishlist-icon"></i>
                             <div class="quantity-controls">
@@ -1287,7 +1149,6 @@
                             </button>
                         </div>
                     </div>
-                    
                     <!-- Add more mixed products here to show the variety -->
                     <div class="load-more-placeholder">
                         <div class="placeholder-content">
@@ -1301,12 +1162,10 @@
             </div>
         </div>
     </section>
-
     <!-- Enhanced Daraz-Style Product Detail Modal -->
     <div id="productDetailModal" class="modal product-detail-modal">
         <div class="modal-content product-detail-content">
             <span class="close product-detail-close" onclick="closeProductDetail()">&times;</span>
-            
             <div class="product-detail-container">
                 <!-- Product Images Section -->
                 <div class="product-images-section">
@@ -1328,7 +1187,6 @@
                             <span>View More</span>
                         </div>
                     </div>
-                    
                     <!-- Social Sharing -->
                     <div class="product-sharing">
                         <span class="share-label">Share:</span>
@@ -1345,7 +1203,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <!-- Product Info Section -->
                 <div class="product-info-section">
                     <div class="product-detail-header">
@@ -1371,7 +1228,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <!-- Price Section -->
                     <div class="price-section">
                         <div class="price-main">
@@ -1398,7 +1254,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <!-- Product Variants -->
                     <div class="product-variants">
                         <div class="variant-group">
@@ -1417,7 +1272,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <!-- Quantity and Add to Cart -->
                     <div class="detail-quantity-section">
                         <div class="quantity-group">
@@ -1434,7 +1288,6 @@
                             <span class="last-updated">Updated 2 hours ago</span>
                         </div>
                     </div>
-                    
                     <!-- Action Buttons -->
                     <div class="detail-action-buttons">
                         <button class="detail-buy-now-btn" onclick="buyNow()">
@@ -1449,7 +1302,6 @@
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
-                    
                     <!-- Delivery & Service Info -->
                     <div class="delivery-service-info">
                         <h4 class="info-title">» Delivery & Service</h4>
@@ -1486,7 +1338,6 @@
                     </div>
                 </div>
             </div>
-            
             <!-- Enhanced Expandable Sections (Daraz Style) -->
             <div class="product-detail-tabs">
                 <!-- Description Tab -->
@@ -1521,14 +1372,12 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="description-section">
                                 <h4>» About this product</h4>
                                 <p id="fullProductDescription">
                                     Experience the crisp sweetness of premium organic apples sourced directly from the pristine orchards of Mustang, Nepal. These apples are cultivated at high altitude, resulting in exceptional flavor and nutritional density. Each apple is carefully hand-picked at peak ripeness and transported using cold-chain technology to preserve freshness.
                                 </p>
                             </div>
-
                             <div class="benefits-section">
                                 <h4>» Health Benefits</h4>
                                 <div class="benefits-grid">
@@ -1562,7 +1411,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="storage-section">
                                 <h4>» Storage & Care</h4>
                                 <ul class="storage-tips">
@@ -1575,7 +1423,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <!-- Enhanced Reviews Tab -->
                 <div class="detail-tab">
                     <div class="tab-header" onclick="toggleDetailTab('reviews')">
@@ -1594,7 +1441,6 @@
                                     <p class="rating-text">Excellent</p>
                                     <span class="review-count">Based on 124 reviews</span>
                                 </div>
-                                
                                 <div class="rating-breakdown">
                                     <div class="rating-bar-item">
                                         <span class="star-label">5â˜…</span>
@@ -1638,7 +1484,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="review-actions">
                                 <button class="write-review-btn-detail" onclick="openReviewModal('Apple')">
                                     <i class="fas fa-edit"></i>
@@ -1655,15 +1500,10 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <!-- Featured Review -->
                         <div class="featured-review">
                             <div class="review-badge">⭐ Most Helpful Review</div>
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-info">
-                                        <div class="reviewer-avatar">S</div>
-                                        <div class="reviewer-details">
+                            <div class="reviewer-details">
                                             <span class="reviewer-name">Sita Sharma</span>
                                             <div class="review-meta">
                                                 <span class="review-rating">⭐⭐⭐⭐⭐</span>
@@ -1679,23 +1519,12 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div class="review-content">
-                                    <h4 class="review-title">Excellent quality, fresh and crisp!</h4>
-                                    <p class="review-text">These apples are amazing! Very fresh, crisp, and sweet. Delivered within 2 hours as promised. The quality is definitely premium and the packaging was excellent. Will definitely order again. Highly recommended for anyone looking for fresh, organic fruits in Kathmandu.</p>
-                                    <div class="review-images">
-                                        <img src="https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300&h=300&fit=crop&crop=center" alt="Review Image" class="review-image">
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="reviews-list-enhanced" id="detailReviewsList">
                             <!-- More reviews will be loaded here -->
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-info">
-                                        <div class="reviewer-avatar">R</div>
-                                        <div class="reviewer-details">
+                            <div class="reviewer-details">
                                             <span class="reviewer-name">Ram Bahadur</span>
                                             <div class="review-meta">
                                                 <span class="review-rating">⭐⭐⭐⭐⭐</span>
@@ -1711,16 +1540,8 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div class="review-content">
-                                    <p class="review-text">Great taste and very fresh. Kids love these apples. Quick delivery service.</p>
                                 </div>
-                            </div>
-                            
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-info">
-                                        <div class="reviewer-avatar">P</div>
-                                        <div class="reviewer-details">
+                            <div class="reviewer-details">
                                             <span class="reviewer-name">Priya Thapa</span>
                                             <div class="review-meta">
                                                 <span class="review-rating">⭐⭐⭐⭐</span>
@@ -1736,12 +1557,8 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div class="review-content">
-                                    <p class="review-text">Good quality apples. Slightly expensive but worth it for the freshness.</p>
                                 </div>
-                            </div>
                         </div>
-                        
                         <div class="load-more-reviews">
                             <button class="load-more-btn" onclick="loadMoreReviews()">
                                 <i class="fas fa-angle-down"></i>
@@ -1750,7 +1567,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <!-- Enhanced Specifications Tab -->
                 <div class="detail-tab">
                     <div class="tab-header" onclick="toggleDetailTab('specifications')">
@@ -1783,7 +1599,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="specs-category">
                                 <h4>» Origin & Quality</h4>
                                 <div class="specs-grid">
@@ -1805,7 +1620,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="specs-category">
                                 <h4>» Packaging & Storage</h4>
                                 <div class="specs-grid">
@@ -1827,7 +1641,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="specs-category">
                                 <h4>» Certifications</h4>
                                 <div class="certifications-grid">
@@ -1849,7 +1662,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="specs-category">
                                 <h4>» Nutritional Information (per 100g)</h4>
                                 <div class="nutrition-grid">
@@ -1882,7 +1694,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <!-- Seller Information Tab -->
                 <div class="detail-tab">
                     <div class="tab-header" onclick="toggleDetailTab('seller')">
@@ -1908,7 +1719,6 @@
                                     <p class="seller-description">Trusted online grocery platform serving Nepal since 2020</p>
                                 </div>
                             </div>
-                            
                             <div class="seller-stats">
                                 <div class="stat-item">
                                     <i class="fas fa-users"></i>
@@ -1932,7 +1742,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="seller-policies">
                                 <h5>» Store Policies</h5>
                                 <div class="policy-grid">
@@ -1965,7 +1774,6 @@
             </div>
         </div>
     </div>
-
     <!-- Review Modal -->
     <div id="reviewModal" class="modal review-modal">
         <div class="modal-content review-modal-content">
@@ -2001,7 +1809,6 @@
             </div>
         </div>
     </div>
-
     <!-- All Reviews Modal -->
     <div id="allReviewsModal" class="modal all-reviews-modal">
         <div class="modal-content all-reviews-content">
@@ -2021,73 +1828,73 @@
             </div>
         </div>
     </div>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
                     <div class="footer-brand">
-                        <i class="fas fa-shopping-basket footer-logo"></i>
-                        <h3 class="footer-title">Doko Nepal</h3>
+                        <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO">
+                        <span class="footer-brand-text">DOKO</span>
                     </div>
-                    <div class="footer-contact">
-                        <h4 class="footer-subtitle">CONTACT</h4>
-                        <p class="contact-info">Phone : +977-9812345678</p>
-                        <p class="contact-info">Email : info@dokonepal.com</p>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h4 class="footer-subtitle">SOCIAL MEDIA</h4>
+                    <p class="footer-description">Nepal's largest online marketplace offering millions of products with the best prices, fastest delivery, and exceptional customer service.</p>
                     <div class="social-links">
-                        <a href="https://www.instagram.com/doko4155/" class="social-link" target="_blank" rel="noopener">
+                        <a href="#" class="social-link" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Instagram">
                             <i class="fab fa-instagram"></i>
-                            <span>INSTAGRAM</span>
-                        </a>
-                        <a href="https://www.facebook.com/profile.php?id=100062281115284" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-facebook"></i>
-                            <span>FACEBOOK</span>
                         </a>
                     </div>
                 </div>
-                
                 <div class="footer-section">
-                    <h4 class="footer-subtitle">INFORMATION</h4>
-                    <div class="footer-links">
-                        <a href="#" class="footer-link">About Us</a>
-                        <a href="#" class="footer-link">Check Out</a>
-                        <a href="#" class="footer-link">Contact</a>
-                    </div>
+                    <h3>Customer Service</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Your Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">Shipping Information</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
                 </div>
-                
                 <div class="footer-section">
-                    <h4 class="footer-subtitle">MY ACCOUNTS</h4>
-                    <div class="footer-links">
-                        <a href="#" class="footer-link">MY Account</a>
-                        <a href="#" class="footer-link">Wish List</a>
-                        <a href="#" class="footer-link">Shopping Cart</a>
-                    </div>
+                    <h3>About DOKO</h3>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press & Media</a></li>
+                        <li><a href="#">Investor Relations</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
                 </div>
-                
                 <div class="footer-section">
-                    <h4 class="footer-subtitle">CATEGORIES</h4>
-                    <div class="footer-links">
-                        <a href="#" class="footer-link">Fresh Product</a>
-                        <a href="#" class="footer-link">Snacks</a>
-                        <a href="#" class="footer-link">Meat</a>
-                        <a href="#" class="footer-link">Drinks</a>
-                        <a href="#" class="footer-link">Vegetables</a>
-                    </div>
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="category.html">All Categories</a></li>
+                        <li><a href="#">Today's Deals</a></li>
+                        <li><a href="#">New Arrivals</a></li>
+                        <li><a href="#">Best Sellers</a></li>
+                        <li><a href="wishlist.html">Wishlist</a></li>
+                        <li><a href="cart.html">Shopping Cart</a></li>
+                    </ul>
                 </div>
             </div>
-            
             <div class="footer-bottom">
-                <p class="copyright">Copyright Â© 2025 Doko Nepal</p>
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 DOKO Marketplace. All rights reserved. | Designed by Team Ayush</p>
+                    <div class="payment-methods">
+                        <span>Payment Methods:</span>
+                        <div class="payment-method">eSewa</div>
+                        <div class="payment-method">Khalti</div>
+                        <div class="payment-method">Bank</div>
+                        <div class="payment-method">COD</div>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
-
     <script src="script.js"></script>
     <script src="cart.js"></script>
     <script>
@@ -2095,38 +1902,31 @@
         document.addEventListener('DOMContentLoaded', function() {
             const pills = document.querySelectorAll('.pill');
             const categoryBlocks = document.querySelectorAll('.category-block');
-
             // Add click event to pills
             pills.forEach(pill => {
                 pill.addEventListener('click', function() {
                     // Remove active class from all pills
                     pills.forEach(p => p.classList.remove('active'));
-                    
                     // Add active class to clicked pill
                     this.classList.add('active');
-                    
                     // Get target section
                     const targetId = this.getAttribute('data-target');
                     const targetSection = document.getElementById(targetId);
-                    
                     if (targetSection) {
                         // Smooth scroll to section
                         targetSection.scrollIntoView({
                             behavior: 'smooth',
                             block: 'start'
                         });
-                        
                         // Add highlight effect
                         targetSection.style.border = '2px solid #10b981';
                         targetSection.style.transition = 'border 0.3s ease';
-                        
                         setTimeout(() => {
                             targetSection.style.border = '';
                         }, 1000);
                     }
                 });
             });
-
             // Update active pill on scroll
             window.addEventListener('scroll', function() {
                 let current = '';
@@ -2136,7 +1936,6 @@
                         current = block.id;
                     }
                 });
-
                 if (current) {
                     pills.forEach(pill => {
                         pill.classList.remove('active');
@@ -2147,7 +1946,6 @@
                 }
             });
         });
-
         // Enhanced Navigation Functions
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
@@ -2157,7 +1955,6 @@
                     block: 'start',
                     inline: 'nearest'
                 });
-                
                 // Add a subtle highlight effect
                 element.style.background = 'linear-gradient(135deg, #f0fdf4, #dcfce7)';
                 setTimeout(() => {
@@ -2165,7 +1962,6 @@
                 }, 2000);
             }
         }
-        
         // Add click handlers to product cards
         document.addEventListener('DOMContentLoaded', function() {
             // Add click event to all product cards
@@ -2179,63 +1975,51 @@
                         e.target.closest('i')) {
                         return;
                     }
-                    
                     const productName = this.querySelector('.product-name')?.textContent;
                     if (productName) {
                         openProductDetail(productName);
                     }
                 });
-                
                 // Add pointer cursor
                 card.style.cursor = 'pointer';
             });
         });
-        
         function scrollToTop() {
             window.scrollTo({ 
                 top: 0, 
                 behavior: 'smooth' 
             });
         }
-        
         function loadMoreItems(category) {
             // Show loading animation
             const btn = event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
             btn.disabled = true;
-            
             // Simulate loading more items
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                
                 // Show success message
                 showNotification(`More ${category} items loaded!`, 'success');
-                
                 // You can add actual functionality here to load more products
                 console.log(`Loading more items for category: ${category}`);
             }, 1500);
         }
-        
         function viewMoreItems(category) {
             // Show loading animation
             const btn = event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
             btn.disabled = true;
-            
             // Simulate viewing all items in category
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                
                 // Show success message
                 showNotification(`Viewing all ${category} items!`, 'info');
-                
                 // You can redirect to a dedicated category page here
                 console.log(`Viewing all items for category: ${category}`);
-                
                 // For demo, we'll just highlight the current section
                 const currentSection = btn.closest('.category-block');
                 if (currentSection) {
@@ -2246,18 +2030,15 @@
                 }
             }, 800);
         }
-        
         function loadMoreProducts() {
             const btn = event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
             btn.disabled = true;
-            
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 showNotification('More products loaded successfully!', 'success');
-                
                 // For demo, add some visual feedback
                 const megaGrid = document.querySelector('.mega-products-grid');
                 if (megaGrid) {
@@ -2268,7 +2049,6 @@
                 }
             }, 1200);
         }
-        
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
@@ -2276,7 +2056,6 @@
                 <i class="fas fa-check-circle"></i>
                 <span>${message}</span>
             `;
-            
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -2293,9 +2072,7 @@
                 font-weight: 500;
                 animation: slideInRight 0.3s ease;
             `;
-            
             document.body.appendChild(notification);
-            
             setTimeout(() => {
                 notification.style.animation = 'slideOutRight 0.3s ease';
                 setTimeout(() => {
@@ -2303,7 +2080,6 @@
                 }, 300);
             }, 3000);
         }
-        
         // Add CSS animations
         const style = document.createElement('style');
         style.textContent = `
@@ -2311,20 +2087,16 @@
                 from { transform: translateX(100%); opacity: 0; }
                 to { transform: translateX(0); opacity: 1; }
             }
-            
             @keyframes slideOutRight {
                 from { transform: translateX(0); opacity: 1; }
                 to { transform: translateX(100%); opacity: 0; }
             }
-            
             .notification {
                 font-family: 'Poppins', sans-serif;
             }
-            
             .category-block {
                 scroll-margin-top: 100px;
             }
-            
             .pill.active {
                 background: #d1d5db !important;
                 border-color: #9ca3af !important;
@@ -2332,7 +2104,6 @@
             }
         `;
         document.head.appendChild(style);
-
         // Review Management System
         let currentProductForReview = '';
         let selectedRating = 0;
@@ -2347,7 +2118,6 @@
                 { name: 'Bikash T.', rating: 5, text: 'Good quality, arrived perfectly ripe.', date: '2025-01-09' }
             ]
         };
-
         // Review Modal Functions
         function openReviewModal(productName) {
             currentProductForReview = productName;
@@ -2356,28 +2126,23 @@
             selectedRating = 0;
             updateStarDisplay();
         }
-
         function closeReviewModal() {
             document.getElementById('reviewModal').style.display = 'none';
             document.getElementById('reviewForm').reset();
             selectedRating = 0;
             updateStarDisplay();
         }
-
         function openAllReviewsModal(productName) {
             document.getElementById('allReviewsProductName').textContent = `All Reviews for ${productName}`;
             document.getElementById('allReviewsModal').style.display = 'block';
             loadAllReviews(productName);
         }
-
         function closeAllReviewsModal() {
             document.getElementById('allReviewsModal').style.display = 'none';
         }
-
         function viewAllReviews(productName) {
             openAllReviewsModal(productName);
         }
-
         // Star Rating System
         document.addEventListener('DOMContentLoaded', function() {
             const starInputs = document.querySelectorAll('.star-input');
@@ -2387,17 +2152,14 @@
                     updateStarDisplay();
                 });
             });
-
             // Review Form Submission
             document.getElementById('reviewForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitReview();
             });
-
             // Load images when page loads
             setTimeout(loadProductImages, 1000);
         });
-
         function updateStarDisplay() {
             const stars = document.querySelectorAll('.star-input');
             stars.forEach((star, index) => {
@@ -2408,105 +2170,82 @@
                 }
             });
         }
-
         function submitReview() {
             const reviewerName = document.getElementById('reviewerName').value;
             const reviewText = document.getElementById('reviewText').value;
-
             if (selectedRating === 0) {
                 alert('Please select a rating!');
                 return;
             }
-
             if (!productReviews[currentProductForReview]) {
                 productReviews[currentProductForReview] = [];
             }
-
             const newReview = {
                 name: reviewerName,
                 rating: selectedRating,
                 text: reviewText,
                 date: new Date().toISOString().split('T')[0]
             };
-
             productReviews[currentProductForReview].unshift(newReview);
             showNotification('Review submitted successfully! Thank you for your feedback.', 'success');
             closeReviewModal();
             updateProductReviews(currentProductForReview);
         }
-
         function loadAllReviews(productName) {
             const reviewsList = document.getElementById('allReviewsList');
             const reviews = productReviews[productName] || [];
-            
             if (reviews.length === 0) {
                 reviewsList.innerHTML = '<p class="no-reviews">No reviews yet. Be the first to review this product!</p>';
                 return;
             }
-
             let reviewsHTML = '';
             reviews.forEach(review => {
                 const stars = '⭐'.repeat(review.rating) + 'â˜†'.repeat(5 - review.rating);
                 reviewsHTML += `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="reviewer-name">${review.name}</span>
-                            <span class="review-date">${formatDate(review.date)}</span>
+                    <div class="review-rating">${stars}</div>
                         </div>
-                        <div class="review-rating">${stars}</div>
-                        <div class="review-content">${review.text}</div>
-                    </div>
                 `;
             });
-
             reviewsList.innerHTML = reviewsHTML;
         }
-
         function updateProductReviews(productName) {
             console.log(`Updated reviews for ${productName}`);
         }
-
         function formatDate(dateString) {
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return new Date(dateString).toLocaleDateString('en-US', options);
         }
-
         // Image API Integration using Unsplash
         async function loadProductImages() {
             const productCards = document.querySelectorAll('.product-card');
-            
             productCards.forEach(async (card) => {
                 const productName = card.querySelector('.product-name').textContent;
                 const imgElement = card.querySelector('img');
-                
                 if (imgElement) {
                     try {
                         // Using Unsplash API for high-quality food images
                         const unsplashUrl = `https://source.unsplash.com/400x300/?${encodeURIComponent(productName)},food,fresh`;
-                        
                         // Create a new image to test if it loads
                         const testImg = new Image();
                         testImg.onload = function() {
                             imgElement.src = unsplashUrl;
                         };
                         testImg.onerror = function() {
-                            // Keep original image if API fails
-                            console.log(`Failed to load image for ${productName}`);
+                            // Keep original image if API fails - silent fallback
+                            // console.log(`Failed to load image for ${productName}`);
                         };
                         testImg.src = unsplashUrl;
-                        
                     } catch (error) {
-                        console.log('Failed to load image from API:', error);
+                        // Silent fallback to existing images
+                        // console.log('Failed to load image from API:', error);
                     }
                 }
             });
         }
-
         // Close modals when clicking outside
         window.addEventListener('click', function(event) {
             const reviewModal = document.getElementById('reviewModal');
             const allReviewsModal = document.getElementById('allReviewsModal');
-            
             if (event.target === reviewModal) {
                 closeReviewModal();
             }
@@ -2514,11 +2253,9 @@
                 closeAllReviewsModal();
             }
         });
-
         // ================================
         // DARAZ-STYLE PRODUCT DETAIL FUNCTIONS
         // ================================
-
         // Product data (in real app, this would come from database)
         const productData = {
             'Apple': {
@@ -2747,17 +2484,14 @@
                 }
             }
         };
-
         function openProductDetail(productName) {
             const modal = document.getElementById('productDetailModal');
             const data = productData[productName] || productData['Apple'];
-            
             // Update modal content
             document.getElementById('detailProductName').textContent = data.name;
             document.getElementById('detailProductPrice').textContent = data.price;
             document.getElementById('mainProductImage').src = data.images[0];
             document.getElementById('fullProductDescription').textContent = data.description;
-            
             // Update thumbnails
             const thumbnailContainer = document.querySelector('.product-thumbnails');
             thumbnailContainer.innerHTML = '';
@@ -2769,7 +2503,6 @@
                 thumbnail.onclick = () => changeMainImage(img);
                 thumbnailContainer.appendChild(thumbnail);
             });
-            
             // Update specifications
             const specsTable = document.querySelector('.specs-table');
             let specsHTML = '';
@@ -2782,25 +2515,20 @@
                 `;
             }
             specsTable.innerHTML = specsHTML;
-            
             // Load reviews for this product
             loadDetailReviews(productName);
-            
             // Show modal
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
             // Set default tab to open (description)
             setTimeout(() => {
                 toggleDetailTab('description');
             }, 100);
         }
-
         function closeProductDetail() {
             const modal = document.getElementById('productDetailModal');
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
-            
             // Close all tabs
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -2809,10 +2537,8 @@
                 header.classList.remove('active');
             });
         }
-
         function changeMainImage(imageSrc) {
             document.getElementById('mainProductImage').src = imageSrc;
-            
             // Update active thumbnail
             document.querySelectorAll('.thumbnail').forEach(thumb => {
                 thumb.classList.remove('active');
@@ -2821,12 +2547,10 @@
                 }
             });
         }
-
         function toggleDetailTab(tabName) {
             const content = document.getElementById(`${tabName}-content`);
             const header = content.previousElementSibling;
             const arrow = document.getElementById(`${tabName}-arrow`);
-            
             // Close other tabs
             document.querySelectorAll('.tab-content').forEach(otherContent => {
                 if (otherContent !== content) {
@@ -2834,7 +2558,6 @@
                     otherContent.previousElementSibling.classList.remove('active');
                 }
             });
-            
             // Toggle current tab
             const isActive = content.classList.contains('active');
             if (isActive) {
@@ -2845,7 +2568,6 @@
                 header.classList.add('active');
             }
         }
-
         function decreaseDetailQty() {
             const input = document.getElementById('detailQuantity');
             const currentValue = parseInt(input.value);
@@ -2853,46 +2575,36 @@
                 input.value = currentValue - 1;
             }
         }
-
         function increaseDetailQty() {
             const input = document.getElementById('detailQuantity');
             const currentValue = parseInt(input.value);
             input.value = currentValue + 1;
         }
-
         function addDetailToCart() {
             const productName = document.getElementById('detailProductName').textContent;
             const quantity = parseInt(document.getElementById('detailQuantity').value);
-            
             // Add animation feedback
             const button = document.querySelector('.detail-add-cart-btn');
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i> Added!';
             button.style.background = '#28a745';
-            
             setTimeout(() => {
                 button.innerHTML = originalText;
             }, 1500);
-            
             console.log(`Added ${quantity} ${productName} to cart`);
-            
             // Here you would typically call your cart management function
             // Example: addToCart(productName, quantity);
         }
-
         function buyNow() {
             // Implement buy now functionality
             const productName = document.getElementById('detailProductName').textContent;
             console.log(`Buy now: ${productName}`);
-            
             // Redirect to checkout or show quick checkout modal
             // window.location.href = 'payment.html';
         }
-
         function addToWishlist() {
             const button = document.querySelector('.detail-wishlist-btn');
             const icon = button.querySelector('i');
-            
             if (icon.classList.contains('far')) {
                 icon.classList.remove('far');
                 icon.classList.add('fas');
@@ -2905,28 +2617,23 @@
                 button.style.borderColor = '';
             }
         }
-
         function quickAddToCart(productName, price) {
             console.log(`Quick added ${productName} to cart`);
-            
             // Add visual feedback
             const event_target = event.target;
             const originalText = event_target.textContent;
             event_target.textContent = 'Added!';
             event_target.style.background = '#28a745';
             event_target.style.color = 'white';
-            
             setTimeout(() => {
                 event_target.textContent = originalText;
                 event_target.style.background = '';
                 event_target.style.color = '';
             }, 1500);
         }
-
         function loadDetailReviews(productName) {
             const reviewsList = document.getElementById('detailReviewsList');
             const existingReviews = getStoredReviews(productName);
-            
             let reviewsHTML = '';
             if (existingReviews.length > 0) {
                 existingReviews.forEach(review => {
@@ -2953,10 +2660,8 @@
                     </div>
                 `;
             }
-            
             reviewsList.innerHTML = reviewsHTML;
         }
-
         // Close modal when clicking outside
         window.addEventListener('click', function(event) {
             const productModal = document.getElementById('productDetailModal');
@@ -2965,7 +2670,6 @@
             }
         });
     </script>
-    
     <style>
         .quick-nav-btn.active {
             background: #10b981 !important;
@@ -2974,7 +2678,6 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
-        
         /* Clean product card styles */
         .product-card {
             display: flex;
@@ -2987,39 +2690,33 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
         .product-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             border-color: #10b981;
         }
-        
         .product-card h3 {
             font-size: 16px;
             font-weight: 600;
             color: #1f2937;
             margin: 0;
         }
-        
         .product-price {
             font-size: 18px;
             font-weight: 700;
             color: #10b981;
             margin: 0;
         }
-        
         .product-rating {
             font-size: 14px;
             color: #6b7280;
             margin: 0;
         }
-        
         .price-unit {
             font-size: 14px;
             color: #6b7280;
             font-weight: 400;
         }
-        
         .product-badge {
             position: absolute;
             top: 10px;
@@ -3032,7 +2729,6 @@
             font-weight: 500;
             z-index: 2;
         }
-        
         .product-image {
             position: relative;
             width: 100%;
@@ -3044,26 +2740,22 @@
             align-items: center;
             justify-content: center;
         }
-        
         .product-image img {
             max-width: 100%;
             max-height: 100%;
             object-fit: cover;
         }
-        
         .product-actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-top: auto;
         }
-        
         .quantity-controls {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
         .quantity-btn {
             width: 30px;
             height: 30px;
@@ -3076,12 +2768,10 @@
             cursor: pointer;
             font-weight: 500;
         }
-        
         .quantity-btn:hover {
             background: #f3f4f6;
             border-color: #10b981;
         }
-        
         .add-to-cart-btn {
             background: #10b981;
             color: white;
@@ -3092,58 +2782,47 @@
             font-weight: 500;
             transition: background 0.2s;
         }
-        
         .add-to-cart-btn:hover {
             background: #059669;
         }
-        
         .wishlist-icon {
             font-size: 20px;
             color: #d1d5db;
             cursor: pointer;
             transition: color 0.2s;
         }
-        
         .wishlist-icon:hover {
             color: #ef4444;
         }
-        
         @media (max-width: 768px) {
             .section-nav-buttons {
                 flex-direction: column;
                 align-items: center;
             }
-            
             .quick-nav-bar {
                 gap: 10px;
             }
-            
             .quick-nav-btn {
                 padding: 8px 12px;
                 font-size: 12px;
             }
-            
             .category-actions {
                 justify-content: center;
             }
-            
             .product-card {
                 padding: 15px;
             }
-            
             .product-image {
                 height: 150px;
             }
         }
     </style>
-
     <!-- Enhanced Daraz-style functionality -->
     <script>
         // Enhanced Daraz-style product card interactions
         document.addEventListener('DOMContentLoaded', function() {
             // Add click handlers to all product cards for Daraz-style navigation
             const productCards = document.querySelectorAll('.product-card');
-            
             productCards.forEach(card => {
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', function(e) {
@@ -3156,12 +2835,10 @@
                     }
                 });
             });
-            
             // Enhanced quantity controls with input validation
             const quantityInputs = document.querySelectorAll('.quantity-display');
             const minusButtons = document.querySelectorAll('.minus-btn');
             const plusButtons = document.querySelectorAll('.plus-btn');
-            
             // Add event listeners for quantity buttons
             minusButtons.forEach((btn, index) => {
                 btn.addEventListener('click', function(e) {
@@ -3173,7 +2850,6 @@
                     }
                 });
             });
-            
             plusButtons.forEach((btn, index) => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -3184,7 +2860,6 @@
                     }
                 });
             });
-            
             // Validate quantity input on change
             quantityInputs.forEach(input => {
                 input.addEventListener('change', function(e) {
@@ -3193,12 +2868,10 @@
                     if (isNaN(value) || value < 1) this.value = 1;
                     if (value > 99) this.value = 99;
                 });
-                
                 input.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
             });
-            
             // Enhanced add to cart functionality
             const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
             addToCartButtons.forEach(btn => {
@@ -3209,10 +2882,8 @@
                     const quantity = parseInt(quantityInput.value);
                     const productName = this.dataset.product;
                     const price = this.dataset.price;
-                    
                     // Add to cart with quantity
                     addToCart(productName, price, quantity);
-                    
                     // Visual feedback
                     this.style.background = '#28a745';
                     this.innerHTML = '<i class="fas fa-check"></i>';
@@ -3223,7 +2894,6 @@
                 });
             });
         });
-        
         // Enhanced product detail function with Daraz-style modal
         function openProductDetail(productName) {
             // Create modal backdrop
@@ -3242,7 +2912,6 @@
                 justify-content: center;
                 animation: fadeIn 0.3s ease;
             `;
-            
             // Create modal content
             const modal = document.createElement('div');
             modal.className = 'product-detail-modal';
@@ -3256,7 +2925,6 @@
                 animation: slideIn 0.3s ease;
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             `;
-            
             // Sample detailed content (you can customize this)
             modal.innerHTML = `
                 <div style="padding: 20px;">
@@ -3291,7 +2959,6 @@
                     <div>
                         <h3 style="color: #ff6600;">Description</h3>
                         <p>Fresh, high-quality ${productName.toLowerCase()} from local organic farms. Rich in nutrients and perfect for healthy eating. Our products are carefully selected to ensure the best quality and freshness for our customers.</p>
-                        
                         <h3 style="color: #ff6600; margin-top: 20px;">Customer Reviews</h3>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
@@ -3310,10 +2977,8 @@
                     </div>
                 </div>
             `;
-            
             backdrop.appendChild(modal);
             document.body.appendChild(backdrop);
-            
             // Close on backdrop click
             backdrop.addEventListener('click', function(e) {
                 if (e.target === backdrop) {
@@ -3321,12 +2986,10 @@
                 }
             });
         }
-        
         // Enhanced cart functionality
         function addToCart(productName, price, quantity = 1) {
             // Get existing cart or initialize
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            
             // Check if item already exists
             const existingItem = cart.find(item => item.name === productName);
             if (existingItem) {
@@ -3338,16 +3001,12 @@
                     quantity: quantity
                 });
             }
-            
             // Save to localStorage
             localStorage.setItem('cart', JSON.stringify(cart));
-            
             // Update cart count
             updateCartCount();
-            
             console.log(`Added ${quantity} ${productName}(s) to cart`);
         }
-        
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -3356,30 +3015,25 @@
                 cartCountElement.textContent = totalItems;
             }
         }
-        
         // Add animation styles
-        const style = document.createElement('style');
-        style.textContent = `
+        const animationStyle = document.createElement('style');
+        animationStyle.textContent = `
             @keyframes fadeIn {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-            
             @keyframes slideIn {
                 from { transform: scale(0.8) translateY(-50px); opacity: 0; }
                 to { transform: scale(1) translateY(0); opacity: 1; }
             }
-            
             .product-card {
                 transition: all 0.3s ease;
                 cursor: pointer;
             }
-            
             .product-card:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             }
-            
             .quantity-display {
                 border: 1px solid #ddd;
                 border-radius: 4px;
@@ -3388,31 +3042,25 @@
                 text-align: center;
                 font-size: 14px;
             }
-            
             .quantity-display:focus {
                 outline: none;
                 border-color: #ff6600;
                 box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
             }
-            
             .quantity-btn {
                 transition: all 0.2s ease;
             }
-            
             .quantity-btn:hover {
                 background: #ff6600;
                 color: white;
             }
-            
             .add-to-cart-btn {
                 transition: all 0.3s ease;
             }
-            
             .add-to-cart-btn:hover {
                 background: #ff6600;
                 transform: scale(1.05);
             }
-            
             /* Enhanced Daraz-style product cards */
             .product-card {
                 border: 1px solid #f0f0f0;
@@ -3421,52 +3069,43 @@
                 overflow: hidden;
                 position: relative;
             }
-            
             .product-card:hover {
                 border-color: #ff6600;
                 box-shadow: 0 8px 24px rgba(255, 102, 0, 0.15);
             }
-            
             .product-image {
                 border-radius: 8px 8px 0 0;
                 overflow: hidden;
                 background: #f8f9fa;
             }
-            
             .product-image img {
                 transition: transform 0.3s ease;
             }
-            
             .product-card:hover .product-image img {
                 transform: scale(1.05);
             }
-            
             .product-name {
                 font-weight: 600;
                 color: #333;
                 font-size: 16px;
                 margin-bottom: 8px;
             }
-            
             .product-price {
                 font-weight: 700;
                 color: #ff6600;
                 font-size: 18px;
                 margin-bottom: 8px;
             }
-            
             .price-unit {
                 font-weight: 400;
                 color: #666;
                 font-size: 14px;
             }
-            
             .product-rating {
                 font-size: 14px;
                 color: #666;
                 margin-bottom: 15px;
             }
-            
             .product-actions {
                 display: flex;
                 align-items: center;
@@ -3475,7 +3114,6 @@
                 padding-top: 10px;
                 border-top: 1px solid #f0f0f0;
             }
-            
             .quantity-controls {
                 display: flex;
                 align-items: center;
@@ -3484,7 +3122,6 @@
                 border-radius: 6px;
                 padding: 2px;
             }
-            
             .quantity-btn {
                 background: white;
                 border: 1px solid #ddd;
@@ -3498,18 +3135,15 @@
                 font-weight: bold;
                 cursor: pointer;
             }
-            
             .wishlist-icon {
                 color: #999;
                 font-size: 18px;
                 cursor: pointer;
                 transition: color 0.2s ease;
             }
-            
             .wishlist-icon:hover {
                 color: #ff6600;
             }
-            
             .add-to-cart-btn {
                 background: #ff6600;
                 color: white;
@@ -3523,7 +3157,6 @@
                 justify-content: center;
                 min-width: 40px;
             }
-            
             /* Category pills enhancement */
             .category-pills .pill {
                 transition: all 0.3s ease;
@@ -3531,19 +3164,16 @@
                 background: white;
                 color: #ff6600;
             }
-            
             /* Hide any remaining product descriptions for clean Daraz-style cards */
             .product-description {
                 display: none !important;
             }
-            
             .category-pills .pill.active,
             .category-pills .pill:hover {
                 background: #ff6600;
                 color: white;
                 transform: translateY(-2px);
             }
-            
             /* Hero banner enhancement */
             .hero-categories-banner {
                 background: linear-gradient(135deg, #ff6600, #ff8533);
@@ -3553,25 +3183,21 @@
                 border-radius: 12px;
                 margin-bottom: 30px;
             }
-            
             .main-title {
                 font-size: 2.5rem;
                 font-weight: 700;
                 margin-bottom: 10px;
                 text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            
             .main-subtitle {
                 font-size: 1.2rem;
                 margin-bottom: 25px;
                 opacity: 0.9;
             }
         `;
-        document.head.appendChild(style);
-        
+        document.head.appendChild(animationStyle);
         // Initialize cart count on page load
         updateCartCount();
-
         // Add wishlist click handlers after page loads
         document.addEventListener('DOMContentLoaded', function() {
             const wishlistIcons = document.querySelectorAll('.wishlist-icon');
@@ -3582,7 +3208,6 @@
                     const productName = productCard.querySelector('.product-name').textContent;
                     const productPrice = productCard.querySelector('.product-price').textContent.replace('रू ', '').split(' ')[0];
                     const productImage = productCard.querySelector('img').src;
-                    
                     // Check if already in wishlist
                     if (isInWishlist(productName)) {
                         // Remove from wishlist
@@ -3598,36 +3223,91 @@
                     }
                 });
             });
-            
             // Update wishlist icons on page load
             updateWishlistIcons();
+            // Add global image error handling
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('error', function() {
+                    // Fallback to a generic grocery image if image fails to load
+                    if (!this.src.includes('placeholder')) {
+                        this.src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop&crop=center';
+                        this.alt = 'Product Image';
+                    }
+                });
+            });
         });
     </script>
     <script src="wishlist.js"></script>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <h2>DOKO</h2>
+                        <p>Your trusted online grocery partner in Nepal</p>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="category.html">Shop</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Categories</h3>
+                    <ul class="footer-links">
+                        <li><a href="#fruits-products">Fresh Fruits</a></li>
+                        <li><a href="#vegetables-products">Vegetables</a></li>
+                        <li><a href="#dairy-products">Dairy</a></li>
+                        <li><a href="#meat-products">Meat & Seafood</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul class="footer-links">
+                        <li><a href="#help">Help Center</a></li>
+                        <li><a href="#returns">Returns</a></li>
+                        <li><a href="#shipping">Shipping Info</a></li>
+                        <li><a href="#track">Track Order</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> +977 1-234-5678</p>
+                        <p><i class="fas fa-envelope"></i> info@doko.com.np</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Kathmandu, Nepal</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 DOKO Nepal. All rights reserved.</p>
+                    <div class="footer-bottom-links">
+                        <a href="#privacy">Privacy Policy</a>
+                        <a href="#terms">Terms of Service</a>
+                        <a href="#cookies">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

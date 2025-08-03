@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOKO - Professional E-Commerce Platform</title>
-    <link rel="stylesheet" href="css/main.css">
+    <title>Daraz - Professional E-Commerce Platform</title>
+    <link rel="stylesheet" href="css/test.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/grocery-theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="https://img.icons8.com/fluency/48/shopping-bag.png" type="image/png">
 </head>
 <body>
@@ -14,7 +18,7 @@
     <div class="top-banner">
         <div class="container">
             <div class="banner-content">
-                <span class="banner-text">🎉 Grand Opening Sale - Up to 70% Off on All Categories!</span>
+                <span class="banner-text">🛒 Fresh Groceries Flash Sale - Up to 50% Off on Fresh Produce & Daily Essentials!</span>
                 <button class="banner-close" onclick="this.parentElement.parentElement.style.display='none'">
                     <i class="fas fa-times"></i>
                 </button>
@@ -24,15 +28,18 @@
 
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-top">
-                <div class="contact-info">
+        <!-- Top Bar -->
+        <div class="header-top">
+            <div class="container">
+                <div class="header-top-left">
                     <span><i class="fas fa-phone"></i> +977 9812345678</span>
                     <span><i class="fas fa-envelope"></i> support@doko.com</span>
                 </div>
-                <div class="header-links">
+                <div class="header-top-right">
                     <a href="#" class="header-link">Track Order</a>
                     <a href="#" class="header-link">Help Center</a>
+                    <a href="login.html" class="header-link">Login</a>
+                    <a href="signup.html" class="header-link">Sign Up</a>
                     <div class="language-selector">
                         <i class="fas fa-globe"></i>
                         <select>
@@ -42,17 +49,24 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="header-main">
+        </div>
+        
+        <!-- Main Header -->
+        <div class="header-main">
+            <div class="container">
+                <!-- Logo -->
                 <div class="nav-brand">
                     <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO" class="logo-img">
-                    <span class="logo-text">DOKO</span>
-                    <span class="logo-tagline">Marketplace</span>
+                    <div class="brand-text">
+                        <span class="logo-text">DOKO</span>
+                        <span class="logo-tagline">Fresh Market</span>
+                    </div>
                 </div>
                 
+                <!-- Search Bar -->
                 <div class="search-container">
                     <div class="search-bar">
-                        <input type="text" placeholder="Search for products, brands and more..." class="search-input" id="mainSearch">
+                        <input type="text" placeholder="Search for fresh fruits, vegetables, dairy, meat..." class="search-input" id="mainSearch">
                         <button class="search-btn">
                             <i class="fas fa-search"></i>
                         </button>
@@ -62,13 +76,8 @@
                     </div>
                 </div>
                 
+                <!-- Header Actions -->
                 <div class="header-actions">
-                    <div class="action-item">
-                        <a href="login.html" class="action-link">
-                            <i class="fas fa-user"></i>
-                            <span>Account</span>
-                        </a>
-                    </div>
                     <div class="action-item">
                         <a href="wishlist.html" class="action-link">
                             <i class="fas fa-heart"></i>
@@ -85,57 +94,153 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <nav class="main-nav">
+            <div class="container">
+                <div class="nav-content">
+                    <!-- Navigation Links -->
+                    <div class="nav-links">
+                        <a href="index.html" class="nav-link active">Home</a>
+                        <a href="category.html" class="nav-link">Shop</a>
+                        <a href="#" class="nav-link">Fresh Deals</a>
+                        <a href="#" class="nav-link">New Arrivals</a>
+                        <a href="about.html" class="nav-link">About</a>
+                    </div>
+                    
+                    <!-- Delivery Info -->
+                    <div class="delivery-info">
+                        <i class="fas fa-truck"></i>
+                        <span>Free Delivery on Orders Over रू 1000</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Flash Sale Section -->
+    <section class="flash-sale-section">
+        <div class="container">
+            <div class="flash-sale-header">
+                <div class="flash-sale-title">
+                    <i class="fas fa-bolt"></i>
+                    <h2>Flash Sale</h2>
+                    <span class="sale-badge">UP TO 70% OFF</span>
+                </div>
+                <div class="flash-sale-timer">
+                    <span>Ends in:</span>
+                    <div class="timer">
+                        <div class="time-unit">
+                            <span class="time-value" id="hours">12</span>
+                            <span class="time-label">Hours</span>
+                        </div>
+                        <div class="time-unit">
+                            <span class="time-value" id="minutes">34</span>
+                            <span class="time-label">Minutes</span>
+                        </div>
+                        <div class="time-unit">
+                            <span class="time-value" id="seconds">56</span>
+                            <span class="time-label">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="category.html?sale=flash" class="view-all-btn">View All</a>
+            </div>
             
-            <nav class="main-nav">
-                <div class="nav-categories">
-                    <button class="categories-btn">
-                        <i class="fas fa-bars"></i>
-                        All Categories
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="categories-dropdown">
-                        <a href="category.html?category=electronics" class="category-link">
-                            <i class="fas fa-mobile-alt"></i>
-                            Electronics
-                        </a>
-                        <a href="category.html?category=fashion" class="category-link">
-                            <i class="fas fa-tshirt"></i>
-                            Fashion
-                        </a>
-                        <a href="category.html?category=home" class="category-link">
-                            <i class="fas fa-home"></i>
-                            Home & Living
-                        </a>
-                        <a href="category.html?category=beauty" class="category-link">
-                            <i class="fas fa-heart"></i>
-                            Health & Beauty
-                        </a>
-                        <a href="category.html?category=sports" class="category-link">
-                            <i class="fas fa-running"></i>
-                            Sports & Outdoor
-                        </a>
-                        <a href="category.html?category=groceries" class="category-link">
-                            <i class="fas fa-shopping-basket"></i>
-                            Groceries
-                        </a>
+            <div class="flash-sale-products">
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop" alt="Fresh Red Apples">
+                        <div class="discount-badge">-30%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Fresh Red Apples (1kg)</h4>
+                        <div class="price">
+                            <span class="current-price">रू 280</span>
+                            <span class="original-price">रू 400</span>
+                        </div>
+                        <div class="sold-count">156 sold</div>
                     </div>
                 </div>
                 
-                <div class="nav-links">
-                    <a href="index.html" class="nav-link active">Home</a>
-                    <a href="category.html" class="nav-link">Shop</a>
-                    <a href="#" class="nav-link">Deals</a>
-                    <a href="#" class="nav-link">New Arrivals</a>
-                    <a href="about.html" class="nav-link">About</a>
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=300&h=300&fit=crop" alt="Fresh Dairy Milk">
+                        <div class="discount-badge">-20%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Fresh Dairy Milk (1L)</h4>
+                        <div class="price">
+                            <span class="current-price">रू 80</span>
+                            <span class="original-price">रू 100</span>
+                        </div>
+                        <div class="sold-count">289 sold</div>
+                    </div>
                 </div>
                 
-                <div class="delivery-info">
-                    <i class="fas fa-truck"></i>
-                    <span>Free Delivery on Orders Over रू 2000</span>
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1518843875459-f738682238a6?w=300&h=300&fit=crop" alt="Mixed Vegetables Pack">
+                        <div class="discount-badge">-25%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Mixed Vegetables Pack</h4>
+                        <div class="price">
+                            <span class="current-price">रू 450</span>
+                            <span class="original-price">रू 600</span>
+                        </div>
+                        <div class="sold-count">78 sold</div>
+                    </div>
                 </div>
-            </nav>
+                
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&h=300&fit=crop" alt="Fresh Whole Wheat Bread">
+                        <div class="discount-badge">-15%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Fresh Whole Wheat Bread</h4>
+                        <div class="price">
+                            <span class="current-price">रू 85</span>
+                            <span class="original-price">रू 100</span>
+                        </div>
+                        <div class="sold-count">234 sold</div>
+                    </div>
+                </div>
+                
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop" alt="Premium Basmati Rice">
+                        <div class="discount-badge">-10%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Basmati Rice (5kg)</h4>
+                        <div class="price">
+                            <span class="current-price">रू 900</span>
+                            <span class="original-price">रू 1000</span>
+                        </div>
+                        <div class="sold-count">167 sold</div>
+                    </div>
+                </div>
+                
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop" alt="Fresh Chicken">
+                        <div class="discount-badge">-18%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Fresh Chicken (1kg)</h4>
+                        <div class="price">
+                            <span class="current-price">रू 410</span>
+                            <span class="original-price">रू 500</span>
+                        </div>
+                        <div class="sold-count">92 sold</div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </header>
+    </section>
 
     <!-- Hero Section -->
     <section class="hero-section">
@@ -144,20 +249,20 @@
                 <div class="hero-slide active">
                     <div class="hero-content">
                         <div class="hero-text">
-                            <h1 class="hero-title">Nepal's Largest <span class="highlight">Online Marketplace</span></h1>
-                            <p class="hero-subtitle">Discover millions of products with the best prices and fastest delivery across Nepal</p>
+                            <h1 class="hero-title">Nepal's Freshest <span class="highlight">Grocery Marketplace</span></h1>
+                            <p class="hero-subtitle">Get fresh fruits, vegetables, dairy, meat, and all your daily essentials delivered to your doorstep</p>
                             <div class="hero-stats">
                                 <div class="stat">
-                                    <span class="stat-number">1M+</span>
-                                    <span class="stat-label">Products</span>
+                                    <span class="stat-number">5K+</span>
+                                    <span class="stat-label">Fresh Products</span>
                                 </div>
                                 <div class="stat">
                                     <span class="stat-number">50K+</span>
                                     <span class="stat-label">Happy Customers</span>
                                 </div>
                                 <div class="stat">
-                                    <span class="stat-number">24/7</span>
-                                    <span class="stat-label">Support</span>
+                                    <span class="stat-number">2Hr</span>
+                                    <span class="stat-label">Express Delivery</span>
                                 </div>
                             </div>
                             <div class="hero-actions">
@@ -176,15 +281,15 @@
                             <div class="floating-cards">
                                 <div class="floating-card">
                                     <i class="fas fa-shipping-fast"></i>
-                                    <span>Free Delivery</span>
+                                    <span>2-Hour Delivery</span>
                                 </div>
                                 <div class="floating-card">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <span>Secure Payment</span>
+                                    <i class="fas fa-leaf"></i>
+                                    <span>Fresh & Organic</span>
                                 </div>
                                 <div class="floating-card">
-                                    <i class="fas fa-headset"></i>
-                                    <span>24/7 Support</span>
+                                    <i class="fas fa-thermometer-half"></i>
+                                    <span>Temperature Controlled</span>
                                 </div>
                             </div>
                         </div>
@@ -199,62 +304,62 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Shop by Category</h2>
-                <p class="section-subtitle">Discover our wide range of products across different categories with the best prices in Nepal</p>
+                <p class="section-subtitle">Browse our fresh groceries and daily essentials organized by category for easy shopping</p>
             </div>
             
             <div class="categories-grid">
-                <div class="category-card" onclick="window.location.href='category.html?category=electronics'">
+                <div class="category-card" onclick="window.location.href='category.html?category=fruits-vegetables'">
                     <div class="category-icon">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="fas fa-apple-alt"></i>
                     </div>
-                    <h3 class="category-name">Electronics</h3>
-                    <p class="category-description">Smartphones, Laptops, Accessories & Latest Tech</p>
-                    <span class="category-products-count">15,000+ Products</span>
+                    <h3 class="category-name">Fruits & Vegetables</h3>
+                    <p class="category-description">Fresh seasonal fruits and organic vegetables delivered daily</p>
+                    <span class="category-products-count">500+ Products</span>
                 </div>
                 
-                <div class="category-card" onclick="window.location.href='category.html?category=fashion'">
+                <div class="category-card" onclick="window.location.href='category.html?category=dairy-eggs'">
                     <div class="category-icon">
-                        <i class="fas fa-tshirt"></i>
+                        <i class="fas fa-cheese"></i>
                     </div>
-                    <h3 class="category-name">Fashion</h3>
-                    <p class="category-description">Clothing, Shoes, Bags & Fashion Accessories</p>
-                    <span class="category-products-count">25,000+ Products</span>
+                    <h3 class="category-name">Dairy & Eggs</h3>
+                    <p class="category-description">Fresh milk, cheese, yogurt, butter and farm-fresh eggs</p>
+                    <span class="category-products-count">200+ Products</span>
                 </div>
                 
-                <div class="category-card" onclick="window.location.href='category.html?category=home'">
+                <div class="category-card" onclick="window.location.href='category.html?category=meat-seafood'">
                     <div class="category-icon">
-                        <i class="fas fa-home"></i>
+                        <i class="fas fa-fish"></i>
                     </div>
-                    <h3 class="category-name">Home & Living</h3>
-                    <p class="category-description">Furniture, Decor, Kitchen & Home Appliances</p>
-                    <span class="category-products-count">8,000+ Products</span>
+                    <h3 class="category-name">Meat & Seafood</h3>
+                    <p class="category-description">Fresh chicken, mutton, fish and seafood with quality assurance</p>
+                    <span class="category-products-count">150+ Products</span>
                 </div>
                 
-                <div class="category-card" onclick="window.location.href='category.html?category=beauty'">
+                <div class="category-card" onclick="window.location.href='category.html?category=pantry-staples'">
                     <div class="category-icon">
-                        <i class="fas fa-heart"></i>
+                        <i class="fas fa-box"></i>
                     </div>
-                    <h3 class="category-name">Health & Beauty</h3>
-                    <p class="category-description">Skincare, Makeup, Personal Care & Health</p>
-                    <span class="category-products-count">12,000+ Products</span>
+                    <h3 class="category-name">Pantry & Staples</h3>
+                    <p class="category-description">Rice, dal, flour, oil, spices and cooking essentials</p>
+                    <span class="category-products-count">800+ Products</span>
                 </div>
                 
-                <div class="category-card" onclick="window.location.href='category.html?category=sports'">
+                <div class="category-card" onclick="window.location.href='category.html?category=beverages'">
                     <div class="category-icon">
-                        <i class="fas fa-running"></i>
+                        <i class="fas fa-coffee"></i>
                     </div>
-                    <h3 class="category-name">Sports & Outdoor</h3>
-                    <p class="category-description">Sports Equipment, Fitness Gear & Outdoor</p>
-                    <span class="category-products-count">6,000+ Products</span>
+                    <h3 class="category-name">Beverages</h3>
+                    <p class="category-description">Tea, coffee, juices, soft drinks and healthy beverages</p>
+                    <span class="category-products-count">300+ Products</span>
                 </div>
                 
-                <div class="category-card" onclick="window.location.href='category.html?category=groceries'">
+                <div class="category-card" onclick="window.location.href='category.html?category=snacks-confectionery'">
                     <div class="category-icon">
-                        <i class="fas fa-shopping-basket"></i>
+                        <i class="fas fa-cookie-bite"></i>
                     </div>
-                    <h3 class="category-name">Groceries</h3>
-                    <p class="category-description">Food, Beverages, Fresh Products & Essentials</p>
-                    <span class="category-products-count">20,000+ Products</span>
+                    <h3 class="category-name">Snacks & Confectionery</h3>
+                    <p class="category-description">Biscuits, chips, chocolates, sweets and healthy snacks</p>
+                    <span class="category-products-count">400+ Products</span>
                 </div>
             </div>
         </div>
@@ -264,41 +369,41 @@
     <section class="features-section" id="features">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Why Choose DOKO?</h2>
-                <p class="section-subtitle">We provide the best shopping experience with unmatched quality and service</p>
+                <h2 class="section-title">Why Choose DOKO Grocery?</h2>
+                <p class="section-subtitle">We provide the freshest groceries with unmatched quality and fastest delivery service</p>
             </div>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="feature-title">Fresh & Organic</h3>
+                    <p class="feature-description">Handpicked fresh fruits, vegetables and organic products sourced directly from farms daily.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
                         <i class="fas fa-shipping-fast"></i>
                     </div>
-                    <h3 class="feature-title">Fast Delivery</h3>
-                    <p class="feature-description">Get your orders delivered within 24 hours anywhere in Kathmandu Valley and 2-3 days nationwide.</p>
+                    <h3 class="feature-title">Express Delivery</h3>
+                    <p class="feature-description">Get your groceries delivered within 2 hours in Kathmandu Valley with temperature-controlled delivery.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <h3 class="feature-title">Cold Chain</h3>
+                    <p class="feature-description">Temperature controlled storage and delivery to maintain freshness of dairy, meat and frozen items.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <h3 class="feature-title">Secure Payment</h3>
-                    <p class="feature-description">100% secure payment gateway with multiple payment options including eSewa, Khalti, and Bank transfers.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-undo"></i>
-                    </div>
-                    <h3 class="feature-title">Easy Returns</h3>
-                    <p class="feature-description">Hassle-free 7-day return policy with full refund guarantee on all eligible products.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3 class="feature-title">24/7 Support</h3>
-                    <p class="feature-description">Round-the-clock customer support via phone, email, and live chat to assist you anytime.</p>
+                    <h3 class="feature-title">Quality Assured</h3>
+                    <p class="feature-description">All products go through quality checks with freshness guarantee and easy return policy.</p>
                 </div>
                 
                 <div class="feature-card">
@@ -306,51 +411,16 @@
                         <i class="fas fa-tags"></i>
                     </div>
                     <h3 class="feature-title">Best Prices</h3>
-                    <p class="feature-description">Guaranteed lowest prices with price matching and exclusive deals and discounts daily.</p>
+                    <p class="feature-description">Competitive prices with daily deals, bulk discounts and loyalty rewards for regular customers.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <h3 class="feature-title">Quality Products</h3>
-                    <p class="feature-description">All products are sourced from trusted suppliers with quality assurance and authenticity guarantee.</p>
+                    <h3 class="feature-title">Same Day Delivery</h3>
+                    <p class="feature-description">Order before 6 PM and get your groceries delivered the same day with flexible time slots.</p>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Trending Products Section -->
-    <section class="trending-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">🔥 Trending Products</h2>
-                <p class="section-subtitle">Most popular items this week with amazing deals and discounts</p>
-            </div>
-            
-            <div class="products-grid" id="trendingProducts">
-                <!-- Products will be loaded dynamically from our database -->
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="category.html" class="btn btn-primary btn-large">
-                    <i class="fas fa-eye"></i>
-                    View All Products
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Newsletter Section -->
-    <section class="newsletter-section">
-        <div class="container">
-            <div class="newsletter-content">
-                <h2 class="newsletter-title">Stay Updated</h2>
-                <p class="newsletter-subtitle">Subscribe to our newsletter and get exclusive deals, new arrivals, and special offers directly in your inbox.</p>
-                <form class="newsletter-form">
-                    <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
-                    <button type="submit" class="newsletter-btn">Subscribe</button>
-                </form>
             </div>
         </div>
     </section>
@@ -364,70 +434,44 @@
                         <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO">
                         <span class="footer-brand-text">DOKO</span>
                     </div>
-                    <p class="footer-description">Nepal's largest online marketplace offering millions of products with the best prices, fastest delivery, and exceptional customer service.</p>
+                    <p class="footer-description">Nepal's freshest grocery marketplace</p>
                     <div class="social-links">
-                        <a href="#" class="social-link" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-link" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-link" title="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="social-link" title="YouTube">
-                            <i class="fab fa-youtube"></i>
-                        </a>
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>Customer Service</h3>
+                    <h5>Customer Care</h5>
                     <ul class="footer-links">
                         <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Track Your Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">Shipping Information</a></li>
-                        <li><a href="#">Size Guide</a></li>
-                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>About DOKO</h3>
+                    <h5>DOKO</h5>
                     <ul class="footer-links">
                         <li><a href="about.html">About Us</a></li>
                         <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press & Media</a></li>
-                        <li><a href="#">Investor Relations</a></li>
-                        <li><a href="#">Sustainability</a></li>
-                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="category.html">All Categories</a></li>
-                        <li><a href="#">Today's Deals</a></li>
-                        <li><a href="#">New Arrivals</a></li>
-                        <li><a href="#">Best Sellers</a></li>
-                        <li><a href="wishlist.html">Wishlist</a></li>
-                        <li><a href="cart.html">Shopping Cart</a></li>
-                    </ul>
+                    <h5>Newsletter</h5>
+                    <p class="newsletter-text">Get deals & offers</p>
+                    <div class="newsletter-form">
+                        <input type="email" class="newsletter-input" placeholder="Email">
+                        <button type="submit" class="newsletter-btn">Subscribe</button>
+                    </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; 2024 DOKO Marketplace. All rights reserved. | Designed by Team Ayush</p>
-                    <div class="payment-methods">
-                        <span>Payment Methods:</span>
-                        <div class="payment-method">eSewa</div>
-                        <div class="payment-method">Khalti</div>
-                        <div class="payment-method">Bank</div>
-                        <div class="payment-method">COD</div>
-                    </div>
+                    <p>&copy; 2024 DOKO. All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -494,12 +538,16 @@
 
         function showSearchSuggestions(query) {
             const suggestions = [
-                'Smart Watch Pro',
-                'Wireless Headphones',
-                'Gaming Laptop',
-                'Designer Handbag',
-                'Smartphone',
-                'Home Appliances'
+                'Fresh Apples',
+                'Organic Vegetables',
+                'Fresh Milk',
+                'Chicken Breast',
+                'Basmati Rice',
+                'Whole Wheat Bread',
+                'Greek Yogurt',
+                'Fresh Fish',
+                'Orange Juice',
+                'Farm Eggs'
             ].filter(item => item.toLowerCase().includes(query.toLowerCase()));
             
             const searchSuggestions = document.getElementById('searchSuggestions');
@@ -632,18 +680,9 @@
             updateCartCount();
         }
 
-        async function loadTrendingProducts() {
-            try {
-                const response = await fetch('api.php?endpoint=products&limit=8');
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    displayTrendingProducts(data.data);
-                }
-            } catch (error) {
-                console.error('Error loading trending products:', error);
-                displayFallbackProducts();
-            }
+        function loadTrendingProducts() {
+            console.log('Loading static trending products');
+            displayFallbackProducts();
         }
 
         function displayTrendingProducts(products) {
@@ -702,12 +741,12 @@
             const container = document.getElementById('trendingProducts');
             if (!container) return;
 
-            // Fallback static products
+            // Fallback grocery products with matching images
             container.innerHTML = `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop" alt="iPhone 15 Pro Max" class="product-img">
-                        <div class="product-badge">-15%</div>
+                        <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop" alt="Fresh Bananas" class="product-img">
+                        <div class="product-badge">Fresh</div>
                         <div class="product-actions">
                             <button class="product-action-btn" title="Add to Wishlist">
                                 <i class="fas fa-heart"></i>
@@ -718,15 +757,120 @@
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name">iPhone 15 Pro Max</h3>
+                        <h3 class="product-name">Fresh Bananas (1 dozen)</h3>
                         <div class="product-rating">
                             <span class="stars">★★★★★</span>
-                            <span class="rating-text">(234 reviews)</span>
+                            <span class="rating-text">(150 reviews)</span>
                         </div>
                         <div class="product-price">
-                            <span class="current-price">रू 1,89,999</span>
-                            <span class="original-price">रू 2,24,999</span>
+                            <span class="current-price">रू 120</span>
+                            <span class="original-price">रू 150</span>
+                            <span class="discount">-20%</span>
+                        </div>
+                        <div class="product-footer">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn">+</button>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=400&h=400&fit=crop" alt="Fresh Milk" class="product-img">
+                        <div class="product-badge">Fresh</div>
+                        <div class="product-actions">
+                            <button class="product-action-btn" title="Add to Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="product-action-btn" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Fresh Dairy Milk (1L)</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-text">(200 reviews)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 80</span>
+                            <span class="original-price">रू 100</span>
+                            <span class="discount">-20%</span>
+                        </div>
+                        <div class="product-footer">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn">+</button>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop" alt="Whole Wheat Bread" class="product-img">
+                        <div class="product-badge">Baked Today</div>
+                        <div class="product-actions">
+                            <button class="product-action-btn" title="Add to Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="product-action-btn" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Whole Wheat Bread</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="rating-text">(89 reviews)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 85</span>
+                            <span class="original-price">रू 100</span>
                             <span class="discount">-15%</span>
+                        </div>
+                        <div class="product-footer">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn">+</button>
+                            </div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=400&fit=crop" alt="Fresh Chicken" class="product-img">
+                        <div class="product-badge">Fresh Cut</div>
+                        <div class="product-actions">
+                            <button class="product-action-btn" title="Add to Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="product-action-btn" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Fresh Chicken (1kg)</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-text">(156 reviews)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">रू 410</span>
+                            <span class="original-price">रू 500</span>
+                            <span class="discount">-18%</span>
                         </div>
                         <div class="product-footer">
                             <div class="quantity-selector">
