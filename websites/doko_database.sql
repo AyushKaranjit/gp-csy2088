@@ -295,9 +295,11 @@ INSERT INTO categories (name, description, image_url, sort_order) VALUES
 -- Insert Sample Users
 INSERT INTO users (username, email, password_hash, first_name, last_name, user_type, email_verified) VALUES
 ('admin', 'admin@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', TRUE),
-('john_doe', 'john.doe@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John', 'Doe', 'customer', TRUE),
-('jane_smith', 'jane.smith@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jane', 'Smith', 'customer', TRUE),
-('mike_johnson', 'mike.johnson@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mike', 'Johnson', 'customer', FALSE);
+('ayush_karanjit', 'ayush.karanjit@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ayush', 'Karanjit', 'customer', TRUE),
+('utsab_nepal', 'utsab.nepal@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Utsab', 'Nepal', 'customer', TRUE),
+('anuskar_shrestha', 'anuskar.shrestha@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Anuskar', 'Shrestha', 'customer', TRUE),
+('sandhya_thapa', 'sandhya.thapa@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sandhya', 'Thapa', 'customer', TRUE),
+('jesina_maharjan', 'jesina.maharjan@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jesina', 'Maharjan', 'customer', FALSE);
 
 -- Insert Sample Products
 INSERT INTO products (name, description, short_description, sku, category_id, price, cost_price, stock_quantity, min_stock_level, brand, is_featured) VALUES
@@ -319,15 +321,19 @@ INSERT INTO product_images (product_id, image_url, alt_text, is_primary, sort_or
 
 -- Insert Sample Customer Addresses
 INSERT INTO customer_addresses (user_id, type, first_name, last_name, address_line1, city, state, postal_code, phone, is_default) VALUES
-(2, 'both', 'John', 'Doe', 'Thamel Street, House No. 123', 'Kathmandu', 'Bagmati', '44600', '+977-9841234567', TRUE),
-(3, 'both', 'Jane', 'Smith', 'Patan Durbar Square, Building 45', 'Lalitpur', 'Bagmati', '44700', '+977-9851234568', TRUE),
-(4, 'shipping', 'Mike', 'Johnson', 'Boudha Stupa Road, Apartment 12', 'Kathmandu', 'Bagmati', '44600', '+977-9861234569', TRUE);
+(2, 'both', 'Ayush', 'Karanjit', 'Thamel Street, House No. 123', 'Kathmandu', 'Bagmati', '44600', '+977-9841234567', TRUE),
+(3, 'both', 'Utsab', 'Nepal', 'Patan Durbar Square, Building 45', 'Lalitpur', 'Bagmati', '44700', '+977-9851234568', TRUE),
+(4, 'shipping', 'Anuskar', 'Shrestha', 'Boudha Stupa Road, Apartment 12', 'Kathmandu', 'Bagmati', '44600', '+977-9861234569', TRUE),
+(5, 'both', 'Sandhya', 'Thapa', 'Bhaktapur Durbar Square, House 67', 'Bhaktapur', 'Bagmati', '44800', '+977-9871234570', TRUE),
+(6, 'shipping', 'Jesina', 'Maharjan', 'Swayambhu Nath Road, Building 89', 'Kathmandu', 'Bagmati', '44600', '+977-9881234571', TRUE);
 
 -- Insert Sample Orders
 INSERT INTO orders (order_number, user_id, status, payment_status, payment_method, subtotal, tax_amount, shipping_cost, total_amount, billing_address_id, shipping_address_id) VALUES
 ('ORD-001', 2, 'processing', 'paid', 'cash_on_delivery', 2850.00, 142.50, 100.00, 3092.50, 1, 1),
 ('ORD-002', 3, 'shipped', 'paid', 'card', 4200.00, 210.00, 150.00, 4560.00, 2, 2),
-('ORD-003', 4, 'delivered', 'paid', 'digital_wallet', 1650.00, 82.50, 100.00, 1832.50, 3, 3);
+('ORD-003', 4, 'delivered', 'paid', 'digital_wallet', 1650.00, 82.50, 100.00, 1832.50, 3, 3),
+('ORD-004', 5, 'confirmed', 'paid', 'cash_on_delivery', 1250.00, 62.50, 100.00, 1412.50, 4, 4),
+('ORD-005', 6, 'pending', 'pending', 'card', 980.00, 49.00, 100.00, 1129.00, 5, 5);
 
 -- Insert Order Items
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES
@@ -353,7 +359,11 @@ INSERT INTO shopping_cart (user_id, product_id, quantity) VALUES
 (2, 3, 1),
 (3, 2, 3),
 (3, 4, 1),
-(4, 5, 2);
+(4, 5, 2),
+(5, 1, 1),
+(5, 6, 2),
+(6, 3, 1),
+(6, 7, 1);
 
 -- Insert Sample Wishlist Items
 INSERT INTO wishlist (user_id, product_id) VALUES
@@ -362,7 +372,11 @@ INSERT INTO wishlist (user_id, product_id) VALUES
 (3, 1),
 (3, 4),
 (4, 1),
-(4, 2);
+(4, 2),
+(5, 6),
+(5, 8),
+(6, 2),
+(6, 7);
 
 -- Insert Sample Product Reviews
 INSERT INTO product_reviews (product_id, user_id, order_id, rating, title, review_text, is_verified_purchase, status) VALUES

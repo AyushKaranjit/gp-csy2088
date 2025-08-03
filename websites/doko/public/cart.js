@@ -1,6 +1,26 @@
-// Shopping Cart JavaScript
+// Enhanced Shopping Cart JavaScript with API Integration
 
-// Cart data storage
+// Load enhanced cart manager if available
+function loadEnhancedCart() {
+    const script = document.createElement('script');
+    script.src = 'enhanced-cart.js';
+    script.onload = function() {
+        if (typeof cartManager !== 'undefined') {
+            console.log('Enhanced cart manager loaded');
+            // Initialize enhanced cart
+            cartManager.updateCartDisplay();
+            cartManager.updateCartCount();
+        }
+    };
+    document.head.appendChild(script);
+}
+
+// Check if enhanced cart is already available
+if (typeof cartManager === 'undefined') {
+    loadEnhancedCart();
+}
+
+// Cart data storage (fallback for compatibility)
 let cart = JSON.parse(localStorage.getItem('doko-cart')) || [];
 
 // DOM elements
@@ -12,12 +32,27 @@ const deliveryFee = 50;
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', function() {
-    updateCartDisplay();
-    updateCartCount();
+    setTimeout(() => {
+        updateCartDisplay();
+        updateCartCount();
+    }, 100); // Small delay to ensure enhanced cart is loaded
 });
 
-// Add item to cart
-function addToCart(product, price, quantity = 1) {
+// Enhanced Add item to cart with API integration
+function addToCart(product, price, quantity = 1, productId = null, imageUrl = '') {
+    // Use enhanced cart manager if available
+    if (typeof cartManager !== 'undefined') {
+        cartManager.addToCart(
+            productId || generateProductId(product), 
+            product, 
+            price, 
+            quantity, 
+            imageUrl || getProductImage(product)
+        );
+        return;
+    }
+    
+    // Fallback to simple cart functionality
     const existingItem = cart.find(item => item.product === product);
     
     if (existingItem) {
@@ -28,7 +63,8 @@ function addToCart(product, price, quantity = 1) {
             product: product,
             price: parseFloat(price),
             quantity: quantity,
-            image: getProductImage(product)
+            image: imageUrl || getProductImage(product),
+            productId: productId || generateProductId(product)
         });
     }
     
@@ -38,8 +74,18 @@ function addToCart(product, price, quantity = 1) {
     showCartNotification('Item added to cart!');
 }
 
+// Generate product ID from name
+function generateProductId(productName) {
+    return productName.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 // Remove item from cart
 function removeFromCart(itemId) {
+    if (typeof cartManager !== 'undefined') {
+        cartManager.removeFromCart(itemId);
+        return;
+    }
+    
     cart = cart.filter(item => item.id !== itemId);
     saveCart();
     updateCartDisplay();
@@ -48,6 +94,11 @@ function removeFromCart(itemId) {
 
 // Update item quantity
 function updateQuantity(itemId, newQuantity) {
+    if (typeof cartManager !== 'undefined') {
+        cartManager.updateQuantity(itemId, newQuantity);
+        return;
+    }
+    
     const item = cart.find(item => item.id === itemId);
     if (item) {
         if (newQuantity <= 0) {
@@ -63,6 +114,11 @@ function updateQuantity(itemId, newQuantity) {
 
 // Clear entire cart
 function clearCart() {
+    if (typeof cartManager !== 'undefined') {
+        cartManager.clearCart();
+        return;
+    }
+    
     if (confirm('Are you sure you want to clear your cart?')) {
         cart = [];
         saveCart();
@@ -79,6 +135,13 @@ function saveCart() {
 
 // Update cart display
 function updateCartDisplay() {
+    if (typeof cartManager !== 'undefined') {
+        cartManager.updateCartDisplay();
+        return;
+    }
+    
+    if (!cartItemsList) return;
+
     if (cart.length === 0) {
         cartItemsList.innerHTML = `
             <div class="empty-cart">
@@ -92,7 +155,7 @@ function updateCartDisplay() {
         cartItemsList.innerHTML = cart.map(item => `
             <div class="cart-item" data-id="${item.id}">
                 <div class="cart-item-image">
-                    <img src="${item.image}" alt="${item.product}">
+                    <img src="${item.image}" alt="${item.product}" onerror="this.src='https://via.placeholder.com/80x80?text=Product'">
                 </div>
                 <div class="cart-item-details">
                     <h3 class="cart-item-name">${item.product}</h3>
@@ -127,10 +190,18 @@ function updateCartSummary() {
 
 // Update cart count in header
 function updateCartCount() {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    if (cartCountDisplay) {
-        cartCountDisplay.textContent = totalItems;
+    if (typeof cartManager !== 'undefined') {
+        cartManager.updateCartCount();
+        return;
     }
+    
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    const countElements = document.querySelectorAll('.cart-count');
+    
+    countElements.forEach(element => {
+        element.textContent = totalItems;
+        element.style.display = totalItems > 0 ? 'block' : 'none';
+    });
 }
 
 // Get product image based on product name
@@ -169,41 +240,72 @@ function applyPromoCode() {
     const promoCodes = {
         'SAVE10': 10,
         'WELCOME': 50,
-        'DOKO20': 20
+        'DOKO20': 20,
+        'NEWUSER': 30
     };
     
     if (promoCodes[promoCode]) {
         const discount = promoCodes[promoCode];
-        discountElement.textContent = `- रू ${discount}`;
-        discountElement.style.color = '#27ae60';
+        if (discountElement) {
+            discountElement.textContent = `- रू ${discount}`;
+            discountElement.style.color = '#27ae60';
+        }
         
         // Recalculate total with discount
         const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
         const total = subtotal + (cart.length > 0 ? deliveryFee : 0) - discount;
-        cartTotal.textContent = `रू ${Math.max(0, total).toFixed(0)}`;
+        if (cartTotal) cartTotal.textContent = `रू ${Math.max(0, total).toFixed(0)}`;
         
         showCartNotification(`Promo code applied! रू ${discount} discount`);
         promoInput.value = '';
     } else {
         showCartNotification('Invalid promo code', 'error');
-        discountElement.textContent = '- रू 0';
-        discountElement.style.color = '#e74c3c';
+        if (discountElement) {
+            discountElement.textContent = '- रू 0';
+            discountElement.style.color = '#e74c3c';
+        }
     }
 }
 
-// Proceed to checkout
-function proceedToCheckout() {
+// Enhanced Proceed to checkout with API integration
+async function proceedToCheckout() {
     if (cart.length === 0) {
         showCartNotification('Your cart is empty!', 'error');
         return;
     }
     
-    // Redirect to payment page
-    window.location.href = 'payment.html';
+    // Check if user is logged in (enhanced functionality)
+    if (typeof api !== 'undefined') {
+        try {
+            const userResponse = await api.getCurrentUser();
+            if (userResponse.success) {
+                // User is logged in, proceed to payment
+                window.location.href = 'payment.html';
+            } else {
+                // User not logged in, ask to login first
+                if (confirm('Please log in to continue with checkout. Would you like to go to the login page?')) {
+                    window.location.href = 'login.html';
+                }
+            }
+        } catch (error) {
+            // API not available or error, proceed to payment page
+            window.location.href = 'payment.html';
+        }
+    } else {
+        // Simple checkout without API
+        window.location.href = 'payment.html';
+    }
 }
 
 // Show cart notification
 function showCartNotification(message, type = 'success') {
+    // Use enhanced notification if available
+    if (typeof cartManager !== 'undefined') {
+        cartManager.showNotification(message, type);
+        return;
+    }
+    
+    // Fallback notification
     const notification = document.createElement('div');
     notification.className = `cart-notification ${type}`;
     notification.innerHTML = `
@@ -220,28 +322,43 @@ function showCartNotification(message, type = 'success') {
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
-            document.body.removeChild(notification);
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
         }, 300);
     }, 3000);
 }
 
-// Enhanced Add to Cart for product pages
+// Enhanced Add to Cart for product pages with better data extraction
 document.addEventListener('click', function(e) {
     if (e.target.closest('.add-to-cart-btn')) {
         const btn = e.target.closest('.add-to-cart-btn');
-        const productCard = btn.closest('.product-card');
+        const productCard = btn.closest('.product-card') || btn.closest('.product-detail');
         
         if (productCard) {
-            const productName = productCard.querySelector('.product-name').textContent;
-            const productPrice = productCard.querySelector('.product-price').textContent.replace('रू ', '');
+            // Extract product data
+            const productName = (productCard.querySelector('.product-name') || productCard.querySelector('h1')).textContent.trim();
+            const priceElement = productCard.querySelector('.product-price') || productCard.querySelector('.price');
+            const productPrice = priceElement.textContent.replace(/[^0-9.]/g, '');
+            
+            // Get quantity
             const quantityDisplay = productCard.querySelector('.quantity-display');
             const quantity = quantityDisplay ? parseInt(quantityDisplay.textContent) : 1;
             
-            addToCart(productName, productPrice, quantity);
+            // Get product ID and image
+            const productId = btn.dataset.productId || generateProductId(productName);
+            const imageElement = productCard.querySelector('.product-image img') || productCard.querySelector('img');
+            const imageUrl = imageElement ? imageElement.src : '';
+            
+            addToCart(productName, productPrice, quantity, productId, imageUrl);
             
             // Visual feedback
             btn.classList.add('added');
-            setTimeout(() => btn.classList.remove('added'), 500);
+            btn.textContent = 'Added!';
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.textContent = 'Add to Cart';
+            }, 1000);
         }
     }
 });
@@ -249,10 +366,33 @@ document.addEventListener('click', function(e) {
 // Update cart icon link to cart page
 document.addEventListener('DOMContentLoaded', function() {
     const cartIcon = document.querySelector('.cart-icon-container');
-    if (cartIcon) {
+    if (cartIcon && !cartIcon.hasAttribute('data-listener-added')) {
         cartIcon.style.cursor = 'pointer';
         cartIcon.addEventListener('click', function() {
             window.location.href = 'cart.html';
         });
+        cartIcon.setAttribute('data-listener-added', 'true');
     }
 });
+
+// Quick add to cart functionality for product lists
+function quickAddToCart(productName, price, productId = null, imageUrl = '') {
+    addToCart(productName, price, 1, productId, imageUrl);
+}
+
+// Get cart data for external use
+function getCartData() {
+    if (typeof cartManager !== 'undefined') {
+        return {
+            items: cartManager.cart,
+            total: cartManager.getCartTotal(),
+            count: cartManager.getCartItemCount()
+        };
+    }
+    
+    return {
+        items: cart,
+        total: cart.reduce((total, item) => total + (item.price * item.quantity), 0),
+        count: cart.reduce((total, item) => total + item.quantity, 0)
+    };
+}
