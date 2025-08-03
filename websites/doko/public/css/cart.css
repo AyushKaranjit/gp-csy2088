@@ -2,6 +2,7 @@
 
 /* Page Header */
 .page-header-cart {
+    margin-top: 180px; /* Account for fixed header height */
     background-color: var(--bg-secondary);
     padding: var(--space-8) 0;
     border-bottom: 1px solid var(--border-light);

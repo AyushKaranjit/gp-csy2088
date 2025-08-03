@@ -68,7 +68,7 @@ include_once '../template/header.php';
             wishlistItem.className = 'wishlist-item';
             wishlistItem.innerHTML = `
                 <div class="wishlist-item-image">
-                    <img src="${item.image || 'https://via.placeholder.com/200'}" alt="${item.name}">
+                    <img src="${item.image || 'https://img.icons8.com/fluency/200/shopping-bag.png'}" alt="${item.name}">
                     <button class="remove-wishlist" onclick="removeFromWishlist(${index})">
                         <i class="fas fa-times"></i>
                     </button>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title : 'DOKO - Professional E-Commerce Platform'; ?></title>
+    <!-- Base CSS Files -->
     <link rel="stylesheet" href="css/test.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/header.css">
@@ -39,7 +40,7 @@
                     <span><i class="fas fa-envelope"></i> support@doko.com</span>
                 </div>
                 <div class="header-top-right">
-                    <a href="#" class="header-link">Track Order</a>
+                    <a href="track-order.php" class="header-link">Track Order</a>
                     <a href="#" class="header-link">Help Center</a>
                     <a href="login.php" class="header-link">Login</a>
                     <a href="signup.php" class="header-link">Sign Up</a>
@@ -82,6 +83,12 @@
                 <!-- Header Actions -->
                 <div class="header-actions">
                     <div class="action-item">
+                        <a href="login.php" class="action-link">
+                            <i class="fas fa-user"></i>
+                            <span>Login</span>
+                        </a>
+                    </div>
+                    <div class="action-item">
                         <a href="wishlist.php" class="action-link">
                             <i class="fas fa-heart"></i>
                             <span>Wishlist</span>
@@ -107,9 +114,9 @@
                     <div class="nav-links">
                         <a href="index.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'home') ? 'active' : ''; ?>">Home</a>
                         <a href="category.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'shop') ? 'active' : ''; ?>">Shop</a>
-                        <a href="deals.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'deals') ? 'active' : ''; ?>">Fresh Deals</a>
-                        <a href="arrivals.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'arrivals') ? 'active' : ''; ?>">New Arrivals</a>
+                        <a href="track-order.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'track-order') ? 'active' : ''; ?>">Track Order</a>
                         <a href="about.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'about') ? 'active' : ''; ?>">About</a>
+                        <a href="admin-dashboard.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'admin') ? 'active' : ''; ?>">Admin</a>
                     </div>
                     
                     <!-- Delivery Info -->

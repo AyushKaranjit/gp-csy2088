@@ -23,7 +23,6 @@ $products = [
         'description' => 'Fresh, crispy red apples sourced directly from local orchards. Perfect for snacking, baking, or adding to your daily nutrition.',
         'category' => 'Fruits',
         'rating' => 4.5,
-        'reviews' => 256,
         'availability' => 'In Stock',
         'features' => ['Organic', 'Fresh', 'Locally Sourced', 'High Quality']
     ],
@@ -39,7 +38,6 @@ $products = [
         'description' => 'Sweet and nutritious bananas perfect for smoothies, desserts, or as a healthy snack.',
         'category' => 'Fruits',
         'rating' => 4.3,
-        'reviews' => 189,
         'availability' => 'In Stock',
         'features' => ['Rich in Potassium', 'Energy Boost', 'Natural Sweetness']
     ]
@@ -101,7 +99,7 @@ include_once '../template/header.php';
                                 <i class="far fa-star"></i>
                             <?php endfor; ?>
                         </div>
-                        <span class="rating-text"><?php echo $product['rating']; ?> (<?php echo $product['reviews']; ?> reviews)</span>
+                        <span class="rating-text"><?php echo $product['rating']; ?> stars</span>
                     </div>
                     
                     <div class="product-price">
@@ -154,7 +152,7 @@ include_once '../template/header.php';
             <div class="product-tabs">
                 <div class="tab-navigation">
                     <button class="tab-btn active" onclick="showTab('description')">Description</button>
-                    <button class="tab-btn" onclick="showTab('reviews')">Reviews (<?php echo $product['reviews']; ?>)</button>
+                    <button class="tab-btn" onclick="showTab('nutrition')">Nutrition Info</button>
                     <button class="tab-btn" onclick="showTab('shipping')">Shipping Info</button>
                 </div>
                 
@@ -169,48 +167,19 @@ include_once '../template/header.php';
                         </ul>
                     </div>
                     
-                    <div id="reviews-tab" class="tab-pane">
-                        <h3>Customer Reviews</h3>
-                        <div class="reviews-summary">
-                            <div class="rating-breakdown">
-                                <span class="average-rating"><?php echo $product['rating']; ?></span>
-                                <div class="stars-large">
-                                    <?php for ($i = 0; $i < 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i < floor($product['rating']) ? '' : 'empty'; ?>"></i>
-                                    <?php endfor; ?>
-                                </div>
-                                <span><?php echo $product['reviews']; ?> reviews</span>
-                            </div>
-                        </div>
-                        
-                        <div class="review-list">
-                            <div class="review-item">
-                                <div class="reviewer-info">
-                                    <strong>Sita Sharma</strong>
-                                    <div class="review-stars">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                                <p>Excellent quality! Fresh and crispy as expected. Fast delivery too.</p>
-                            </div>
-                            
-                            <div class="review-item">
-                                <div class="reviewer-info">
-                                    <strong>Ram Thapa</strong>
-                                    <div class="review-stars">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                </div>
-                                <p>Good quality products. Will order again.</p>
-                            </div>
+                    <div id="nutrition-tab" class="tab-pane">
+                        <h3>Nutrition Information</h3>
+                        <div class="nutrition-info">
+                            <table>
+                                <tr><td>Energy</td><td>52 kcal per 100g</td></tr>
+                                <tr><td>Carbohydrates</td><td>14g</td></tr>
+                                <tr><td>Dietary Fiber</td><td>2.4g</td></tr>
+                                <tr><td>Sugars</td><td>10g</td></tr>
+                                <tr><td>Fat</td><td>0.2g</td></tr>
+                                <tr><td>Protein</td><td>0.3g</td></tr>
+                                <tr><td>Vitamin C</td><td>4.6mg</td></tr>
+                                <tr><td>Potassium</td><td>107mg</td></tr>
+                            </table>
                         </div>
                     </div>
                     

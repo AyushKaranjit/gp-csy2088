@@ -1,7 +1,15 @@
 /* DOKO - Enhanced Product Detail Page Styles */
 
+/* Product Detail Container */
+.product-detail-container {
+    margin-top: 180px; /* Account for fixed header height */
+    padding: var(--space-8) 0;
+    background-color: var(--bg-primary);
+}
+
 /* Product Detail Section */
 .product-detail-section {
+    margin-top: 180px; /* Account for fixed header height */
     padding: var(--space-8) 0;
     background-color: var(--bg-primary);
 }

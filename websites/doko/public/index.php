@@ -1,6 +1,6 @@
 <?php
 // Set page variables
-$page_title = 'DOKO - Professional E-Commerce Platform';
+$page_title = 'DOKO - Fresh Groceries & Daily Essentials';
 $current_page = 'home';
 $additional_css = ['css/homepage.css', 'css/grocery-theme.css'];
 $additional_js = ['script.js'];
@@ -101,16 +101,31 @@ include_once '../template/header.php';
                 
                 <div class="flash-product-card">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&h=300&fit=crop" alt="Fresh Bananas">
-                        <div class="discount-badge">-40%</div>
+                        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop" alt="Premium Basmati Rice">
+                        <div class="discount-badge">-10%</div>
                     </div>
                     <div class="product-info">
-                        <h4>Fresh Bananas (1 dozen)</h4>
+                        <h4>Basmati Rice (5kg)</h4>
                         <div class="price">
-                            <span class="current-price">रू 120</span>
-                            <span class="original-price">रू 200</span>
+                            <span class="current-price">रू 900</span>
+                            <span class="original-price">रू 1000</span>
                         </div>
-                        <div class="sold-count">89 sold</div>
+                        <div class="sold-count">167 sold</div>
+                    </div>
+                </div>
+                
+                <div class="flash-product-card">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop" alt="Fresh Chicken">
+                        <div class="discount-badge">-18%</div>
+                    </div>
+                    <div class="product-info">
+                        <h4>Fresh Chicken (1kg)</h4>
+                        <div class="price">
+                            <span class="current-price">रू 410</span>
+                            <span class="original-price">रू 500</span>
+                        </div>
+                        <div class="sold-count">92 sold</div>
                     </div>
                 </div>
             </div>
@@ -120,31 +135,55 @@ include_once '../template/header.php';
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">Fresh & Organic Groceries</h1>
-                    <p class="hero-subtitle">Get the freshest produce, dairy, and daily essentials delivered to your doorstep in Kathmandu</p>
-                    <div class="hero-features">
-                        <div class="feature">
-                            <i class="fas fa-truck"></i>
-                            <span>Free Delivery Over रू 1000</span>
+            <div class="hero-slider">
+                <div class="hero-slide active">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1 class="hero-title">Nepal's Freshest <span class="highlight">Grocery Marketplace</span></h1>
+                            <p class="hero-subtitle">Get fresh fruits, vegetables, dairy, meat, and all your daily essentials delivered to your doorstep</p>
+                            <div class="hero-stats">
+                                <div class="stat">
+                                    <span class="stat-number">5K+</span>
+                                    <span class="stat-label">Fresh Products</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number">50K+</span>
+                                    <span class="stat-label">Happy Customers</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number">2Hr</span>
+                                    <span class="stat-label">Express Delivery</span>
+                                </div>
+                            </div>
+                            <div class="hero-actions">
+                                <a href="category.php" class="btn btn-primary btn-large">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Start Shopping
+                                </a>
+                                <a href="#features" class="btn btn-outline btn-large">
+                                    <i class="fas fa-play"></i>
+                                    Watch Demo
+                                </a>
+                            </div>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-clock"></i>
-                            <span>Same Day Delivery</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-leaf"></i>
-                            <span>100% Organic Options</span>
+                        <div class="hero-image">
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop&crop=center" alt="Shopping Experience" class="hero-img">
+                            <div class="floating-cards">
+                                <div class="floating-card">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    <span>2-Hour Delivery</span>
+                                </div>
+                                <div class="floating-card">
+                                    <i class="fas fa-leaf"></i>
+                                    <span>Fresh & Organic</span>
+                                </div>
+                                <div class="floating-card">
+                                    <i class="fas fa-thermometer-half"></i>
+                                    <span>Temperature Controlled</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="hero-cta">
-                        <a href="category.php" class="btn-primary">Shop Now</a>
-                        <a href="#categories" class="btn-secondary">Browse Categories</a>
-                    </div>
-                </div>
-                <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&h=500&fit=crop" alt="Fresh Groceries">
                 </div>
             </div>
         </div>
@@ -155,261 +194,138 @@ include_once '../template/header.php';
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Shop by Category</h2>
-                <p class="section-subtitle">Discover fresh products across all categories</p>
+                <p class="section-subtitle">Browse our fresh groceries and daily essentials organized by category for easy shopping</p>
             </div>
             
             <div class="categories-grid">
-                <div class="category-card featured">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=300&h=200&fit=crop" alt="Fresh Fruits">
+                <div class="category-card" onclick="window.location.href='category.php?category=fruits-vegetables'">
+                    <div class="category-icon">
+                        <i class="fas fa-apple-alt"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Fresh Fruits</h3>
-                        <p>Premium quality seasonal fruits</p>
-                        <span class="item-count">25+ items</span>
-                    </div>
+                    <h3 class="category-name">Fruits & Vegetables</h3>
+                    <p class="category-description">Fresh seasonal fruits and organic vegetables delivered daily</p>
+                    <span class="category-products-count">500+ Products</span>
                 </div>
                 
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&h=200&fit=crop" alt="Vegetables">
+                <div class="category-card" onclick="window.location.href='category.php?category=dairy-eggs'">
+                    <div class="category-icon">
+                        <i class="fas fa-cheese"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Fresh Vegetables</h3>
-                        <p>Farm-fresh daily vegetables</p>
-                        <span class="item-count">30+ items</span>
-                    </div>
+                    <h3 class="category-name">Dairy & Eggs</h3>
+                    <p class="category-description">Fresh milk, cheese, yogurt, butter and farm-fresh eggs</p>
+                    <span class="category-products-count">200+ Products</span>
                 </div>
                 
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1559561853-08451507cbe7?w=300&h=200&fit=crop" alt="Dairy Products">
+                <div class="category-card" onclick="window.location.href='category.php?category=meat-seafood'">
+                    <div class="category-icon">
+                        <i class="fas fa-fish"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Dairy & Eggs</h3>
-                        <p>Fresh milk, yogurt & eggs</p>
-                        <span class="item-count">15+ items</span>
-                    </div>
+                    <h3 class="category-name">Meat & Seafood</h3>
+                    <p class="category-description">Fresh chicken, mutton, fish and seafood with quality assurance</p>
+                    <span class="category-products-count">150+ Products</span>
                 </div>
                 
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=200&fit=crop" alt="Bakery">
+                <div class="category-card" onclick="window.location.href='category.php?category=pantry-staples'">
+                    <div class="category-icon">
+                        <i class="fas fa-box"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Bakery & Bread</h3>
-                        <p>Fresh baked goods daily</p>
-                        <span class="item-count">12+ items</span>
-                    </div>
+                    <h3 class="category-name">Pantry & Staples</h3>
+                    <p class="category-description">Rice, dal, flour, oil, spices and cooking essentials</p>
+                    <span class="category-products-count">800+ Products</span>
                 </div>
                 
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1594736797933-d0f3cf47b9e6?w=300&h=200&fit=crop" alt="Meat & Seafood">
+                <div class="category-card" onclick="window.location.href='category.php?category=beverages'">
+                    <div class="category-icon">
+                        <i class="fas fa-coffee"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Meat & Seafood</h3>
-                        <p>Premium quality proteins</p>
-                        <span class="item-count">18+ items</span>
-                    </div>
+                    <h3 class="category-name">Beverages</h3>
+                    <p class="category-description">Tea, coffee, juices, soft drinks and healthy beverages</p>
+                    <span class="category-products-count">300+ Products</span>
                 </div>
                 
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=200&fit=crop" alt="Pantry Staples">
+                <div class="category-card" onclick="window.location.href='category.php?category=snacks-confectionery'">
+                    <div class="category-icon">
+                        <i class="fas fa-cookie-bite"></i>
                     </div>
-                    <div class="category-content">
-                        <h3>Pantry Staples</h3>
-                        <p>Rice, lentils & essentials</p>
-                        <span class="item-count">40+ items</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Best Sellers Section -->
-    <section class="best-sellers-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Best Sellers</h2>
-                <p class="section-subtitle">Most loved products by our customers</p>
-                <a href="category.php?filter=bestsellers" class="view-all-link">View All</a>
-            </div>
-            
-            <div class="products-grid">
-                <div class="product-card bestseller">
-                    <div class="product-badge">Best Seller</div>
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop" alt="Fresh Red Apples">
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-name">Fresh Red Apples</h4>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <span class="rating-count">(256)</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="current-price">रू 400</span>
-                            <span class="unit-price">per kg</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">1</span>
-                            <button class="quantity-btn plus">+</button>
-                            <button class="add-to-cart-btn">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=300&h=300&fit=crop" alt="Fresh Dairy Milk">
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-name">Fresh Dairy Milk</h4>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                            <span class="rating-count">(189)</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="current-price">रू 100</span>
-                            <span class="unit-price">per liter</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">1</span>
-                            <button class="quantity-btn plus">+</button>
-                            <button class="add-to-cart-btn">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-card organic">
-                    <div class="product-badge organic">Organic</div>
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1518843875459-f738682238a6?w=300&h=300&fit=crop" alt="Organic Mixed Vegetables">
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-name">Organic Mixed Vegetables</h4>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <span class="rating-count">(142)</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="current-price">रू 600</span>
-                            <span class="unit-price">per pack</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">1</span>
-                            <button class="quantity-btn plus">+</button>
-                            <button class="add-to-cart-btn">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&h=300&fit=crop" alt="Fresh Whole Wheat Bread">
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-name">Fresh Whole Wheat Bread</h4>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                            </div>
-                            <span class="rating-count">(97)</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="current-price">रू 100</span>
-                            <span class="unit-price">per loaf</span>
-                        </div>
-                        <div class="product-actions">
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">1</span>
-                            <button class="quantity-btn plus">+</button>
-                            <button class="add-to-cart-btn">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <h3 class="category-name">Snacks & Confectionery</h3>
+                    <p class="category-description">Biscuits, chips, chocolates, sweets and healthy snacks</p>
+                    <span class="category-products-count">400+ Products</span>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features-section">
+    <section class="features-section" id="features">
         <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose DOKO Grocery?</h2>
+                <p class="section-subtitle">We provide the freshest groceries with unmatched quality and fastest delivery service</p>
+            </div>
+            
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h4>Free Delivery</h4>
-                        <p>Free delivery on orders over रू 1000 across Kathmandu</p>
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h4>Same Day Delivery</h4>
-                        <p>Order before 12 PM for same day delivery</p>
-                    </div>
-                </div>
-                
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-leaf"></i>
                     </div>
-                    <div class="feature-content">
-                        <h4>100% Fresh</h4>
-                        <p>Fresh products sourced directly from farms</p>
+                    <h3 class="feature-title">Fresh & Organic</h3>
+                    <p class="feature-description">Handpicked fresh fruits, vegetables and organic products sourced directly from farms daily.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
                     </div>
+                    <h3 class="feature-title">Express Delivery</h3>
+                    <p class="feature-description">Get your groceries delivered within 2 hours in Kathmandu Valley with temperature-controlled delivery.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <h3 class="feature-title">Cold Chain</h3>
+                    <p class="feature-description">Temperature controlled storage and delivery to maintain freshness of dairy, meat and frozen items.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <div class="feature-content">
-                        <h4>Quality Guarantee</h4>
-                        <p>Money back guarantee on all products</p>
-                    </div>
+                    <h3 class="feature-title">Quality Guarantee</h3>
+                    <p class="feature-description">100% money-back guarantee on quality. If you're not satisfied, we'll replace or refund your order.</p>
                 </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="feature-title">24/7 Support</h3>
+                    <p class="feature-description">Round-the-clock customer support through phone, chat, and email for all your queries and concerns.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile App</h3>
+                    <p class="feature-description">Order on-the-go with our user-friendly mobile app for iOS and Android with exclusive app-only deals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Selling Products Section -->
+    <section class="best-selling-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Best Selling Products</h2>
+                <p class="section-subtitle">Most loved products by our customers</p>
+                <a href="category.php" class="view-all-link">View All Products <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="products-container" id="bestSellingProducts">
+                <!-- Products will be loaded here by JavaScript -->
             </div>
         </div>
     </section>

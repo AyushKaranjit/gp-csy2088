@@ -1,6 +1,6 @@
 <?php
 // Set page variables
-$page_title = 'Shopping Cart - DOKO';
+$page_title = 'Shopping Cart - DOKO Fresh Market';
 $current_page = 'cart';
 $additional_css = ['css/cart.css'];
 $additional_js = ['cart.js'];
@@ -120,7 +120,7 @@ include_once '../template/header.php';
             cartItem.className = 'cart-item';
             cartItem.innerHTML = `
                 <div class="item-image">
-                    <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
+                    <img src="${item.image || 'https://img.icons8.com/fluency/80/shopping-bag.png'}" alt="${item.name}">
                 </div>
                 <div class="item-details">
                     <h4>${item.name}</h4>

@@ -2,6 +2,7 @@
 
 /* Payment Container */
 .payment-container {
+    margin-top: 180px; /* Account for fixed header height */
     padding: var(--space-8) 0;
     min-height: 80vh;
     background-color: var(--bg-secondary);

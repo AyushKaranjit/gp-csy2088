@@ -1,8 +1,8 @@
 <?php
 // Set page variables
-$page_title = 'DOKO - Shop Categories';
+$page_title = 'DOKO - Shop Categories - Fresh Groceries';
 $current_page = 'shop';
-$additional_css = ['css/homepage.css', 'css/grocery-theme.css', 'css/category.css'];
+$additional_css = ['css/category.css'];
 $additional_js = ['enhanced-cart.js'];
 
 // Include header template

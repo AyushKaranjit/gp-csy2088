@@ -1,6 +1,6 @@
 <?php
 // Set page variables
-$page_title = 'About Us - DOKO';
+$page_title = 'About Us - DOKO Fresh Market';
 $current_page = 'about';
 $additional_css = ['css/about.css'];
 

@@ -2,6 +2,7 @@
 
 /* Page Header */
 .page-header {
+    margin-top: 180px; /* Account for fixed header height */
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: var(--white);
     padding: var(--space-20) 0;

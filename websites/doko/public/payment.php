@@ -242,7 +242,7 @@ include_once '../template/header.php';
                 itemElement.className = 'order-item';
                 itemElement.innerHTML = `
                     <div class="item-image">
-                        <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}">
+                        <img src="${item.image || 'https://img.icons8.com/fluency/60/shopping-bag.png'}" alt="${item.name}">
                     </div>
                     <div class="item-details">
                         <h5>${item.name}</h5>
