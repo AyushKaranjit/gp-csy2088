@@ -4,40 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - DOKO</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/auth.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://img.icons8.com/fluency/48/shopping-bag.png" type="image/png">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <div class="nav-brand">
-                <i class="fas fa-shopping-basket logo-icon"></i>
-                <span class="logo-text">DOKO</span>
-            </div>
-            
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="category.html" class="nav-link">Shop</a>
-                <a href="about.html" class="nav-link">About</a>
-            </nav>
-            
-            <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="search" class="search-input">
-            </div>
-            
-            <div class="nav-actions">
-                <a href="wishlist.html" class="action-icon">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <div class="cart-icon-container">
-                    <i class="fas fa-shopping-cart action-icon"></i>
-                    <span class="cart-count">0</span>
+            <div class="header-top">
+                <div class="contact-info">
+                    <span><i class="fas fa-phone"></i> +977 9812345678</span>
+                    <span><i class="fas fa-envelope"></i> support@doko.com</span>
                 </div>
-                <a href="login.html" class="login-btn">Login</a>
-                <a href="signup.html" class="signup-btn active">Sign up</a>
+                <div class="header-links">
+                    <a href="#" class="header-link">Track Order</a>
+                    <a href="#" class="header-link">Help Center</a>
+                    <div class="language-selector">
+                        <i class="fas fa-globe"></i>
+                        <select>
+                            <option>English</option>
+                            <option>नेपाली</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-main">
+                <div class="nav-brand">
+                    <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO" class="logo-img">
+                    <span class="logo-text">DOKO</span>
+                    <span class="logo-tagline">Marketplace</span>
+                </div>
+                
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search for products, brands and more..." class="search-input" id="mainSearch">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+                        <!-- Search suggestions will appear here -->
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="action-item">
+                        <a href="login.html" class="action-link">
+                            <i class="fas fa-user"></i>
+                            <span>Account</span>
+                        </a>
+                    </div>
+                    <div class="action-item">
+                        <a href="wishlist.html" class="action-link">
+                            <i class="fas fa-heart"></i>
+                            <span>Wishlist</span>
+                            <span class="badge">0</span>
+                        </a>
+                    </div>
+                    <div class="action-item">
+                        <a href="cart.html" class="action-link cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Cart</span>
+                            <span class="badge cart-count">0</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="main-nav">
+                <div class="nav-categories">
+                    <button class="categories-btn">
+                        <i class="fas fa-bars"></i>
+                        All Categories
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="categories-dropdown">
+                        <a href="category.html?category=electronics" class="category-link">
+                            <i class="fas fa-mobile-alt"></i>
+                            Electronics
+                        </a>
+                        <a href="category.html?category=fashion" class="category-link">
+                            <i class="fas fa-tshirt"></i>
+                            Fashion
+                        </a>
+                        <a href="category.html?category=home" class="category-link">
+                            <i class="fas fa-home"></i>
+                            Home & Living
+                        </a>
+                        <a href="category.html?category=beauty" class="category-link">
+                            <i class="fas fa-heart"></i>
+                            Health & Beauty
+                        </a>
+                        <a href="category.html?category=sports" class="category-link">
+                            <i class="fas fa-running"></i>
+                            Sports & Outdoor
+                        </a>
+                        <a href="category.html?category=groceries" class="category-link">
+                            <i class="fas fa-shopping-basket"></i>
+                            Groceries
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="category.html" class="nav-link">Shop</a>
+                    <a href="#" class="nav-link">Deals</a>
+                    <a href="#" class="nav-link">New Arrivals</a>
+                    <a href="about.html" class="nav-link">About</a>
+                </div>
+                
+                <div class="delivery-info">
+                    <i class="fas fa-truck"></i>
+                    <span>Free Delivery on Orders Over रू 2000</span>
+                </div>
+            </nav>
+        </div>
+    </header>
             </div>
         </div>
     </header>

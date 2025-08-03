@@ -5,7 +5,7 @@ return [
     'host' => 'mysql',
     
     // The name of our database
-    'name' => 'job',
+    'name' => 'doko_ecommerce',
     
     // Username to log into database 
     'user' => 'student',

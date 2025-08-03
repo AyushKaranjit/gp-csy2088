@@ -281,13 +281,18 @@ CREATE TABLE inventory_logs (
 -- ESSENTIAL DATA INSERTION (Admin and Categories Only)
 -- ============================================================================
 
--- Insert Essential Categories
+-- Insert Essential Categories (E-commerce like Daraz)
 INSERT INTO categories (name, description, image_url, sort_order) VALUES
-('Electronics', 'Electronic devices and accessories', '/images/categories/electronics.jpg', 1),
-('Clothing', 'Fashion and apparel', '/images/categories/clothing.jpg', 2),
-('Home & Garden', 'Home improvement and gardening supplies', '/images/categories/home.jpg', 3),
-('Books', 'Books and educational materials', '/images/categories/books.jpg', 4),
-('Sports', 'Sports equipment and fitness gear', '/images/categories/sports.jpg', 5);
+('Electronics', 'Smartphones, Laptops, Accessories & Electronics', '/images/categories/electronics.jpg', 1),
+('Fashion', 'Clothing, Shoes, Bags & Fashion Accessories', '/images/categories/fashion.jpg', 2),
+('Home & Living', 'Furniture, Decor, Kitchen & Home Appliances', '/images/categories/home.jpg', 3),
+('Health & Beauty', 'Skincare, Makeup, Personal Care & Health Products', '/images/categories/beauty.jpg', 4),
+('Sports & Outdoor', 'Sports Equipment, Fitness Gear & Outdoor Activities', '/images/categories/sports.jpg', 5),
+('Books & Media', 'Books, Movies, Music & Educational Materials', '/images/categories/books.jpg', 6),
+('Groceries', 'Food, Beverages, Fresh Products & Daily Essentials', '/images/categories/groceries.jpg', 7),
+('Baby & Kids', 'Baby Care, Toys, Kids Clothing & Accessories', '/images/categories/baby.jpg', 8),
+('Automotive', 'Car Parts, Accessories & Automotive Supplies', '/images/categories/automotive.jpg', 9),
+('Watches & Jewelry', 'Watches, Rings, Necklaces & Jewelry Accessories', '/images/categories/jewelry.jpg', 10);
 
 -- Insert Admin User and Team Members (Essential Users Only)
 INSERT INTO users (username, email, password_hash, first_name, last_name, user_type, email_verified) VALUES
@@ -480,4 +485,4 @@ CREATE FULLTEXT INDEX idx_categories_search ON categories(name, description);
 -- 4. Set up monitoring and logging
 -- 5. Regular security updates
 
-
+SELECT 'Clean database setup completed successfully!' AS Status;

@@ -18,6 +18,7 @@ function initializeApp() {
     startFlashSaleTimer();
     initializeQuantityControls();
     loadFeaturedProducts();
+    loadTrendingProducts();
     updateCartCountFromStorage();
     setupProductFilters();
     setupEventListeners();
@@ -37,6 +38,44 @@ async function loadFeaturedProducts() {
     } catch (error) {
         console.error('Failed to load featured products:', error);
     }
+}
+
+// Load trending products
+async function loadTrendingProducts() {
+    try {
+        const response = await fetch('/api/products?limit=8');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                displayProducts(data.data, 'trendingProducts');
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load trending products:', error);
+        // Fallback to static products if API fails
+        loadStaticTrendingProducts();
+    }
+}
+
+// Fallback static trending products
+function loadStaticTrendingProducts() {
+    const staticProducts = [
+        {
+            product_id: 1,
+            name: "iPhone 15 Pro Max",
+            price: 149999,
+            rating: 4.8,
+            primary_image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=500&h=500&fit=crop"
+        },
+        {
+            product_id: 2,
+            name: "Samsung Galaxy S24 Ultra",
+            price: 129999,
+            rating: 4.7,
+            primary_image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&h=500&fit=crop"
+        }
+    ];
+    displayProducts(staticProducts, 'trendingProducts');
 }
 
 async function loadProductsByCategory(category, containerId = 'category-products-grid') {
@@ -64,15 +103,15 @@ function displayProducts(products, containerId) {
     if (!container) return;
     
     container.innerHTML = products.map(product => `
-        <div class="product-card" data-category="${product.category || 'other'}" data-product-id="${product.id}">
+        <div class="product-card" data-category="${product.category || 'other'}" data-product-id="${product.product_id}">
             <div class="product-image">
-                <img src="${product.image_url || getProductImageForCart(product.name)}" alt="${product.name}" 
+                <img src="${product.primary_image || getProductImageForCart(product.name)}" alt="${product.name}" 
                      onerror="this.src='https://via.placeholder.com/200x200?text=Product'">
                 <div class="product-badges">
-                    ${product.featured ? '<span class="badge-new">Featured</span>' : ''}
+                    ${product.rating >= 4.5 ? '<span class="badge-new">Featured</span>' : ''}
                     ${product.discount_percentage ? `<span class="badge-sale">${product.discount_percentage}% OFF</span>` : ''}
                 </div>
-                <i class="fas fa-heart wishlist-icon" onclick="toggleWishlist('${product.id}', this)"></i>
+                <i class="fas fa-heart wishlist-icon" onclick="toggleWishlist('${product.product_id}', this)"></i>
             </div>
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>

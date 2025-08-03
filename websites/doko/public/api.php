@@ -94,6 +94,10 @@ function handleApiRequest($segments, $method) {
             handleUsersApi($method, $id);
             break;
             
+        case 'admin':
+            handleAdminApi($method, $id, $action);
+            break;
+            
         default:
             http_response_code(404);
             echo json_encode(['success' => false, 'error' => 'API endpoint not found']);
@@ -275,6 +279,43 @@ function handleUsersApi($method, $id) {
     // This would require admin authentication
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Access forbidden']);
+}
+
+/**
+ * Handle admin API
+ */
+function handleAdminApi($method, $id, $action) {
+    $controller = new Controllers\AdminController();
+
+    switch ($action) {
+        case 'dashboard':
+            if ($method === 'GET') {
+                $controller->dashboard();
+            } else {
+                http_response_code(405);
+                echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            }
+            break;
+        case 'users':
+            if ($method === 'GET') {
+                $controller->users();
+            } else {
+                http_response_code(405);
+                echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            }
+            break;
+        case 'delete-user':
+            if ($method === 'DELETE') {
+                $controller->deleteUser(['id' => $id]);
+            } else {
+                http_response_code(405);
+                echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            }
+            break;
+        default:
+            http_response_code(404);
+            echo json_encode(['success' => false, 'error' => 'Admin endpoint not found']);
+    }
 }
 
 /**

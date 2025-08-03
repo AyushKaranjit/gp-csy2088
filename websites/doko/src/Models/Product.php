@@ -18,7 +18,13 @@ class Product {
      * Get all products
      */
     public function getAllProducts($limit = null, $offset = 0) {
-        $sql = "SELECT * FROM products WHERE status = 'active' ORDER BY created_at DESC";
+        $sql = "SELECT p.*, 
+                       c.name as category_name,
+                       pi.image_url as primary_image
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.category_id
+                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
+                ORDER BY p.created_at DESC";
         
         if ($limit) {
             $sql .= " LIMIT {$limit} OFFSET {$offset}";
@@ -31,7 +37,14 @@ class Product {
      * Get products by category
      */
     public function getProductsByCategory($category, $limit = null) {
-        $sql = "SELECT * FROM products WHERE category = :category AND status = 'active' ORDER BY created_at DESC";
+        $sql = "SELECT p.*, 
+                       c.name as category_name,
+                       pi.image_url as primary_image
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.category_id
+                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
+                WHERE c.category_id = :category
+                ORDER BY p.created_at DESC";
         
         if ($limit) {
             $sql .= " LIMIT {$limit}";
@@ -44,7 +57,13 @@ class Product {
      * Get product by ID
      */
     public function getProductById($id) {
-        $sql = "SELECT * FROM products WHERE id = :id AND status = 'active'";
+        $sql = "SELECT p.*, 
+                       c.name as category_name,
+                       pi.image_url as primary_image
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.category_id
+                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
+                WHERE p.product_id = :id";
         return $this->db->fetch($sql, ['id' => $id]);
     }
     
@@ -52,10 +71,14 @@ class Product {
      * Search products
      */
     public function searchProducts($query, $limit = 20) {
-        $sql = "SELECT * FROM products 
-                WHERE (name LIKE :query OR description LIKE :query) 
-                AND status = 'active' 
-                ORDER BY name ASC 
+        $sql = "SELECT p.*, 
+                       c.name as category_name,
+                       pi.image_url as primary_image
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.category_id
+                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
+                WHERE (p.name LIKE :query OR p.description LIKE :query) 
+                ORDER BY p.name ASC 
                 LIMIT {$limit}";
         
         $searchTerm = "%{$query}%";
@@ -66,9 +89,14 @@ class Product {
      * Get featured products
      */
     public function getFeaturedProducts($limit = 8) {
-        $sql = "SELECT * FROM products 
-                WHERE featured = 1 AND status = 'active' 
-                ORDER BY created_at DESC 
+        $sql = "SELECT p.*, 
+                       c.name as category_name,
+                       pi.image_url as primary_image
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.category_id
+                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
+                WHERE p.rating >= 4.5
+                ORDER BY p.rating DESC, p.created_at DESC
                 LIMIT {$limit}";
         
         return $this->db->fetchAll($sql);
