@@ -1,0 +1,312 @@
+<?php
+/**
+ * Product Card Component Template
+ * Usage: 
+ * $product = ['id' => 1, 'name' => 'Product Name', ...];
+ * include 'template/product-card.php';
+ */
+
+if (!isset($product) || !is_array($product)) {
+    return;
+}
+
+// Set default values for missing fields
+$product = array_merge([
+    'id' => 0,
+    'name' => 'Unknown Product',
+    'price' => 0,
+    'original_price' => null,
+    'image' => 'public/images/placeholder-product.jpg',
+    'category' => 'General',
+    'rating' => 0,
+    'in_stock' => true,
+    'discount_percentage' => 0
+], $product);
+
+// Calculate discount percentage if original price exists
+if ($product['original_price'] && $product['original_price'] > $product['price']) {
+    $product['discount_percentage'] = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
+}
+?>
+
+<div class="product-card" data-product-id="<?php echo $product['id']; ?>">
+    <div class="product-image">
+        <img src="<?php echo clean_output($product['image']); ?>" 
+             alt="<?php echo clean_output($product['name']); ?>" 
+             loading="lazy">
+        
+        <?php if ($product['discount_percentage'] > 0): ?>
+        <div class="product-badge sale-badge">
+            -<?php echo $product['discount_percentage']; ?>%
+        </div>
+        <?php endif; ?>
+        
+        <?php if (!$product['in_stock']): ?>
+        <div class="product-badge out-of-stock-badge">
+            Out of Stock
+        </div>
+        <?php endif; ?>
+        
+        <div class="product-actions">
+            <button class="btn-icon btn-wishlist" 
+                    title="Add to Wishlist" 
+                    data-product-id="<?php echo $product['id']; ?>">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="btn-icon btn-quick-view" 
+                    title="Quick View" 
+                    data-product-id="<?php echo $product['id']; ?>">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="product-info">
+        <div class="product-category">
+            <?php echo clean_output($product['category']); ?>
+        </div>
+        
+        <h3 class="product-name">
+            <a href="product-detail.php?id=<?php echo $product['id']; ?>">
+                <?php echo clean_output($product['name']); ?>
+            </a>
+        </h3>
+        
+        <?php if ($product['rating'] > 0): ?>
+        <div class="product-rating">
+            <div class="stars">
+                <?php
+                $rating = $product['rating'];
+                for ($i = 1; $i <= 5; $i++) {
+                    if ($i <= floor($rating)) {
+                        echo '<i class="fas fa-star"></i>';
+                    } elseif ($i <= $rating) {
+                        echo '<i class="fas fa-star-half-alt"></i>';
+                    } else {
+                        echo '<i class="far fa-star"></i>';
+                    }
+                }
+                ?>
+            </div>
+            <span class="rating-text">(<?php echo number_format($rating, 1); ?>)</span>
+        </div>
+        <?php endif; ?>
+        
+        <div class="product-price">
+            <span class="current-price"><?php echo format_price($product['price']); ?></span>
+            <?php if ($product['original_price']): ?>
+                <span class="original-price"><?php echo format_price($product['original_price']); ?></span>
+            <?php endif; ?>
+        </div>
+        
+        <?php if ($product['in_stock']): ?>
+        <button class="btn btn-primary btn-block add-to-cart" 
+                data-product-id="<?php echo $product['id']; ?>"
+                data-product-name="<?php echo clean_output($product['name']); ?>"
+                data-product-price="<?php echo $product['price']; ?>">
+            <i class="fas fa-shopping-cart"></i>
+            Add to Cart
+        </button>
+        <?php else: ?>
+        <button class="btn btn-secondary btn-block" disabled>
+            <i class="fas fa-times"></i>
+            Out of Stock
+        </button>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style>
+.product-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.product-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.sale-badge {
+    background: var(--accent-color);
+    color: white;
+}
+
+.out-of-stock-badge {
+    background: #dc3545;
+    color: white;
+}
+
+.product-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.product-card:hover .product-actions {
+    opacity: 1;
+}
+
+.btn-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-icon:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-wishlist.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-category {
+    font-size: 0.8rem;
+    color: var(--light-text);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.product-name {
+    margin-bottom: 0.75rem;
+}
+
+.product-name a {
+    color: var(--dark-text);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.product-name a:hover {
+    color: var(--primary-color);
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.stars {
+    display: flex;
+    gap: 0.1rem;
+}
+
+.stars i {
+    font-size: 0.8rem;
+    color: #ffc107;
+}
+
+.rating-text {
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+.product-price {
+    margin-bottom: 1rem;
+}
+
+.current-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.original-price {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    text-decoration: line-through;
+    margin-left: 0.5rem;
+}
+
+.add-to-cart {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.add-to-cart:hover {
+    background: var(--secondary-color);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-image {
+        height: 150px;
+    }
+    
+    .product-info {
+        padding: 1rem;
+    }
+    
+    .product-actions {
+        opacity: 1;
+    }
+}
+</style>

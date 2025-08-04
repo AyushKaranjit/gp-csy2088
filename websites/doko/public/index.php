@@ -1,336 +1,474 @@
 <?php
-// Set page variables
-$page_title = 'DOKO - Fresh Groceries & Daily Essentials';
-$current_page = 'home';
-$additional_css = ['css/homepage.css', 'css/grocery-theme.css'];
-$additional_js = ['script.js'];
+// Start session and include configuration
+session_start();
+require_once '../template/config.php';
+require_once '../config/database.php';
 
-// Include header template
-include_once '../template/header.php';
+// Page-specific variables
+$page_title = page_title('Home');
+$page_description = 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service at DOKO.';
+$current_page = 'home';
+
+// Include header
+include_header($page_title, $page_description, $current_page);
 ?>
 
-    <!-- Flash Sale Section -->
-    <section class="flash-sale-section">
-        <div class="container">
-            <div class="flash-sale-header">
-                <div class="flash-sale-title">
-                    <i class="fas fa-bolt"></i>
-                    <h2>Flash Sale</h2>
-                    <span class="sale-badge">UP TO 70% OFF</span>
-                </div>
-                <div class="flash-sale-timer">
-                    <span>Ends in:</span>
-                    <div class="timer">
-                        <div class="time-unit">
-                            <span class="time-value" id="hours">12</span>
-                            <span class="time-label">Hours</span>
-                        </div>
-                        <div class="time-unit">
-                            <span class="time-value" id="minutes">34</span>
-                            <span class="time-label">Minutes</span>
-                        </div>
-                        <div class="time-unit">
-                            <span class="time-value" id="seconds">56</span>
-                            <span class="time-label">Seconds</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="category.php?sale=flash" class="view-all-btn">View All</a>
-            </div>
-            
-            <div class="flash-sale-products">
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&h=300&fit=crop" alt="Fresh Red Apples">
-                        <div class="discount-badge">-30%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Fresh Red Apples (1kg)</h4>
-                        <div class="price">
-                            <span class="current-price">रू 280</span>
-                            <span class="original-price">रू 400</span>
-                        </div>
-                        <div class="sold-count">156 sold</div>
-                    </div>
-                </div>
-                
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=300&h=300&fit=crop" alt="Fresh Dairy Milk">
-                        <div class="discount-badge">-20%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Fresh Dairy Milk (1L)</h4>
-                        <div class="price">
-                            <span class="current-price">रू 80</span>
-                            <span class="original-price">रू 100</span>
-                        </div>
-                        <div class="sold-count">289 sold</div>
-                    </div>
-                </div>
-                
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1518843875459-f738682238a6?w=300&h=300&fit=crop" alt="Mixed Vegetables Pack">
-                        <div class="discount-badge">-25%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Mixed Vegetables Pack</h4>
-                        <div class="price">
-                            <span class="current-price">रू 450</span>
-                            <span class="original-price">रू 600</span>
-                        </div>
-                        <div class="sold-count">78 sold</div>
-                    </div>
-                </div>
-                
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&h=300&fit=crop" alt="Fresh Whole Wheat Bread">
-                        <div class="discount-badge">-15%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Fresh Whole Wheat Bread</h4>
-                        <div class="price">
-                            <span class="current-price">रू 85</span>
-                            <span class="original-price">रू 100</span>
-                        </div>
-                        <div class="sold-count">234 sold</div>
-                    </div>
-                </div>
-                
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop" alt="Premium Basmati Rice">
-                        <div class="discount-badge">-10%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Basmati Rice (5kg)</h4>
-                        <div class="price">
-                            <span class="current-price">रू 900</span>
-                            <span class="original-price">रू 1000</span>
-                        </div>
-                        <div class="sold-count">167 sold</div>
-                    </div>
-                </div>
-                
-                <div class="flash-product-card">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop" alt="Fresh Chicken">
-                        <div class="discount-badge">-18%</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Fresh Chicken (1kg)</h4>
-                        <div class="price">
-                            <span class="current-price">रू 410</span>
-                            <span class="original-price">रू 500</span>
-                        </div>
-                        <div class="sold-count">92 sold</div>
-                    </div>
-                </div>
-            </div>
+<!-- Hero Section with Sliding Background -->
+<section class="hero hero-with-slider">
+    <!-- Hero Background Slider -->
+    <div class="hero-background-slider">
+        <div class="hero-slide-track" id="hero-slide-track">
+            <!-- Slides will be dynamically generated by JavaScript -->
         </div>
-    </section>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-slider">
-                <div class="hero-slide active">
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h1 class="hero-title">Nepal's Freshest <span class="highlight">Grocery Marketplace</span></h1>
-                            <p class="hero-subtitle">Get fresh fruits, vegetables, dairy, meat, and all your daily essentials delivered to your doorstep</p>
-                            <div class="hero-stats">
-                                <div class="stat">
-                                    <span class="stat-number">5K+</span>
-                                    <span class="stat-label">Fresh Products</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-number">50K+</span>
-                                    <span class="stat-label">Happy Customers</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-number">2Hr</span>
-                                    <span class="stat-label">Express Delivery</span>
-                                </div>
-                            </div>
-                            <div class="hero-actions">
-                                <a href="category.php" class="btn btn-primary btn-large">
-                                    <i class="fas fa-shopping-bag"></i>
-                                    Start Shopping
-                                </a>
-                                <a href="#features" class="btn btn-outline btn-large">
-                                    <i class="fas fa-play"></i>
-                                    Watch Demo
-                                </a>
-                            </div>
-                        </div>
-                        <div class="hero-image">
-                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop&crop=center" alt="Shopping Experience" class="hero-img">
-                            <div class="floating-cards">
-                                <div class="floating-card">
-                                    <i class="fas fa-shipping-fast"></i>
-                                    <span>2-Hour Delivery</span>
-                                </div>
-                                <div class="floating-card">
-                                    <i class="fas fa-leaf"></i>
-                                    <span>Fresh & Organic</span>
-                                </div>
-                                <div class="floating-card">
-                                    <i class="fas fa-thermometer-half"></i>
-                                    <span>Temperature Controlled</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="hero-overlay"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Fresh Groceries <br><span class="highlight">Delivered to Your Door</span></h1>
+                <p>Nepal's most trusted online grocery store. Get farm-fresh vegetables, fruits, dairy products, and daily essentials delivered right to your doorstep with guaranteed quality and freshness.</p>
+                <div class="hero-buttons">
+                    <a href="products.php" class="btn btn-primary btn-lg">Shop Now</a>
+                    <a href="about.php" class="btn btn-outline btn-lg">Learn More</a>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories Section -->
-    <section class="categories-section" id="categories">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Shop by Category</h2>
-                <p class="section-subtitle">Browse our fresh groceries and daily essentials organized by category for easy shopping</p>
-            </div>
-            
-            <div class="categories-grid">
-                <div class="category-card" onclick="window.location.href='category.php?category=fruits-vegetables'">
-                    <div class="category-icon">
-                        <i class="fas fa-apple-alt"></i>
+                <div class="hero-features">
+                    <div class="feature">
+                        <i class="fas fa-truck"></i>
+                        <span>Free Delivery over Rs. 1000</span>
                     </div>
-                    <h3 class="category-name">Fruits & Vegetables</h3>
-                    <p class="category-description">Fresh seasonal fruits and organic vegetables delivered daily</p>
-                    <span class="category-products-count">500+ Products</span>
-                </div>
-                
-                <div class="category-card" onclick="window.location.href='category.php?category=dairy-eggs'">
-                    <div class="category-icon">
-                        <i class="fas fa-cheese"></i>
+                    <div class="feature">
+                        <i class="fas fa-clock"></i>
+                        <span>Same Day Delivery</span>
                     </div>
-                    <h3 class="category-name">Dairy & Eggs</h3>
-                    <p class="category-description">Fresh milk, cheese, yogurt, butter and farm-fresh eggs</p>
-                    <span class="category-products-count">200+ Products</span>
-                </div>
-                
-                <div class="category-card" onclick="window.location.href='category.php?category=meat-seafood'">
-                    <div class="category-icon">
-                        <i class="fas fa-fish"></i>
-                    </div>
-                    <h3 class="category-name">Meat & Seafood</h3>
-                    <p class="category-description">Fresh chicken, mutton, fish and seafood with quality assurance</p>
-                    <span class="category-products-count">150+ Products</span>
-                </div>
-                
-                <div class="category-card" onclick="window.location.href='category.php?category=pantry-staples'">
-                    <div class="category-icon">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <h3 class="category-name">Pantry & Staples</h3>
-                    <p class="category-description">Rice, dal, flour, oil, spices and cooking essentials</p>
-                    <span class="category-products-count">800+ Products</span>
-                </div>
-                
-                <div class="category-card" onclick="window.location.href='category.php?category=beverages'">
-                    <div class="category-icon">
-                        <i class="fas fa-coffee"></i>
-                    </div>
-                    <h3 class="category-name">Beverages</h3>
-                    <p class="category-description">Tea, coffee, juices, soft drinks and healthy beverages</p>
-                    <span class="category-products-count">300+ Products</span>
-                </div>
-                
-                <div class="category-card" onclick="window.location.href='category.php?category=snacks-confectionery'">
-                    <div class="category-icon">
-                        <i class="fas fa-cookie-bite"></i>
-                    </div>
-                    <h3 class="category-name">Snacks & Confectionery</h3>
-                    <p class="category-description">Biscuits, chips, chocolates, sweets and healthy snacks</p>
-                    <span class="category-products-count">400+ Products</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features-section" id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Why Choose DOKO Grocery?</h2>
-                <p class="section-subtitle">We provide the freshest groceries with unmatched quality and fastest delivery service</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
+                    <div class="feature">
                         <i class="fas fa-leaf"></i>
+                        <span>100% Fresh & Organic</span>
                     </div>
-                    <h3 class="feature-title">Fresh & Organic</h3>
-                    <p class="feature-description">Handpicked fresh fruits, vegetables and organic products sourced directly from farms daily.</p>
                 </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
+            </div>
+            <div class="hero-cta">
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Fresh Products</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Customer Support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Discover fresh, premium quality products across all categories</p>
+        </div>
+        
+        <div class="categories-grid">
+            <?php 
+            // Category images mapping with specific, high-quality images
+            $category_images = [
+                1 => 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Fresh Vegetables - colorful vegetables
+                2 => 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Fresh Fruits - mixed fruits
+                3 => 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Dairy Products - milk and dairy
+                4 => 'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Grains & Pulses - grains and legumes
+                5 => 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Spices & Herbs - colorful spices
+                6 => 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80'  // Snacks & Beverages - healthy snacks
+            ];
+            
+            foreach ($product_categories as $id => $category): ?>
+            <div class="category-card">
+                <a href="products.php?category=<?php echo $id; ?>" class="category-link">
+                    <div class="category-image">
+                        <img src="<?php echo isset($category_images[$id]) ? $category_images[$id] : 'images/categories/category-' . $id . '.jpg'; ?>" 
+                             alt="<?php echo clean_output($category['name']); ?>" 
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80';">
+                        <div class="category-overlay">
+                            <i class="<?php echo $category['icon']; ?>"></i>
+                        </div>
+                    </div>
+                    <div class="category-info">
+                        <h3><?php echo clean_output($category['name']); ?></h3>
+                        <p>Fresh & Premium Quality</p>
+                        <span class="shop-now">Shop Now <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Products</h2>
+            <p class="section-subtitle">Handpicked fresh products just for you</p>
+        </div>
+        
+        <div class="products-grid">
+            <?php
+            // Sample featured products (in real application, fetch from database)
+            $featured_products = [
+                [
+                    'id' => 1,
+                    'name' => 'Fresh Tomatoes (1kg)',
+                    'price' => 80.00,
+                    'original_price' => 100.00,
+                    'image' => 'images/products/tomatoes.jpg',
+                    'category' => 'Fresh Vegetables',
+                    'rating' => 4.5,
+                    'in_stock' => true
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Royal Banana (1 dozen)',
+                    'price' => 120.00,
+                    'original_price' => null,
+                    'image' => 'images/products/bananas.jpg',
+                    'category' => 'Fresh Fruits',
+                    'rating' => 4.8,
+                    'in_stock' => true
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'DDC Fresh Milk (1L)',
+                    'price' => 90.00,
+                    'original_price' => null,
+                    'image' => 'images/products/milk.jpg',
+                    'category' => 'Dairy Products',
+                    'rating' => 4.7,
+                    'in_stock' => true
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'Basmati Rice (5kg)',
+                    'price' => 850.00,
+                    'original_price' => 950.00,
+                    'image' => 'images/products/rice.jpg',
+                    'category' => 'Grains & Pulses',
+                    'rating' => 4.6,
+                    'in_stock' => true
+                ],
+                [
+                    'id' => 5,
+                    'name' => 'Green Apples (1kg)',
+                    'price' => 350.00,
+                    'original_price' => null,
+                    'image' => 'images/products/apples.jpg',
+                    'category' => 'Fresh Fruits',
+                    'rating' => 4.4,
+                    'in_stock' => true
+                ],
+                [
+                    'id' => 6,
+                    'name' => 'Garam Masala (100g)',
+                    'price' => 180.00,
+                    'original_price' => 200.00,
+                    'image' => 'images/products/spices.jpg',
+                    'category' => 'Spices & Herbs',
+                    'rating' => 4.9,
+                    'in_stock' => true
+                ]
+            ];
+
+            foreach ($featured_products as $product): ?>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="<?php echo $product['image']; ?>" 
+                         alt="<?php echo clean_output($product['name']); ?>" loading="lazy">
+                    <?php if ($product['original_price']): ?>
+                    <div class="product-badge">Sale</div>
+                    <?php endif; ?>
+                    <div class="product-actions">
+                        <button class="btn-icon btn-wishlist" title="Add to Wishlist">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="btn-icon btn-quick-view" title="Quick View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category"><?php echo clean_output($product['category']); ?></div>
+                    <h3 class="product-name">
+                        <a href="product-detail.php?id=<?php echo $product['id']; ?>">
+                            <?php echo clean_output($product['name']); ?>
+                        </a>
+                    </h3>
+                    <div class="product-rating">
+                        <div class="stars">
+                            <?php
+                            $rating = $product['rating'];
+                            for ($i = 1; $i <= 5; $i++) {
+                                if ($i <= floor($rating)) {
+                                    echo '<i class="fas fa-star"></i>';
+                                } elseif ($i <= $rating) {
+                                    echo '<i class="fas fa-star-half-alt"></i>';
+                                } else {
+                                    echo '<i class="far fa-star"></i>';
+                                }
+                            }
+                            ?>
+                        </div>
+                        <span class="rating-text">(<?php echo $rating; ?>)</span>
+                    </div>
+                    <div class="product-price">
+                        <span class="current-price"><?php echo format_price($product['price']); ?></span>
+                        <?php if ($product['original_price']): ?>
+                            <span class="original-price"><?php echo format_price($product['original_price']); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <button class="btn btn-primary btn-block add-to-cart" 
+                            data-product-id="<?php echo $product['id']; ?>">
+                        <i class="fas fa-shopping-cart"></i>
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="section-footer">
+            <a href="products.php" class="btn btn-outline btn-lg">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Special Offers Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Special Offers</h2>
+            <p class="section-subtitle">Don't miss out on these amazing deals</p>
+        </div>
+        
+        <div class="offers-grid">
+            <div class="offer-card big-offer">
+                <div class="offer-content">
+                    <div class="offer-image">
+                        <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" 
+                             alt="Fresh Vegetables Offer" loading="lazy">
+                        <div class="offer-badge">25% OFF</div>
+                    </div>
+                    <div class="offer-text">
+                        <h3>Fresh Vegetables</h3>
+                        <p>Up to 25% off on all fresh vegetables. Farm to your table guaranteed!</p>
+                        <a href="products.php?category=1&offer=vegetables" class="btn btn-accent">
+                            <i class="fas fa-shopping-basket"></i> Shop Vegetables
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="offer-card">
+                <div class="offer-content">
+                    <div class="offer-icon">
                         <i class="fas fa-shipping-fast"></i>
                     </div>
-                    <h3 class="feature-title">Express Delivery</h3>
-                    <p class="feature-description">Get your groceries delivered within 2 hours in Kathmandu Valley with temperature-controlled delivery.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-thermometer-half"></i>
+                    <div class="offer-text">
+                        <h4>Free Delivery</h4>
+                        <p>Free delivery on orders above Rs. 1000 within Kathmandu Valley</p>
+                        <span class="offer-code">Auto Applied</span>
                     </div>
-                    <h3 class="feature-title">Cold Chain</h3>
-                    <p class="feature-description">Temperature controlled storage and delivery to maintain freshness of dairy, meat and frozen items.</p>
                 </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="feature-title">Quality Guarantee</h3>
-                    <p class="feature-description">100% money-back guarantee on quality. If you're not satisfied, we'll replace or refund your order.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3 class="feature-title">24/7 Support</h3>
-                    <p class="feature-description">Round-the-clock customer support through phone, chat, and email for all your queries and concerns.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3 class="feature-title">Mobile App</h3>
-                    <p class="feature-description">Order on-the-go with our user-friendly mobile app for iOS and Android with exclusive app-only deals.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Best Selling Products Section -->
-    <section class="best-selling-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Best Selling Products</h2>
-                <p class="section-subtitle">Most loved products by our customers</p>
-                <a href="category.php" class="view-all-link">View All Products <i class="fas fa-arrow-right"></i></a>
             </div>
             
-            <div class="products-container" id="bestSellingProducts">
-                <!-- Products will be loaded here by JavaScript -->
+            <div class="offer-card">
+                <div class="offer-content">
+                    <div class="offer-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="offer-text">
+                        <h4>First Order Discount</h4>
+                        <p>Get 15% off on your first order with DOKO</p>
+                        <span class="offer-code">Use: WELCOME15</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose DOKO?</h2>
+            <p class="section-subtitle">We're committed to bringing you the best grocery shopping experience</p>
+        </div>
+        
+        <div class="features-grid">
+            <?php
+            $features = [
+                [
+                    'icon' => 'fas fa-leaf',
+                    'title' => 'Fresh & Organic',
+                    'description' => 'Directly sourced from local farms ensuring maximum freshness and quality.'
+                ],
+                [
+                    'icon' => 'fas fa-truck',
+                    'title' => 'Fast Delivery',
+                    'description' => 'Same-day delivery available with our efficient logistics network.'
+                ],
+                [
+                    'icon' => 'fas fa-money-bill-wave',
+                    'title' => 'Best Prices',
+                    'description' => 'Competitive pricing with regular discounts and special offers.'
+                ],
+                [
+                    'icon' => 'fas fa-headset',
+                    'title' => '24/7 Support',
+                    'description' => 'Round-the-clock customer service for all your needs and queries.'
+                ]
+            ];
+
+            foreach ($features as $feature): ?>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="<?php echo $feature['icon']; ?>"></i>
+                </div>
+                <h3><?php echo clean_output($feature['title']); ?></h3>
+                <p><?php echo clean_output($feature['description']); ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">What Our Customers Say</h2>
+            <p class="section-subtitle">Real feedback from our valued customers</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <?php
+            $testimonials = [
+                [
+                    'name' => 'Sunita Maharjan',
+                    'location' => 'Lalitpur',
+                    'rating' => 5,
+                    'comment' => 'DOKO has made grocery shopping so convenient! Fresh products delivered right to my doorstep. Highly recommended!',
+                    'image' => 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
+                ],
+                [
+                    'name' => 'Ramesh Adhikari',
+                    'location' => 'Kathmandu',
+                    'rating' => 5,
+                    'comment' => 'Amazing service and quality products. The vegetables are always fresh and the delivery is always on time.',
+                    'image' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
+                ],
+                [
+                    'name' => 'Maya Shrestha',
+                    'location' => 'Bhaktapur',
+                    'rating' => 4,
+                    'comment' => 'Great variety of products and competitive prices. DOKO has become my go-to for all grocery needs.',
+                    'image' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
+                ]
+            ];
+
+            foreach ($testimonials as $testimonial): ?>
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">
+                        <img src="<?php echo $testimonial['image']; ?>" 
+                             alt="<?php echo clean_output($testimonial['name']); ?>" 
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80';">
+                    </div>
+                    <div class="testimonial-info">
+                        <h4 class="testimonial-name"><?php echo clean_output($testimonial['name']); ?></h4>
+                        <p class="testimonial-location"><?php echo clean_output($testimonial['location']); ?></p>
+                        <div class="testimonial-rating">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <i class="fas fa-star <?php echo $i <= $testimonial['rating'] ? 'active' : ''; ?>"></i>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-content">
+                    <p class="testimonial-quote">"<?php echo clean_output($testimonial['comment']); ?>"</p>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="section newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <div class="newsletter-text">
+                <h2>Stay Updated with DOKO</h2>
+                <p>Get the latest offers, new product arrivals, and grocery tips delivered to your inbox.</p>
+            </div>
+            <div class="newsletter-form">
+                <form action="api/newsletter.php" method="POST" class="newsletter-form-element">
+                    <input type="email" name="email" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+                <p class="newsletter-privacy">We respect your privacy. Unsubscribe anytime.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <?php
-// Include footer template
-include_once '../template/footer.php';
+// Include footer
+include_footer([], '
+    // Additional initialization after main.js is loaded
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize hero background slider
+        if (typeof HeroBackgroundSlider !== "undefined") {
+            HeroBackgroundSlider.init();
+        }
+        
+        // Cart and background carousel are already initialized in main.js
+        console.log("Index page with hero slider fully loaded");
+    });
+    
+    // Initialize newsletter form
+    document.querySelector(".newsletter-form-element").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const email = this.querySelector("input[name=\"email\"]").value;
+        
+        fetch("api/newsletter.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({email: email})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Thank you for subscribing!");
+                this.reset();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+        });
+    });
+');
 ?>

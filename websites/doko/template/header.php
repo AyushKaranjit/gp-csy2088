@@ -3,128 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($page_title) ? $page_title : 'DOKO - Professional E-Commerce Platform'; ?></title>
-    <!-- Base CSS Files -->
-    <link rel="stylesheet" href="css/test.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/header.css">
+    <title><?php echo isset($page_title) ? $page_title : 'DOKO | Nepal\'s Premier Online Grocery Store'; ?></title>
+    <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service.'; ?>">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <?php if (isset($additional_css)): ?>
         <?php foreach ($additional_css as $css): ?>
             <link rel="stylesheet" href="<?php echo $css; ?>">
         <?php endforeach; ?>
     <?php endif; ?>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="https://img.icons8.com/fluency/48/shopping-bag.png" type="image/png">
 </head>
 <body>
-    <!-- Top Banner -->
-    <div class="top-banner">
-        <div class="container">
-            <div class="banner-content">
-                <span class="banner-text">🛒 Fresh Groceries Flash Sale - Up to 50% Off on Fresh Produce & Daily Essentials!</span>
-                <button class="banner-close" onclick="this.parentElement.parentElement.style.display='none'">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Header -->
     <header class="header">
-        <!-- Top Bar -->
-        <div class="header-top">
-            <div class="container">
-                <div class="header-top-left">
-                    <span><i class="fas fa-phone"></i> +977 9812345678</span>
-                    <span><i class="fas fa-envelope"></i> support@doko.com</span>
-                </div>
-                <div class="header-top-right">
-                    <a href="track-order.php" class="header-link">Track Order</a>
-                    <a href="#" class="header-link">Help Center</a>
-                    <a href="login.php" class="header-link">Login</a>
-                    <a href="signup.php" class="header-link">Sign Up</a>
-                    <div class="language-selector">
-                        <i class="fas fa-globe"></i>
-                        <select>
-                            <option>English</option>
-                            <option>नेपाली</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <!-- Main Header -->
         <div class="header-main">
             <div class="container">
-                <!-- Logo -->
-                <div class="nav-brand">
-                    <img src="https://img.icons8.com/fluency/48/shopping-bag.png" alt="DOKO" class="logo-img">
-                    <div class="brand-text">
-                        <span class="logo-text">DOKO</span>
-                        <span class="logo-tagline">Fresh Market</span>
+                <div class="header-content">
+                    <!-- Professional DOKO Logo -->
+                    <div class="logo">
+                        <a href="index.php" style="display: flex; align-items: center; gap: 15px; text-decoration: none;">
+                            <div class="logo-icon doko-basket-icon">
+                                <div class="basket-container">
+                                    <div class="basket-body">
+                                        <div class="weave-pattern"></div>
+                                        <div class="weave-pattern"></div>
+                                        <div class="weave-pattern"></div>
+                                    </div>
+                                    <div class="basket-handles">
+                                        <div class="handle-left"></div>
+                                        <div class="handle-right"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-text">
+                                <span class="logo-main">DOKO</span>
+                                <span class="logo-tagline">Traditional Basket</span>
+                            </div>
+                        </a>
                     </div>
-                </div>
-                
-                <!-- Search Bar -->
-                <div class="search-container">
-                    <div class="search-bar">
-                        <input type="text" placeholder="Search for fresh fruits, vegetables, dairy, meat..." class="search-input" id="mainSearch">
-                        <button class="search-btn">
+
+                    <!-- Enhanced Search Bar -->
+                    <div class="search-container">
+                        <button class="search-btn" type="button">
                             <i class="fas fa-search"></i>
                         </button>
+                        <input type="text" id="search-box" class="search-box" placeholder="Search for fresh vegetables, fruits, dairy products...">
                     </div>
-                    <div class="search-suggestions" id="searchSuggestions" style="display: none;">
-                        <!-- Search suggestions will appear here -->
-                    </div>
-                </div>
-                
-                <!-- Header Actions -->
-                <div class="header-actions">
-                    <div class="action-item">
-                        <a href="login.php" class="action-link">
-                            <i class="fas fa-user"></i>
-                            <span>Login</span>
-                        </a>
-                    </div>
-                    <div class="action-item">
-                        <a href="wishlist.php" class="action-link">
-                            <i class="fas fa-heart"></i>
-                            <span>Wishlist</span>
-                            <span class="badge">0</span>
-                        </a>
-                    </div>
-                    <div class="action-item">
-                        <a href="cart.php" class="action-link cart-link">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Cart</span>
-                            <span class="badge cart-count">0</span>
-                        </a>
+
+                    <!-- Header Actions -->
+                    <div class="header-actions">
+                        <!-- Account -->
+                        <div class="header-action login-link">
+                            <a href="login.php">
+                                <i class="fas fa-user"></i>
+                                <span>Login</span>
+                            </a>
+                        </div>
+                        
+                        <div class="header-action logout-link" style="display: none;">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">User</span>
+                        </div>
+
+                        <!-- Wishlist -->
+                        <div class="header-action">
+                            <a href="wishlist.php">
+                                <i class="fas fa-heart"></i>
+                                <span>Wishlist</span>
+                            </a>
+                        </div>
+
+                        <!-- Cart -->
+                        <div class="header-action">
+                            <a href="cart.php">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Cart</span>
+                                <span class="cart-count">0</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Navigation Bar -->
-        <nav class="main-nav">
+
+        <!-- Navigation -->
+        <nav class="navbar">
             <div class="container">
-                <div class="nav-content">
-                    <!-- Navigation Links -->
-                    <div class="nav-links">
-                        <a href="index.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'home') ? 'active' : ''; ?>">Home</a>
-                        <a href="category.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'shop') ? 'active' : ''; ?>">Shop</a>
-                        <a href="track-order.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'track-order') ? 'active' : ''; ?>">Track Order</a>
-                        <a href="about.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'about') ? 'active' : ''; ?>">About</a>
-                        <a href="admin-dashboard.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'admin') ? 'active' : ''; ?>">Admin</a>
-                    </div>
+                <div class="nav-container">
+                    <ul class="nav-list" id="nav-list">
+                        <li class="nav-item">
+                            <a href="index.php" class="nav-link <?php echo ($current_page == 'home') ? 'active' : ''; ?>">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="products.php" class="nav-link <?php echo ($current_page == 'categories' || $current_page == 'products') ? 'active' : ''; ?>">
+                                <i class="fas fa-th-large"></i> Categories
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="products.php?category=1" class="dropdown-item">🥬 Fresh Vegetables</a>
+                                <a href="products.php?category=2" class="dropdown-item">🍎 Fresh Fruits</a>
+                                <a href="products.php?category=3" class="dropdown-item">🥛 Dairy Products</a>
+                                <a href="products.php?category=4" class="dropdown-item">🌾 Grains & Pulses</a>
+                                <a href="products.php?category=5" class="dropdown-item">🌿 Spices & Herbs</a>
+                                <a href="products.php?category=6" class="dropdown-item">🍪 Snacks & Beverages</a>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="offers.php" class="nav-link <?php echo ($current_page == 'offers') ? 'active' : ''; ?>">
+                                <i class="fas fa-tag"></i> Offers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="about.php" class="nav-link <?php echo ($current_page == 'about') ? 'active' : ''; ?>">
+                                <i class="fas fa-info-circle"></i> About
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="contact.php" class="nav-link <?php echo ($current_page == 'contact') ? 'active' : ''; ?>">
+                                <i class="fas fa-phone"></i> Contact
+                            </a>
+                        </li>
+                    </ul>
                     
-                    <!-- Delivery Info -->
-                    <div class="delivery-info">
-                        <i class="fas fa-truck"></i>
-                        <span>Free Delivery on Orders Over रू 1000</span>
-                    </div>
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
         </nav>
     </header>
+    
+    <!-- Mobile Navigation Script -->
+    <script src="js/mobile-nav.js"></script>

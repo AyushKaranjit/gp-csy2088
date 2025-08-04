@@ -1,192 +1,479 @@
 <?php
-// Set page variables
-$page_title = 'Shopping Cart - DOKO Fresh Market';
-$current_page = 'cart';
-$additional_css = ['css/cart.css'];
-$additional_js = ['cart.js'];
+// Start session and include configuration
+session_start();
+require_once '../template/config.php';
 
-// Include header template
-include_once '../template/header.php';
+// Page-specific variables
+$page_title = page_title('Shopping Cart');
+$page_description = 'Review your selected items and proceed to checkout at DOKO.';
+$current_page = 'cart';
+
+// Breadcrumb items
+$breadcrumb_items = [
+    ['title' => 'Home', 'url' => 'index.php'],
+    ['title' => 'Shopping Cart', 'url' => '']
+];
+
+// Include header
+include_header($page_title, $page_description, $current_page);
 ?>
 
-    <div class="cart-container">
-        <div class="container">
-            <div class="cart-header">
-                <h1>Shopping Cart</h1>
-                <p class="cart-subtitle">Review your items before checkout</p>
-            </div>
-            
-            <div class="cart-content">
-                <div class="cart-items">
-                    <div class="cart-item" id="empty-cart" style="display: none;">
+<!-- Breadcrumb -->
+<?php include '../template/breadcrumb.php'; ?>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="container">
+        <div class="cart-header">
+            <h1>Shopping Cart</h1>
+            <p>Review your items and proceed to checkout</p>
+        </div>
+
+        <div class="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items-section">
+                <div id="cart-items-container">
+                    <!-- Cart items will be loaded here by JavaScript -->
+                    <div class="empty-cart" id="empty-cart">
                         <div class="empty-cart-content">
                             <i class="fas fa-shopping-cart"></i>
                             <h3>Your cart is empty</h3>
-                            <p>Add some fresh groceries to get started!</p>
-                            <a href="category.php" class="continue-shopping-btn">Continue Shopping</a>
+                            <p>Add some delicious items to your cart to get started!</p>
+                            <a href="products.php" class="btn btn-primary">Start Shopping</a>
                         </div>
-                    </div>
-                    
-                    <!-- Cart items will be dynamically loaded here -->
-                    <div id="cart-items-list">
-                        <!-- Dynamic content -->
                     </div>
                 </div>
-                
-                <div class="cart-summary">
-                    <div class="summary-card">
-                        <h3>Order Summary</h3>
-                        
-                        <div class="summary-row">
-                            <span>Subtotal:</span>
-                            <span id="cart-subtotal">रू 0</span>
-                        </div>
-                        
-                        <div class="summary-row">
-                            <span>Delivery Fee:</span>
-                            <span id="delivery-fee">रू 50</span>
-                        </div>
-                        
-                        <div class="summary-row discount" style="display: none;">
-                            <span>Discount:</span>
-                            <span id="discount-amount">रू 0</span>
-                        </div>
-                        
-                        <div class="summary-divider"></div>
-                        
-                        <div class="summary-row total">
-                            <span>Total:</span>
-                            <span id="cart-total">रू 0</span>
-                        </div>
-                        
-                        <div class="promo-section">
-                            <input type="text" placeholder="Enter promo code" id="promo-input">
-                            <button type="button" id="apply-promo">Apply</button>
-                        </div>
-                        
-                        <button class="checkout-btn" id="checkout-btn" disabled>
-                            Proceed to Checkout
-                        </button>
-                        
-                        <a href="category.php" class="continue-shopping">Continue Shopping</a>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary-section">
+                <div class="cart-summary" id="cart-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal">Rs. 0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Charge:</span>
+                        <span id="delivery-charge">Rs. 50.00</span>
+                    </div>
+                    <div class="summary-row discount-row" id="discount-row" style="display: none;">
+                        <span>Discount:</span>
+                        <span id="discount-amount">- Rs. 0.00</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total:</span>
+                        <span id="cart-total">Rs. 50.00</span>
                     </div>
                     
-                    <div class="delivery-info-card">
-                        <h4><i class="fas fa-truck"></i> Delivery Information</h4>
-                        <p>Free delivery on orders over रू 1000</p>
-                        <p>Same day delivery available</p>
-                        <p>Delivery time: 2-4 hours</p>
+                    <div class="promo-code-section">
+                        <input type="text" id="promo-code" placeholder="Enter promo code" class="promo-input">
+                        <button id="apply-promo" class="btn btn-outline btn-sm">Apply</button>
+                    </div>
+                    
+                    <div class="cart-actions">
+                        <button id="proceed-checkout" class="btn btn-primary btn-lg">
+                            <i class="fas fa-lock"></i> Proceed to Checkout
+                        </button>
+                        <a href="products.php" class="btn btn-outline">Continue Shopping</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</main>
 
-    <script>
-        // Cart functionality will be handled by cart.js
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCart();
-            updateCartSummary();
-        });
+<style>
+.cart-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
 
-        function loadCart() {
-            // Load cart items from localStorage or session
-            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartItemsList = document.getElementById('cart-items-list');
-            const emptyCart = document.getElementById('empty-cart');
-            
-            if (cartItems.length === 0) {
-                emptyCart.style.display = 'block';
-                cartItemsList.style.display = 'none';
-            } else {
-                emptyCart.style.display = 'none';
-                cartItemsList.style.display = 'block';
-                renderCartItems(cartItems);
-            }
+.cart-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.cart-header p {
+    color: var(--light-text);
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.cart-items-section {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-right: 1rem;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.item-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--dark-text);
+}
+
+.item-price {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.qty-btn:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+.qty-input {
+    width: 60px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.25rem;
+}
+
+.item-total {
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-right: 1rem;
+}
+
+.remove-item {
+    color: var(--danger-color);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.remove-item:hover {
+    background: rgba(220, 38, 46, 0.1);
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-cart-content i {
+    font-size: 4rem;
+    color: var(--light-text);
+    margin-bottom: 1rem;
+}
+
+.empty-cart-content h3 {
+    margin-bottom: 0.5rem;
+    color: var(--dark-text);
+}
+
+.empty-cart-content p {
+    color: var(--light-text);
+    margin-bottom: 2rem;
+}
+
+.cart-summary {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 100px;
+}
+
+.cart-summary h3 {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.total-row {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1rem;
+}
+
+.discount-row {
+    color: var(--success-color);
+}
+
+.promo-code-section {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.promo-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+.cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.delivery-info {
+    background: var(--light-bg);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.delivery-info i {
+    color: var(--success-color);
+    margin-right: 0.5rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    
+    .item-image {
+        margin-bottom: 1rem;
+        margin-right: 0;
+    }
+    
+    .item-details {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .item-quantity {
+        justify-content: center;
+        margin: 1rem 0;
+    }
+    
+    .cart-summary {
+        position: static;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cart functionality
+    let cart = JSON.parse(localStorage.getItem('doko_cart')) || [];
+    
+    // Load cart items
+    function loadCartItems() {
+        const container = document.getElementById('cart-items-container');
+        const emptyCart = document.getElementById('empty-cart');
+        
+        if (cart.length === 0) {
+            emptyCart.style.display = 'block';
+            return;
         }
-
-        function renderCartItems(items) {
-            const cartItemsList = document.getElementById('cart-items-list');
-            cartItemsList.innerHTML = '';
-            
-            items.forEach((item, index) => {
-                const cartItem = createCartItemElement(item, index);
-                cartItemsList.appendChild(cartItem);
-            });
-        }
-
-        function createCartItemElement(item, index) {
-            const cartItem = document.createElement('div');
-            cartItem.className = 'cart-item';
-            cartItem.innerHTML = `
-                <div class="item-image">
-                    <img src="${item.image || 'https://img.icons8.com/fluency/80/shopping-bag.png'}" alt="${item.name}">
+        
+        emptyCart.style.display = 'none';
+        
+        let cartHTML = '';
+        cart.forEach((item, index) => {
+            cartHTML += `
+                <div class="cart-item" data-index="${index}">
+                    <div class="item-image">
+                        <img src="${item.image}" alt="${item.name}" loading="lazy">
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">Rs. ${item.price.toFixed(2)}</div>
+                        <div class="item-quantity">
+                            <button class="qty-btn qty-decrease" data-index="${index}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${index}">
+                            <button class="qty-btn qty-increase" data-index="${index}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-total">Rs. ${(item.price * item.quantity).toFixed(2)}</div>
+                    <div class="remove-item" data-index="${index}">
+                        <i class="fas fa-trash"></i>
+                    </div>
                 </div>
-                <div class="item-details">
-                    <h4>${item.name}</h4>
-                    <p class="item-price">रू ${item.price}</p>
-                </div>
-                <div class="item-quantity">
-                    <button onclick="updateQuantity(${index}, ${item.quantity - 1})">-</button>
-                    <span>${item.quantity}</span>
-                    <button onclick="updateQuantity(${index}, ${item.quantity + 1})">+</button>
-                </div>
-                <div class="item-total">
-                    रू ${item.price * item.quantity}
-                </div>
-                <button class="remove-item" onclick="removeFromCart(${index})">
-                    <i class="fas fa-trash"></i>
-                </button>
             `;
-            return cartItem;
+        });
+        
+        container.innerHTML = cartHTML;
+        updateCartSummary();
+    }
+    
+    // Update cart summary
+    function updateCartSummary() {
+        const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const deliveryCharge = subtotal >= 1000 ? 0 : 50;
+        const discount = 0; // Will be calculated based on promo codes
+        const total = subtotal + deliveryCharge - discount;
+        
+        document.getElementById('cart-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
+        document.getElementById('delivery-charge').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
+        document.getElementById('cart-total').textContent = `Rs. ${total.toFixed(2)}`;
+        
+        // Update cart count in header
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) {
+            cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
         }
-
-        function updateQuantity(index, newQuantity) {
-            if (newQuantity <= 0) {
-                removeFromCart(index);
-                return;
+    }
+    
+    // Event listeners
+    document.addEventListener('click', function(e) {
+        const index = parseInt(e.target.closest('[data-index]')?.getAttribute('data-index'));
+        
+        if (e.target.closest('.qty-decrease')) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+                saveCart();
+                loadCartItems();
             }
-            
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            cart[index].quantity = newQuantity;
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
-            updateCartSummary();
         }
-
-        function removeFromCart(index) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        if (e.target.closest('.qty-increase')) {
+            cart[index].quantity++;
+            saveCart();
+            loadCartItems();
+        }
+        
+        if (e.target.closest('.remove-item')) {
             cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
-            updateCartSummary();
+            saveCart();
+            loadCartItems();
         }
-
-        function updateCartSummary() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            let subtotal = 0;
-            
-            cart.forEach(item => {
-                subtotal += item.price * item.quantity;
-            });
-            
-            const deliveryFee = subtotal >= 1000 ? 0 : 50;
-            const total = subtotal + deliveryFee;
-            
-            document.getElementById('cart-subtotal').textContent = `रू ${subtotal}`;
-            document.getElementById('delivery-fee').textContent = deliveryFee === 0 ? 'Free' : `रू ${deliveryFee}`;
-            document.getElementById('cart-total').textContent = `रू ${total}`;
-            
-            const checkoutBtn = document.getElementById('checkout-btn');
-            checkoutBtn.disabled = cart.length === 0;
-            
-            if (cart.length > 0) {
-                checkoutBtn.onclick = () => window.location.href = 'payment.php';
+    });
+    
+    // Quantity input change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('qty-input')) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+            const newQuantity = parseInt(e.target.value);
+            if (newQuantity > 0) {
+                cart[index].quantity = newQuantity;
+                saveCart();
+                loadCartItems();
             }
         }
-    </script>
+    });
+    
+    // Promo code functionality
+    document.getElementById('apply-promo').addEventListener('click', function() {
+        const promoCode = document.getElementById('promo-code').value.trim().toUpperCase();
+        
+        // Mock promo codes
+        const promoCodes = {
+            'WELCOME15': { type: 'percentage', value: 15, minOrder: 500 },
+            'VEGGIE30': { type: 'percentage', value: 30, minOrder: 500 },
+            'DAIRY321': { type: 'fixed', value: 100, minOrder: 300 },
+            'WEEKEND': { type: 'free_delivery', value: 0, minOrder: 0 }
+        };
+        
+        if (promoCodes[promoCode]) {
+            alert('Promo code applied successfully!');
+            // Apply discount logic here
+        } else {
+            alert('Invalid promo code');
+        }
+    });
+    
+    // Checkout button
+    document.getElementById('proceed-checkout').addEventListener('click', function() {
+        if (cart.length === 0) {
+            alert('Your cart is empty!');
+            return;
+        }
+        
+        // Redirect to checkout page (to be created)
+        window.location.href = 'checkout.php';
+    });
+    
+    function saveCart() {
+        localStorage.setItem('doko_cart', JSON.stringify(cart));
+    }
+    
+    // Initialize
+    loadCartItems();
+});
+</script>
 
 <?php
-// Include footer template
-include_once '../template/footer.php';
+// Include footer
+include_footer();
 ?>

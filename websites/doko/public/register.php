@@ -1,0 +1,772 @@
+<?php
+// Start session and include configuration
+session_start();
+require_once '../template/config.php';
+
+// Page-specific variables
+$page_title = page_title('Register');
+$page_description = 'Create your DOKO account and start shopping for fresh groceries online.';
+$current_page = 'register';
+
+// Breadcrumb items
+$breadcrumb_items = [
+    ['title' => 'Home', 'url' => 'index.php'],
+    ['title' => 'Register', 'url' => '']
+];
+
+// Include header
+include_header($page_title, $page_description, $current_page);
+?>
+
+<!-- Breadcrumb -->
+<?php include '../template/breadcrumb.php'; ?>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Join DOKO</h1>
+                    <p>Create your account and start shopping</p>
+                </div>
+
+                <div class="auth-content">
+                    <form id="register-form" class="auth-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="input-feedback" id="email-feedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <div class="input-group">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" name="password" placeholder="Create a password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="password-strength"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="input-feedback" id="confirm-feedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <div class="input-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <select id="city" name="city" required>
+                                    <option value="">Select your city</option>
+                                    <option value="kathmandu">Kathmandu</option>
+                                    <option value="lalitpur">Lalitpur</option>
+                                    <option value="bhaktapur">Bhaktapur</option>
+                                    <option value="pokhara">Pokhara</option>
+                                    <option value="chitwan">Chitwan</option>
+                                    <option value="butwal">Butwal</option>
+                                    <option value="biratnagar">Biratnagar</option>
+                                    <option value="dharan">Dharan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="terms-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="agree_terms" required>
+                                <span class="checkmark"></span>
+                                I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+
+                        <div class="newsletter-signup">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="newsletter" checked>
+                                <span class="checkmark"></span>
+                                Send me offers, product updates, and promotional emails
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg auth-submit">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button class="btn btn-social google-btn">
+                            <i class="fab fa-google"></i>
+                            Sign up with Google
+                        </button>
+                        <button class="btn btn-social facebook-btn">
+                            <i class="fab fa-facebook-f"></i>
+                            Sign up with Facebook
+                        </button>
+                    </div>
+
+                    <div class="auth-footer">
+                        <p>Already have an account? <a href="login.php">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Why Join Section -->
+            <div class="benefits-card">
+                <h3>Why Join DOKO?</h3>
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <i class="fas fa-leaf"></i>
+                        <div>
+                            <h4>Fresh Groceries</h4>
+                            <p>Get farm-fresh vegetables, fruits, and daily essentials delivered to your door</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-truck"></i>
+                        <div>
+                            <h4>Fast Delivery</h4>
+                            <p>Same-day delivery available in Kathmandu Valley and quick delivery nationwide</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-tag"></i>
+                        <div>
+                            <h4>Great Prices</h4>
+                            <p>Competitive prices with regular discounts and member-only offers</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <h4>Secure Shopping</h4>
+                            <p>Safe and secure payment options with money-back guarantee</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="special-offer">
+                    <h4>🎉 Welcome Offer</h4>
+                    <p>Get <strong>15% OFF</strong> on your first order with code <code>WELCOME15</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+.auth-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.auth-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--light-text);
+}
+
+.auth-form {
+    margin-bottom: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-text);
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--light-text);
+    z-index: 2;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+}
+
+.input-group.valid input {
+    border-color: var(--success-color);
+}
+
+.input-group.invalid input {
+    border-color: var(--error-color);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--light-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 2;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+.input-feedback {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    min-height: 1.2em;
+}
+
+.input-feedback.success {
+    color: var(--success-color);
+}
+
+.input-feedback.error {
+    color: var(--error-color);
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-meter {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.strength-bar {
+    height: 100%;
+    transition: var(--transition);
+    border-radius: 2px;
+}
+
+.strength-bar.weak {
+    width: 25%;
+    background: var(--error-color);
+}
+
+.strength-bar.fair {
+    width: 50%;
+    background: orange;
+}
+
+.strength-bar.good {
+    width: 75%;
+    background: #3498db;
+}
+
+.strength-bar.strong {
+    width: 100%;
+    background: var(--success-color);
+}
+
+.strength-text {
+    font-size: 0.85rem;
+}
+
+.terms-agreement,
+.newsletter-signup {
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--dark-text);
+    line-height: 1.4;
+}
+
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 3px;
+    margin-right: 0.75rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+    position: relative;
+    transition: var(--transition);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.checkbox-label a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.checkbox-label a:hover {
+    text-decoration: underline;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.auth-divider {
+    text-align: center;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.auth-divider span {
+    background: var(--white);
+    padding: 0 1rem;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    background: var(--white);
+    color: var(--dark-text);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-social:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:hover {
+    border-color: #db4437;
+    color: #db4437;
+}
+
+.facebook-btn:hover {
+    border-color: #3b5998;
+    color: #3b5998;
+}
+
+.auth-footer {
+    text-align: center;
+}
+
+.auth-footer p {
+    color: var(--light-text);
+}
+
+.auth-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.benefits-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.benefits-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.benefit-item i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.benefit-item h4 {
+    margin-bottom: 0.25rem;
+    color: var(--dark-text);
+}
+
+.benefit-item p {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.special-offer {
+    background: linear-gradient(135deg, var(--primary-color), #27ae60);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    color: white;
+    text-align: center;
+}
+
+.special-offer h4 {
+    margin-bottom: 0.5rem;
+}
+
+.special-offer code {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+    
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .social-login {
+        gap: 0.75rem;
+    }
+    
+    .btn-social {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<script>
+// Password toggle functionality
+function togglePassword(fieldId) {
+    const passwordInput = document.getElementById(fieldId);
+    const toggleBtn = passwordInput.parentElement.querySelector('.password-toggle i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    let strength = 0;
+    const checks = {
+        length: password.length >= 8,
+        lowercase: /[a-z]/.test(password),
+        uppercase: /[A-Z]/.test(password),
+        numbers: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    strength = Object.values(checks).filter(Boolean).length;
+    
+    const levels = ['', 'weak', 'fair', 'good', 'strong'];
+    const texts = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    
+    return {
+        level: levels[strength] || 'weak',
+        text: texts[strength] || 'Weak',
+        score: strength
+    };
+}
+
+// Email validation
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Form validation and submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('register-form');
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirm_password');
+    const emailField = document.getElementById('email');
+    
+    // Password strength indicator
+    passwordField.addEventListener('input', function() {
+        const password = this.value;
+        const strength = checkPasswordStrength(password);
+        const strengthContainer = document.getElementById('password-strength');
+        
+        if (password.length > 0) {
+            strengthContainer.innerHTML = `
+                <div class="strength-meter">
+                    <div class="strength-bar ${strength.level}"></div>
+                </div>
+                <div class="strength-text">Password strength: ${strength.text}</div>
+            `;
+        } else {
+            strengthContainer.innerHTML = '';
+        }
+        
+        // Update input styling
+        const inputGroup = this.parentElement;
+        if (strength.score >= 3) {
+            inputGroup.classList.add('valid');
+            inputGroup.classList.remove('invalid');
+        } else if (password.length > 0) {
+            inputGroup.classList.add('invalid');
+            inputGroup.classList.remove('valid');
+        } else {
+            inputGroup.classList.remove('valid', 'invalid');
+        }
+    });
+    
+    // Confirm password validation
+    confirmPasswordField.addEventListener('input', function() {
+        const password = passwordField.value;
+        const confirmPassword = this.value;
+        const feedback = document.getElementById('confirm-feedback');
+        const inputGroup = this.parentElement;
+        
+        if (confirmPassword.length > 0) {
+            if (password === confirmPassword) {
+                feedback.innerHTML = '✓ Passwords match';
+                feedback.className = 'input-feedback success';
+                inputGroup.classList.add('valid');
+                inputGroup.classList.remove('invalid');
+            } else {
+                feedback.innerHTML = '✗ Passwords do not match';
+                feedback.className = 'input-feedback error';
+                inputGroup.classList.add('invalid');
+                inputGroup.classList.remove('valid');
+            }
+        } else {
+            feedback.innerHTML = '';
+            feedback.className = 'input-feedback';
+            inputGroup.classList.remove('valid', 'invalid');
+        }
+    });
+    
+    // Email validation
+    emailField.addEventListener('blur', function() {
+        const email = this.value;
+        const feedback = document.getElementById('email-feedback');
+        const inputGroup = this.parentElement;
+        
+        if (email.length > 0) {
+            if (validateEmail(email)) {
+                feedback.innerHTML = '✓ Valid email address';
+                feedback.className = 'input-feedback success';
+                inputGroup.classList.add('valid');
+                inputGroup.classList.remove('invalid');
+            } else {
+                feedback.innerHTML = '✗ Please enter a valid email address';
+                feedback.className = 'input-feedback error';
+                inputGroup.classList.add('invalid');
+                inputGroup.classList.remove('valid');
+            }
+        } else {
+            feedback.innerHTML = '';
+            feedback.className = 'input-feedback';
+            inputGroup.classList.remove('valid', 'invalid');
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.querySelector('.auth-submit');
+        const originalContent = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        submitBtn.disabled = true;
+        
+        // Get form data
+        const formData = new FormData(this);
+        const userData = {
+            first_name: formData.get('first_name'),
+            last_name: formData.get('last_name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            city: formData.get('city'),
+            newsletter: formData.get('newsletter') ? true : false,
+            registrationDate: new Date().toISOString()
+        };
+        
+        // Simulate registration process
+        setTimeout(() => {
+            // Store user data (in real app, this would be server-side)
+            sessionStorage.setItem('doko_user', JSON.stringify(userData));
+            
+            // Show success message
+            alert('Account created successfully! Welcome to DOKO family.');
+            
+            // Redirect to welcome page or login
+            window.location.href = 'login.php?registered=true';
+        }, 2000);
+    });
+    
+    // Social login handlers
+    document.querySelector('.google-btn').addEventListener('click', function() {
+        alert('Google registration integration would be implemented here');
+    });
+    
+    document.querySelector('.facebook-btn').addEventListener('click', function() {
+        alert('Facebook registration integration would be implemented here');
+    });
+});
+</script>
+
+<?php
+// Include footer
+include_footer();
+?>

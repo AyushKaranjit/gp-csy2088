@@ -1,214 +1,224 @@
 <?php
-namespace Models;
-
-use Core\Database;
-
 /**
- * Product Model
+ * Product Model Class for DOKO Grocery E-commerce
  * Handles all product-related database operations
  */
+
+require_once '../config/database.php';
+
 class Product {
-    private $db;
-    
+    private $conn;
+    private $table_name = "products";
+
+    public $product_id;
+    public $name;
+    public $description;
+    public $price;
+    public $original_price;
+    public $category_id;
+    public $stock;
+    public $unit;
+    public $weight;
+    public $image_url;
+    public $featured;
+    public $is_active;
+    public $nutritional_info;
+
     public function __construct() {
-        $this->db = new \Core\Database();
+        $database = new Database();
+        $this->conn = $database->getConnection();
     }
-    
-    /**
-     * Get all products
-     */
-    public function getAllProducts($limit = null, $offset = 0) {
-        $sql = "SELECT p.*, 
-                       c.name as category_name,
-                       pi.image_url as primary_image
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.category_id
-                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
-                ORDER BY p.created_at DESC";
+
+    // Get all products with pagination and filters
+    public function getAllProducts($category_id = null, $search = null, $featured = null, $limit = 20, $offset = 0) {
+        $query = "SELECT p.*, c.name as category_name, 
+                        (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as avg_rating,
+                        (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as review_count
+                 FROM " . $this->table_name . " p 
+                 LEFT JOIN categories c ON p.category_id = c.category_id 
+                 WHERE p.is_active = 1";
+
+        $params = [];
+
+        if ($category_id) {
+            $query .= " AND p.category_id = :category_id";
+            $params[':category_id'] = $category_id;
+        }
+
+        if ($search) {
+            $query .= " AND (p.name LIKE :search OR p.description LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if ($featured !== null) {
+            $query .= " AND p.featured = :featured";
+            $params[':featured'] = $featured;
+        }
+
+        $query .= " ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->conn->prepare($query);
         
-        if ($limit) {
-            $sql .= " LIMIT {$limit} OFFSET {$offset}";
+        foreach ($params as $key => $value) {
+            $stmt->bindParam($key, $value);
         }
         
-        return $this->db->fetchAll($sql);
+        $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
+        $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
-    
-    /**
-     * Get products by category
-     */
-    public function getProductsByCategory($category, $limit = null) {
-        $sql = "SELECT p.*, 
-                       c.name as category_name,
-                       pi.image_url as primary_image
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.category_id
-                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
-                WHERE c.category_id = :category
-                ORDER BY p.created_at DESC";
-        
-        if ($limit) {
-            $sql .= " LIMIT {$limit}";
-        }
-        
-        return $this->db->fetchAll($sql, ['category' => $category]);
-    }
-    
-    /**
-     * Get product by ID
-     */
+
+    // Get product by ID
     public function getProductById($id) {
-        $sql = "SELECT p.*, 
-                       c.name as category_name,
-                       pi.image_url as primary_image
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.category_id
-                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
-                WHERE p.product_id = :id";
-        return $this->db->fetch($sql, ['id' => $id]);
+        $query = "SELECT p.*, c.name as category_name,
+                        (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as avg_rating,
+                        (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as review_count
+                 FROM " . $this->table_name . " p 
+                 LEFT JOIN categories c ON p.category_id = c.category_id 
+                 WHERE p.product_id = :product_id AND p.is_active = 1 
+                 LIMIT 1";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":product_id", $id);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return $stmt->fetch();
+        }
+        return false;
     }
-    
-    /**
-     * Search products
-     */
-    public function searchProducts($query, $limit = 20) {
-        $sql = "SELECT p.*, 
-                       c.name as category_name,
-                       pi.image_url as primary_image
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.category_id
-                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
-                WHERE (p.name LIKE :query OR p.description LIKE :query) 
-                ORDER BY p.name ASC 
-                LIMIT {$limit}";
-        
-        $searchTerm = "%{$query}%";
-        return $this->db->fetchAll($sql, ['query' => $searchTerm]);
-    }
-    
-    /**
-     * Get featured products
-     */
+
+    // Get featured products
     public function getFeaturedProducts($limit = 8) {
-        $sql = "SELECT p.*, 
-                       c.name as category_name,
-                       pi.image_url as primary_image
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.category_id
-                LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = TRUE
-                WHERE p.rating >= 4.5
-                ORDER BY p.rating DESC, p.created_at DESC
-                LIMIT {$limit}";
-        
-        return $this->db->fetchAll($sql);
+        return $this->getAllProducts(null, null, 1, $limit, 0);
     }
-    
-    /**
-     * Get daily best sell products
-     */
-    public function getDailyBestProducts($limit = 10) {
-        $sql = "SELECT p.*, COALESCE(SUM(oi.quantity), 0) as total_sold
-                FROM products p
-                LEFT JOIN order_items oi ON p.id = oi.product_id
-                LEFT JOIN orders o ON oi.order_id = o.id
-                WHERE p.status = 'active' 
-                AND (o.created_at >= CURDATE() - INTERVAL 7 DAY OR o.created_at IS NULL)
-                GROUP BY p.id
-                ORDER BY total_sold DESC, p.created_at DESC
-                LIMIT {$limit}";
-        
-        return $this->db->fetchAll($sql);
+
+    // Get products by category
+    public function getProductsByCategory($category_id, $limit = 20, $offset = 0) {
+        return $this->getAllProducts($category_id, null, null, $limit, $offset);
     }
-    
-    /**
-     * Create new product
-     */
-    public function createProduct($data) {
-        $requiredFields = ['name', 'price', 'category', 'description'];
+
+    // Search products
+    public function searchProducts($search_term, $limit = 20, $offset = 0) {
+        return $this->getAllProducts(null, $search_term, null, $limit, $offset);
+    }
+
+    // Add new product (admin only)
+    public function addProduct() {
+        $query = "INSERT INTO " . $this->table_name . " 
+                 SET name=:name, description=:description, price=:price, original_price=:original_price,
+                     category_id=:category_id, stock=:stock, unit=:unit, weight=:weight,
+                     image_url=:image_url, featured=:featured, nutritional_info=:nutritional_info";
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":price", $this->price);
+        $stmt->bindParam(":original_price", $this->original_price);
+        $stmt->bindParam(":category_id", $this->category_id);
+        $stmt->bindParam(":stock", $this->stock);
+        $stmt->bindParam(":unit", $this->unit);
+        $stmt->bindParam(":weight", $this->weight);
+        $stmt->bindParam(":image_url", $this->image_url);
+        $stmt->bindParam(":featured", $this->featured);
+        $stmt->bindParam(":nutritional_info", $this->nutritional_info);
+
+        if ($stmt->execute()) {
+            $this->product_id = $this->conn->lastInsertId();
+            return true;
+        }
+        return false;
+    }
+
+    // Update product (admin only)
+    public function updateProduct() {
+        $query = "UPDATE " . $this->table_name . " 
+                 SET name=:name, description=:description, price=:price, original_price=:original_price,
+                     category_id=:category_id, stock=:stock, unit=:unit, weight=:weight,
+                     image_url=:image_url, featured=:featured, nutritional_info=:nutritional_info
+                 WHERE product_id=:product_id";
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":price", $this->price);
+        $stmt->bindParam(":original_price", $this->original_price);
+        $stmt->bindParam(":category_id", $this->category_id);
+        $stmt->bindParam(":stock", $this->stock);
+        $stmt->bindParam(":unit", $this->unit);
+        $stmt->bindParam(":weight", $this->weight);
+        $stmt->bindParam(":image_url", $this->image_url);
+        $stmt->bindParam(":featured", $this->featured);
+        $stmt->bindParam(":nutritional_info", $this->nutritional_info);
+        $stmt->bindParam(":product_id", $this->product_id);
+
+        return $stmt->execute();
+    }
+
+    // Delete product (admin only)
+    public function deleteProduct($product_id) {
+        $query = "UPDATE " . $this->table_name . " SET is_active = 0 WHERE product_id = :product_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":product_id", $product_id);
         
-        foreach ($requiredFields as $field) {
-            if (!isset($data[$field]) || empty($data[$field])) {
-                throw new \Exception("Field {$field} is required");
-            }
+        return $stmt->execute();
+    }
+
+    // Update stock
+    public function updateStock($product_id, $quantity) {
+        $query = "UPDATE " . $this->table_name . " 
+                 SET stock = stock - :quantity 
+                 WHERE product_id = :product_id AND stock >= :quantity";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":product_id", $product_id);
+        $stmt->bindParam(":quantity", $quantity);
+        
+        return $stmt->execute();
+    }
+
+    // Get low stock products (admin only)
+    public function getLowStockProducts($threshold = 10) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                 WHERE stock <= :threshold AND is_active = 1 
+                 ORDER BY stock ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":threshold", $threshold);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+
+    // Get product count for pagination
+    public function getProductCount($category_id = null, $search = null) {
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE is_active = 1";
+        $params = [];
+
+        if ($category_id) {
+            $query .= " AND category_id = :category_id";
+            $params[':category_id'] = $category_id;
+        }
+
+        if ($search) {
+            $query .= " AND (name LIKE :search OR description LIKE :search)";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        $stmt = $this->conn->prepare($query);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindParam($key, $value);
         }
         
-        $productData = [
-            'name' => $data['name'],
-            'description' => $data['description'],
-            'price' => $data['price'],
-            'category' => $data['category'],
-            'image_url' => $data['image_url'] ?? null,
-            'stock_quantity' => $data['stock_quantity'] ?? 0,
-            'featured' => $data['featured'] ?? 0,
-            'status' => 'active',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
+        $stmt->execute();
+        $row = $stmt->fetch();
         
-        return $this->db->insert('products', $productData);
-    }
-    
-    /**
-     * Update product
-     */
-    public function updateProduct($id, $data) {
-        $data['updated_at'] = date('Y-m-d H:i:s');
-        
-        return $this->db->update('products', $data, 'id = :id', ['id' => $id]);
-    }
-    
-    /**
-     * Delete product (soft delete)
-     */
-    public function deleteProduct($id) {
-        return $this->db->update('products', 
-            ['status' => 'deleted', 'updated_at' => date('Y-m-d H:i:s')], 
-            'id = :id', 
-            ['id' => $id]
-        );
-    }
-    
-    /**
-     * Update stock quantity
-     */
-    public function updateStock($id, $quantity) {
-        return $this->db->update('products', 
-            ['stock_quantity' => $quantity, 'updated_at' => date('Y-m-d H:i:s')], 
-            'id = :id', 
-            ['id' => $id]
-        );
-    }
-    
-    /**
-     * Decrease stock quantity
-     */
-    public function decreaseStock($id, $quantity) {
-        $sql = "UPDATE products 
-                SET stock_quantity = stock_quantity - :quantity, updated_at = NOW() 
-                WHERE id = :id AND stock_quantity >= :quantity";
-        
-        $result = $this->db->query($sql, ['id' => $id, 'quantity' => $quantity]);
-        return $result->rowCount() > 0;
-    }
-    
-    /**
-     * Get categories
-     */
-    public function getCategories() {
-        $sql = "SELECT DISTINCT category FROM products WHERE status = 'active' ORDER BY category";
-        return $this->db->fetchAll($sql);
-    }
-    
-    /**
-     * Get product count by category
-     */
-    public function getProductCountByCategory() {
-        $sql = "SELECT category, COUNT(*) as count 
-                FROM products 
-                WHERE status = 'active' 
-                GROUP BY category 
-                ORDER BY category";
-        
-        return $this->db->fetchAll($sql);
+        return $row['total'];
     }
 }
 ?>
