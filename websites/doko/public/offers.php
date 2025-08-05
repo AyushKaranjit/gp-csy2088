@@ -2,7 +2,7 @@
 // Start session and include configuration
 session_start();
 require_once '../template/config.php';
-require_once '../config/database.php';
+require_once 'config/database.php';
 
 // Page-specific variables
 $page_title = page_title('Special Offers');

@@ -2,7 +2,7 @@
 // Start session and include configuration
 session_start();
 require_once '../template/config.php';
-require_once '../config/database.php';
+require_once 'config/database.php';
 
 // Get filter parameters
 $category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
@@ -683,5 +683,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php
 // Include footer
-include_footer(['public/js/products.js']);
+include_footer();
 ?>

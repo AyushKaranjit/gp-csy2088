@@ -37,7 +37,7 @@ include_header($page_title, $page_description, $current_page);
                             <label for="email">Email Address</label>
                             <div class="input-group">
                                 <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="username" required>
                             </div>
                         </div>
 
@@ -45,7 +45,7 @@ include_header($page_title, $page_description, $current_page);
                             <label for="password">Password</label>
                             <div class="input-group">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
                                 <button type="button" class="password-toggle" onclick="togglePassword()">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -479,7 +479,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
     
     try {
         // Send login request to API
-        const response = await fetch('../src/Controllers/api/auth/login.php', {
+        const response = await fetch('api-auth-login.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

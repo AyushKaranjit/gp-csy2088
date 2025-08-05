@@ -6,8 +6,8 @@
 
 // Global Configuration
 const DOKO = {
-    baseURL: 'http://localhost/doko/',
-    apiURL: 'http://localhost/doko/api/',
+    baseURL: 'http://localhost/',
+    apiURL: '',
     cart: JSON.parse(localStorage.getItem('doko_cart')) || [],
     wishlist: JSON.parse(localStorage.getItem('doko_wishlist')) || [],
     user: JSON.parse(localStorage.getItem('doko_user')) || null,
@@ -119,7 +119,7 @@ const API = {
                 config.body = JSON.stringify(data);
             }
 
-            const response = await fetch(DOKO.apiURL + endpoint, config);
+            const response = await fetch(DOKO.baseURL + endpoint, config);
             const result = await response.json();
 
             if (!response.ok) {
@@ -136,43 +136,43 @@ const API = {
 
     // Authentication APIs
     auth: {
-        login: (email, password) => API.call('auth/login.php', 'POST', { email, password }),
-        register: (userData) => API.call('auth/register.php', 'POST', userData),
-        logout: () => API.call('auth/logout.php', 'POST'),
-        getProfile: () => API.call('auth/profile.php')
+        login: (email, password) => API.call('api-auth-login.php', 'POST', { email, password }),
+        register: (userData) => API.call('api-auth-register.php', 'POST', userData),
+        logout: () => API.call('api-auth-logout.php', 'POST'),
+        getProfile: () => API.call('api-auth-profile.php')
     },
 
     // Product APIs
     products: {
         getAll: (params = {}) => {
             const queryString = new URLSearchParams(params).toString();
-            return API.call(`products/list.php?${queryString}`);
+            return API.call(`api-products-list.php?${queryString}`);
         },
-        getById: (id) => API.call(`products/detail.php?id=${id}`),
-        getFeatured: () => API.call('products/featured.php'),
-        search: (query) => API.call(`products/search.php?q=${encodeURIComponent(query)}`)
+        getById: (id) => API.call(`api-product-detail.php?id=${id}`),
+        getFeatured: () => API.call('api-products-featured.php'),
+        search: (query) => API.call(`api-products-search.php?q=${encodeURIComponent(query)}`)
     },
 
     // Category APIs
     categories: {
-        getAll: () => API.call('categories/list.php'),
-        getById: (id) => API.call(`categories/detail.php?id=${id}`)
+        getAll: () => API.call('api-categories-list.php'),
+        getById: (id) => API.call(`api-categories-detail.php?id=${id}`)
     },
 
     // Cart APIs
     cart: {
-        get: () => API.call('cart/get.php'),
-        add: (productId, quantity) => API.call('cart/add.php', 'POST', { product_id: productId, quantity }),
-        update: (productId, quantity) => API.call('cart/update.php', 'PUT', { product_id: productId, quantity }),
-        remove: (productId) => API.call('cart/remove.php', 'DELETE', { product_id: productId }),
-        clear: () => API.call('cart/clear.php', 'DELETE')
+        get: () => API.call('api-cart-get.php'),
+        add: (productId, quantity) => API.call('api-cart-add.php', 'POST', { product_id: productId, quantity }),
+        update: (productId, quantity) => API.call('api-cart-update.php', 'PUT', { product_id: productId, quantity }),
+        remove: (productId) => API.call('api-cart-remove.php', 'DELETE', { product_id: productId }),
+        clear: () => API.call('api-cart-clear.php', 'DELETE')
     },
 
     // Order APIs
     orders: {
-        create: (orderData) => API.call('orders/create.php', 'POST', orderData),
-        getAll: () => API.call('orders/list.php'),
-        getById: (id) => API.call(`orders/detail.php?id=${id}`)
+        create: (orderData) => API.call('orders/create', 'POST', orderData),
+        getAll: () => API.call('orders/list'),
+        getById: (id) => API.call(`orders/detail?id=${id}`)
     }
 };
 
@@ -325,12 +325,12 @@ const WishlistManager = {
                 price: product.price,
                 image_url: product.image_url
             });
-            this.saveWishlist();
+            WishlistManager.saveWishlist();
             Utils.showNotification(`${product.name} added to wishlist!`, 'success');
         } else {
             Utils.showNotification('Item already in wishlist', 'info');
         }
-        this.updateWishlistUI();
+        WishlistManager.updateWishlistUI();
     },
 
     // Remove item from wishlist
@@ -339,10 +339,10 @@ const WishlistManager = {
         if (index > -1) {
             const item = DOKO.wishlist[index];
             DOKO.wishlist.splice(index, 1);
-            this.saveWishlist();
+            WishlistManager.saveWishlist();
             Utils.showNotification(`${item.name} removed from wishlist`, 'info');
         }
-        this.updateWishlistUI();
+        WishlistManager.updateWishlistUI();
     },
 
     // Check if item is in wishlist
@@ -360,7 +360,7 @@ const WishlistManager = {
         const wishlistButtons = document.querySelectorAll('.wishlist-btn');
         wishlistButtons.forEach(button => {
             const productId = parseInt(button.getAttribute('data-product-id'));
-            if (this.isInWishlist(productId)) {
+            if (WishlistManager.isInWishlist(productId)) {
                 button.classList.add('active');
                 button.innerHTML = '❤️';
             } else {
@@ -368,6 +368,15 @@ const WishlistManager = {
                 button.innerHTML = '🤍';
             }
         });
+        WishlistManager.updateWishlistCount();
+    },
+
+    // Update wishlist count in header
+    updateWishlistCount: () => {
+        const countElement = document.querySelector('.wishlist-count');
+        if (countElement) {
+            countElement.textContent = DOKO.wishlist.length;
+        }
     }
 };
 
@@ -378,20 +387,22 @@ const SearchManager = {
         const searchResults = document.getElementById('search-results');
         
         if (searchBox) {
-            const debouncedSearch = Utils.debounce(this.performSearch, 300);
+            const debouncedSearch = Utils.debounce(SearchManager.performSearch, 300);
             searchBox.addEventListener('input', (e) => {
                 const query = e.target.value.trim();
                 if (query.length >= 2) {
                     debouncedSearch(query);
                 } else {
-                    this.hideResults();
+                    const results = document.getElementById('search-results');
+                    if (results) results.style.display = 'none';
                 }
             });
 
             // Hide results when clicking outside
             document.addEventListener('click', (e) => {
                 if (!searchBox.contains(e.target) && !searchResults?.contains(e.target)) {
-                    this.hideResults();
+                    const results = document.getElementById('search-results');
+                    if (results) results.style.display = 'none';
                 }
             });
         }
@@ -400,7 +411,7 @@ const SearchManager = {
     performSearch: async (query) => {
         try {
             const results = await API.products.search(query);
-            this.displayResults(results.data || []);
+            SearchManager.displayResults(results.data || []);
         } catch (error) {
             console.error('Search error:', error);
         }
@@ -419,7 +430,7 @@ const SearchManager = {
             searchResults.innerHTML = '<div class="no-results">No products found</div>';
         } else {
             searchResults.innerHTML = products.slice(0, 5).map(product => `
-                <div class="search-result-item" onclick="window.location.href='product-details.html?id=${product.product_id}'">
+                <div class="search-result-item" onclick="window.location.href='product-detail.php?id=${product.product_id}'">
                     <img src="${product.image_url}" alt="${product.name}">
                     <div class="result-info">
                         <h4>${product.name}</h4>
@@ -508,7 +519,7 @@ const ProductManager = {
                     </div>
                     
                     <div class="product-details-link">
-                        <a href="product-details.html?id=${product.product_id}" class="btn btn-outline btn-sm">View Details</a>
+                        <a href="product-detail.php?id=${product.product_id}" class="btn btn-outline btn-sm">View Details</a>
                     </div>
                 </div>
             </div>
@@ -530,6 +541,31 @@ const ProductManager = {
             CartManager.addItem(product, 1);
         } catch (error) {
             console.error('Error adding to cart:', error);
+        }
+    },
+
+    // Add product to cart with specific quantity
+    addToCartWithQuantity: async (productId, quantity = 1) => {
+        try {
+            // Get product details first
+            const response = await API.products.getById(productId);
+            const product = response.data;
+            
+            if (product.stock <= 0) {
+                Utils.showNotification('Product is out of stock', 'warning');
+                return;
+            }
+            
+            if (quantity > product.stock) {
+                Utils.showNotification(`Only ${product.stock} items available`, 'warning');
+                return;
+            }
+            
+            CartManager.addItem(product, quantity);
+            Utils.showNotification(`${quantity} item(s) added to cart`, 'success');
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            Utils.showNotification('Failed to add item to cart', 'error');
         }
     },
 
@@ -673,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'products.html':
             initProductsPage();
             break;
-        case 'product-details.html':
+        case 'product-detail.php':
             initProductDetailsPage();
             break;
         case 'cart.html':
@@ -1261,6 +1297,32 @@ const BackgroundCarousel = {
         console.log('Multi-layer background carousel initialized');
     }
 };
+
+// Global utility functions for product cards
+function changeCardQuantity(productId, delta) {
+    const input = document.getElementById(`qty-${productId}`);
+    if (!input) return;
+    
+    const currentValue = parseInt(input.value) || 1;
+    const newValue = currentValue + delta;
+    const min = parseInt(input.min) || 1;
+    const max = parseInt(input.max) || 99;
+    
+    if (newValue >= min && newValue <= max) {
+        input.value = newValue;
+    }
+}
+
+function addToCartFromCard(productId) {
+    const quantityInput = document.getElementById(`qty-${productId}`);
+    const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+    
+    if (typeof ProductManager !== 'undefined' && ProductManager.addToCartWithQuantity) {
+        ProductManager.addToCartWithQuantity(productId, quantity);
+    } else {
+        console.error('ProductManager not found');
+    }
+}
 
 // Export for global access
 window.BackgroundCarousel = BackgroundCarousel;

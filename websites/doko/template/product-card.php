@@ -31,9 +31,11 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 
 <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
     <div class="product-image">
-        <img src="<?php echo clean_output($product['image']); ?>" 
-             alt="<?php echo clean_output($product['name']); ?>" 
-             loading="lazy">
+        <a href="product-detail.php?id=<?php echo $product['id']; ?>" class="product-image-link">
+            <img src="<?php echo clean_output($product['image']); ?>" 
+                 alt="<?php echo clean_output($product['name']); ?>" 
+                 loading="lazy">
+        </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>
         <div class="product-badge sale-badge">
@@ -100,13 +102,21 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         </div>
         
         <?php if ($product['in_stock']): ?>
-        <button class="btn btn-primary btn-block add-to-cart" 
-                data-product-id="<?php echo $product['id']; ?>"
-                data-product-name="<?php echo clean_output($product['name']); ?>"
-                data-product-price="<?php echo $product['price']; ?>">
-            <i class="fas fa-shopping-cart"></i>
-            Add to Cart
-        </button>
+        <div class="cart-controls">
+            <div class="quantity-selector-mini">
+                <button type="button" class="qty-btn-mini minus" onclick="changeCardQuantity(<?php echo $product['id']; ?>, -1)">-</button>
+                <input type="number" id="qty-<?php echo $product['id']; ?>" class="qty-input-mini" value="1" min="1" max="<?php echo $product['stock_quantity'] ?? 99; ?>">
+                <button type="button" class="qty-btn-mini plus" onclick="changeCardQuantity(<?php echo $product['id']; ?>, 1)">+</button>
+            </div>
+            <button class="btn btn-primary btn-block add-to-cart" 
+                    onclick="addToCartFromCard(<?php echo $product['id']; ?>)"
+                    data-product-id="<?php echo $product['id']; ?>"
+                    data-product-name="<?php echo clean_output($product['name']); ?>"
+                    data-product-price="<?php echo $product['price']; ?>">
+                <i class="fas fa-shopping-cart"></i>
+                Add to Cart
+            </button>
+        </div>
         <?php else: ?>
         <button class="btn btn-secondary btn-block" disabled>
             <i class="fas fa-times"></i>
@@ -135,6 +145,12 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     position: relative;
     height: 200px;
     overflow: hidden;
+}
+
+.product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .product-image img {
@@ -293,6 +309,52 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     background: #6c757d;
     color: white;
     cursor: not-allowed;
+}
+
+/* Cart Controls */
+.cart-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quantity-selector-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background: white;
+}
+
+.qty-btn-mini {
+    background: var(--light-gray);
+    border: none;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: var(--transition);
+    min-width: 35px;
+}
+
+.qty-btn-mini:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.qty-input-mini {
+    border: none;
+    padding: 0.5rem;
+    text-align: center;
+    width: 50px;
+    font-size: 0.9rem;
+    background: white;
+}
+
+.qty-input-mini:focus {
+    outline: none;
 }
 
 /* Responsive Design */

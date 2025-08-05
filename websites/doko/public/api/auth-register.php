@@ -1,8 +1,13 @@
 <?php
 /**
  * User Registration API
- * DOKO Grocery E-commerce
+ * User registration in api subdirectory
  */
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -15,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once '../../../Controllers/AuthController.php';
+require_once '../src/Controllers/AuthController.php';
 
 try {
     // Get JSON input
@@ -37,7 +42,7 @@ try {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => ucfirst($field) . ' is required'
+                'message' => "Field '$field' is required"
             ]);
             exit;
         }
@@ -63,25 +68,6 @@ try {
         exit;
     }
     
-    // Validate username (alphanumeric and underscore only)
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $input['username'])) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Username can only contain letters, numbers, and underscores'
-        ]);
-        exit;
-    }
-    
-    if (strlen($input['username']) < 3 || strlen($input['username']) > 50) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Username must be between 3 and 50 characters long'
-        ]);
-        exit;
-    }
-    
     // Register user
     $auth = new AuthController();
     $result = $auth->register($input);
@@ -98,7 +84,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'An error occurred during registration. Please try again.'
+        'message' => 'An error occurred during registration'
     ]);
 }
 ?>

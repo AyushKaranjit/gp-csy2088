@@ -150,42 +150,102 @@ include_header($page_title, $page_description, $current_page);
         gap: 1rem;
     }
 }
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+}
 </style>
 
 <script>
+// DOKO configuration
+const DOKO = {
+    baseURL: window.location.origin
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     loadWishlistItems();
 });
 
 function loadWishlistItems() {
-    // This would typically load from localStorage or server
-    const wishlistItems = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const container = document.getElementById('wishlist-items-container');
+    const emptyState = document.getElementById('empty-wishlist');
     
-    if (wishlistItems.length === 0) {
-        document.getElementById('empty-wishlist').style.display = 'block';
+    // Get wishlist from localStorage
+    const wishlist = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
+    
+    if (wishlist.length === 0) {
+        emptyState.style.display = 'block';
+        container.innerHTML = '<div class="empty-wishlist" id="empty-wishlist"><div class="empty-state"><i class="fas fa-heart"></i><h3>Your wishlist is empty</h3><p>Save your favorite products to buy them later</p><a href="products.php" class="btn btn-primary">Start Shopping</a></div></div>';
         return;
     }
     
-    document.getElementById('empty-wishlist').style.display = 'none';
-    displayWishlistItems(wishlistItems);
+    emptyState.style.display = 'none';
+    
+    // Show loading state
+    container.innerHTML = '<div class="loading">Loading wishlist items...</div>';
+    
+    // For each item in wishlist, fetch product details from API
+    Promise.all(wishlist.map(item => 
+        fetch(`${DOKO.baseURL}/api/product-detail.php?id=${item.product_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.product) {
+                    return data.product;
+                }
+                return null;
+            })
+            .catch(error => {
+                console.error('Error fetching product:', item.product_id, error);
+                return null;
+            })
+    )).then(products => {
+        const validProducts = products.filter(p => p !== null);
+        if (validProducts.length === 0) {
+            container.innerHTML = '<div class="error-message">No valid wishlist items found</div>';
+        } else {
+            displayWishlistItems(validProducts);
+        }
+    }).catch(error => {
+        console.error('Error loading wishlist items:', error);
+        container.innerHTML = '<div class="error-message">Error loading wishlist items</div>';
+    });
 }
 
-function displayWishlistItems(items) {
+function displayWishlistItems(products) {
     const container = document.getElementById('wishlist-items-container');
+    
+    if (products.length === 0) {
+        container.innerHTML = '<div class="error-message">Some wishlist items could not be loaded</div>';
+        return;
+    }
     
     const html = `
         <div class="wishlist-grid">
-            ${items.map(item => `
-                <div class="wishlist-item" data-id="${item.id}">
-                    <img src="${item.image}" alt="${item.name}" class="wishlist-item-image">
+            ${products.map(product => `
+                <div class="wishlist-item" data-id="${product.product_id}">
+                    <img src="${DOKO.baseURL}/uploads/products/${product.image_url || 'default.jpg'}" 
+                         alt="${product.name}" class="wishlist-item-image">
                     <div class="wishlist-item-content">
-                        <h3>${item.name}</h3>
-                        <div class="wishlist-item-price">Rs. ${item.price}</div>
+                        <h3>${product.name}</h3>
+                        <div class="wishlist-item-price">Rs. ${parseFloat(product.price).toFixed(2)}</div>
                         <div class="wishlist-item-actions">
-                            <button class="btn btn-primary add-to-cart" data-id="${item.id}">
+                            <button class="btn btn-primary add-to-cart" data-id="${product.product_id}">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
-                            <button class="remove-wishlist" data-id="${item.id}" title="Remove from wishlist">
+                            <button class="remove-wishlist" data-id="${product.product_id}" title="Remove from wishlist">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -201,8 +261,7 @@ function displayWishlistItems(items) {
     container.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = this.dataset.id;
-            // Add to cart logic here
-            console.log('Adding to cart:', productId);
+            addToCart(productId);
         });
     });
     
@@ -214,11 +273,74 @@ function displayWishlistItems(items) {
     });
 }
 
+function addToCart(productId) {
+    fetch(`${DOKO.baseURL}/api/cart-add.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showNotification('Product added to cart!', 'success');
+            // Update cart count if function exists
+            if (typeof CartManager !== 'undefined' && CartManager.updateCartCount) {
+                CartManager.updateCartCount();
+            }
+        } else {
+            showNotification('Error adding to cart: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        showNotification('Error adding to cart', 'error');
+    });
+}
+
 function removeFromWishlist(productId) {
-    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-    wishlist = wishlist.filter(item => item.id !== productId);
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    let wishlist = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
+    wishlist = wishlist.filter(item => item.product_id != productId);
+    localStorage.setItem('doko_wishlist', JSON.stringify(wishlist));
+    
+    // Reload wishlist display
     loadWishlistItems();
+    
+    // Update wishlist count if function exists
+    if (typeof WishlistManager !== 'undefined' && WishlistManager.updateWishlistCount) {
+        WishlistManager.updateWishlistCount();
+    }
+    
+    showNotification('Item removed from wishlist', 'success');
+}
+
+function showNotification(message, type = 'info') {
+    // Simple notification - you can enhance this
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 </script>
 

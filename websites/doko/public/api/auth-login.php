@@ -1,21 +1,29 @@
 <?php
 /**
- * User Login API
- * DOKO Grocery E-commerce
+ * Login API Endpoint
+ * User authentication in api subdirectory
  */
 
-header('Content-Type: application/json');
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Set proper CORS and JSON headers
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
+// Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
-require_once '../../../Controllers/AuthController.php';
+require_once '../config/database.php';
+require_once '../src/Controllers/AuthController.php';
 
 try {
     // Get JSON input
@@ -43,7 +51,7 @@ try {
         exit;
     }
     
-    // Authenticate user
+    // Use AuthController for login
     $auth = new AuthController();
     $result = $auth->login($email, $password);
     
@@ -59,7 +67,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'An error occurred during login. Please try again.'
+        'message' => 'An error occurred during login'
     ]);
 }
 ?>

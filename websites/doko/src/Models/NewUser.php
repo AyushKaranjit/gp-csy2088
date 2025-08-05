@@ -4,7 +4,7 @@
  * Handles user authentication, registration, and management
  */
 
-require_once __DIR__ . '/../config/new_database.php';
+require_once __DIR__ . '/../../config/database.php';
 
 class User {
     private $db;
