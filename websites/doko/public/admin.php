@@ -2,32 +2,56 @@
 // Start session and include configuration
 session_start();
 require_once '../template/config.php';
+require_once '../src/Controllers/AuthController.php';
 
-// Simple admin authentication (in production, use proper authentication)
-$admin_logged_in = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
+// Check if user is logged in and has admin privileges
+$auth = new AuthController();
 
-// Handle admin login
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    // Simple check (in production, use hashed passwords and database)
-    if ($username === 'admin' && $password === 'doko123') {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_user'] = 'admin';
-        header('Location: admin.php');
-        exit;
-    } else {
-        $error_message = 'Invalid username or password';
-    }
+if (!$auth->isLoggedIn()) {
+    // Redirect to login page
+    header('Location: login.php?redirect=' . urlencode('admin.php'));
+    exit;
+}
+
+if (!$auth->isAdmin()) {
+    // Show access denied message
+    http_response_code(403);
+    echo "<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Access Denied - DOKO Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .error { color: #dc3545; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1 class='error'>Access Denied</h1>
+    <p>You don't have permission to access the admin panel.</p>
+    <a href='index.php' class='btn'>Go to Homepage</a>
+</body>
+</html>";
+    exit;
 }
 
 // Handle logout
 if (isset($_GET['logout'])) {
-    session_destroy();
-    header('Location: admin.php');
+    $auth->logout();
+    header('Location: login.php');
     exit;
 }
+
+// Get current user info
+$currentUser = [
+    'user_id' => $_SESSION['user_id'],
+    'username' => $_SESSION['username'],
+    'email' => $_SESSION['email'],
+    'role' => $_SESSION['role'],
+    'full_name' => $_SESSION['full_name']
+];
 
 // If not logged in, show login form
 if (!$admin_logged_in) {
@@ -964,13 +988,13 @@ $page_title = 'DOKO Admin Dashboard';
 
     // Mock data updates
     function updateStats() {
-        console.log('Updating dashboard stats...');
+        // Dashboard stats update logic
     }
 
     // Simulate real-time updates
     setInterval(updateStats, 30000);
 
-    console.log('DOKO Admin Dashboard loaded');
+    // DOKO Admin Dashboard loaded
     </script>
 </body>
 </html>

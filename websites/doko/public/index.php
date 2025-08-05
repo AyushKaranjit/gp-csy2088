@@ -441,7 +441,6 @@ include_footer([], '
         }
         
         // Cart and background carousel are already initialized in main.js
-        console.log("Index page with hero slider fully loaded");
     });
     
     // Initialize newsletter form

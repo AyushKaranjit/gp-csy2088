@@ -184,7 +184,6 @@ const CartManager = {
         DOKO.cart = JSON.parse(localStorage.getItem('doko_cart')) || [];
         // Update UI
         CartManager.updateCartUI();
-        console.log('CartManager initialized with', DOKO.cart.length, 'items');
     },
 
     // Add item to cart
@@ -867,7 +866,6 @@ async function loadProductDetails(productId) {
 
 function displayProductDetails(product) {
     // This would be implemented based on the product details page structure
-    console.log('Product details:', product);
 }
 
 function initFilters() {

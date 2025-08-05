@@ -908,14 +908,17 @@ a:hover {
     z-index: 10;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     min-height: 80vh;
     gap: 3rem;
+    text-align: center;
 }
 
 .hero-text {
     flex: 1;
-    max-width: 600px;
+    max-width: 800px;
+    text-align: center;
+    margin: 0 auto;
 }
 
 .hero-text h1 {
@@ -1062,39 +1065,7 @@ a:hover {
     backface-visibility: hidden;
 }
 
-/* Old Hero Section - Keep for compatibility */
-.hero {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--white);
-    padding: 3rem 0;
-    text-align: center;
-}
-
-.hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--white);
-    font-weight: 700;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    color: rgba(255,255,255,0.9);
-}
-
-/* Ensure main content is properly styled */
-.hero,
-.section,
-.main-content {
-    position: relative;
-    z-index: 1;
-}
-
-.hero {
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(229, 90, 43, 0.95));
-    backdrop-filter: blur(5px);
-}
+/* Hero sections removed for clean design */
 
 /* Alternative sliding pattern for variety */
 @media (prefers-reduced-motion: no-preference) {
