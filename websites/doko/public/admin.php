@@ -1869,7 +1869,7 @@ $page_title = 'DOKO Admin Dashboard';
     async function loadProductsData() {
         try {
             console.log('Loading products data...');
-            const response = await fetch('/api/admin-products.php', {
+            const response = await fetch('api/admin-products.php', {
                 method: 'GET',
                 credentials: 'same-origin',
                 headers: {
@@ -2593,7 +2593,7 @@ $page_title = 'DOKO Admin Dashboard';
     async function loadUsersData() {
         try {
             console.log('Loading users data...');
-            const response = await fetch('/api/admin-users.php', {
+            const response = await fetch('api/admin-users.php', {
                 method: 'GET',
                 credentials: 'same-origin',
                 headers: {
