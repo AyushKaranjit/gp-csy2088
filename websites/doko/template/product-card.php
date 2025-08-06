@@ -50,7 +50,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
             <img src="<?php echo htmlspecialchars($product['image']); ?>" 
                  alt="<?php echo htmlspecialchars($product['name']); ?>" 
                  loading="lazy"
-                 onerror="this.src='/uploads/default-product.jpg'">
+                 onerror="this.src='uploads/default-product.jpg'">>
         </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>
@@ -142,10 +142,10 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
                 <button type="button" class="qty-btn-mini plus" onclick="changeQuantity(<?php echo $product['id']; ?>, 1)">+</button>
             </div>
             <button class="btn btn-primary btn-block add-to-cart" 
-                    onclick="addToCart(<?php echo $product['id']; ?>)"
+                    onclick="addToCart(<?php echo $product['id']; ?>, 1, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
                     data-product-id="<?php echo $product['id']; ?>"
                     data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
-                    data-product-price="<?php echo $product['price']; ?>">
+                    data-product-price="<?php echo $product['price']; ?>">>
                 <i class="fas fa-shopping-cart"></i>
                 Add to Cart
             </button>

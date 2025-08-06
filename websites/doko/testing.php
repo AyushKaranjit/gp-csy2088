@@ -51,8 +51,14 @@ class DokoTestSuite {
         // API Tests
         $this->runAPITests();
         
+        // Performance Tests
+        $this->runPerformanceTests();
+        
+        // Feature Tests
+        $this->runFeatureTests();
+        
         // Generate report
-        $this->generateTestReport();
+        $this->generateTestReport();;
     }
     
     /**
@@ -329,6 +335,309 @@ class DokoTestSuite {
                 return !$errorResponse['success'];
             }
         });
+        
+        // Test 18: Inventory List API
+        $this->test("Inventory List API Structure", function() {
+            // Test if inventory-list.php file exists and is not empty
+            $filepath = __DIR__ . '/public/api/inventory-list.php';
+            return file_exists($filepath) && filesize($filepath) > 0;
+        });
+        
+        // Test 19: Orders List API  
+        $this->test("Orders List API Structure", function() {
+            // Test if orders-list.php file exists and is not empty
+            $filepath = __DIR__ . '/public/api/orders-list.php';
+            return file_exists($filepath) && filesize($filepath) > 0;
+        });
+        
+        // Test 20: Stock Update API
+        $this->test("Stock Update API Structure", function() {
+            // Test if stock-update.php file exists and is not empty
+            $filepath = __DIR__ . '/public/api/stock-update.php';
+            return file_exists($filepath) && filesize($filepath) > 0;
+        });
+        
+        // Test 21: Users List API
+        $this->test("Users List API Structure", function() {
+            // Test if users-list.php file exists and is not empty
+            $filepath = __DIR__ . '/public/api/users-list.php';
+            return file_exists($filepath) && filesize($filepath) > 0;
+        });
+        
+        // Test 22: API File Permissions
+        $this->test("API Files Readable", function() {
+            $apiFiles = [
+                'inventory-list.php',
+                'orders-list.php', 
+                'stock-update.php',
+                'users-list.php'
+            ];
+            
+            foreach ($apiFiles as $file) {
+                $filepath = __DIR__ . '/public/api/' . $file;
+                if (!is_readable($filepath)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        // Test 23: API Endpoints Content Validation
+        $this->test("API Endpoints Content Validation", function() {
+            $apiFiles = [
+                'inventory-list.php' => 'inventory',
+                'orders-list.php' => 'orders',
+                'stock-update.php' => 'stock',
+                'users-list.php' => 'users'
+            ];
+            
+            foreach ($apiFiles as $file => $keyword) {
+                $filepath = __DIR__ . '/public/api/' . $file;
+                $content = file_get_contents($filepath);
+                
+                // Check for basic PHP structure and keyword
+                if (!str_contains($content, '<?php') || !stripos($content, $keyword)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+    
+    /**
+     * Performance Tests - Test system performance
+     */
+    private function runPerformanceTests() {
+        $this->log("\n⚡ PERFORMANCE TESTS");
+        $this->log("-" . str_repeat("-", 30));
+        
+        // Test 24: Database Connection Speed
+        $this->test("Database Connection Speed", function() {
+            $start = microtime(true);
+            try {
+                $conn = $this->db->getConnection();
+                $stmt = $conn->query("SELECT 1");
+                $end = microtime(true);
+                $duration = ($end - $start) * 1000; // Convert to milliseconds
+                
+                // Connection should be established within 100ms
+                return $duration < 100;
+            } catch (Exception $e) {
+                return false;
+            }
+        });
+        
+        // Test 25: Query Performance
+        $this->test("Database Query Performance", function() {
+            $start = microtime(true);
+            try {
+                $stmt = $this->db->execute("SELECT COUNT(*) FROM products");
+                $result = $stmt->fetch();
+                $end = microtime(true);
+                $duration = ($end - $start) * 1000; // Convert to milliseconds
+                
+                // Simple query should complete within 50ms
+                return $duration < 50;
+            } catch (Exception $e) {
+                return false;
+            }
+        });
+        
+        // Test 26: Memory Usage
+        $this->test("Memory Usage Reasonable", function() {
+            $memory_usage = memory_get_usage(true);
+            $memory_limit = ini_get('memory_limit');
+            
+            // Convert memory limit to bytes
+            $memory_limit_bytes = $this->convertToBytes($memory_limit);
+            
+            // Memory usage should be less than 50% of limit
+            return $memory_usage < ($memory_limit_bytes * 0.5);
+        });
+        
+        // Test 27: File I/O Performance
+        $this->test("File I/O Performance", function() {
+            $start = microtime(true);
+            
+            // Test file operations
+            $test_file = __DIR__ . '/temp_test_file.txt';
+            $test_data = str_repeat('Testing performance ', 1000);
+            
+            // Write test
+            file_put_contents($test_file, $test_data);
+            
+            // Read test
+            $read_data = file_get_contents($test_file);
+            
+            // Cleanup
+            unlink($test_file);
+            
+            $end = microtime(true);
+            $duration = ($end - $start) * 1000; // Convert to milliseconds
+            
+            // File operations should complete within 10ms
+            return $duration < 10 && $read_data === $test_data;
+        });
+    }
+    
+    /**
+     * Feature Tests - Test specific features
+     */
+    private function runFeatureTests() {
+        $this->log("\n🚀 FEATURE TESTS");
+        $this->log("-" . str_repeat("-", 30));
+        
+        // Test 28: Image Upload Directory
+        $this->test("Image Upload Directory Exists", function() {
+            $upload_dirs = [
+                __DIR__ . '/public/uploads',
+                __DIR__ . '/public/uploads/products',
+                __DIR__ . '/public/uploads/categories',
+                __DIR__ . '/public/uploads/users'
+            ];
+            
+            foreach ($upload_dirs as $dir) {
+                if (!is_dir($dir) || !is_writable($dir)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        // Test 29: Configuration Files
+        $this->test("Configuration Files Valid", function() {
+            $config_files = [
+                __DIR__ . '/config/database.php',
+                __DIR__ . '/config/database-auto.php'
+            ];
+            
+            foreach ($config_files as $file) {
+                if (!file_exists($file) || !is_readable($file)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        // Test 30: CSS and JS Assets
+        $this->test("CSS and JS Assets Available", function() {
+            $assets = [
+                __DIR__ . '/public/css/style.css',
+                __DIR__ . '/public/js/main.js',
+                __DIR__ . '/public/js/mobile-nav.js',
+                __DIR__ . '/public/js/product-actions.js'
+            ];
+            
+            foreach ($assets as $asset) {
+                if (!file_exists($asset) || filesize($asset) == 0) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        // Test 31: Database Schema Integrity
+        $this->test("Database Schema Integrity", function() {
+            try {
+                // Check for required tables and their key columns
+                $required_tables = [
+                    'users' => ['user_id', 'username', 'email', 'password'],
+                    'products' => ['product_id', 'name', 'price', 'stock_quantity'],
+                    'categories' => ['category_id', 'name', 'slug'],
+                    'cart' => ['cart_id', 'user_id', 'product_id', 'quantity'],
+                    'orders' => ['order_id', 'user_id', 'total_amount', 'status'],
+                    'order_items' => ['order_item_id', 'order_id', 'product_id', 'quantity']
+                ];
+                
+                foreach ($required_tables as $table => $columns) {
+                    // Check if table exists
+                    $stmt = $this->db->execute("SHOW TABLES LIKE ?", [$table]);
+                    if (!$stmt->fetch()) {
+                        return false;
+                    }
+                    
+                    // Check if required columns exist
+                    $stmt = $this->db->execute("DESCRIBE $table");
+                    $existing_columns = array_column($stmt->fetchAll(), 'Field');
+                    
+                    foreach ($columns as $column) {
+                        if (!in_array($column, $existing_columns)) {
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            } catch (Exception $e) {
+                return false;
+            }
+        });
+        
+        // Test 32: Authentication System
+        $this->test("Authentication System Complete", function() {
+            // Check if AuthController class exists
+            if (!class_exists('AuthController')) {
+                return false;
+            }
+            
+            // Check if required methods exist
+            $required_methods = ['login', 'register', 'logout', 'isLoggedIn', 'isAdmin'];
+            $reflection = new ReflectionClass('AuthController');
+            
+            foreach ($required_methods as $method) {
+                if (!$reflection->hasMethod($method)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        // Test 33: Email Configuration (if available)
+        $this->test("Email System Ready", function() {
+            // Check if email functions are available
+            return function_exists('mail') || 
+                   (extension_loaded('openssl') && class_exists('PHPMailer\\PHPMailer\\PHPMailer'));
+        });
+        
+        // Test 34: Error Logging
+        $this->test("Error Logging Functional", function() {
+            $log_file = ini_get('error_log');
+            if (empty($log_file)) {
+                $log_file = __DIR__ . '/error.log';
+            }
+            
+            // Test if we can write to error log
+            $test_message = "Test log entry " . time();
+            error_log($test_message);
+            
+            // Check if the log was written (if file-based logging)
+            if (file_exists($log_file)) {
+                $recent_logs = file_get_contents($log_file);
+                return strpos($recent_logs, $test_message) !== false;
+            }
+            
+            return true; // Assume logging works if no file-based logging
+        });
+    }
+    
+    /**
+     * Helper method to convert memory string to bytes
+     */
+    private function convertToBytes($memory_string) {
+        $unit = strtolower(substr($memory_string, -1));
+        $size = intval($memory_string);
+        
+        switch ($unit) {
+            case 'g':
+                return $size * 1024 * 1024 * 1024;
+            case 'm':
+                return $size * 1024 * 1024;
+            case 'k':
+                return $size * 1024;
+            default:
+                return $size;
+        }
     }
     
     /**

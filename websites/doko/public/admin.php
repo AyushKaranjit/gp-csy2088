@@ -68,7 +68,27 @@ $page_title = 'DOKO Admin Dashboard';
     <!-- Admin Navigation -->
     <nav class="admin-nav">
         <div class="admin-nav-brand">
-            <h1><i class="fas fa-shopping-basket"></i> DOKO Admin</h1>
+            <div class="logo admin-logo">
+                <a href="index.php" style="display: flex; align-items: center; gap: 15px; text-decoration: none;">
+                    <div class="logo-icon doko-basket-icon">
+                        <div class="basket-container">
+                            <div class="basket-body">
+                                <div class="weave-pattern"></div>
+                                <div class="weave-pattern"></div>
+                                <div class="weave-pattern"></div>
+                            </div>
+                            <div class="basket-handles">
+                                <div class="handle-left"></div>
+                                <div class="handle-right"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="logo-text admin-logo-text">
+                        <span class="logo-main">DOKO</span>
+                        <span class="logo-tagline">Admin Dashboard</span>
+                    </div>
+                </a>
+            </div>
         </div>
         <div class="admin-nav-menu">
             <a href="#dashboard" class="nav-link active" data-section="dashboard" aria-current="page">

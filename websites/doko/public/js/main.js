@@ -383,18 +383,53 @@ function initializeCart() {
             const productName = this.dataset.productName;
             const productPrice = this.dataset.productPrice;
             
-            addToCart(productId, productName, productPrice);
+            addToCart(productId, 1, productName); // Fixed parameter order: (id, quantity, name)
         });
     });
 }
 
-function addToCart(productId, productName, productPrice) {
+function addToCart(productId, quantity = 1, productName = 'Product') {
+    // Log the parameters for debugging
+    console.log('addToCart called with parameters:', {
+        productId: productId,
+        productIdType: typeof productId,
+        quantity: quantity,
+        quantityType: typeof quantity,
+        productName: productName,
+        productNameType: typeof productName
+    });
+    
+    // Ensure quantity is a number
+    const parsedQuantity = parseInt(quantity);
+    const parsedProductId = parseInt(productId);
+    
+    console.log('Parsed values:', {
+        parsedProductId: parsedProductId,
+        parsedQuantity: parsedQuantity,
+        isValidProductId: !isNaN(parsedProductId) && parsedProductId > 0,
+        isValidQuantity: !isNaN(parsedQuantity) && parsedQuantity > 0
+    });
+    
+    if (isNaN(parsedProductId) || parsedProductId <= 0) {
+        console.error('Invalid product ID:', productId);
+        showNotification('Invalid product ID', 'error');
+        return;
+    }
+    
+    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+        console.error('Invalid quantity:', quantity);
+        showNotification('Invalid quantity', 'error');
+        return;
+    }
+    
     const data = {
-        product_id: productId,
-        quantity: 1
+        product_id: parsedProductId,
+        quantity: parsedQuantity
     };
     
-    fetch('api/cart-add.php', {
+    console.log('Sending to API:', data);
+    
+    fetch('api/cart-add-working.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -403,18 +438,30 @@ function addToCart(productId, productName, productPrice) {
         credentials: 'same-origin',
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
+        
         if (data.success) {
             showNotification(`${productName} added to cart!`, 'success');
             updateCartCount();
         } else {
-            showNotification(data.message || 'Failed to add to cart', 'error');
+            if (data.message && data.message.includes('log in')) {
+                showNotification('Please log in to add items to cart', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
+                }, 1500);
+            } else {
+                showNotification(data.message || 'Failed to add to cart', 'error');
+            }
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showNotification('Failed to add to cart', 'error');
+        console.error('Cart error:', error);
+        showNotification('Network error: Failed to add to cart', 'error');
     });
 }
 
@@ -1112,53 +1159,6 @@ function addToCartFromQuickView(productId) {
 }
 
 // Note: toggleWishlist function moved to end of file to avoid conflicts
-
-/**
- * Enhanced add to cart with better error handling
- */
-function addToCart(productId, quantity = 1, productName = 'Product') {
-    const data = {
-        product_id: productId,
-        quantity: quantity
-    };
-    
-    console.log('Adding to cart:', data);
-    
-    fetch('api/cart-add.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        
-        if (data.success) {
-            showNotification(`${productName} added to cart!`, 'success');
-            updateCartCount();
-        } else {
-            if (data.message && data.message.includes('log in')) {
-                showNotification('Please log in to add items to cart', 'warning');
-                setTimeout(() => {
-                    window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
-                }, 1500);
-            } else {
-                showNotification(data.message || 'Failed to add to cart', 'error');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error adding to cart:', error);
-        showNotification('Please log in to add items to cart', 'warning');
-    });
-}
 
 /**
  * Update cart count with better error handling

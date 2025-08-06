@@ -27,16 +27,10 @@ function sendResponse($success, $message = '', $data = []) {
 }
 
 try {
-    // Basic database connection
-    $host = 'localhost';
-    $dbname = 'doko_grocery';
-    $username = 'root';
-    $password = '';
-    
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
+    // Use proper database configuration
+    require_once __DIR__ . '/../../config/database.php';
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
     
     // Check if user is logged in (simple session check)
     session_start();

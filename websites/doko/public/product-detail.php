@@ -65,16 +65,10 @@ try {
 
 // Set page variables
 $page_title = htmlspecialchars($product['name']) . ' - DOKO';
-$current_page = 'products';
-?>
-
-<?php include_once '../template/header.php'; ?>
-
-// Set page title
-$page_title = $product['name'] . ' - ' . SITE_NAME;
 $page_description = $product['short_description'] ?? $product['description'];
-$current_page = 'product-detail';
+$current_page = 'products';
 
+// Include header only once
 require_once __DIR__ . '/../template/header.php';
 ?>
 
@@ -200,11 +194,11 @@ require_once __DIR__ . '/../template/header.php';
                         </div>
                         
                         <div class="action-buttons">
-                            <button class="btn btn-primary btn-lg add-to-cart" 
-                                    onclick="addProductToCart(<?php echo $product['product_id']; ?>)">
-                                <i class="fas fa-shopping-cart"></i>
-                                Add to Cart
-                            </button>
+                <button class="btn btn-primary btn-lg add-to-cart" 
+                        onclick="addToCart(<?php echo $product['product_id']; ?>, document.getElementById('quantity').value, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')">
+                    <i class="fas fa-shopping-cart"></i>
+                    Add to Cart
+                </button>
                             <button class="btn btn-outline btn-lg add-to-wishlist" 
                                     onclick="toggleWishlist(<?php echo $product['product_id']; ?>)">
                                 <i class="fas fa-heart"></i>
@@ -617,6 +611,7 @@ function toggleWishlist(productId) {
 }
 </script>
 
+<script src="js/product-actions.js?v=<?php echo time(); ?>"></script>
 <script src="js/main.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once __DIR__ . '/../template/footer.php'; ?>

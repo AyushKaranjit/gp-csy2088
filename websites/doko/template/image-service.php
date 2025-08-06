@@ -37,28 +37,28 @@ function getImageUrl($category, $name, $width = 300, $height = 300) {
 
 // Product image mappings for consistent images
 $productImages = [
-    'tomatoes' => '/uploads/default-product.jpg',
-    'bananas' => '/uploads/default-product.jpg',
-    'milk' => '/uploads/default-product.jpg',
-    'rice' => '/uploads/default-product.jpg',
-    'apples' => '/uploads/default-product.jpg',
-    'spinach' => '/uploads/default-product.jpg',
-    'garam-masala' => '/uploads/default-product.jpg',
-    'yogurt' => '/uploads/default-product.jpg',
-    'onions' => '/uploads/default-product.jpg',
-    'orange-juice' => '/uploads/default-product.jpg',
-    'bread' => '/uploads/default-product.jpg',
-    'honey' => '/uploads/default-product.jpg',
+    'tomatoes' => 'uploads/default-product.jpg',
+    'bananas' => 'uploads/default-product.jpg',
+    'milk' => 'uploads/default-product.jpg',
+    'rice' => 'uploads/default-product.jpg',
+    'apples' => 'uploads/default-product.jpg',
+    'spinach' => 'uploads/default-product.jpg',
+    'garam-masala' => 'uploads/default-product.jpg',
+    'yogurt' => 'uploads/default-product.jpg',
+    'onions' => 'uploads/default-product.jpg',
+    'orange-juice' => 'uploads/default-product.jpg',
+    'bread' => 'uploads/default-product.jpg',
+    'honey' => 'uploads/default-product.jpg',
 ];
 
 // Category image mappings
 $categoryImages = [
-    1 => '/uploads/default-product.jpg',
-    2 => '/uploads/default-product.jpg',
-    3 => '/uploads/default-product.jpg',
-    4 => '/uploads/default-product.jpg',
-    5 => '/uploads/default-product.jpg',
-    6 => '/uploads/default-product.jpg',
+    1 => 'uploads/default-product.jpg',
+    2 => 'uploads/default-product.jpg',
+    3 => 'uploads/default-product.jpg',
+    4 => 'uploads/default-product.jpg',
+    5 => 'uploads/default-product.jpg',
+    6 => 'uploads/default-product.jpg',
 ];
 
 // Function to get product image by product name
@@ -92,7 +92,7 @@ function getProductImage($productName) {
     ];
     
     $mapped = $mappings[$key] ?? $key;
-    return $productImages[$mapped] ?? "https://source.unsplash.com/300x300/?{$key}+food+grocery";
+    return $productImages[$mapped] ?? "uploads/default-product.jpg";
 }
 
 // Function to get category image
