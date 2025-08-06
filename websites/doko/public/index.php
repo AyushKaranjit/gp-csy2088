@@ -1,6 +1,8 @@
 <?php
 // Start session and include configuration
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once '../template/config.php';
 require_once '../config/database.php';
 
@@ -47,22 +49,7 @@ include_header($page_title, $page_description, $current_page);
                     </div>
                 </div>
             </div>
-            <div class="hero-cta">
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-number">5000+</div>
-                        <div class="stat-label">Happy Customers</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">Fresh Products</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Customer Support</div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </section>
@@ -421,7 +408,7 @@ include_header($page_title, $page_description, $current_page);
             </div>
             <div class="newsletter-form">
                 <form action="api/newsletter.php" method="POST" class="newsletter-form-element">
-                    <input type="email" name="email" placeholder="Enter your email address" required>
+                    <input type="email" id="newsletter-email" name="email" placeholder="Enter your email address" required autocomplete="email">
                     <button type="submit" class="btn btn-primary">Subscribe</button>
                 </form>
                 <p class="newsletter-privacy">We respect your privacy. Unsubscribe anytime.</p>
@@ -431,8 +418,8 @@ include_header($page_title, $page_description, $current_page);
 </section>
 
 <?php
-// Include footer
-include_footer([], '
+// Include footer with main.js
+include_footer(['js/main.js?' . time()], '
     // Additional initialization after main.js is loaded
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize hero background slider

@@ -3,9 +3,9 @@
 -- Created: August 5, 2025
 
 -- Drop existing database and create new one
-DROP DATABASE IF EXISTS doko_grocery_new;
-CREATE DATABASE doko_grocery_new CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE doko_grocery_new;
+DROP DATABASE IF EXISTS doko_ecommerce;
+CREATE DATABASE doko_ecommerce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE doko_ecommerce;
 
 -- ============================================================================
 -- USER MANAGEMENT TABLES

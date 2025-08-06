@@ -14,17 +14,17 @@ if (!isset($breadcrumb_items) || !is_array($breadcrumb_items)) {
         <ol class="breadcrumb-list">
             <?php foreach ($breadcrumb_items as $index => $item): ?>
                 <?php $is_last = ($index === count($breadcrumb_items) - 1); ?>
-                
+                <?php $title = isset($item['title']) && $item['title'] !== null ? $item['title'] : ''; ?>
+                <?php $url = isset($item['url']) && $item['url'] !== null ? $item['url'] : '#'; ?>
                 <li class="breadcrumb-item <?php echo $is_last ? 'active' : ''; ?>">
                     <?php if ($is_last): ?>
-                        <?php echo clean_output($item['title']); ?>
+                        <?php echo clean_output($title); ?>
                     <?php else: ?>
-                        <a href="<?php echo clean_output($item['url']); ?>">
-                            <?php echo clean_output($item['title']); ?>
+                        <a href="<?php echo clean_output($url); ?>">
+                            <?php echo clean_output($title); ?>
                         </a>
                     <?php endif; ?>
                 </li>
-                
                 <?php if (!$is_last): ?>
                     <li class="breadcrumb-separator">
                         <i class="fas fa-chevron-right"></i>

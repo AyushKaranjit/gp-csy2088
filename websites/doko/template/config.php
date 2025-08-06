@@ -147,6 +147,7 @@ function generate_breadcrumb($items) {
  * Sanitize output for HTML
  */
 function clean_output($text) {
+    if ($text === null) return '';
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 

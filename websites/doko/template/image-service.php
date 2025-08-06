@@ -10,49 +10,55 @@ function getImageUrl($category, $name, $width = 300, $height = 300) {
     $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $name));
     $cleanName = str_replace(' ', '+', $cleanName);
     
-    // Different image services based on category
+    // Use local placeholder service or fallback images to avoid CORS issues
+    // You can replace these with actual product images in uploads/products/
+    
+    return '/uploads/default-product.jpg'; // Use local default image to avoid CORS
+    
+    /* Alternative: Use a different image service that doesn't have CORS issues
     switch($category) {
         case 'vegetables':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+vegetable+fresh";
+            return "https://picsum.photos/{$width}/{$height}/?random&vegetable";
         case 'fruits':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+fruit+fresh";
+            return "https://picsum.photos/{$width}/{$height}/?random&fruit";
         case 'dairy':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+dairy+product";
+            return "https://picsum.photos/{$width}/{$height}/?random&dairy";
         case 'grains':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+grain+rice+wheat";
+            return "https://picsum.photos/{$width}/{$height}/?random&grain";
         case 'spices':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+spice+herb";
+            return "https://picsum.photos/{$width}/{$height}/?random&spice";
         case 'beverages':
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+drink+beverage";
+            return "https://picsum.photos/{$width}/{$height}/?random&beverage";
         default:
-            return "https://source.unsplash.com/{$width}x{$height}/?{$cleanName}+food+grocery";
+            return "https://picsum.photos/{$width}/{$height}/?random";
     }
+    */
 }
 
 // Product image mappings for consistent images
 $productImages = [
-    'tomatoes' => getImageUrl('vegetables', 'tomatoes'),
-    'bananas' => getImageUrl('fruits', 'bananas'),
-    'milk' => getImageUrl('dairy', 'milk'),
-    'rice' => getImageUrl('grains', 'basmati rice'),
-    'apples' => getImageUrl('fruits', 'green apples'),
-    'spinach' => getImageUrl('vegetables', 'spinach leaves'),
-    'garam-masala' => getImageUrl('spices', 'garam masala spices'),
-    'yogurt' => getImageUrl('dairy', 'yogurt'),
-    'onions' => getImageUrl('vegetables', 'red onions'),
-    'orange-juice' => getImageUrl('beverages', 'orange juice'),
-    'bread' => getImageUrl('grains', 'brown bread'),
-    'honey' => getImageUrl('beverages', 'honey jar'),
+    'tomatoes' => '/uploads/default-product.jpg',
+    'bananas' => '/uploads/default-product.jpg',
+    'milk' => '/uploads/default-product.jpg',
+    'rice' => '/uploads/default-product.jpg',
+    'apples' => '/uploads/default-product.jpg',
+    'spinach' => '/uploads/default-product.jpg',
+    'garam-masala' => '/uploads/default-product.jpg',
+    'yogurt' => '/uploads/default-product.jpg',
+    'onions' => '/uploads/default-product.jpg',
+    'orange-juice' => '/uploads/default-product.jpg',
+    'bread' => '/uploads/default-product.jpg',
+    'honey' => '/uploads/default-product.jpg',
 ];
 
 // Category image mappings
 $categoryImages = [
-    1 => getImageUrl('vegetables', 'fresh vegetables'),
-    2 => getImageUrl('fruits', 'fresh fruits'),
-    3 => getImageUrl('dairy', 'dairy products'),
-    4 => getImageUrl('grains', 'grains pulses'),
-    5 => getImageUrl('spices', 'spices herbs'),
-    6 => getImageUrl('beverages', 'snacks beverages'),
+    1 => '/uploads/default-product.jpg',
+    2 => '/uploads/default-product.jpg',
+    3 => '/uploads/default-product.jpg',
+    4 => '/uploads/default-product.jpg',
+    5 => '/uploads/default-product.jpg',
+    6 => '/uploads/default-product.jpg',
 ];
 
 // Function to get product image by product name

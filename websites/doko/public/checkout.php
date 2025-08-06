@@ -40,21 +40,21 @@ include_header($page_title, $page_description, $current_page);
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="first_name">First Name *</label>
-                                <input type="text" id="first_name" name="first_name" required>
+                                <input type="text" id="first_name" name="first_name" required autocomplete="given-name">
                             </div>
                             <div class="form-group">
                                 <label for="last_name">Last Name *</label>
-                                <input type="text" id="last_name" name="last_name" required>
+                                <input type="text" id="last_name" name="last_name" required autocomplete="family-name">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="email">Email Address *</label>
-                                <input type="email" id="email" name="email" required>
+                                <input type="email" id="email" name="email" required autocomplete="email">
                             </div>
                             <div class="form-group">
                                 <label for="phone">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" required>
+                                <input type="tel" id="phone" name="phone" required autocomplete="tel">
                             </div>
                         </div>
                     </div>
@@ -64,7 +64,7 @@ include_header($page_title, $page_description, $current_page);
                         <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
                         <div class="form-group">
                             <label for="address">Street Address *</label>
-                            <input type="text" id="address" name="address" placeholder="House/Building name, Street" required>
+                            <input type="text" id="address" name="address" placeholder="House/Building name, Street" required autocomplete="address-line1">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
@@ -80,12 +80,12 @@ include_header($page_title, $page_description, $current_page);
                             </div>
                             <div class="form-group">
                                 <label for="area">Area/Locality *</label>
-                                <input type="text" id="area" name="area" placeholder="e.g. Thamel, New Baneshwor" required>
+                                <input type="text" id="area" name="area" placeholder="e.g. Thamel, New Baneshwor" required autocomplete="address-level2">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="landmark">Landmark (Optional)</label>
-                            <input type="text" id="landmark" name="landmark" placeholder="Nearby landmark for easy delivery">
+                            <input type="text" id="landmark" name="landmark" placeholder="Nearby landmark for easy delivery" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label for="delivery_notes">Delivery Instructions (Optional)</label>
@@ -99,7 +99,7 @@ include_header($page_title, $page_description, $current_page);
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="delivery_date">Delivery Date *</label>
-                                <input type="date" id="delivery_date" name="delivery_date" required>
+                                <input type="date" id="delivery_date" name="delivery_date" required autocomplete="bday">
                             </div>
                             <div class="form-group">
                                 <label for="delivery_time">Time Slot *</label>

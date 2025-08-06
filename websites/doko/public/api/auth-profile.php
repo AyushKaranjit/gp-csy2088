@@ -20,9 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-require_once '../src/Controllers/AuthController.php';
-
-try {
+    require_once __DIR__ . '/../../src/Controllers/AuthController.php';try {
     // Use AuthController to check if user is logged in
     $auth = new AuthController();
     

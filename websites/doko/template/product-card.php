@@ -1,6 +1,6 @@
 <?php
 /**
- * Product Card Component Template
+ * Enhanced Product Card Component Template
  * Usage: 
  * $product = ['id' => 1, 'name' => 'Product Name', ...];
  * include 'template/product-card.php';
@@ -10,16 +10,31 @@ if (!isset($product) || !is_array($product)) {
     return;
 }
 
+// Map different field name variations to standard format
+$productId = $product['id'] ?? $product['product_id'] ?? 0;
+$productName = $product['name'] ?? $product['product_name'] ?? 'Unknown Product';
+$productPrice = $product['price'] ?? 0;
+$productOriginalPrice = $product['original_price'] ?? null;
+$productImage = $product['image'] ?? $product['image_url'] ?? 'uploads/products/default.svg';
+$productCategory = $product['category'] ?? $product['category_name'] ?? 'General';
+$productDescription = $product['short_description'] ?? $product['description'] ?? '';
+$stockQuantity = $product['stock_quantity'] ?? 0;
+$productUnit = $product['unit'] ?? 'piece';
+$inStock = $product['in_stock'] ?? ($stockQuantity > 0);
+
 // Set default values for missing fields
 $product = array_merge([
-    'id' => 0,
-    'name' => 'Unknown Product',
-    'price' => 0,
-    'original_price' => null,
-    'image' => 'public/images/placeholder-product.jpg',
-    'category' => 'General',
-    'rating' => 0,
-    'in_stock' => true,
+    'id' => $productId,
+    'name' => $productName,
+    'price' => $productPrice,
+    'original_price' => $productOriginalPrice,
+    'image' => $productImage,
+    'category' => $productCategory,
+    'short_description' => $productDescription,
+    'stock_quantity' => $stockQuantity,
+    'unit' => $productUnit,
+    'rating' => $product['rating'] ?? 0,
+    'in_stock' => $inStock,
     'discount_percentage' => 0
 ], $product);
 
@@ -32,9 +47,10 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
     <div class="product-image">
         <a href="product-detail.php?id=<?php echo $product['id']; ?>" class="product-image-link">
-            <img src="<?php echo clean_output($product['image']); ?>" 
-                 alt="<?php echo clean_output($product['name']); ?>" 
-                 loading="lazy">
+            <img src="<?php echo htmlspecialchars($product['image']); ?>" 
+                 alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                 loading="lazy"
+                 onerror="this.src='/uploads/default-product.jpg'">
         </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>
@@ -50,14 +66,10 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         <?php endif; ?>
         
         <div class="product-actions">
-            <button class="btn-icon btn-wishlist" 
-                    title="Add to Wishlist" 
-                    data-product-id="<?php echo $product['id']; ?>">
+            <button class="btn-icon btn-wishlist" onclick="toggleWishlist(<?php echo $product['id']; ?>)" title="Add to Wishlist">
                 <i class="fas fa-heart"></i>
             </button>
-            <button class="btn-icon btn-quick-view" 
-                    title="Quick View" 
-                    data-product-id="<?php echo $product['id']; ?>">
+            <button class="btn-icon btn-quick-view" onclick="quickView(<?php echo $product['id']; ?>)" title="Quick View">
                 <i class="fas fa-eye"></i>
             </button>
         </div>
@@ -65,14 +77,20 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     
     <div class="product-info">
         <div class="product-category">
-            <?php echo clean_output($product['category']); ?>
+            <?php echo htmlspecialchars($product['category']); ?>
         </div>
         
         <h3 class="product-name">
             <a href="product-detail.php?id=<?php echo $product['id']; ?>">
-                <?php echo clean_output($product['name']); ?>
+                <?php echo htmlspecialchars($product['name']); ?>
             </a>
         </h3>
+        
+        <?php if (!empty($product['short_description'])): ?>
+        <p class="product-description">
+            <?php echo htmlspecialchars($product['short_description']); ?>
+        </p>
+        <?php endif; ?>
         
         <?php if ($product['rating'] > 0): ?>
         <div class="product-rating">
@@ -95,23 +113,38 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         <?php endif; ?>
         
         <div class="product-price">
-            <span class="current-price"><?php echo format_price($product['price']); ?></span>
-            <?php if ($product['original_price']): ?>
-                <span class="original-price"><?php echo format_price($product['original_price']); ?></span>
+            <span class="current-price">Rs. <?php echo number_format($product['price'], 2); ?></span>
+            <?php if ($product['original_price'] && $product['original_price'] > $product['price']): ?>
+                <span class="original-price">Rs. <?php echo number_format($product['original_price'], 2); ?></span>
+            <?php endif; ?>
+        </div>
+        
+        <div class="stock-info">
+            <?php if ($product['in_stock']): ?>
+                <span class="in-stock">
+                    <i class="fas fa-check-circle"></i> In Stock
+                    <?php if ($product['stock_quantity'] > 0): ?>
+                        (<?php echo $product['stock_quantity']; ?> <?php echo $product['unit']; ?>)
+                    <?php endif; ?>
+                </span>
+            <?php else: ?>
+                <span class="out-of-stock">
+                    <i class="fas fa-times-circle"></i> Out of Stock
+                </span>
             <?php endif; ?>
         </div>
         
         <?php if ($product['in_stock']): ?>
         <div class="cart-controls">
             <div class="quantity-selector-mini">
-                <button type="button" class="qty-btn-mini minus" onclick="changeCardQuantity(<?php echo $product['id']; ?>, -1)">-</button>
-                <input type="number" id="qty-<?php echo $product['id']; ?>" class="qty-input-mini" value="1" min="1" max="<?php echo $product['stock_quantity'] ?? 99; ?>">
-                <button type="button" class="qty-btn-mini plus" onclick="changeCardQuantity(<?php echo $product['id']; ?>, 1)">+</button>
+                <button type="button" class="qty-btn-mini minus" onclick="changeQuantity(<?php echo $product['id']; ?>, -1)">-</button>
+                <input type="number" id="qty-<?php echo $product['id']; ?>" name="qty-<?php echo $product['id']; ?>" class="qty-input-mini" value="1" min="1" max="<?php echo $product['stock_quantity'] ?? 99; ?>" autocomplete="off">
+                <button type="button" class="qty-btn-mini plus" onclick="changeQuantity(<?php echo $product['id']; ?>, 1)">+</button>
             </div>
             <button class="btn btn-primary btn-block add-to-cart" 
-                    onclick="addToCartFromCard(<?php echo $product['id']; ?>)"
+                    onclick="addToCart(<?php echo $product['id']; ?>)"
                     data-product-id="<?php echo $product['id']; ?>"
-                    data-product-name="<?php echo clean_output($product['name']); ?>"
+                    data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
                     data-product-price="<?php echo $product['price']; ?>">
                 <i class="fas fa-shopping-cart"></i>
                 Add to Cart
@@ -119,7 +152,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         </div>
         <?php else: ?>
         <button class="btn btn-secondary btn-block" disabled>
-            <i class="fas fa-times"></i>
+            <i class="fas fa-ban"></i>
             Out of Stock
         </button>
         <?php endif; ?>
@@ -252,6 +285,33 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 
 .product-name a:hover {
     color: var(--primary-color);
+}
+
+.product-description {
+    font-size: 0.85rem;
+    color: var(--light-text);
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.stock-info {
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+}
+
+.in-stock {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.out-of-stock {
+    color: #dc3545;
+    font-weight: 600;
 }
 
 .product-rating {

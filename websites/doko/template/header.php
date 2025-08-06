@@ -9,6 +9,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
+    <!-- Preconnect to Google Fonts for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
     
@@ -61,24 +65,94 @@
 
                     <!-- Header Actions -->
                     <div class="header-actions">
-                        <!-- Account -->
-                        <div class="header-action login-link">
-                            <a href="login.php">
-                                <i class="fas fa-user"></i>
-                                <span>Login</span>
-                            </a>
-                        </div>
+                        <?php 
+                        // Check if we have the AuthController available
+                        $auth = null;
+                        $isLoggedIn = false;
+                        $currentUser = null;
                         
-                        <div class="header-action logout-link" style="display: none;">
-                            <i class="fas fa-user-circle"></i>
-                            <span class="user-name">User</span>
-                        </div>
+                        // Session should already be started by the page
+                        // Don't start session here to avoid headers already sent errors
+                        
+                        // Try to create AuthController if classes are available
+                        if (file_exists(__DIR__ . '/../src/Controllers/AuthController.php')) {
+                            try {
+                                require_once __DIR__ . '/../src/Controllers/AuthController.php';
+                                $auth = new AuthController();
+                                $isLoggedIn = $auth->isLoggedIn();
+                                if ($isLoggedIn) {
+                                    $currentUser = $auth->getCurrentUser();
+                                }
+                            } catch (Exception $e) {
+                                // Fallback to session check
+                                $isLoggedIn = isset($_SESSION['user_id']);
+                                if ($isLoggedIn) {
+                                    $currentUser = [
+                                        'first_name' => $_SESSION['first_name'] ?? 'User',
+                                        'role' => $_SESSION['role'] ?? 'customer'
+                                    ];
+                                }
+                            }
+                        } else {
+                            // Fallback to session check
+                            $isLoggedIn = isset($_SESSION['user_id']);
+                            if ($isLoggedIn) {
+                                $currentUser = [
+                                    'first_name' => $_SESSION['first_name'] ?? 'User',
+                                    'role' => $_SESSION['role'] ?? 'customer'
+                                ];
+                            }
+                        }
+                        ?>
+                        
+                        <?php if (!$isLoggedIn): ?>
+                            <!-- Account Login -->
+                            <div class="header-action login-link">
+                                <a href="login.php">
+                                    <i class="fas fa-user"></i>
+                                    <span>Login</span>
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <!-- Logged in user dropdown -->
+                            <div class="header-action user-dropdown">
+                                <div class="user-info" onclick="toggleUserDropdown()">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span><?php echo htmlspecialchars($currentUser['first_name']); ?></span>
+                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                </div>
+                                <div class="user-dropdown-menu">
+                                    <a href="profile.php" class="dropdown-item">
+                                        <i class="fas fa-user-edit"></i> My Profile
+                                    </a>
+                                    <?php if (isset($currentUser['role']) && $currentUser['role'] === 'admin'): ?>
+                                        <a href="admin.php" class="dropdown-item">
+                                            <i class="fas fa-cogs"></i> Admin Panel
+                                        </a>
+                                    <?php elseif (isset($currentUser['role']) && $currentUser['role'] === 'manager'): ?>
+                                        <a href="manager.php" class="dropdown-item">
+                                            <i class="fas fa-tasks"></i> Manager Panel
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="customer.php" class="dropdown-item">
+                                            <i class="fas fa-shopping-bag"></i> My Orders
+                                        </a>
+                                    <?php endif; ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="?logout=1" class="dropdown-item logout-item" onclick="return confirm('Are you sure you want to logout?')">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                            
+                        <?php endif; ?>
 
                         <!-- Wishlist -->
                         <div class="header-action">
                             <a href="wishlist.php">
                                 <i class="fas fa-heart"></i>
                                 <span>Wishlist</span>
+                                <span class="wishlist-count">0</span>
                             </a>
                         </div>
 
@@ -142,7 +216,28 @@
                 </div>
             </div>
         </nav>
+    <!-- Move user dropdown outside nav for proper z-index and click handling -->
+    <!-- ...existing code... -->
     </header>
     
     <!-- Mobile Navigation Script -->
     <script src="js/mobile-nav.js"></script>
+    <script>
+    // Profile dropdown toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        var userDropdown = document.querySelector('.user-dropdown');
+        var userInfo = document.querySelector('.user-info');
+        if (userDropdown && userInfo) {
+            userInfo.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+        }
+    });
+    </script>

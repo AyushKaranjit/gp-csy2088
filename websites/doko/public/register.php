@@ -37,15 +37,15 @@ include_header($page_title, $page_description, $current_page);
                             <div class="form-group">
                                 <label for="first_name">First Name</label>
                                 <div class="input-group">
-                                    <i class="fas fa-user"></i>
-                                    <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="first_name" name="first_name" autocomplete="given-name" placeholder="First Name" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="last_name">Last Name</label>
                                 <div class="input-group">
-                                    <i class="fas fa-user"></i>
-                                    <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="last_name" name="last_name" autocomplete="family-name" placeholder="Last Name" required>
                                 </div>
                             </div>
                         </div>
@@ -53,8 +53,8 @@ include_header($page_title, $page_description, $current_page);
                         <div class="form-group">
                             <label for="email">Email Address</label>
                             <div class="input-group">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" autocomplete="email" placeholder="Email Address" required>
                             </div>
                             <div class="input-feedback" id="email-feedback"></div>
                         </div>
@@ -63,7 +63,7 @@ include_header($page_title, $page_description, $current_page);
                             <label for="phone">Phone Number</label>
                             <div class="input-group">
                                 <i class="fas fa-phone"></i>
-                                <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
+                                <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required autocomplete="tel">
                             </div>
                         </div>
 
@@ -71,7 +71,7 @@ include_header($page_title, $page_description, $current_page);
                             <label for="password">Password</label>
                             <div class="input-group">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="password" name="password" placeholder="Create a password" required>
+                                <input type="password" id="password" name="password" placeholder="Create a password" required autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="togglePassword('password')">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -83,7 +83,7 @@ include_header($page_title, $page_description, $current_page);
                             <label for="confirm_password">Confirm Password</label>
                             <div class="input-group">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -111,7 +111,7 @@ include_header($page_title, $page_description, $current_page);
 
                         <div class="terms-agreement">
                             <label class="checkbox-label">
-                                <input type="checkbox" name="agree_terms" required>
+                                <input type="checkbox" id="agree_terms" name="agree_terms" required autocomplete="off">
                                 <span class="checkmark"></span>
                                 I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
                             </label>
@@ -119,7 +119,7 @@ include_header($page_title, $page_description, $current_page);
 
                         <div class="newsletter-signup">
                             <label class="checkbox-label">
-                                <input type="checkbox" name="newsletter" checked>
+                                <input type="checkbox" id="newsletter" name="newsletter" checked autocomplete="off">
                                 <span class="checkmark"></span>
                                 Send me offers, product updates, and promotional emails
                             </label>

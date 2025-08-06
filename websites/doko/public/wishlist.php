@@ -199,7 +199,7 @@ function loadWishlistItems() {
     
     // For each item in wishlist, fetch product details from API
     Promise.all(wishlist.map(item => 
-        fetch(`${DOKO.baseURL}/api/product-detail.php?id=${item.product_id}`)
+        fetch(`api/product-detail.php?id=${item.product_id}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.product) {

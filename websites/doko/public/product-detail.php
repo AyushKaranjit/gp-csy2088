@@ -4,8 +4,13 @@
  * DOKO Grocery E-commerce
  */
 
+// Start session safely - BEFORE any output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../template/config.php';
-require_once 'config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Get product ID from URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -20,9 +25,13 @@ try {
     $db = Database::getInstance();
     
     // Get product with category info (using actual database schema)
-    $query = "SELECT p.*, c.name as category_name
+    $query = "SELECT p.*, c.name as category_name, c.slug as category_slug,
+                     b.name as brand_name,
+                     COALESCE(pi.image_url, 'uploads/products/default.svg') as main_image
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
+              LEFT JOIN brands b ON p.brand_id = b.brand_id
+              LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
               WHERE p.product_id = ? AND p.status = 'active'";
     
     $stmt = $db->execute($query, [$product_id]);
@@ -32,6 +41,13 @@ try {
         header('Location: products.php');
         exit;
     }
+    
+    // Set default values for missing fields
+    $product['category_slug'] = $product['category_slug'] ?? 'general';
+    $product['brand_name'] = $product['brand_name'] ?? 'Generic';
+    $product['average_rating'] = $product['average_rating'] ?? 0.0;
+    $product['rating_count'] = $product['rating_count'] ?? 0;
+    $product['main_image'] = $product['main_image'] ?: 'uploads/products/default.svg';
     
     // For now, we'll skip product images and related products since they may not exist in current schema
     $product_images = [];
@@ -47,9 +63,17 @@ try {
     exit;
 }
 
+// Set page variables
+$page_title = htmlspecialchars($product['name']) . ' - DOKO';
+$current_page = 'products';
+?>
+
+<?php include_once '../template/header.php'; ?>
+
 // Set page title
 $page_title = $product['name'] . ' - ' . SITE_NAME;
 $page_description = $product['short_description'] ?? $product['description'];
+$current_page = 'product-detail';
 
 require_once __DIR__ . '/../template/header.php';
 ?>
@@ -170,7 +194,7 @@ require_once __DIR__ . '/../template/header.php';
                             <label for="quantity">Quantity:</label>
                             <div class="quantity-input">
                                 <button type="button" class="qty-btn minus" onclick="changeQuantity(-1)">-</button>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>">
+                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" autocomplete="off">
                                 <button type="button" class="qty-btn plus" onclick="changeQuantity(1)">+</button>
                             </div>
                         </div>
@@ -592,5 +616,7 @@ function toggleWishlist(productId) {
     ProductManager.toggleWishlist(productId);
 }
 </script>
+
+<script src="js/main.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once __DIR__ . '/../template/footer.php'; ?>

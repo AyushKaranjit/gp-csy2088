@@ -2,7 +2,7 @@
 // Start session and include configuration
 session_start();
 require_once '../template/config.php';
-require_once 'config/database.php';
+require_once '../config/database.php';
 
 // Get filter parameters
 $category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
@@ -79,9 +79,9 @@ include_header($page_title, $page_description, $current_page);
                     <h3>Price Range</h3>
                     <div class="price-filter">
                         <div class="price-inputs">
-                            <input type="number" id="min-price" placeholder="Min" value="<?php echo $min_price; ?>" min="0">
+                            <input type="number" id="min-price" name="min-price" placeholder="Min" value="<?php echo $min_price; ?>" min="0" autocomplete="off">
                             <span>to</span>
-                            <input type="number" id="max-price" placeholder="Max" value="<?php echo $max_price; ?>" min="0">
+                            <input type="number" id="max-price" name="max-price" placeholder="Max" value="<?php echo $max_price; ?>" min="0" autocomplete="off">
                         </div>
                         <button id="apply-price-filter" class="btn btn-primary btn-sm">Apply</button>
                     </div>
@@ -91,10 +91,10 @@ include_header($page_title, $page_description, $current_page);
                     <h3>Special Offers</h3>
                     <div class="offer-filters">
                         <label class="filter-checkbox">
-                            <input type="checkbox" name="on_sale"> On Sale
+                            <input type="checkbox" id="on_sale" name="on_sale" autocomplete="off"> On Sale
                         </label>
                         <label class="filter-checkbox">
-                            <input type="checkbox" name="free_delivery"> Free Delivery
+                            <input type="checkbox" id="free_delivery" name="free_delivery" autocomplete="off"> Free Delivery
                         </label>
                         <label class="filter-checkbox">
                             <input type="checkbox" name="new_arrivals"> New Arrivals
@@ -685,3 +685,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // Include footer
 include_footer();
 ?>
+
+<!-- Add global changeQuantity function for product-card.php -->
+<script>
+function changeQuantity(productId, delta) {
+    var input = document.getElementById('qty-' + productId);
+    if (!input) return;
+    var min = parseInt(input.min) || 1;
+    var max = parseInt(input.max) || 99;
+    var value = parseInt(input.value) || min;
+    var newValue = value + delta;
+    if (newValue < min) newValue = min;
+    if (newValue > max) newValue = max;
+    input.value = newValue;
+}
+</script>

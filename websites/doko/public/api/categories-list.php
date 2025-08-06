@@ -20,19 +20,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-require_once '../config/database.php';
+// Include database configuration with error handling
+$config_path = __DIR__ . '/../../config/database.php';
+if (!file_exists($config_path)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
+    exit;
+}
+
+require_once $config_path;
 
 try {
     // Get database connection
     $db = Database::getInstance();
     
     // Get all active categories with product count
-    $query = "SELECT c.category_id, c.name, c.description, c.image, c.status,
+    $query = "SELECT c.category_id, c.name, c.description, c.image_url, c.is_active,
                      c.created_at, COUNT(p.product_id) as product_count
               FROM categories c
               LEFT JOIN products p ON c.category_id = p.category_id AND p.status = 'active'
-              WHERE c.status = 'active'
-              GROUP BY c.category_id, c.name, c.description, c.image, c.status, c.created_at
+              WHERE c.is_active = 1
+              GROUP BY c.category_id, c.name, c.description, c.image_url, c.is_active, c.created_at
               ORDER BY c.name ASC";
     
     $stmt = $db->execute($query, []);
@@ -44,7 +52,7 @@ try {
             'category_id' => (int)$category['category_id'],
             'name' => $category['name'],
             'description' => $category['description'],
-            'image' => $category['image'],
+            'image_url' => $category['image_url'] ?: 'uploads/placeholder-category.jpg',
             'product_count' => (int)$category['product_count'],
             'created_at' => $category['created_at']
         ];

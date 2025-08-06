@@ -20,19 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-require_once '../config/database.php';
+// Include database configuration with error handling
+$config_path = __DIR__ . '/../../config/database.php';
+if (!file_exists($config_path)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
+    exit;
+}
+
+require_once $config_path;
 
 try {
     // Get query parameters
     $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $featured = isset($_GET['featured']) ? (bool)$_GET['featured'] : null;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
     $sort = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
     $order = isset($_GET['order']) && strtolower($_GET['order']) === 'asc' ? 'ASC' : 'DESC';
     
     // Validate sort field
-    $allowed_sorts = ['name', 'price', 'created_at', 'stock'];
+    $allowed_sorts = ['name', 'price', 'created_at', 'stock_quantity'];
     if (!in_array($sort, $allowed_sorts)) {
         $sort = 'created_at';
     }
@@ -47,6 +56,11 @@ try {
     if ($category_id) {
         $where_conditions[] = 'p.category_id = ?';
         $params[] = $category_id;
+    }
+    
+    if ($featured !== null) {
+        $where_conditions[] = 'p.featured = ?';
+        $params[] = $featured ? 1 : 0;
     }
     
     if ($search) {
@@ -64,8 +78,9 @@ try {
     $total = $stmt->fetch()['total'];
     
     // Get products
-    $query = "SELECT p.product_id, p.name, p.description, p.price, p.image, p.stock, 
-                     p.category_id, p.created_at, c.name as category_name
+    $query = "SELECT p.product_id, p.name, p.description, p.price, p.original_price,
+                     p.stock_quantity, p.unit, p.featured, p.category_id, p.created_at,
+                     c.name as category_name
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
               WHERE $where_clause
@@ -77,17 +92,29 @@ try {
     
     $formatted_products = [];
     foreach ($products as $product) {
+        // Set default image if none exists
+        $image_url = '/uploads/default-product.jpg';
+        if (!empty($product['image_url']) && file_exists('../uploads/' . $product['image_url'])) {
+            $image_url = '/uploads/' . $product['image_url'];
+        }
+        
         $formatted_products[] = [
             'product_id' => (int)$product['product_id'],
             'name' => $product['name'],
+            'short_description' => $product['short_description'] ?? substr($product['description'], 0, 100) . '...',
             'description' => $product['description'],
             'price' => (float)$product['price'],
-            'image_url' => $product['image'], // Changed to image_url for JS compatibility
-            'stock' => (int)$product['stock'],
+            'original_price' => $product['original_price'] ? (float)$product['original_price'] : null,
+            'image_url' => $image_url,
+            'stock' => (int)$product['stock_quantity'],
+            'unit' => $product['unit'] ?: 'piece',
+            'featured' => (bool)$product['featured'],
             'category_id' => (int)$product['category_id'],
             'category_name' => $product['category_name'],
             'created_at' => $product['created_at'],
-            'unit' => 'piece' // Add unit field for cart display
+            'in_stock' => (int)$product['stock_quantity'] > 0,
+            'discount_percentage' => $product['original_price'] && $product['original_price'] > $product['price'] ? 
+                round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) : 0
         ];
     }
     

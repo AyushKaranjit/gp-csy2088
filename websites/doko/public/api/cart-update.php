@@ -20,7 +20,15 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'POST'])) {
     exit;
 }
 
-require_once '../config/database.php';
+// Include database configuration with error handling
+$config_path = __DIR__ . '/../../config/database.php';
+if (!file_exists($config_path)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
+    exit;
+}
+
+require_once $config_path;
 require_once '../src/Controllers/AuthController.php';
 
 try {
@@ -66,7 +74,7 @@ try {
     $db = Database::getInstance();
     
     // Check if product exists and has enough stock
-    $query = "SELECT stock FROM products WHERE product_id = ? AND status = 'active'";
+    $query = "SELECT stock_quantity FROM products WHERE product_id = ? AND status = 'active'";
     $stmt = $db->execute($query, [$product_id]);
     $product = $stmt->fetch();
     
@@ -79,7 +87,7 @@ try {
         exit;
     }
     
-    if ($product['stock'] < $quantity) {
+    if ($product['stock_quantity'] < $quantity) {
         http_response_code(400);
         echo json_encode([
             'success' => false,

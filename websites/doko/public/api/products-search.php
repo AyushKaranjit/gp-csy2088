@@ -15,7 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-require_once '../config/database.php';
+// Include database configuration with error handling
+$config_path = __DIR__ . '/../../config/database.php';
+if (!file_exists($config_path)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
+    exit;
+}
+
+require_once $config_path;
 
 try {
     $database = Database::getInstance();

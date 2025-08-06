@@ -1,1329 +1,1424 @@
 /**
- * DOKO Grocery E-commerce - Main JavaScript
- * Professional, feature-rich JavaScript functionality
+ * DOKO E-commerce - Enhanced Dashboard JavaScript
+ * Comprehensive functionality for all user roles
  * CSY2088 Project
  */
 
-// Global Configuration
-const DOKO = {
-    baseURL: 'http://localhost/',
-    apiURL: '',
-    cart: JSON.parse(localStorage.getItem('doko_cart')) || [],
-    wishlist: JSON.parse(localStorage.getItem('doko_wishlist')) || [],
-    user: JSON.parse(localStorage.getItem('doko_user')) || null,
-    
-    // Configuration
-    config: {
-        itemsPerPage: 12,
-        maxCartItems: 99,
-        deliveryCharge: 50,
-        freeDeliveryMinimum: 1000,
-        taxRate: 0.13
-    }
-};
-
-// Utility Functions
-const Utils = {
-    // Format currency to Nepali Rupees
-    formatCurrency: (amount) => {
-        return `Rs. ${parseFloat(amount).toLocaleString('en-NP', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })}`;
-    },
-
-    // Format date
-    formatDate: (date) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    },
-
-    // Show notification
-    showNotification: (message, type = 'info', duration = 3000) => {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} notification`;
-        notification.innerHTML = `
-            <span>${message}</span>
-            <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
-        `;
-        
-        // Add styles for notification
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 300px;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Auto remove after duration
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }
-        }, duration);
-    },
-
-    // Debounce function for search
-    debounce: (func, wait) => {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    },
-
-    // Validate email
-    isValidEmail: (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    },
-
-    // Validate phone number (Nepal)
-    isValidPhone: (phone) => {
-        const phoneRegex = /^(98|97)\d{8}$/;
-        return phoneRegex.test(phone.replace(/[\s-]/g, ''));
-    },
-
-    // Generate unique ID
-    generateId: () => {
-        return '_' + Math.random().toString(36).substr(2, 9);
-    }
-};
-
-// API Service
-const API = {
-    // Generic API call function
-    call: async (endpoint, method = 'GET', data = null, headers = {}) => {
-        try {
-            const config = {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...headers
-                }
-            };
-
-            if (data && (method === 'POST' || method === 'PUT')) {
-                config.body = JSON.stringify(data);
-            }
-
-            const response = await fetch(DOKO.baseURL + endpoint, config);
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'API request failed');
-            }
-
-            return result;
-        } catch (error) {
-            console.error('API Error:', error);
-            Utils.showNotification(error.message, 'danger');
-            throw error;
-        }
-    },
-
-    // Authentication APIs
-    auth: {
-        login: (email, password) => API.call('api-auth-login.php', 'POST', { email, password }),
-        register: (userData) => API.call('api-auth-register.php', 'POST', userData),
-        logout: () => API.call('api-auth-logout.php', 'POST'),
-        getProfile: () => API.call('api-auth-profile.php')
-    },
-
-    // Product APIs
-    products: {
-        getAll: (params = {}) => {
-            const queryString = new URLSearchParams(params).toString();
-            return API.call(`api-products-list.php?${queryString}`);
-        },
-        getById: (id) => API.call(`api-product-detail.php?id=${id}`),
-        getFeatured: () => API.call('api-products-featured.php'),
-        search: (query) => API.call(`api-products-search.php?q=${encodeURIComponent(query)}`)
-    },
-
-    // Category APIs
-    categories: {
-        getAll: () => API.call('api-categories-list.php'),
-        getById: (id) => API.call(`api-categories-detail.php?id=${id}`)
-    },
-
-    // Cart APIs
-    cart: {
-        get: () => API.call('api-cart-get.php'),
-        add: (productId, quantity) => API.call('api-cart-add.php', 'POST', { product_id: productId, quantity }),
-        update: (productId, quantity) => API.call('api-cart-update.php', 'PUT', { product_id: productId, quantity }),
-        remove: (productId) => API.call('api-cart-remove.php', 'DELETE', { product_id: productId }),
-        clear: () => API.call('api-cart-clear.php', 'DELETE')
-    },
-
-    // Order APIs
-    orders: {
-        create: (orderData) => API.call('orders/create', 'POST', orderData),
-        getAll: () => API.call('orders/list'),
-        getById: (id) => API.call(`orders/detail?id=${id}`)
-    }
-};
-
-// Cart Management
-const CartManager = {
-    // Initialize cart manager
-    init: () => {
-        // Load cart from localStorage
-        DOKO.cart = JSON.parse(localStorage.getItem('doko_cart')) || [];
-        // Update UI
-        CartManager.updateCartUI();
-    },
-
-    // Add item to cart
-    addItem: (product, quantity = 1) => {
-        const existingItem = DOKO.cart.find(item => item.product_id === product.product_id);
-        
-        if (existingItem) {
-            existingItem.quantity += quantity;
-            if (existingItem.quantity > DOKO.config.maxCartItems) {
-                existingItem.quantity = DOKO.config.maxCartItems;
-                Utils.showNotification(`Maximum ${DOKO.config.maxCartItems} items allowed per product`, 'warning');
-            }
-        } else {
-            DOKO.cart.push({
-                product_id: product.product_id,
-                name: product.name,
-                price: product.price,
-                image_url: product.image_url,
-                quantity: quantity,
-                unit: product.unit
-            });
-        }
-        
-        CartManager.saveCart();
-        CartManager.updateCartUI();
-        Utils.showNotification(`${product.name} added to cart!`, 'success');
-    },
-
-    // Update item quantity
-    updateQuantity: (productId, quantity) => {
-        const item = DOKO.cart.find(item => item.product_id === productId);
-        if (item) {
-            if (quantity <= 0) {
-                CartManager.removeItem(productId);
-            } else {
-                item.quantity = Math.min(quantity, DOKO.config.maxCartItems);
-                CartManager.saveCart();
-                CartManager.updateCartUI();
-            }
-        }
-    },
-
-    // Remove item from cart
-    removeItem: (productId) => {
-        const index = DOKO.cart.findIndex(item => item.product_id === productId);
-        if (index > -1) {
-            const item = DOKO.cart[index];
-            DOKO.cart.splice(index, 1);
-            CartManager.saveCart();
-            CartManager.updateCartUI();
-            Utils.showNotification(`${item.name} removed from cart`, 'info');
-        }
-    },
-
-    // Clear cart
-    clearCart: () => {
-        DOKO.cart = [];
-        CartManager.saveCart();
-        CartManager.updateCartUI();
-        Utils.showNotification('Cart cleared', 'info');
-    },
-
-    // Get cart total
-    getTotal: () => {
-        return DOKO.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    },
-
-    // Get cart count
-    getCount: () => {
-        return DOKO.cart.reduce((count, item) => count + item.quantity, 0);
-    },
-
-    // Save cart to localStorage
-    saveCart: () => {
-        localStorage.setItem('doko_cart', JSON.stringify(DOKO.cart));
-    },
-
-    // Update cart UI elements
-    updateCartUI: () => {
-        // Update cart count badge
-        const cartCountElements = document.querySelectorAll('.cart-count');
-        const count = CartManager.getCount();
-        cartCountElements.forEach(element => {
-            element.textContent = count;
-            element.style.display = count > 0 ? 'flex' : 'none';
-        });
-
-        // Update cart total
-        const cartTotalElements = document.querySelectorAll('.cart-total');
-        cartTotalElements.forEach(element => {
-            element.textContent = Utils.formatCurrency(CartManager.getTotal());
-        });
-
-        // Update cart sidebar if exists
-        CartManager.updateCartSidebar();
-    },
-
-    // Update cart sidebar
-    updateCartSidebar: () => {
-        const cartSidebar = document.getElementById('cart-sidebar');
-        if (!cartSidebar) return;
-
-        const cartItems = cartSidebar.querySelector('.cart-items');
-        if (!cartItems) return;
-
-        if (DOKO.cart.length === 0) {
-            cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
-            return;
-        }
-
-        cartItems.innerHTML = DOKO.cart.map(item => `
-            <div class="cart-item" data-product-id="${item.product_id}">
-                <img src="${item.image_url}" alt="${item.name}" class="cart-item-image">
-                <div class="cart-item-details">
-                    <h4 class="cart-item-name">${item.name}</h4>
-                    <div class="cart-item-price">${Utils.formatCurrency(item.price)} / ${item.unit}</div>
-                    <div class="cart-item-controls">
-                        <button class="btn btn-sm quantity-btn" onclick="CartManager.updateQuantity(${item.product_id}, ${item.quantity - 1})">-</button>
-                        <span class="quantity">${item.quantity}</span>
-                        <button class="btn btn-sm quantity-btn" onclick="CartManager.updateQuantity(${item.product_id}, ${item.quantity + 1})">+</button>
-                        <button class="btn btn-sm btn-danger remove-btn" onclick="CartManager.removeItem(${item.product_id})">Remove</button>
-                    </div>
-                </div>
-                <div class="cart-item-total">${Utils.formatCurrency(item.price * item.quantity)}</div>
-            </div>
-        `).join('');
-    }
-};
-
-// Wishlist Management
-const WishlistManager = {
-    // Add item to wishlist
-    addItem: (product) => {
-        const exists = DOKO.wishlist.find(item => item.product_id === product.product_id);
-        if (!exists) {
-            DOKO.wishlist.push({
-                product_id: product.product_id,
-                name: product.name,
-                price: product.price,
-                image_url: product.image_url
-            });
-            WishlistManager.saveWishlist();
-            Utils.showNotification(`${product.name} added to wishlist!`, 'success');
-        } else {
-            Utils.showNotification('Item already in wishlist', 'info');
-        }
-        WishlistManager.updateWishlistUI();
-    },
-
-    // Remove item from wishlist
-    removeItem: (productId) => {
-        const index = DOKO.wishlist.findIndex(item => item.product_id === productId);
-        if (index > -1) {
-            const item = DOKO.wishlist[index];
-            DOKO.wishlist.splice(index, 1);
-            WishlistManager.saveWishlist();
-            Utils.showNotification(`${item.name} removed from wishlist`, 'info');
-        }
-        WishlistManager.updateWishlistUI();
-    },
-
-    // Check if item is in wishlist
-    isInWishlist: (productId) => {
-        return DOKO.wishlist.some(item => item.product_id === productId);
-    },
-
-    // Save wishlist to localStorage
-    saveWishlist: () => {
-        localStorage.setItem('doko_wishlist', JSON.stringify(DOKO.wishlist));
-    },
-
-    // Update wishlist UI
-    updateWishlistUI: () => {
-        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-        wishlistButtons.forEach(button => {
-            const productId = parseInt(button.getAttribute('data-product-id'));
-            if (WishlistManager.isInWishlist(productId)) {
-                button.classList.add('active');
-                button.innerHTML = '❤️';
-            } else {
-                button.classList.remove('active');
-                button.innerHTML = '🤍';
-            }
-        });
-        WishlistManager.updateWishlistCount();
-    },
-
-    // Update wishlist count in header
-    updateWishlistCount: () => {
-        const countElement = document.querySelector('.wishlist-count');
-        if (countElement) {
-            countElement.textContent = DOKO.wishlist.length;
-        }
-    }
-};
-
-// Search Functionality
-const SearchManager = {
-    init: () => {
-        const searchBox = document.getElementById('search-box');
-        const searchResults = document.getElementById('search-results');
-        
-        if (searchBox) {
-            const debouncedSearch = Utils.debounce(SearchManager.performSearch, 300);
-            searchBox.addEventListener('input', (e) => {
-                const query = e.target.value.trim();
-                if (query.length >= 2) {
-                    debouncedSearch(query);
-                } else {
-                    const results = document.getElementById('search-results');
-                    if (results) results.style.display = 'none';
-                }
-            });
-
-            // Hide results when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!searchBox.contains(e.target) && !searchResults?.contains(e.target)) {
-                    const results = document.getElementById('search-results');
-                    if (results) results.style.display = 'none';
-                }
-            });
-        }
-    },
-
-    performSearch: async (query) => {
-        try {
-            const results = await API.products.search(query);
-            SearchManager.displayResults(results.data || []);
-        } catch (error) {
-            console.error('Search error:', error);
-        }
-    },
-
-    displayResults: (products) => {
-        let searchResults = document.getElementById('search-results');
-        if (!searchResults) {
-            searchResults = document.createElement('div');
-            searchResults.id = 'search-results';
-            searchResults.className = 'search-results';
-            document.querySelector('.search-container').appendChild(searchResults);
-        }
-
-        if (products.length === 0) {
-            searchResults.innerHTML = '<div class="no-results">No products found</div>';
-        } else {
-            searchResults.innerHTML = products.slice(0, 5).map(product => `
-                <div class="search-result-item" onclick="window.location.href='product-detail.php?id=${product.product_id}'">
-                    <img src="${product.image_url}" alt="${product.name}">
-                    <div class="result-info">
-                        <h4>${product.name}</h4>
-                        <div class="result-price">${Utils.formatCurrency(product.price)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        searchResults.style.display = 'block';
-    },
-
-    hideResults: () => {
-        const searchResults = document.getElementById('search-results');
-        if (searchResults) {
-            searchResults.style.display = 'none';
-        }
-    }
-};
-
-// Product Management
-const ProductManager = {
-    // Load products for listing page
-    loadProducts: async (params = {}) => {
-        try {
-            const response = await API.products.getAll(params);
-            this.displayProducts(response.data || []);
-            this.updatePagination(response.pagination || {});
-        } catch (error) {
-            console.error('Error loading products:', error);
-        }
-    },
-
-    // Display products in grid
-    displayProducts: (products) => {
-        const productGrid = document.getElementById('products-grid');
-        if (!productGrid) return;
-
-        if (products.length === 0) {
-            productGrid.innerHTML = '<div class="no-products">No products found</div>';
-            return;
-        }
-
-        productGrid.innerHTML = products.map(product => this.createProductCard(product)).join('');
-        
-        // Update wishlist UI after products are loaded
-        WishlistManager.updateWishlistUI();
-    },
-
-    // Create product card HTML
-    createProductCard: (product) => {
-        const discountPercent = product.original_price ? 
-            Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
-
-        return `
-            <div class="product-card card">
-                <div class="product-image">
-                    <img src="${product.image_url}" alt="${product.name}" loading="lazy">
-                    ${product.featured ? '<div class="product-badge">Featured</div>' : ''}
-                    ${discountPercent > 0 ? `<div class="product-badge discount">${discountPercent}% OFF</div>` : ''}
-                </div>
-                <div class="product-info card-body">
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-description">${product.description || ''}</p>
-                    
-                    <div class="product-price">
-                        <span class="current-price">${Utils.formatCurrency(product.price)}</span>
-                        ${product.original_price ? `<span class="original-price">${Utils.formatCurrency(product.original_price)}</span>` : ''}
-                        <span class="unit">/${product.unit}</span>
-                    </div>
-                    
-                    ${product.avg_rating ? `
-                        <div class="product-rating">
-                            <span class="stars">${'★'.repeat(Math.floor(product.avg_rating))}${'☆'.repeat(5 - Math.floor(product.avg_rating))}</span>
-                            <span class="rating-count">(${product.review_count || 0})</span>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="product-actions">
-                        <button class="btn btn-primary add-to-cart" onclick="ProductManager.addToCart(${product.product_id})">
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn" data-product-id="${product.product_id}" onclick="ProductManager.toggleWishlist(${product.product_id})">
-                            🤍
-                        </button>
-                    </div>
-                    
-                    <div class="product-details-link">
-                        <a href="product-detail.php?id=${product.product_id}" class="btn btn-outline btn-sm">View Details</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    // Add product to cart
-    addToCart: async (productId) => {
-        try {
-            // Get product details first
-            const response = await API.products.getById(productId);
-            const product = response.data;
-            
-            if (product.stock <= 0) {
-                Utils.showNotification('Product is out of stock', 'warning');
-                return;
-            }
-            
-            CartManager.addItem(product, 1);
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-        }
-    },
-
-    // Add product to cart with specific quantity
-    addToCartWithQuantity: async (productId, quantity = 1) => {
-        try {
-            // Get product details first
-            const response = await API.products.getById(productId);
-            const product = response.data;
-            
-            if (product.stock <= 0) {
-                Utils.showNotification('Product is out of stock', 'warning');
-                return;
-            }
-            
-            if (quantity > product.stock) {
-                Utils.showNotification(`Only ${product.stock} items available`, 'warning');
-                return;
-            }
-            
-            CartManager.addItem(product, quantity);
-            Utils.showNotification(`${quantity} item(s) added to cart`, 'success');
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            Utils.showNotification('Failed to add item to cart', 'error');
-        }
-    },
-
-    // Toggle wishlist
-    toggleWishlist: async (productId) => {
-        try {
-            if (WishlistManager.isInWishlist(productId)) {
-                WishlistManager.removeItem(productId);
-            } else {
-                const response = await API.products.getById(productId);
-                const product = response.data;
-                WishlistManager.addItem(product);
-            }
-        } catch (error) {
-            console.error('Error toggling wishlist:', error);
-        }
-    },
-
-    // Update pagination
-    updatePagination: (pagination) => {
-        const paginationContainer = document.getElementById('pagination');
-        if (!paginationContainer || !pagination.totalPages) return;
-
-        const currentPage = pagination.currentPage || 1;
-        const totalPages = pagination.totalPages;
-
-        let paginationHTML = '';
-
-        // Previous button
-        if (currentPage > 1) {
-            paginationHTML += `<button class="pagination-btn" data-page="${currentPage - 1}">Previous</button>`;
-        }
-
-        // Page numbers
-        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
-            paginationHTML += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
-        }
-
-        // Next button
-        if (currentPage < totalPages) {
-            paginationHTML += `<button class="pagination-btn" data-page="${currentPage + 1}">Next</button>`;
-        }
-
-        paginationContainer.innerHTML = paginationHTML;
-
-        // Add click event listeners
-        paginationContainer.querySelectorAll('.pagination-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const page = parseInt(e.target.getAttribute('data-page'));
-                this.loadProducts({ page });
-            });
-        });
-    }
-};
-
-// Authentication Manager
-const AuthManager = {
-    // Check if user is logged in
-    isLoggedIn: () => {
-        return DOKO.user !== null;
-    },
-
-    // Login user
-    login: async (email, password) => {
-        try {
-            const response = await API.auth.login(email, password);
-            DOKO.user = response.user;
-            localStorage.setItem('doko_user', JSON.stringify(DOKO.user));
-            Utils.showNotification('Login successful!', 'success');
-            this.updateAuthUI();
-            return true;
-        } catch (error) {
-            Utils.showNotification('Invalid email or password', 'danger');
-            return false;
-        }
-    },
-
-    // Register user
-    register: async (userData) => {
-        try {
-            const response = await API.auth.register(userData);
-            Utils.showNotification('Registration successful! Please login.', 'success');
-            return true;
-        } catch (error) {
-            Utils.showNotification(error.message || 'Registration failed', 'danger');
-            return false;
-        }
-    },
-
-    // Logout user
-    logout: () => {
-        DOKO.user = null;
-        localStorage.removeItem('doko_user');
-        Utils.showNotification('Logged out successfully', 'info');
-        this.updateAuthUI();
-        window.location.href = 'index.html';
-    },
-
-    // Update authentication UI
-    updateAuthUI: () => {
-        const loginLinks = document.querySelectorAll('.login-link');
-        const logoutLinks = document.querySelectorAll('.logout-link');
-        const userNameElements = document.querySelectorAll('.user-name');
-
-        if (AuthManager.isLoggedIn()) {
-            loginLinks.forEach(el => el.style.display = 'none');
-            logoutLinks.forEach(el => el.style.display = 'block');
-            userNameElements.forEach(el => el.textContent = DOKO.user.name);
-        } else {
-            loginLinks.forEach(el => el.style.display = 'block');
-            logoutLinks.forEach(el => el.style.display = 'none');
-        }
-    }
-};
-
-// Initialize on DOM load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize managers
-    SearchManager.init();
-    CartManager.init(); // Initialize cart manager here
-    CartManager.updateCartUI();
-    WishlistManager.updateWishlistUI();
-    AuthManager.updateAuthUI();
-
-    // Initialize hero background slider if container exists
-    if (document.getElementById('hero-slide-track')) {
-        HeroBackgroundSlider.init();
-    }
-
-    // Initialize scroll-based navbar
-    initScrollNavbar();
-
-    // Initialize page-specific functionality
-    const currentPage = window.location.pathname.split('/').pop();
-    
-    switch (currentPage) {
-        case 'index.html':
-        case '':
-            initHomePage();
-            break;
-        case 'products.html':
-            initProductsPage();
-            break;
-        case 'product-detail.php':
-            initProductDetailsPage();
-            break;
-        case 'cart.html':
-            initCartPage();
-            break;
-        case 'login.html':
-            initLoginPage();
-            break;
-        case 'register.html':
-            initRegisterPage();
-            break;
-    }
+// ========== COMPREHENSIVE DASHBOARD FUNCTIONALITY ==========
+
+// Initialize Dashboard on Page Load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+    initializeModals();
+    initializeTables();
+    initializeNotifications();
+    initializeCart();
+    initializeForms();
 });
 
-// Scroll-based Navbar Functionality
-function initScrollNavbar() {
-    const header = document.querySelector('.header');
-    let lastScrollTop = 0;
-    let scrollTimeout;
-
-    if (!header) return;
-
-    window.addEventListener('scroll', function() {
-        // Clear previous timeout
-        clearTimeout(scrollTimeout);
-        
-        // Add a small delay to prevent excessive calls
-        scrollTimeout = setTimeout(() => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+// Dashboard Navigation System
+function initializeDashboard() {
+    const navLinks = document.querySelectorAll('.dashboard-nav .nav-link');
+    const sections = document.querySelectorAll('.dashboard-section');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Remove existing classes
-            header.classList.remove('scrolled-up', 'scrolled-down', 'at-top');
+            const targetSection = this.dataset.section;
+            if (!targetSection) return;
             
-            if (scrollTop === 0) {
-                // At the top of the page
-                header.classList.add('at-top');
-            } else if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // Scrolling down - hide navbar
-                header.classList.add('scrolled-down');
-            } else if (scrollTop < lastScrollTop) {
-                // Scrolling up - show navbar
-                header.classList.add('scrolled-up');
+            // Update active nav link
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update active section
+            sections.forEach(section => section.classList.remove('active'));
+            const target = document.getElementById(targetSection);
+            if (target) {
+                target.classList.add('active');
+                
+                // Load section data if needed
+                loadSectionData(targetSection);
             }
-            
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
-        }, 10);
-    }, { passive: true });
-
-    // Initialize with current position
-    if (window.pageYOffset === 0) {
-        header.classList.add('at-top');
-    } else {
-        header.classList.add('scrolled-up');
+        });
+    });
+    
+    // Auto-activate first section
+    if (navLinks.length > 0) {
+        navLinks[0].click();
     }
 }
 
-// Page-specific initialization functions
-function initHomePage() {
-    // Load featured products
-    ProductManager.loadProducts({ featured: 1, limit: 8 });
-    
-    // Load categories
-    loadCategories();
-}
-
-function initProductsPage() {
-    // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-    const search = urlParams.get('search');
-    
-    // Load products based on parameters
-    const params = {};
-    if (category) params.category_id = category;
-    if (search) params.search = search;
-    
-    ProductManager.loadProducts(params);
-    
-    // Initialize filters
-    initFilters();
-}
-
-function initProductDetailsPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-    
-    if (productId) {
-        loadProductDetails(productId);
+// Load Section Data Based on Section Type
+function loadSectionData(sectionId) {
+    switch(sectionId) {
+        case 'admin-orders':
+        case 'orders':
+            loadOrders();
+            break;
+        case 'admin-users':
+        case 'users':
+            loadUsers();
+            break;
+        case 'admin-products':
+        case 'products':
+            loadProducts();
+            break;
+        case 'manager-inventory':
+        case 'inventory':
+            loadInventoryData();
+            break;
+        case 'customer-orders':
+        case 'orders-section':
+            loadCustomerOrders();
+            break;
+        default:
+            console.log('No data loader for section:', sectionId);
     }
 }
 
-function initCartPage() {
-    displayCartItems();
-    calculateCartTotal();
-}
-
-function initLoginPage() {
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-}
-
-function initRegisterPage() {
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
-    }
-}
-
-// Event handlers
-async function handleLogin(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const email = formData.get('email');
-    const password = formData.get('password');
+// Orders Management (Admin)
+function loadOrders() {
+    showLoading('orders-table');
     
-    const success = await AuthManager.login(email, password);
-    if (success) {
-        window.location.href = 'index.html';
-    }
+    fetch('api/orders-list.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayOrders(data.orders);
+                updateOrderStats(data.stats);
+            } else {
+                showError('Failed to load orders: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading orders:', error);
+            showError('Failed to load orders');
+        })
+        .finally(() => {
+            hideLoading('orders-table');
+        });
 }
 
-async function handleRegister(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+function displayOrders(orders) {
+    const tbody = document.querySelector('#orders-table tbody');
+    if (!tbody) return;
     
-    const userData = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        password: formData.get('password'),
-        phone: formData.get('phone'),
-        address: formData.get('address')
-    };
-    
-    // Validate data
-    if (!Utils.isValidEmail(userData.email)) {
-        Utils.showNotification('Please enter a valid email address', 'danger');
+    if (!orders || orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center empty-state">No orders found</td></tr>';
         return;
     }
     
-    if (!Utils.isValidPhone(userData.phone)) {
-        Utils.showNotification('Please enter a valid phone number', 'danger');
-        return;
-    }
-    
-    const success = await AuthManager.register(userData);
-    if (success) {
-        window.location.href = 'login.html';
-    }
-}
-
-// Additional utility functions
-async function loadCategories() {
-    try {
-        const response = await API.categories.getAll();
-        displayCategories(response.data || []);
-    } catch (error) {
-        console.error('Error loading categories:', error);
-    }
-}
-
-function displayCategories(categories) {
-    const categoriesGrid = document.getElementById('categories-grid');
-    if (!categoriesGrid) return;
-    
-    categoriesGrid.innerHTML = categories.map(category => `
-        <div class="category-card">
-            <a href="products.html?category=${category.category_id}">
-                <div class="category-image">
-                    <img src="${category.image_url}" alt="${category.name}">
+    tbody.innerHTML = orders.map(order => `
+        <tr>
+            <td>#${order.id}</td>
+            <td>${order.customer_name || 'N/A'}</td>
+            <td>₹${parseFloat(order.total_amount).toFixed(2)}</td>
+            <td><span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></td>
+            <td>${formatDate(order.created_at)}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn-icon view" onclick="viewOrder(${order.id})" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon edit" onclick="editOrderStatus(${order.id}, '${order.status}')" title="Edit Status">
+                        <i class="fas fa-edit"></i>
+                    </button>
                 </div>
-                <h3 class="category-name">${category.name}</h3>
-                <p class="category-count">${category.product_count || 0} items</p>
-            </a>
-        </div>
+            </td>
+        </tr>
     `).join('');
 }
 
-async function loadProductDetails(productId) {
-    try {
-        const response = await API.products.getById(productId);
-        const product = response.data;
-        displayProductDetails(product);
-    } catch (error) {
-        console.error('Error loading product details:', error);
-        Utils.showNotification('Product not found', 'danger');
+function updateOrderStats(stats) {
+    if (!stats) return;
+    
+    updateStatCard('total-orders', stats.total || 0);
+    updateStatCard('pending-orders', stats.pending || 0);
+    updateStatCard('total-revenue', '₹' + (stats.revenue || 0));
+}
+
+function updateStatCard(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value;
     }
 }
 
-function displayProductDetails(product) {
-    // This would be implemented based on the product details page structure
+// Users Management (Admin)
+function loadUsers() {
+    showLoading('users-table');
+    
+    fetch('api/users-list.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayUsers(data.users);
+            } else {
+                showError('Failed to load users: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading users:', error);
+            showError('Failed to load users');
+        })
+        .finally(() => {
+            hideLoading('users-table');
+        });
 }
 
-function initFilters() {
-    // Initialize filter functionality
-    const filterForm = document.getElementById('filters-form');
-    if (filterForm) {
-        filterForm.addEventListener('change', handleFiltersChange);
-    }
-}
-
-function handleFiltersChange(e) {
-    const formData = new FormData(e.target.form);
-    const params = {};
+function displayUsers(users) {
+    const tbody = document.querySelector('#users-table tbody');
+    if (!tbody) return;
     
-    for (let [key, value] of formData.entries()) {
-        if (value) params[key] = value;
-    }
-    
-    ProductManager.loadProducts(params);
-}
-
-function displayCartItems() {
-    const cartContainer = document.getElementById('cart-items');
-    if (!cartContainer) return;
-    
-    if (DOKO.cart.length === 0) {
-        cartContainer.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center empty-state">No users found</td></tr>';
         return;
     }
     
-    cartContainer.innerHTML = DOKO.cart.map(item => `
-        <div class="cart-item">
-            <img src="${item.image_url}" alt="${item.name}">
-            <div class="item-details">
-                <h3>${item.name}</h3>
-                <p>${Utils.formatCurrency(item.price)} / ${item.unit}</p>
-            </div>
-            <div class="quantity-controls">
-                <button onclick="CartManager.updateQuantity(${item.product_id}, ${item.quantity - 1})">-</button>
-                <span>${item.quantity}</span>
-                <button onclick="CartManager.updateQuantity(${item.product_id}, ${item.quantity + 1})">+</button>
-            </div>
-            <div class="item-total">${Utils.formatCurrency(item.price * item.quantity)}</div>
-            <button onclick="CartManager.removeItem(${item.product_id})" class="remove-btn">Remove</button>
-        </div>
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td><span class="status-badge ${user.role.toLowerCase()}">${user.role}</span></td>
+            <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn-icon edit" onclick="editUser(${user.id})" title="Edit User">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon delete" onclick="deleteUser(${user.id})" title="Delete User">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
     `).join('');
 }
 
-function calculateCartTotal() {
-    const subtotal = CartManager.getTotal();
-    const deliveryCharge = subtotal >= DOKO.config.freeDeliveryMinimum ? 0 : DOKO.config.deliveryCharge;
-    const tax = subtotal * DOKO.config.taxRate;
-    const total = subtotal + deliveryCharge + tax;
+// Products Management
+function loadProducts() {
+    showLoading('products-table');
     
-    // Update UI elements
-    const elements = {
-        'cart-subtotal': Utils.formatCurrency(subtotal),
-        'delivery-charge': Utils.formatCurrency(deliveryCharge),
-        'tax-amount': Utils.formatCurrency(tax),
-        'cart-total': Utils.formatCurrency(total)
-    };
+    fetch('api/products-list.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayProducts(data.products);
+            } else {
+                showError('Failed to load products: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading products:', error);
+            showError('Failed to load products');
+        })
+        .finally(() => {
+            hideLoading('products-table');
+        });
+}
+
+function displayProducts(products) {
+    const tbody = document.querySelector('#products-table tbody');
+    if (!tbody) return;
     
-    Object.entries(elements).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) element.textContent = value;
+    if (!products || products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center empty-state">No products found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = products.map(product => `
+        <tr>
+            <td>
+                <div class="product-info">
+                    <img src="${product.image || 'uploads/placeholder.jpg'}" alt="${product.name}" class="product-image">
+                    <div>
+                        <strong>${product.name}</strong>
+                        <small class="category-tag">${product.category}</small>
+                    </div>
+                </div>
+            </td>
+            <td>₹${parseFloat(product.price).toFixed(2)}</td>
+            <td>
+                <span class="stock-indicator ${product.stock < 10 ? 'low' : (product.stock > 50 ? 'high' : 'medium')}">
+                    ${product.stock}
+                </span>
+            </td>
+            <td><span class="status-badge ${product.status.toLowerCase()}">${product.status}</span></td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn-icon view" onclick="viewProduct(${product.id})" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon edit" onclick="editProduct(${product.id})" title="Edit Product">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon delete" onclick="deleteProduct(${product.id})" title="Delete Product">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Inventory Management (Manager)
+function loadInventoryData() {
+    showLoading('inventory-list');
+    
+    fetch('api/inventory-list.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayInventory(data.inventory);
+                updateInventoryStats(data.stats);
+            } else {
+                showError('Failed to load inventory: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading inventory:', error);
+            showError('Failed to load inventory');
+        })
+        .finally(() => {
+            hideLoading('inventory-list');
+        });
+}
+
+function displayInventory(inventory) {
+    const container = document.getElementById('inventory-list');
+    if (!container) return;
+    
+    if (!inventory || inventory.length === 0) {
+        container.innerHTML = '<div class="empty-state">No inventory items found</div>';
+        return;
+    }
+    
+    container.innerHTML = inventory.map(item => {
+        let stockClass = 'inventory-item';
+        if (item.stock <= 0) stockClass += ' out-of-stock';
+        else if (item.stock < 10) stockClass += ' low-stock';
+        
+        return `
+            <div class="${stockClass}">
+                <div class="item-info">
+                    <h4>${item.name}</h4>
+                    <p>Stock: ${item.stock} | Price: ₹${parseFloat(item.price).toFixed(2)}</p>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-icon edit" onclick="updateStock(${item.id}, ${item.stock})" title="Update Stock">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateInventoryStats(stats) {
+    if (!stats) return;
+    
+    updateStatCard('total-products-inv', stats.total || 0);
+    updateStatCard('low-stock-count', stats.lowStock || 0);
+    updateStatCard('out-of-stock-count', stats.outOfStock || 0);
+}
+
+// Customer Orders
+function loadCustomerOrders() {
+    showLoading('customer-orders-table');
+    
+    fetch('api/customer-orders.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayCustomerOrders(data.orders);
+            } else {
+                showError('Failed to load orders: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading customer orders:', error);
+            showError('Failed to load orders');
+        })
+        .finally(() => {
+            hideLoading('customer-orders-table');
+        });
+}
+
+function displayCustomerOrders(orders) {
+    const tbody = document.querySelector('#customer-orders-table tbody');
+    if (!tbody) return;
+    
+    if (!orders || orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center empty-state">No orders found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = orders.map(order => `
+        <tr>
+            <td>#${order.id}</td>
+            <td>₹${parseFloat(order.total_amount).toFixed(2)}</td>
+            <td><span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></td>
+            <td>${formatDate(order.created_at)}</td>
+            <td>
+                <button class="btn-icon view" onclick="viewOrderDetails(${order.id})" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Cart Functionality
+function initializeCart() {
+    updateCartCount();
+    
+    // Add to cart buttons
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            const productPrice = this.dataset.productPrice;
+            
+            addToCart(productId, productName, productPrice);
+        });
     });
 }
 
-// Export for global access
-window.DOKO = DOKO;
-window.CartManager = CartManager;
-window.WishlistManager = WishlistManager;
-window.ProductManager = ProductManager;
-window.AuthManager = AuthManager;
+function addToCart(productId, productName, productPrice) {
+    const data = {
+        product_id: productId,
+        quantity: 1
+    };
+    
+    fetch('api/cart-add.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${productName} added to cart!`, 'success');
+            updateCartCount();
+        } else {
+            showNotification(data.message || 'Failed to add to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to add to cart', 'error');
+    });
+}
 
-// Hero Background Slider Manager
-const HeroBackgroundSlider = {
-    // High-quality grocery image categories for hero
-    heroGroceryCategories: [
-        'fresh-vegetables-market', 'organic-fruits-display', 'colorful-produce-stand',
-        'farmers-market-vegetables', 'fresh-fruit-basket', 'organic-leafy-greens',
-        'seasonal-vegetables', 'tropical-fruits-display', 'dairy-products-fresh',
-        'whole-grains-organic', 'spices-herbs-market', 'farm-fresh-produce',
-        'healthy-food-ingredients', 'grocery-shopping-fresh', 'supermarket-produce',
-        'organic-food-market', 'clean-eating-ingredients', 'kitchen-fresh-ingredients'
-    ],
-    
-    // Generate high-quality hero background images
-    generateHeroImages: function(count = 20) {
-        const images = [];
-        const categories = this.heroGroceryCategories;
-        
-        // High-quality, reliable image sources for hero section
-        const imageSources = [
-            {
-                type: 'unsplash-hero',
-                images: [
-                    'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1563636619-e9143da7973b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1488459716781-31db52582fe9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1552944150-6dd1180e5999?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1594736797933-d0ce9e3089df?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95',
-                    'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=1000&q=95'
-                ]
+function updateCartCount() {
+    fetch('api/cart-get.php', {
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cartCount = document.getElementById('cart-count');
+                if (cartCount) {
+                    const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
+                    cartCount.textContent = totalItems;
+                }
             }
-        ];
-        
-        for (let i = 0; i < count; i++) {
-            const imageUrl = imageSources[0].images[i % imageSources[0].images.length];
-            
-            images.push({
-                url: imageUrl,
-                category: categories[i % categories.length],
-                id: `hero-slide-${i}`,
-                fallback: imageSources[0].images[0]
-            });
-        }
-        
-        return images;
-    },
+        })
+        .catch(error => console.error('Error updating cart count:', error));
+}
+
+// Form Handling
+function initializeForms() {
+    // Profile update forms
+    const profileForms = document.querySelectorAll('.profile-form');
+    profileForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitProfileForm(this);
+        });
+    });
     
-    // Create hero slide element
-    createHeroSlide: function(image) {
-        const slide = document.createElement('div');
-        slide.className = 'hero-slide';
-        slide.id = image.id;
-        
-        const fallbackImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=90';
-        
-        slide.innerHTML = `
-            <img src="${image.url}" 
-                 alt="${image.category.replace('-', ' ')}" 
-                 loading="lazy" 
-                 onerror="this.onerror=null; this.src='${fallbackImage}';">
-        `;
-        
-        return slide;
-    },
+    // Password change forms
+    const passwordForms = document.querySelectorAll('.password-form');
+    passwordForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitPasswordForm(this);
+        });
+    });
+}
+
+function submitProfileForm(form) {
+    const formData = new FormData(form);
     
-    // Initialize hero background slider
-    init: function() {
-        const heroSlideTrack = document.getElementById('hero-slide-track');
-        if (!heroSlideTrack) {
-            console.log('Hero slide track not found');
-            return;
+    fetch('api/profile-update.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Profile updated successfully!', 'success');
+        } else {
+            showNotification(data.message || 'Failed to update profile', 'error');
         }
-        
-        console.log('Initializing hero background slider...');
-        
-        // Generate fewer hero images for ultra-smooth animation
-        const images = this.generateHeroImages(16);
-        console.log('Generated', images.length, 'hero background images');
-        
-        // Create slides for seamless loop (triple for smooth continuous effect)
-        const slides = [...images, ...images, ...images];
-        slides.forEach((image, index) => {
-            const slide = this.createHeroSlide(image);
-            heroSlideTrack.appendChild(slide);
-            
-            // Log first few images for debugging
-            if (index < 5) {
-                console.log(`Hero slide ${index}:`, image.url);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to update profile', 'error');
+    });
+}
+
+function submitPasswordForm(form) {
+    const formData = new FormData(form);
+    
+    if (formData.get('new_password') !== formData.get('confirm_password')) {
+        showNotification('Passwords do not match', 'error');
+        return;
+    }
+    
+    fetch('api/password-update.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Password updated successfully!', 'success');
+            form.reset();
+        } else {
+            showNotification(data.message || 'Failed to update password', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to update password', 'error');
+    });
+}
+
+// Modal Management
+function initializeModals() {
+    // Close modals on background click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target.id);
+        }
+    });
+    
+    // Close modals on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const activeModals = document.querySelectorAll('.modal.active');
+            activeModals.forEach(modal => closeModal(modal.id));
+        }
+    });
+    
+    // Close button functionality
+    const closeButtons = document.querySelectorAll('.modal .close, .modal .close-btn');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                closeModal(modal.id);
             }
         });
+    });
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
         
-        // Set track width for smooth animation
-        const slideCount = slides.length;
-        heroSlideTrack.style.width = `${slideCount * 25}%`;
-        
-        console.log(`Hero slide track width set to: ${slideCount * 25}%`);
-        
-        // Start constant speed animation
-        const animationDuration = 800; // 800 seconds for very slow, constant speed
-        heroSlideTrack.style.animation = `heroSlide ${animationDuration}s infinite linear`;
-        
-        // Ensure animation consistency by preventing browser optimization interference
-        heroSlideTrack.style.animationFillMode = 'none';
-        heroSlideTrack.style.animationPlayState = 'running';
-        
-        // Force browser to maintain constant timing
-        setInterval(() => {
-            const computedStyle = window.getComputedStyle(heroSlideTrack);
-            if (computedStyle.animationPlayState !== 'running') {
-                heroSlideTrack.style.animationPlayState = 'running';
-            }
+        // Reset form if exists
+        const form = modal.querySelector('form');
+        if (form) {
+            form.reset();
+        }
+    }
+}
+
+// Table Enhancements
+function initializeTables() {
+    // Add sorting functionality
+    const sortableHeaders = document.querySelectorAll('.data-table th[data-sort]');
+    sortableHeaders.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', function() {
+            const column = this.dataset.sort;
+            const table = this.closest('table');
+            sortTable(table, column);
+        });
+    });
+}
+
+function sortTable(table, column) {
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    const sorted = rows.sort((a, b) => {
+        const aVal = a.querySelector(`td[data-${column}]`)?.textContent || '';
+        const bVal = b.querySelector(`td[data-${column}]`)?.textContent || '';
+        return aVal.localeCompare(bVal, undefined, { numeric: true });
+    });
+    
+    tbody.innerHTML = '';
+    sorted.forEach(row => tbody.appendChild(row));
+}
+
+// Notification System
+function initializeNotifications() {
+    // Auto-hide notifications after 5 seconds
+    const notifications = document.querySelectorAll('.notification');
+    notifications.forEach(notification => {
+        setTimeout(() => {
+            notification.remove();
         }, 5000);
-        
-        // Preload additional images
-        setTimeout(() => {
-            this.preloadHeroImages();
-        }, 2000);
-        
-        console.log('Hero background slider initialized with', slideCount, 'slides at', animationDuration, 'seconds duration');
-    },
-    
-    // Preload additional hero images
-    preloadHeroImages: function() {
-        const additionalImages = this.generateHeroImages(8);
-        additionalImages.forEach(image => {
-            const img = new Image();
-            img.src = image.url;
-        });
-        console.log('Preloaded additional hero images');
-    }
-};
+    });
+}
 
-// Background Image Carousel Manager
-const BackgroundCarousel = {
-    // Grocery-focused image categories
-    groceryCategories: [
-        'fresh-vegetables', 'organic-vegetables', 'leafy-greens', 'root-vegetables',
-        'fresh-fruits', 'seasonal-fruits', 'citrus-fruits', 'tropical-fruits',
-        'dairy-products', 'milk', 'cheese', 'yogurt',
-        'whole-grains', 'rice', 'wheat', 'quinoa',
-        'spices', 'herbs', 'organic-spices', 'indian-spices',
-        'fresh-produce', 'farmers-market', 'organic-food', 'healthy-food',
-        'farm-fresh', 'natural-food', 'clean-eating', 'grocery-shopping',
-        'supermarket', 'food-market', 'fresh-ingredients', 'cooking-ingredients',
-        'green-vegetables', 'colorful-vegetables', 'seasonal-produce', 'local-produce',
-        'breakfast-foods', 'pantry-staples', 'kitchen-essentials', 'meal-prep'
-    ],
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+    `;
     
-    // Generate grocery-focused image URLs
-    generateGroceryImages: function(count = 40) {
-        const images = [];
-        const categories = this.groceryCategories;
-        
-        // Use multiple image sources for better reliability
-        const imageSources = [
-            {
-                type: 'unsplash',
-                baseUrl: 'https://source.unsplash.com/200x300/?',
-                fallback: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80'
-            },
-            {
-                type: 'picsum',
-                baseUrl: 'https://picsum.photos/200/300?random=',
-                fallback: 'https://picsum.photos/200/300?grayscale'
-            },
-            {
-                type: 'unsplash-direct',
-                images: [
-                    'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80', // vegetables
-                    'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80', // fruits
-                    'https://images.unsplash.com/photo-1563636619-e9143da7973b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80', // produce
-                    'https://images.unsplash.com/photo-1506976785307-8732e854ad03?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80', // market
-                ]
+    // Add notification styles if not present
+    if (!document.querySelector('.notification-styles')) {
+        const style = document.createElement('style');
+        style.className = 'notification-styles';
+        style.innerHTML = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease-out;
             }
-        ];
-        
-        for (let i = 0; i < count; i++) {
-            const sourceIndex = i % imageSources.length;
-            const source = imageSources[sourceIndex];
-            let imageUrl;
-            
-            switch (source.type) {
-                case 'unsplash':
-                    const category = categories[i % categories.length];
-                    imageUrl = `${source.baseUrl}${category}&sig=${i}`;
-                    break;
-                case 'picsum':
-                    imageUrl = `${source.baseUrl}${i + 1}`;
-                    break;
-                case 'unsplash-direct':
-                    imageUrl = source.images[i % source.images.length];
-                    break;
-                default:
-                    imageUrl = source.fallback;
+            .notification.info { background: #3b82f6; }
+            .notification.success { background: #10b981; }
+            .notification.error { background: #ef4444; }
+            .notification.warning { background: #f59e0b; }
+            .notification .close-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 0;
             }
-            
-            images.push({
-                url: imageUrl,
-                category: categories[i % categories.length],
-                id: `bg-slide-${i}`,
-                fallback: source.fallback || imageSources[0].fallback
-            });
-        }
-        
-        return images;
-    },
-    
-    // Create background slide element
-    createBackgroundSlide: function(image) {
-        const slide = document.createElement('div');
-        slide.className = 'background-slide';
-        slide.id = image.id;
-        
-        // Create a more sophisticated fallback system
-        const fallbackImages = [
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80',
-            'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80',
-            'https://images.unsplash.com/photo-1563636619-e9143da7973b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=300&q=80',
-            'https://picsum.photos/200/300?grayscale'
-        ];
-        
-        const randomFallback = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
-        
-        slide.innerHTML = `
-            <img src="${image.url}" 
-                 alt="${image.category.replace('-', ' ')}" 
-                 loading="lazy" 
-                 onerror="this.onerror=null; this.src='${randomFallback}';">
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
         `;
-        
-        return slide;
-    },
+        document.head.appendChild(style);
+    }
     
-    // Initialize background carousel
-    init: function() {
-        const backgroundTrack = document.getElementById('background-carousel-track');
-        if (!backgroundTrack) {
-            console.log('Background carousel container not found');
-            return;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideIn 0.3s ease-out reverse';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Utility Functions
+function showLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    }
+}
+
+function hideLoading(elementId) {
+    // Loading will be replaced by actual content
+}
+
+function showError(message) {
+    showNotification(message, 'error');
+}
+
+function showSuccess(message) {
+    showNotification(message, 'success');
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// Specific Action Functions
+function viewOrder(orderId) {
+    console.log('View order:', orderId);
+    // Open order details modal or redirect
+    openModal('order-details-modal');
+}
+
+function editOrderStatus(orderId, currentStatus) {
+    const newStatus = prompt(`Change order status for Order #${orderId}:`, currentStatus);
+    if (newStatus && newStatus !== currentStatus) {
+        updateOrderStatus(orderId, newStatus);
+    }
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    fetch('api/order-update.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess('Order status updated successfully');
+            loadOrders(); // Reload orders
+        } else {
+            showError(data.message || 'Failed to update order status');
         }
-        
-        console.log('Initializing background carousel...');
-        
-        // Generate grocery images
-        const images = this.generateGroceryImages(50);
-        console.log('Generated', images.length, 'background images');
-        
-        // Create slides for seamless loop (duplicate for continuous effect)
-        [...images, ...images].forEach((image, index) => {
-            const slide = this.createBackgroundSlide(image);
-            backgroundTrack.appendChild(slide);
-            
-            // Log first few images for debugging
-            if (index < 5) {
-                console.log(`Background slide ${index}:`, image.url);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to update order status');
+    });
+}
+
+function editUser(userId) {
+    console.log('Edit user:', userId);
+    // Implementation for editing user
+}
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`api/user-delete.php?id=${userId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('User deleted successfully');
+                loadUsers(); // Reload users
+            } else {
+                showError(data.message || 'Failed to delete user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Failed to delete user');
+        });
+    }
+}
+
+function viewProduct(productId) {
+    console.log('View product:', productId);
+    // Implementation for viewing product
+}
+
+function editProduct(productId) {
+    console.log('Edit product:', productId);
+    // Implementation for editing product
+}
+
+function deleteProduct(productId) {
+    if (confirm('Are you sure you want to delete this product?')) {
+        fetch(`api/product-delete.php?id=${productId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('Product deleted successfully');
+                loadProducts(); // Reload products
+            } else {
+                showError(data.message || 'Failed to delete product');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Failed to delete product');
+        });
+    }
+}
+
+function updateStock(productId, currentStock) {
+    const newStock = prompt(`Update stock for product ${productId}:`, currentStock);
+    if (newStock !== null && !isNaN(newStock)) {
+        fetch('api/stock-update.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                stock: parseInt(newStock)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('Stock updated successfully');
+                loadInventoryData(); // Reload inventory
+            } else {
+                showError(data.message || 'Failed to update stock');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Failed to update stock');
+        });
+    }
+}
+
+function viewOrderDetails(orderId) {
+    console.log('View order details:', orderId);
+    // Implementation for viewing customer order details
+}
+
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const navList = document.querySelector('.nav-list');
+    
+    if (mobileToggle && navList) {
+        mobileToggle.addEventListener('click', function() {
+            navList.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    }
+});
+
+// Search functionality
+function initializeSearch() {
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    
+    if (searchInput && searchButton) {
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
             }
         });
-        
-        // Update track width based on slide count
-        const slideCount = images.length * 2;
-        backgroundTrack.style.width = `calc(200px * ${slideCount})`;
-        
-        console.log(`Background carousel track width set to: calc(200px * ${slideCount})`);
-        
-        // Start animation
-        backgroundTrack.style.animation = `backgroundSlide 60s infinite linear`;
-        
-        // Preload images for better performance
-        setTimeout(() => {
-            this.preloadBackgroundImages();
-        }, 1000);
-        
-        console.log('Background grocery carousel initialized with', slideCount, 'slides');
-    },
-    
-    // Preload background images
-    preloadBackgroundImages: function() {
-        const additionalImages = this.generateGroceryImages(20);
-        additionalImages.forEach(image => {
-            const img = new Image();
-            img.src = image.url;
-        });
-        console.log('Preloaded additional background images');
-    },
-    
-    // Add multiple background layers for depth
-    initMultipleBackgrounds: function() {
-        const backgroundContainer = document.querySelector('.background-carousel');
-        if (!backgroundContainer) return;
-        
-        // Create 3 background layers for depth effect
-        for (let layer = 1; layer <= 3; layer++) {
-            const layerTrack = document.createElement('div');
-            layerTrack.className = 'background-carousel-track';
-            layerTrack.id = `background-carousel-track-${layer}`;
-            layerTrack.style.animationDuration = `${60 + (layer * 20)}s`;
-            layerTrack.style.opacity = `${0.3 / layer}`;
-            layerTrack.style.animationDirection = layer % 2 === 0 ? 'reverse' : 'normal';
-            
-            const images = this.generateGroceryImages(30 + (layer * 10));
-            [...images, ...images].forEach(image => {
-                const slide = this.createBackgroundSlide(image);
-                layerTrack.appendChild(slide);
-            });
-            
-            backgroundContainer.appendChild(layerTrack);
-        }
-        
-        console.log('Multi-layer background carousel initialized');
     }
+}
+
+function performSearch() {
+    const searchInput = document.getElementById('search-input');
+    const query = searchInput.value.trim();
+    
+    if (query.length > 0) {
+        window.location.href = `products.php?search=${encodeURIComponent(query)}`;
+    }
+}
+
+// Missing functions for product pages
+function toggleUserDropdown() {
+    const dropdown = document.querySelector('.user-dropdown-menu');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
+}
+
+function quickView(productId) {
+    // Redirect to product detail page for now
+    window.location.href = `product-detail.php?id=${productId}`;
+}
+
+// Note: toggleWishlist function moved to end of file to avoid conflicts
+
+function updateWishlistCount() {
+    fetch('api/wishlist.php', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                const wishlistCount = document.getElementById('wishlist-count');
+                if (wishlistCount) {
+                    wishlistCount.textContent = data.count || 0;
+                }
+            }
+        } catch (e) {
+            console.error('Invalid JSON response for wishlist:', text);
+            // Set count to 0 if there's an error
+            const wishlistCount = document.getElementById('wishlist-count');
+            if (wishlistCount) {
+                wishlistCount.textContent = '0';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error updating wishlist count:', error);
+        // Set count to 0 if there's an error
+        const wishlistCount = document.getElementById('wishlist-count');
+        if (wishlistCount) {
+            wishlistCount.textContent = '0';
+        }
+    });
+}
+
+// Add error handling for JavaScript errors
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+    console.error('  at', e.filename + ':' + e.lineno + ':' + e.colno);
+});
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+    initializeModals();
+    initializeTables();
+    initializeNotifications();
+    initializeCart();
+    initializeForms();
+    initializeSearch();
+    updateWishlistCount();
+});
+
+// Initialize search on page load
+document.addEventListener('DOMContentLoaded', initializeSearch);
+
+// ========== USER DROPDOWN FUNCTIONALITY ==========
+
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !e.target.closest('.user-menu')) {
+                dropdown.classList.remove('show');
+            }
+        }, { once: true });
+    }
+}
+
+// ========== NOTIFICATION SYSTEM ==========
+
+function showNotification(message, type = 'info', duration = 5000) {
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        max-width: 400px;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        font-family: 'Inter', sans-serif;
+    `;
+    
+    // Set colors based on type
+    const colors = {
+        success: { bg: '#10b981', text: '#ffffff' },
+        error: { bg: '#ef4444', text: '#ffffff' },
+        warning: { bg: '#f59e0b', text: '#ffffff' },
+        info: { bg: '#3b82f6', text: '#ffffff' }
+    };
+    
+    const color = colors[type] || colors.info;
+    notification.style.backgroundColor = color.bg;
+    notification.style.color = color.text;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Auto remove after duration
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, duration);
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-triangle',
+        warning: 'exclamation-circle',
+        info: 'info-circle'
+    };
+    return icons[type] || 'info-circle';
+}
+
+// ========== PROFILE FUNCTIONALITY ==========
+
+// Handle JavaScript errors gracefully
+window.addEventListener('error', function(event) {
+    console.error('JavaScript Error:', event.error);
+});
+
+// ========== MISSING PRODUCT FUNCTIONS ==========
+
+/**
+ * Quick view product modal
+ */
+function quickView(productId) {
+    console.log('Quick view for product:', productId);
+    
+    fetch(`/api/product-detail.php?id=${productId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.product) {
+                showQuickViewModal(data.product);
+            } else {
+                showNotification('Failed to load product details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading product details:', error);
+            showNotification('Failed to load product details', 'error');
+        });
+}
+
+/**
+ * Show quick view modal
+ */
+function showQuickViewModal(product) {
+    const modal = document.createElement('div');
+    modal.className = 'modal quick-view-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${product.name}</h3>
+                <button class="close-btn" onclick="closeQuickView()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-quick-view">
+                    <div class="product-image">
+                        <img src="${product.image || '/uploads/products/default.svg'}" alt="${product.name}">
+                    </div>
+                    <div class="product-details">
+                        <p class="price">Rs. ${product.price}</p>
+                        <p class="description">${product.description || 'No description available'}</p>
+                        <div class="product-actions">
+                            <button class="btn btn-primary" onclick="addToCartFromQuickView(${product.product_id})">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                            <button class="btn btn-outline" onclick="toggleWishlist(${product.product_id})">
+                                <i class="fas fa-heart"></i> Add to Wishlist
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Close quick view modal
+ */
+function closeQuickView() {
+    const modal = document.querySelector('.quick-view-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+/**
+ * Add to cart from quick view
+ */
+function addToCartFromQuickView(productId) {
+    addToCart(productId);
+    closeQuickView();
+}
+
+// Note: toggleWishlist function moved to end of file to avoid conflicts
+
+/**
+ * Enhanced add to cart with better error handling
+ */
+function addToCart(productId, quantity = 1, productName = 'Product') {
+    const data = {
+        product_id: productId,
+        quantity: quantity
+    };
+    
+    console.log('Adding to cart:', data);
+    
+    fetch('api/cart-add.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        
+        if (data.success) {
+            showNotification(`${productName} added to cart!`, 'success');
+            updateCartCount();
+        } else {
+            if (data.message && data.message.includes('log in')) {
+                showNotification('Please log in to add items to cart', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
+                }, 1500);
+            } else {
+                showNotification(data.message || 'Failed to add to cart', 'error');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        showNotification('Please log in to add items to cart', 'warning');
+    });
+}
+
+/**
+ * Update cart count with better error handling
+ */
+function updateCartCount() {
+    fetch('api/cart-get.php', {
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            // If not logged in or error, just set to 0
+            return { success: true, items: [] };
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
+                cartCount.textContent = totalItems;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error updating cart count:', error);
+        // Silently fail for cart count updates
+        const cartCount = document.getElementById('cart-count');
+        if (cartCount) {
+            cartCount.textContent = '0';
+        }
+    });
+}
+
+// ========== INITIALIZATION ==========
+
+// Global error handler to prevent JavaScript errors from breaking the page
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    console.error('Global error:', {
+        message: msg,
+        source: url,
+        line: lineNo,
+        column: columnNo,
+        error: error
+    });
+    return false; // Allow default error handling
 };
 
-// Global utility functions for product cards
-function changeCardQuantity(productId, delta) {
-    const input = document.getElementById(`qty-${productId}`);
-    if (!input) return;
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing DOKO E-commerce...');
     
-    const currentValue = parseInt(input.value) || 1;
-    const newValue = currentValue + delta;
-    const min = parseInt(input.min) || 1;
-    const max = parseInt(input.max) || 99;
-    
-    if (newValue >= min && newValue <= max) {
-        input.value = newValue;
+    try {
+        initializeDashboard();
+        initializeModals();
+        initializeTables();
+        initializeNotifications();
+        initializeCart();
+        initializeForms();
+        initializeSearch();
+        
+        console.log('DOKO E-commerce initialized successfully');
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
+});
+
+// Export functions for global access
+window.quickView = quickView;
+window.toggleWishlist = toggleWishlist;
+window.addToCart = addToCart;
+window.updateCartCount = updateCartCount;
+window.toggleUserDropdown = toggleUserDropdown;
+window.showNotification = showNotification;
+
+function showChangePasswordModal() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 }
 
-function addToCartFromCard(productId) {
-    const quantityInput = document.getElementById(`qty-${productId}`);
-    const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-    
-    if (typeof ProductManager !== 'undefined' && ProductManager.addToCartWithQuantity) {
-        ProductManager.addToCartWithQuantity(productId, quantity);
-    } else {
-        console.error('ProductManager not found');
+function closeChangePasswordModal() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 }
 
-// Export for global access
-window.BackgroundCarousel = BackgroundCarousel;
-window.HeroBackgroundSlider = HeroBackgroundSlider;
+// ========== UTILITY FUNCTIONS ==========
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-NP', {
+        style: 'currency',
+        currency: 'NPR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// ========== ERROR HANDLING ==========
+
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+});
+
+// ========== PAGE LOAD OPTIMIZATION ==========
+
+// Preload critical resources
+document.addEventListener('DOMContentLoaded', function() {
+    // Preload cart data if user is logged in
+    if (document.querySelector('.user-menu')) {
+        updateCartCount();
+    }
+});
+
+
+// Quick View Function
+function quickView(productId) {
+    // Open product in modal or new tab
+    window.open(`product-detail.php?id=${productId}`, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+}
+
+// Authentication Functions
+async function isLoggedIn() {
+    try {
+        const response = await fetch('api/auth-status.php', {
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const result = await response.json();
+        return result.success && result.logged_in;
+    } catch (error) {
+        console.error('Error checking authentication status:', error);
+        return false;
+    }
+}
+
+// Make isLoggedIn available globally immediately
+window.isLoggedIn = isLoggedIn;
+
+function showAuthModal(type = 'login') {
+    // Redirect to login page with current page as redirect parameter
+    const currentPage = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `login.php?redirect=${currentPage}`;
+}
+
+// Make showAuthModal available globally immediately
+window.showAuthModal = showAuthModal;
+
+// Toggle Wishlist Function
+async function toggleWishlist(productId) {
+    // Check if user is logged in
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn) {
+        showNotification('Please login to use wishlist', 'info');
+        showAuthModal('login');
+        return;
+    }
+    
+    // Show loading state
+    const wishlistBtn = document.querySelector(`[onclick="toggleWishlist(${productId})"] i`);
+    if (wishlistBtn) {
+        wishlistBtn.className = 'fa fa-spinner fa-spin';
+    }
+    
+    fetch(`api/wishlist.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ 
+            action: 'toggle',
+            product_id: productId 
+        })
+    })
+    .then(response => {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // Update wishlist button icon
+            if (wishlistBtn) {
+                wishlistBtn.className = data.in_wishlist ? 'fa fa-heart' : 'fa fa-heart-o';
+            }
+            
+            // Update wishlist count in header
+            updateWishlistCount();
+        } else {
+            showNotification(data.message || 'Failed to update wishlist', 'error');
+            // Restore original icon
+            if (wishlistBtn) {
+                wishlistBtn.className = 'fa fa-heart-o';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Wishlist error:', error);
+        showNotification('Failed to update wishlist', 'error');
+        
+        // Restore original icon
+        if (wishlistBtn) {
+            wishlistBtn.className = 'fa fa-heart-o';
+        }
+    });
+}
+
+// Make toggleWishlist available globally immediately
+window.toggleWishlist = toggleWishlist;
+
+// Create default product image
+function getDefaultProductImage() {
+    return '/uploads/default-product.jpg'; // Use the correct path
+}
+
+// Image error handler
+function handleImageError(img) {
+    console.log('Image load error for:', img.src);
+    const defaultImg = getDefaultProductImage();
+    if (img.src !== defaultImg) {
+        img.src = defaultImg;
+        img.onerror = null; // Prevent infinite loop
+    }
+}
+
+// Global error handler for JavaScript errors
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+    // You can send this to your error tracking service
+});
+
+// Add to window for global access
+window.quickView = quickView;
+window.toggleWishlist = toggleWishlist;
+window.handleImageError = handleImageError;
+window.isLoggedIn = isLoggedIn;
+window.showAuthModal = showAuthModal;

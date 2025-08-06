@@ -1,0 +1,22 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f8f9fa"/>
+  
+  <!-- Icon -->
+  <g transform="translate(150,150)">
+    <!-- Shopping bag icon -->
+    <path d="M-40,-60 L40,-60 L50,60 L-50,60 Z" fill="#e9ecef" stroke="#6c757d" stroke-width="2"/>
+    <circle cx="0" cy="0" r="30" fill="#6c757d" opacity="0.3"/>
+    <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6c757d">
+      Product
+    </text>
+    <text x="0" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">
+      Image
+    </text>
+  </g>
+  
+  <!-- DOKO watermark -->
+  <text x="150" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d" opacity="0.5">
+    DOKO
+  </text>
+</svg>

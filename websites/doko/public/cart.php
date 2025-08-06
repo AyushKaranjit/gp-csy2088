@@ -1,6 +1,8 @@
 <?php
 // Start session and include configuration
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once '../template/config.php';
 
 // Page-specific variables
@@ -326,6 +328,176 @@ include_header($page_title, $page_description, $current_page);
         position: static;
     }
 }
+
+/* Checkout Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-modal-content {
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-hover);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--light-text);
+}
+
+.close-btn:hover {
+    color: var(--danger-color);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-text);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.order-summary {
+    background: var(--light-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+}
+
+.order-summary h4 {
+    margin: 0 0 1rem 0;
+    color: var(--primary-color);
+}
+
+.checkout-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.checkout-item:last-child {
+    border-bottom: none;
+}
+
+.summary-totals {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.summary-totals .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.summary-totals .summary-row.total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--secondary-color);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 </style>
 
 <script>
@@ -454,15 +626,288 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Checkout button
-    document.getElementById('proceed-checkout').addEventListener('click', function() {
+    document.getElementById('proceed-checkout').addEventListener('click', async function() {
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return;
         }
         
-        // Redirect to checkout page (to be created)
-        window.location.href = 'checkout.php';
+        // Check if user is logged in
+        try {
+            const authResponse = await fetch('api/auth-status.php');
+            const authResult = await authResponse.json();
+            
+            if (!authResult.success || !authResult.isLoggedIn) {
+                if (confirm('Please login to place an order. Would you like to login now?')) {
+                    window.location.href = 'login.php?redirect=' + encodeURIComponent('cart.php');
+                }
+                return;
+            }
+            
+            // User is logged in, show checkout modal
+            showCheckoutModal();
+            
+        } catch (error) {
+            console.error('Error checking authentication:', error);
+            if (confirm('Please login to place an order. Would you like to login now?')) {
+                window.location.href = 'login.php?redirect=' + encodeURIComponent('cart.php');
+            }
+        }
     });
+    
+    // Show checkout modal
+    function showCheckoutModal() {
+        const modal = document.getElementById('checkout-modal');
+        if (!modal) {
+            createCheckoutModal();
+        }
+        document.getElementById('checkout-modal').style.display = 'flex';
+        
+        // Load user profile data for pre-filling
+        loadUserProfile();
+    }
+    
+    // Create checkout modal
+    function createCheckoutModal() {
+        const modal = document.createElement('div');
+        modal.id = 'checkout-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content checkout-modal-content">
+                <div class="modal-header">
+                    <h3>Place Your Order</h3>
+                    <button type="button" class="close-btn" onclick="hideCheckoutModal()">&times;</button>
+                </div>
+                <form id="checkout-form" class="modal-body">
+                    <div class="form-group">
+                        <label for="delivery_address">Delivery Address *</label>
+                        <textarea id="delivery_address" name="delivery_address" class="form-control" rows="3" 
+                                  placeholder="Enter your complete delivery address" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" 
+                               placeholder="+977-9851234567" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method</label>
+                        <select id="payment_method" name="payment_method" class="form-control" onchange="handlePaymentMethodChange()">
+                            <option value="cash_on_delivery">Cash on Delivery</option>
+                            <option value="online_payment">Online Payment (Digital Wallet/Bank Transfer)</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                        <div id="payment-details" style="display: none; margin-top: 1rem;">
+                            <div class="payment-info">
+                                <h5>Payment Details</h5>
+                                <div id="online-payment-info" style="display: none;">
+                                    <p><strong>For Online Payment:</strong></p>
+                                    <ul>
+                                        <li>eSewa: <code>9876543210</code></li>
+                                        <li>Khalti: <code>9876543210</code></li>
+                                        <li>IME Pay: <code>9876543210</code></li>
+                                    </ul>
+                                    <p><small>Please complete payment and provide transaction ID below.</small></p>
+                                </div>
+                                <div id="bank-transfer-info" style="display: none;">
+                                    <p><strong>Bank Transfer Details:</strong></p>
+                                    <ul>
+                                        <li>Bank: Nepal Investment Bank</li>
+                                        <li>A/C Name: DOKO Grocery Store</li>
+                                        <li>A/C Number: <code>1234567890</code></li>
+                                    </ul>
+                                    <p><small>Please transfer amount and provide reference number.</small></p>
+                                </div>
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label for="transaction_id">Transaction ID / Reference Number</label>
+                                    <input type="text" id="transaction_id" name="transaction_id" class="form-control" 
+                                           placeholder="Enter transaction ID or reference number">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="special_instructions">Special Instructions (Optional)</label>
+                        <textarea id="special_instructions" name="special_instructions" class="form-control" rows="2" 
+                                  placeholder="Any special delivery instructions..."></textarea>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <h4>Order Summary</h4>
+                        <div class="summary-items" id="checkout-items"></div>
+                        <div class="summary-totals">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span id="checkout-subtotal">Rs. 0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Delivery Charge:</span>
+                                <span id="checkout-delivery">Rs. 50</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span id="checkout-total">Rs. 50</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="hideCheckoutModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="placeOrder()">
+                        <i class="fas fa-shopping-bag"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Hide checkout modal
+    function hideCheckoutModal() {
+        document.getElementById('checkout-modal').style.display = 'none';
+    }
+    
+    // Load user profile for pre-filling
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('api/auth-profile.php');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const user = result.data;
+                if (user.address) {
+                    document.getElementById('delivery_address').value = user.address;
+                }
+                if (user.phone) {
+                    document.getElementById('phone').value = user.phone;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+        
+        // Update checkout summary
+        updateCheckoutSummary();
+    }
+    
+    // Update checkout summary
+    function updateCheckoutSummary() {
+        const itemsContainer = document.getElementById('checkout-items');
+        const subtotalEl = document.getElementById('checkout-subtotal');
+        const deliveryEl = document.getElementById('checkout-delivery');
+        const totalEl = document.getElementById('checkout-total');
+        
+        let itemsHtml = '';
+        let subtotal = 0;
+        
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+            itemsHtml += `
+                <div class="checkout-item">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>Rs. ${itemTotal.toFixed(2)}</span>
+                </div>
+            `;
+        });
+        
+        const deliveryCharge = subtotal >= 1000 ? 0 : 50;
+        const total = subtotal + deliveryCharge;
+        
+        itemsContainer.innerHTML = itemsHtml;
+        subtotalEl.textContent = `Rs. ${subtotal.toFixed(2)}`;
+        deliveryEl.textContent = subtotal >= 1000 ? 'FREE' : 'Rs. 50';
+        totalEl.textContent = `Rs. ${total.toFixed(2)}`;
+    }
+    
+    // Place order
+    async function placeOrder() {
+        const form = document.getElementById('checkout-form');
+        const formData = new FormData(form);
+        
+        // Validate required fields
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const orderData = {
+            delivery_address: formData.get('delivery_address'),
+            phone: formData.get('phone'),
+            payment_method: formData.get('payment_method'),
+            special_instructions: formData.get('special_instructions'),
+            cart_items: cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+        
+        const submitBtn = document.querySelector('.modal-footer .btn-primary');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
+        
+        try {
+            const response = await fetch('api/customer-orders.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Clear cart
+                cart = [];
+                saveCart();
+                
+                // Hide modal
+                hideCheckoutModal();
+                
+                // Show success message and redirect
+                alert('Order placed successfully! Order Number: ' + result.data.order_number);
+                window.location.href = 'profile.php?section=order-history';
+            } else {
+                alert('Error placing order: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            alert('Error placing order. Please try again.');
+        }
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-shopping-bag"></i> Place Order';
+    }
+    
+    // Make functions global
+    window.hideCheckoutModal = hideCheckoutModal;
+    window.placeOrder = placeOrder;
+    window.handlePaymentMethodChange = handlePaymentMethodChange;
+    
+    function handlePaymentMethodChange() {
+        const paymentMethod = document.getElementById('payment_method').value;
+        const paymentDetails = document.getElementById('payment-details');
+        const onlineInfo = document.getElementById('online-payment-info');
+        const bankInfo = document.getElementById('bank-transfer-info');
+        
+        if (paymentMethod === 'cash_on_delivery') {
+            paymentDetails.style.display = 'none';
+        } else {
+            paymentDetails.style.display = 'block';
+            
+            if (paymentMethod === 'online_payment') {
+                onlineInfo.style.display = 'block';
+                bankInfo.style.display = 'none';
+            } else if (paymentMethod === 'bank_transfer') {
+                onlineInfo.style.display = 'none';
+                bankInfo.style.display = 'block';
+            }
+        }
+    }
     
     function saveCart() {
         localStorage.setItem('doko_cart', JSON.stringify(cart));

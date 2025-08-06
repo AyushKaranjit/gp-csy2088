@@ -173,13 +173,13 @@ include_header($page_title, $page_description, $current_page);
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="name">Full Name *</label>
-                                    <input type="text" id="name" name="name" required 
+                                    <input type="text" id="name" name="name" required autocomplete="name" 
                                            value="<?php echo isset($_POST['name']) ? clean_output($_POST['name']) : ''; ?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="email">Email Address *</label>
-                                    <input type="email" id="email" name="email" required
+                                    <input type="email" id="email" name="email" required autocomplete="email"
                                            value="<?php echo isset($_POST['email']) ? clean_output($_POST['email']) : ''; ?>">
                                 </div>
                             </div>
@@ -187,7 +187,7 @@ include_header($page_title, $page_description, $current_page);
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" id="phone" name="phone"
+                                    <input type="tel" id="phone" name="phone" autocomplete="tel"
                                            value="<?php echo isset($_POST['phone']) ? clean_output($_POST['phone']) : ''; ?>">
                                 </div>
                                 

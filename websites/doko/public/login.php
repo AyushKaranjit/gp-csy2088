@@ -37,10 +37,9 @@ include_header($page_title, $page_description, $current_page);
                             <label for="email">Email Address</label>
                             <div class="input-group">
                                 <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="username" required>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email" required>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="password">Password</label>
                             <div class="input-group">
@@ -460,90 +459,102 @@ function togglePassword() {
 }
 
 // Form submission
-document.getElementById('login-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    // Safe notification function that works even if Utils is not loaded
+    function safeShowNotification(message, type) {
+        if (typeof Utils !== 'undefined' && Utils.showNotification) {
+            Utils.showNotification(message, type);
+        } else {
+            // Fallback notification
+            alert(message);
+        }
+    }
     
-    const submitBtn = document.querySelector('.auth-submit');
-    const originalContent = submitBtn.innerHTML;
-    
-    // Show loading state
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
-    
-    // Get form data
-    const formData = new FormData(this);
-    const email = formData.get('email');
-    const password = formData.get('password');
-    const rememberMe = formData.get('remember_me');
-    
-    try {
-        // Send login request to API
-        const response = await fetch('api-auth-login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        const result = await response.json();
+        const submitBtn = document.querySelector('.auth-submit');
+        const originalContent = submitBtn.innerHTML;
         
-        if (result.success) {
-            // Store user session data if remember me is checked
-            if (rememberMe) {
-                localStorage.setItem('doko_remember', 'true');
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        
+        // Get form data
+        const formData = new FormData(this);
+        const email = formData.get('email');
+        const password = formData.get('password');
+        const rememberMe = formData.get('remember_me');
+        
+        try {
+            // Send login request to API
+            const response = await fetch('/api/auth-login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Store user session data if remember me is checked
+                if (rememberMe) {
+                    localStorage.setItem('doko_remember', 'true');
+                }
+                
+                // Show success message
+                safeShowNotification('Login successful! Welcome back to DOKO.', 'success');
+                
+                // Redirect based on user role
+                setTimeout(() => {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        // Fallback redirect
+                        const redirectUrl = sessionStorage.getItem('redirect_after_login') || 'index.php';
+                        sessionStorage.removeItem('redirect_after_login');
+                        window.location.href = redirectUrl;
+                    }
+                }, 1000);
+                
+            } else {
+                // Show error message
+                safeShowNotification(result.message || 'Login failed. Please try again.', 'error');
+                
+                // Restore button state
+                submitBtn.innerHTML = originalContent;
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
             }
             
-            // Show success message
-            Utils.showNotification('Login successful! Welcome back to DOKO.', 'success');
-            
-            // Redirect based on user role
-            setTimeout(() => {
-                if (result.redirect_url) {
-                    window.location.href = result.redirect_url;
-                } else {
-                    // Fallback redirect
-                    const redirectUrl = sessionStorage.getItem('redirect_after_login') || 'index.php';
-                    sessionStorage.removeItem('redirect_after_login');
-                    window.location.href = redirectUrl;
-                }
-            }, 1000);
-            
-        } else {
-            // Show error message
-            Utils.showNotification(result.message || 'Login failed. Please try again.', 'error');
+        } catch (error) {
+            console.error('Login error:', error);
+            safeShowNotification('Network error. Please check your connection and try again.', 'error');
             
             // Restore button state
             submitBtn.innerHTML = originalContent;
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
         }
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        Utils.showNotification('Network error. Please check your connection and try again.', 'error');
-        
-        // Restore button state
-        submitBtn.innerHTML = originalContent;
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-    }
+    });
+
+    // Social login handlers
+    document.querySelector('.google-btn').addEventListener('click', function() {
+        alert('Google login integration would be implemented here');
+    });
+
+    document.querySelector('.facebook-btn').addEventListener('click', function() {
+        alert('Facebook login integration would be implemented here');
+    });
 });
 
-// Social login handlers
-document.querySelector('.google-btn').addEventListener('click', function() {
-    alert('Google login integration would be implemented here');
-});
-
-document.querySelector('.facebook-btn').addEventListener('click', function() {
-    alert('Facebook login integration would be implemented here');
-});
-
-// Check if user is already logged in
+// Check if user is already logged in - this can run immediately
 document.addEventListener('DOMContentLoaded', function() {
     const userData = localStorage.getItem('doko_user') || sessionStorage.getItem('doko_user');
     
