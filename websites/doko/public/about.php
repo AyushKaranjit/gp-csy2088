@@ -150,51 +150,71 @@ include_header($page_title, $page_description, $current_page);
     <section class="section bg-light">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Meet Our Team</h2>
-                <p class="section-subtitle">The passionate people behind DOKO's success</p>
+                <h2 class="section-title">Meet Our Development Team</h2>
+                <p class="section-subtitle">The talented students behind DOKO's development - CSY2088 Project Team</p>
             </div>
             
             <div class="team-grid">
                 <?php
                 $team_members = [
                     [
-                        'name' => 'Rajesh Shrestha',
-                        'role' => 'Chief Executive Officer',
-                        'bio' => 'Visionary leader with 15+ years of experience in e-commerce and technology. Passionate about transforming Nepal\'s grocery landscape.',
-                        'image' => 'public/images/team/ceo.jpg',
-                        'social' => [
-                            'linkedin' => '#',
-                            'twitter' => '#'
-                        ]
-                    ],
-                    [
-                        'name' => 'Priya Gurung',
-                        'role' => 'Chief Technology Officer',
-                        'bio' => 'Tech innovator and software architect building scalable solutions for modern grocery shopping experiences.',
-                        'image' => 'public/images/team/cto.jpg',
+                        'id' => '24814107',
+                        'name' => 'Utsab Thami Magar',
+                        'role' => 'Developer',
+                        'bio' => 'Full-stack developer specializing in PHP and JavaScript, contributing to DOKO\'s e-commerce platform development.',
+                        'image' => 'uploads/default-product.jpg',
+                        'email' => '',
                         'social' => [
                             'linkedin' => '#',
                             'github' => '#'
                         ]
                     ],
                     [
-                        'name' => 'Anil Thapa',
-                        'role' => 'Operations Director',
-                        'bio' => 'Supply chain expert ensuring seamless delivery operations and maintaining relationships with local farmers and suppliers.',
-                        'image' => 'public/images/team/operations.jpg',
+                        'id' => '24812606',
+                        'name' => 'Anuskar Sigdel',
+                        'role' => 'Developer',
+                        'bio' => 'Backend developer focused on database optimization and API development for seamless user experiences.',
+                        'image' => 'uploads/default-product.jpg',
+                        'email' => '',
                         'social' => [
                             'linkedin' => '#',
-                            'facebook' => '#'
+                            'github' => '#'
                         ]
                     ],
                     [
-                        'name' => 'Sunita Rai',
-                        'role' => 'Marketing Head',
-                        'bio' => 'Creative marketing strategist dedicated to building brand awareness and connecting with customers across Nepal.',
-                        'image' => 'public/images/team/marketing.jpg',
+                        'id' => '24812931',
+                        'name' => 'Ayush Karanjit',
+                        'role' => 'Lead Developer',
+                        'bio' => 'Project lead and full-stack developer driving the technical vision and implementation of DOKO\'s grocery platform.',
+                        'image' => 'uploads/default-product.jpg',
+                        'email' => 'aayush.2024105@nami.edu.np',
                         'social' => [
                             'linkedin' => '#',
-                            'instagram' => '#'
+                            'github' => '#'
+                        ]
+                    ],
+                    [
+                        'id' => '24812945',
+                        'name' => 'Sandhaya Kumari',
+                        'role' => 'Developer',
+                        'bio' => 'Frontend developer creating intuitive user interfaces and enhancing customer experience across the platform.',
+                        'image' => 'uploads/default-product.jpg',
+                        'email' => '',
+                        'social' => [
+                            'linkedin' => '#',
+                            'github' => '#'
+                        ]
+                    ],
+                    [
+                        'id' => '24812923',
+                        'name' => 'Jesina Bastola',
+                        'role' => 'Developer',
+                        'bio' => 'Quality assurance specialist and developer ensuring robust functionality and smooth user experiences.',
+                        'image' => 'uploads/default-product.jpg',
+                        'email' => '',
+                        'social' => [
+                            'linkedin' => '#',
+                            'github' => '#'
                         ]
                     ]
                 ];
@@ -202,11 +222,15 @@ include_header($page_title, $page_description, $current_page);
                 foreach ($team_members as $member): ?>
                 <div class="team-member">
                     <div class="member-image">
-                        <img src="<?php echo $member['image']; ?>" alt="<?php echo clean_output($member['name'] . ' - ' . $member['role']); ?>" loading="lazy">
+                        <img src="<?php echo $member['image']; ?>" alt="<?php echo clean_output($member['name'] . ' - ' . $member['role']); ?>" loading="lazy" onerror="handleImageError(this)">
                     </div>
                     <div class="member-info">
                         <h3><?php echo clean_output($member['name']); ?></h3>
                         <p class="member-role"><?php echo clean_output($member['role']); ?></p>
+                        <p class="member-id">Student ID: <?php echo clean_output($member['id']); ?></p>
+                        <?php if (!empty($member['email'])): ?>
+                            <p class="member-email"><i class="fas fa-envelope"></i> <?php echo clean_output($member['email']); ?></p>
+                        <?php endif; ?>
                         <p class="member-bio"><?php echo clean_output($member['bio']); ?></p>
                         <div class="member-social">
                             <?php foreach ($member['social'] as $platform => $url): ?>

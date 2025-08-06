@@ -1,4 +1,8 @@
 <?php
+// Suppress PHP errors from appearing in JSON response
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
@@ -16,6 +20,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Include required files
+require_once '../../config/database.php';
 require_once '../../template/config.php';
 require_once '../../src/Controllers/AuthController.php';
 
@@ -29,6 +35,13 @@ if (!$auth->isLoggedIn() || !$auth->hasAdminAccess()) {
 
 try {
     $db = Database::getInstance();
+    
+    // Debug: Check if users table exists
+    $tables_query = "SHOW TABLES LIKE 'users'";
+    $tables_result = $db->query($tables_query);
+    if ($tables_result->rowCount() === 0) {
+        throw new Exception('Users table does not exist in database');
+    }
     
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
@@ -456,7 +469,29 @@ function handleDeleteUser($db) {
     } catch (Exception $e) {
         error_log("Delete user error: " . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to deactivate user']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Failed to deactivate user',
+            'debug' => [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]
+        ]);
     }
+} catch (Exception $e) {
+    error_log("Admin Users API Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Internal server error',
+        'debug' => [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]
+    ]);
 }
 ?>

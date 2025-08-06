@@ -4,6 +4,42 @@
  * CSY2088 Project
  */
 
+// ========== IMMEDIATE GLOBAL FUNCTIONS ==========
+// These functions must be available immediately when the script loads
+
+// Global Image Error Handler - Available immediately
+window.handleImageError = function(img) {
+    console.log('Image failed to load:', img.src);
+    
+    // Progressive fallback system
+    if (img.src.indexOf('default-product.jpg') === -1) {
+        // Try default product image first
+        img.src = 'uploads/default-product.jpg';
+        img.style.objectFit = 'contain';
+        img.style.padding = '20px';
+        img.style.background = '#f8f9fa';
+        console.log('Fallback to default-product.jpg');
+    } else {
+        // Create a placeholder if image still fails
+        img.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'image-placeholder';
+        placeholder.innerHTML = '<i class="fas fa-image"></i><br><span>Image not available</span>';
+        placeholder.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa;color:#6c757d;font-size:0.8rem;text-align:center;';
+        if (img.parentNode && !img.parentNode.querySelector('.image-placeholder')) {
+            img.parentNode.appendChild(placeholder);
+        }
+        console.log('Created placeholder for failed image');
+    }
+};
+
+// Also create a shorthand reference
+const handleImageError = window.handleImageError;
+
+// ========== IMAGE HANDLING FUNCTIONS ==========
+
+
+
 // ========== COMPREHENSIVE DASHBOARD FUNCTIONALITY ==========
 
 // Initialize Dashboard on Page Load
@@ -386,6 +422,39 @@ function initializeCart() {
             addToCart(productId, 1, productName); // Fixed parameter order: (id, quantity, name)
         });
     });
+}
+
+// Add to cart function with quantity from input
+function addToCartWithQuantity(productId, productName = 'Product') {
+    const quantityInput = document.getElementById(`qty-${productId}`);
+    const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+    
+    console.log('addToCartWithQuantity called with:', {
+        productId: productId,
+        quantity: quantity,
+        productName: productName
+    });
+    
+    // Call the main addToCart function
+    addToCart(productId, quantity, productName);
+}
+
+// Change quantity function
+function changeQuantity(productId, change) {
+    const input = document.getElementById(`qty-${productId}`);
+    if (!input) return;
+    
+    let currentValue = parseInt(input.value) || 1;
+    let newValue = currentValue + change;
+    
+    // Ensure minimum value is 1
+    if (newValue < 1) newValue = 1;
+    
+    // Ensure maximum value (if set)
+    const max = parseInt(input.getAttribute('max')) || 99;
+    if (newValue > max) newValue = max;
+    
+    input.value = newValue;
 }
 
 function addToCart(productId, quantity = 1, productName = 'Product') {
@@ -1400,16 +1469,6 @@ function getDefaultProductImage() {
     return '/uploads/default-product.jpg'; // Use the correct path
 }
 
-// Image error handler
-function handleImageError(img) {
-    console.log('Image load error for:', img.src);
-    const defaultImg = getDefaultProductImage();
-    if (img.src !== defaultImg) {
-        img.src = defaultImg;
-        img.onerror = null; // Prevent infinite loop
-    }
-}
-
 // Global error handler for JavaScript errors
 window.addEventListener('error', function(e) {
     console.error('JavaScript Error:', e.error);
@@ -1419,6 +1478,6 @@ window.addEventListener('error', function(e) {
 // Add to window for global access
 window.quickView = quickView;
 window.toggleWishlist = toggleWishlist;
-window.handleImageError = handleImageError;
+// handleImageError already assigned at top of file
 window.isLoggedIn = isLoggedIn;
 window.showAuthModal = showAuthModal;

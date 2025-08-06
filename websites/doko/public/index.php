@@ -64,24 +64,24 @@ include_header($page_title, $page_description, $current_page);
         
         <div class="categories-grid">
             <?php 
-            // Category images mapping with specific, high-quality images
+            // Category images - using local fallbacks to avoid CORS issues
             $category_images = [
-                1 => 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Fresh Vegetables - colorful vegetables
-                2 => 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Fresh Fruits - mixed fruits
-                3 => 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Dairy Products - milk and dairy
-                4 => 'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Grains & Pulses - grains and legumes
-                5 => 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80', // Spices & Herbs - colorful spices
-                6 => 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80'  // Snacks & Beverages - healthy snacks
+                1 => 'uploads/default-product.jpg', // Fresh Vegetables
+                2 => 'uploads/default-product.jpg', // Fresh Fruits 
+                3 => 'uploads/default-product.jpg', // Dairy Products
+                4 => 'uploads/default-product.jpg', // Grains & Pulses
+                5 => 'uploads/default-product.jpg', // Spices & Herbs
+                6 => 'uploads/default-product.jpg'  // Snacks & Beverages
             ];
             
             foreach ($product_categories as $id => $category): ?>
             <div class="category-card">
                 <a href="products.php?category=<?php echo $id; ?>" class="category-link">
                     <div class="category-image">
-                        <img src="<?php echo isset($category_images[$id]) ? $category_images[$id] : 'images/categories/category-' . $id . '.jpg'; ?>" 
+                        <img src="<?php echo isset($category_images[$id]) ? $category_images[$id] : 'uploads/default-product.jpg'; ?>" 
                              alt="<?php echo clean_output($category['name']); ?>" 
                              loading="lazy"
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80';">
+                             onerror="handleImageError(this);">
                         <div class="category-overlay">
                             <i class="<?php echo $category['icon']; ?>"></i>
                         </div>
@@ -175,8 +175,10 @@ include_header($page_title, $page_description, $current_page);
             foreach ($featured_products as $product): ?>
             <div class="product-card">
                 <div class="product-image">
-                    <img src="<?php echo $product['image']; ?>" 
-                         alt="<?php echo clean_output($product['name']); ?>" loading="lazy">
+                    <img src="<?php echo product_image($product['name'], 300, 300, $product['id']); ?>" 
+                         alt="<?php echo clean_output($product['name']); ?>" 
+                         loading="lazy"
+                         onerror="handleImageError(this)">
                     <?php if ($product['original_price']): ?>
                     <div class="product-badge">Sale</div>
                     <?php endif; ?>
@@ -219,11 +221,21 @@ include_header($page_title, $page_description, $current_page);
                             <span class="original-price"><?php echo format_price($product['original_price']); ?></span>
                         <?php endif; ?>
                     </div>
-                    <button class="btn btn-primary btn-block add-to-cart" 
-                            data-product-id="<?php echo $product['id']; ?>">
-                        <i class="fas fa-shopping-cart"></i>
-                        Add to Cart
-                    </button>
+                    <div class="product-actions">
+                        <div class="quantity-selector-mini">
+                            <button type="button" class="qty-btn-mini minus" onclick="changeQuantity(<?php echo $product['id']; ?>, -1)">-</button>
+                            <input type="number" id="qty-<?php echo $product['id']; ?>" name="qty-<?php echo $product['id']; ?>" class="qty-input-mini" value="1" min="1" max="99" autocomplete="off">
+                            <button type="button" class="qty-btn-mini plus" onclick="changeQuantity(<?php echo $product['id']; ?>, 1)">+</button>
+                        </div>
+                        <button class="btn btn-primary add-to-cart flex-grow" 
+                                onclick="addToCartWithQuantity(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
+                                data-product-id="<?php echo $product['id']; ?>"
+                                data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
+                                data-product-price="<?php echo $product['price']; ?>">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
                 </div>
             </div>
             <?php endforeach; ?>

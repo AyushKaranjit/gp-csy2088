@@ -24,6 +24,38 @@
             <link rel="stylesheet" href="<?php echo $css; ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    
+    <!-- Immediate Image Error Handler Fallback -->
+    <script>
+    // Fallback handleImageError function - available immediately
+    window.handleImageError = function(img) {
+        console.log('Image load error for:', img.src);
+        
+        if (img.src.indexOf('default-product.jpg') === -1) {
+            // First fallback: try default product image
+            img.src = 'uploads/default-product.jpg';
+            img.style.objectFit = 'contain';
+            img.style.padding = '20px';
+            img.style.background = '#f8f9fa';
+            console.log('Applied default product image fallback');
+        } else {
+            // If default image also fails, create placeholder
+            img.style.display = 'none';
+            
+            // Only create placeholder if one doesn't exist
+            if (!img.parentNode.querySelector('.image-placeholder')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'image-placeholder';
+                placeholder.innerHTML = '<i class="fas fa-image"></i><br><span>Image not available</span>';
+                placeholder.style.cssText = 'width:100%;height:100%;display:flex!important;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa!important;color:#6c757d!important;font-size:0.8rem;text-align:center;border-radius:8px;min-height:200px;';
+                
+                // Insert placeholder after the image
+                img.parentNode.insertBefore(placeholder, img.nextSibling);
+                console.log('Created image placeholder');
+            }
+        }
+    };
+    </script>
 </head>
 <body>
     <!-- Header -->

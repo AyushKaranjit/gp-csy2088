@@ -10,29 +10,48 @@ function getImageUrl($category, $name, $width = 300, $height = 300) {
     $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $name));
     $cleanName = str_replace(' ', '+', $cleanName);
     
-    // Use local placeholder service or fallback images to avoid CORS issues
-    // You can replace these with actual product images in uploads/products/
+    // Use local default image with multiple fallback paths
+    return 'uploads/default-product.jpg'; // Use local default image to avoid CORS
+}
+
+// Function to get product image with multiple fallbacks
+function getProductImagePath($productName, $productId = null) {
+    // Clean product name for filename
+    $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $productName));
+    $cleanName = str_replace(' ', '-', trim($cleanName));
     
-    return '/uploads/default-product.jpg'; // Use local default image to avoid CORS
+    // Check multiple possible locations for images
+    $possiblePaths = [
+        "uploads/products/{$cleanName}.jpg",
+        "uploads/products/{$cleanName}.png",
+        "uploads/products/{$cleanName}.svg",
+        "images/products/{$cleanName}.jpg",
+        "images/products/{$cleanName}.png",
+        "uploads/products/product-{$productId}.jpg",
+        "uploads/products/product-{$productId}.png",
+        "uploads/default-product.jpg", // Primary fallback
+        "images/default-product.jpg",  // Secondary fallback
+        "uploads/default-product.svg"  // Final fallback
+    ];
     
-    /* Alternative: Use a different image service that doesn't have CORS issues
-    switch($category) {
-        case 'vegetables':
-            return "https://picsum.photos/{$width}/{$height}/?random&vegetable";
-        case 'fruits':
-            return "https://picsum.photos/{$width}/{$height}/?random&fruit";
-        case 'dairy':
-            return "https://picsum.photos/{$width}/{$height}/?random&dairy";
-        case 'grains':
-            return "https://picsum.photos/{$width}/{$height}/?random&grain";
-        case 'spices':
-            return "https://picsum.photos/{$width}/{$height}/?random&spice";
-        case 'beverages':
-            return "https://picsum.photos/{$width}/{$height}/?random&beverage";
-        default:
-            return "https://picsum.photos/{$width}/{$height}/?random";
-    }
-    */
+    // Return the first existing file or the primary fallback
+    return $possiblePaths[count($possiblePaths) - 3]; // Return primary fallback
+}
+
+// Category image function
+function getCategoryImagePath($categoryName, $categoryId = null) {
+    $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $categoryName));
+    $cleanName = str_replace(' ', '-', trim($cleanName));
+    
+    $possiblePaths = [
+        "uploads/categories/{$cleanName}.jpg",
+        "uploads/categories/{$cleanName}.png",
+        "images/categories/{$cleanName}.jpg",
+        "uploads/categories/default-category.jpg",
+        "uploads/default-product.jpg" // Final fallback
+    ];
+    
+    return $possiblePaths[count($possiblePaths) - 1]; // Return fallback
 }
 
 // Product image mappings for consistent images

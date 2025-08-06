@@ -1,4 +1,8 @@
 <?php
+// Suppress PHP errors from appearing in JSON response
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
@@ -16,6 +20,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Include required files
+require_once '../../config/database.php';
 require_once '../../template/config.php';
 require_once '../../src/Controllers/AuthController.php';
 
@@ -29,6 +35,13 @@ if (!$auth->isLoggedIn() || !$auth->hasAdminAccess()) {
 
 try {
     $db = Database::getInstance();
+    
+    // Test database connection
+    $testQuery = "SHOW TABLES LIKE 'orders'";
+    $testResult = $db->execute($testQuery);
+    if (!$testResult || $testResult->rowCount() === 0) {
+        throw new Exception("Orders table not found in database");
+    }
     
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
@@ -226,7 +239,14 @@ try {
     }
     
 } catch (Exception $e) {
+    error_log("Admin Orders API Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Database connection error', 
+        'debug' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
 }
 ?>

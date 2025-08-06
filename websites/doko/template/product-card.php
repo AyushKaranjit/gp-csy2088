@@ -50,7 +50,9 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
             <img src="<?php echo htmlspecialchars($product['image']); ?>" 
                  alt="<?php echo htmlspecialchars($product['name']); ?>" 
                  loading="lazy"
-                 onerror="this.src='uploads/default-product.jpg'">>
+                 onerror="handleImageError(this)"
+                 style="display: block;">
+        </a>>
         </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>

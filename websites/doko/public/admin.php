@@ -642,19 +642,19 @@ $page_title = 'DOKO Admin Dashboard';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="user-first-name">First Name *</label>
-                            <input type="text" id="user-first-name" name="first_name" required class="form-control" aria-describedby="user-first-name-help">
+                            <input type="text" id="user-first-name" name="first_name" required class="form-control" autocomplete="given-name" aria-describedby="user-first-name-help">
                             <small id="user-first-name-help" class="form-help">Enter first name</small>
                         </div>
                         <div class="form-group">
                             <label for="user-last-name">Last Name *</label>
-                            <input type="text" id="user-last-name" name="last_name" required class="form-control" aria-describedby="user-last-name-help">
+                            <input type="text" id="user-last-name" name="last_name" required class="form-control" autocomplete="family-name" aria-describedby="user-last-name-help">
                             <small id="user-last-name-help" class="form-help">Enter last name</small>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="user-username">Username *</label>
-                            <input type="text" id="user-username" name="username" required class="form-control" aria-describedby="user-username-help">
+                            <input type="text" id="user-username" name="username" required class="form-control" autocomplete="username" aria-describedby="user-username-help">
                             <small id="user-username-help" class="form-help">Unique username for login</small>
                         </div>
                         <div class="form-group">
@@ -731,17 +731,17 @@ $page_title = 'DOKO Admin Dashboard';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit-user-first-name">First Name *</label>
-                            <input type="text" id="edit-user-first-name" name="first_name" required class="form-control">
+                            <input type="text" id="edit-user-first-name" name="first_name" required class="form-control" autocomplete="given-name">
                         </div>
                         <div class="form-group">
                             <label for="edit-user-last-name">Last Name *</label>
-                            <input type="text" id="edit-user-last-name" name="last_name" required class="form-control">
+                            <input type="text" id="edit-user-last-name" name="last_name" required class="form-control" autocomplete="family-name">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit-user-username">Username *</label>
-                            <input type="text" id="edit-user-username" name="username" required class="form-control">
+                            <input type="text" id="edit-user-username" name="username" required class="form-control" autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label for="edit-user-email">Email *</label>
@@ -832,7 +832,7 @@ $page_title = 'DOKO Admin Dashboard';
                     
                     <div class="form-group">
                         <label for="edit-tracking-number">Tracking Number</label>
-                        <input type="text" id="edit-tracking-number" name="tracking_number" class="form-control" placeholder="Enter tracking number (optional)">
+                        <input type="text" id="edit-tracking-number" name="tracking_number" class="form-control" placeholder="Enter tracking number (optional)" autocomplete="off">
                     </div>
                     
                     <div class="form-group">
@@ -1448,7 +1448,7 @@ $page_title = 'DOKO Admin Dashboard';
     class AdminAPI {
         static async call(endpoint, options = {}) {
             try {
-                const response = await fetch(`/api/${endpoint}`, {
+                const response = await fetch(`api/${endpoint}`, {
                     method: options.method || 'GET',
                     credentials: 'same-origin',
                     headers: {

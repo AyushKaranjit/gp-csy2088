@@ -222,6 +222,34 @@ function get_flash_message() {
 }
 
 /**
+ * Get product image URL with fallback to default image
+ */
+function product_image($product_name, $width = 300, $height = 300) {
+    // Clean product name for file lookup
+    $clean_name = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $product_name));
+    $clean_name = str_replace(' ', '-', trim($clean_name));
+    
+    // Check if specific product image exists
+    $specific_image_path = "uploads/products/{$clean_name}.jpg";
+    $specific_image_full_path = __DIR__ . "/../public/{$specific_image_path}";
+    
+    if (file_exists($specific_image_full_path)) {
+        return $specific_image_path;
+    }
+    
+    // Check for PNG version
+    $specific_image_path_png = "uploads/products/{$clean_name}.png";
+    $specific_image_full_path_png = __DIR__ . "/../public/{$specific_image_path_png}";
+    
+    if (file_exists($specific_image_full_path_png)) {
+        return $specific_image_path_png;
+    }
+    
+    // Return default image
+    return 'uploads/default-product.jpg';
+}
+
+/**
  * Display flash message HTML
  */
 function display_flash_message() {
