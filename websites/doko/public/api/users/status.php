@@ -59,10 +59,9 @@ try {
             'dashboard_url' => $dashboardUrl,
             'role_permissions' => [
                 'is_admin' => $auth->isAdmin(),
-                'is_manager' => $auth->isManager(),
                 'is_customer' => $auth->isCustomer(),
                 'has_admin_access' => $auth->hasAdminAccess(),
-                'has_manager_access' => $auth->hasManagerAccess()
+                
             ]
         ]);
     } else {

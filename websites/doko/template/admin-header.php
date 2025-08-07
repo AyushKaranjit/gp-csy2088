@@ -483,7 +483,15 @@ if (strpos($_SERVER['SCRIPT_NAME'], '/products/') !== false || strpos($_SERVER['
                     <i class="bi bi-cart-check"></i>
                     <span>Orders</span>
                 </a>
-                <a href="<?php echo $current_dir === '/api' ? '../logout.php' : 'logout.php'; ?>" class="admin-nav-link">
+                <a href="<?php 
+                    if (strpos($current_dir, '/api') !== false) {
+                        echo '../logout.php';
+                    } elseif (strpos($current_dir, '/admin') !== false) {
+                        echo '../../logout.php';
+                    } else {
+                        echo 'logout.php';
+                    }
+                ?>" class="admin-nav-link">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
                 </a>

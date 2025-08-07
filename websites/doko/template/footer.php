@@ -71,6 +71,9 @@
     // Check if we're in a subdirectory
     if (strpos($current_script, '/api/') !== false) {
         $js_path = '../js/';
+    } elseif (strpos($current_script, '/admin/') !== false) {
+        // Handle admin subdirectories like /admin/dashboard/, /admin/products/, etc.
+        $js_path = '../../js/';
     }
     
     // Verify that the JavaScript files actually exist
