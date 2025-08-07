@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Admin Modal</title>
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none;
+        }
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 20px;
+            width: 500px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Admin Modal</h1>
+    <button onclick="testModal()">Test Modal</button>
+    
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <h3>Test Modal</h3>
+            <p>This is a test modal</p>
+            <button onclick="hideModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function testModal() {
+            console.log('testModal called');
+            const modal = document.getElementById('testModal');
+            console.log('Modal element:', modal);
+            if (modal) {
+                modal.style.display = 'block';
+                console.log('Modal display set to block');
+            } else {
+                console.error('Modal not found');
+            }
+        }
+        
+        function hideModal() {
+            console.log('hideModal called');
+            document.getElementById('testModal').style.display = 'none';
+        }
+        
+        // Test if functions are accessible
+        console.log('testModal function:', typeof testModal);
+        console.log('hideModal function:', typeof hideModal);
+    </script>
+</body>
+</html>

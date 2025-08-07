@@ -582,7 +582,7 @@ a:hover {
 
 /* Navigation Styles - Modern E-commerce Design */
 .navbar {
-    background: var(--gradient-secondary);
+    background: #16a34a !important;
     padding: 0;
     position: relative;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -593,6 +593,7 @@ a:hover {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    background: #16a34a !important;
 }
 
 .nav-list {
@@ -1701,8 +1702,8 @@ a:hover {
 .footer {
     background: var(--dark-text);
     color: var(--white);
-    padding: 1rem 0 0.2rem;
-    margin-top: 1.5rem;
+    padding: 2rem 0 0.5rem;
+    margin-top: 0;
 }
 
 .footer-content {

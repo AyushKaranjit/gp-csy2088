@@ -63,7 +63,66 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="js/main.js?v=<?php echo date('YmdHis'); ?>"></script>
+    <?php
+    // Determine the correct path to JS files based on current location
+    $current_script = $_SERVER['SCRIPT_NAME'];
+    $js_path = 'js/';
+    
+    // Check if we're in a subdirectory
+    if (strpos($current_script, '/api/') !== false) {
+        $js_path = '../js/';
+    }
+    
+    // Verify that the JavaScript files actually exist
+    $main_js_exists = file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'main.js');
+    $mobile_js_exists = file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'mobile-nav.js');
+    ?>
+    
+    <?php if ($main_js_exists): ?>
+    <script src="<?php echo $js_path; ?>main.js?v=<?php echo date('YmdHis'); ?>"></script>
+    <?php else: ?>
+    <script>console.error('main.js not found at path: <?php echo $js_path; ?>main.js');</script>
+    <?php endif; ?>
+    
+    <?php if ($mobile_js_exists): ?>
+    <script src="<?php echo $js_path; ?>mobile-nav.js?v=<?php echo date('YmdHis'); ?>" onerror="console.log('Mobile nav script failed to load, using fallback')"></script>
+    <?php else: ?>
+    <script>console.warn('mobile-nav.js not found at path: <?php echo $js_path; ?>mobile-nav.js, using fallback');</script>
+    <?php endif; ?>
+    
+    <!-- Fallback mobile navigation -->
+    <script>
+    // Fallback mobile navigation in case mobile-nav.js fails to load
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileToggle = document.getElementById('mobile-menu-toggle');
+        const navList = document.getElementById('nav-list');
+        
+        if (mobileToggle && navList) {
+            mobileToggle.addEventListener('click', function() {
+                navList.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (icon) {
+                    if (navList.classList.contains('active')) {
+                        icon.className = 'fas fa-times';
+                    } else {
+                        icon.className = 'fas fa-bars';
+                    }
+                }
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
+                    navList.classList.remove('active');
+                    const icon = mobileToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-bars';
+                    }
+                }
+            });
+        }
+    });
+    </script>
     
     <?php if (isset($GLOBALS['additional_js']) && !empty($GLOBALS['additional_js'])): ?>
         <?php foreach ($GLOBALS['additional_js'] as $js): ?>

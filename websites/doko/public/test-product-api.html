@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product API Debug</title>
+</head>
+<body>
+    <h2>Product API Debug Test</h2>
+    <div id="results"></div>
+    
+    <script>
+    async function testProductAPI() {
+        const resultsDiv = document.getElementById('results');
+        
+        // Test product creation
+        const testProduct = {
+            name: 'Test Product ' + Date.now(),
+            description: 'This is a test product',
+            price: 99.99,
+            original_price: 109.99,
+            category_id: 1,
+            stock: 10,
+            unit: 'piece',
+            featured: false,
+            is_active: true
+        };
+        
+        resultsDiv.innerHTML += '<p>Testing product creation...</p>';
+        resultsDiv.innerHTML += '<p>Test data: ' + JSON.stringify(testProduct, null, 2) + '</p>';
+        
+        try {
+            const response = await fetch('api/admin-products.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(testProduct)
+            });
+            
+            resultsDiv.innerHTML += '<p>HTTP Status: ' + response.status + '</p>';
+            
+            const responseText = await response.text();
+            resultsDiv.innerHTML += '<p>Raw Response: ' + responseText + '</p>';
+            
+            try {
+                const data = JSON.parse(responseText);
+                resultsDiv.innerHTML += '<p>Parsed Response: ' + JSON.stringify(data, null, 2) + '</p>';
+                
+                if (data.success) {
+                    resultsDiv.innerHTML += '<p style="color: green">✅ SUCCESS: Product created!</p>';
+                } else {
+                    resultsDiv.innerHTML += '<p style="color: red">❌ FAILED: ' + (data.message || 'Unknown error') + '</p>';
+                }
+            } catch (parseError) {
+                resultsDiv.innerHTML += '<p style="color: red">❌ JSON Parse Error: ' + parseError.message + '</p>';
+            }
+            
+        } catch (error) {
+            resultsDiv.innerHTML += '<p style="color: red">❌ Network Error: ' + error.message + '</p>';
+        }
+    }
+    
+    // Auto-run test
+    testProductAPI();
+    </script>
+</body>
+</html>

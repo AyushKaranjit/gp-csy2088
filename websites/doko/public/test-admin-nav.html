@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Navigation Test</title>
+    <style>
+        /* Test CSS to simulate admin page */
+        .header,
+        .navbar,
+        .header-main,
+        .header-actions,
+        .header-action,
+        .navigation {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .test-result {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .success { border-left: 4px solid #16a34a; }
+        .error { border-left: 4px solid #ef4444; }
+        .warning { border-left: 4px solid #f59e0b; }
+
+        .admin-nav {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            padding: 0;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #15803d;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            min-height: 70px;
+        }
+
+        .admin-nav-brand a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .admin-nav-links {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .admin-nav-link {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .admin-nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .content {
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Simulate regular header that should be hidden -->
+    <div class="header">This header should be hidden on admin pages</div>
+    <div class="navbar">This navbar should be hidden</div>
+
+    <!-- Admin navigation -->
+    <div class="admin-nav">
+        <div class="container">
+            <div class="admin-nav-brand">
+                <a href="#"><i class="fas fa-cogs"></i> DOKO Admin</a>
+            </div>
+            <div class="admin-nav-links">
+                <a href="#" class="admin-nav-link">Dashboard</a>
+                <a href="#" class="admin-nav-link">Products</a>
+                <a href="#" class="admin-nav-link">Users</a>
+                <a href="#" class="admin-nav-link">Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="test-result success">
+            <h3>✓ Admin Navigation Test</h3>
+            <p>If you can see the green admin navigation bar above and not the hidden header/navbar, the styling is working correctly.</p>
+        </div>
+
+        <div class="test-result warning">
+            <h3>⚠ Integration Test</h3>
+            <p>For full testing, you need to:</p>
+            <ul>
+                <li>Check that customer logout works properly</li>
+                <li>Verify admin pages don't flash the home page content</li>
+                <li>Test product editing functionality</li>
+                <li>Verify cart and wishlist operations</li>
+                <li>Test checkout with auto-populated customer data</li>
+            </ul>
+        </div>
+
+        <div class="test-result">
+            <h3>🔧 Quick Fixes Applied</h3>
+            <ul>
+                <li><strong>Customer Logout:</strong> Changed from "?logout=1" to "logout.php" direct link</li>
+                <li><strong>Admin Navigation:</strong> Added comprehensive header hiding for admin pages</li>
+                <li><strong>Product Edit:</strong> Enhanced edit function with better debugging</li>
+                <li><strong>Checkout:</strong> Auto-populate customer information from profile</li>
+                <li><strong>Cart/Wishlist:</strong> APIs should work properly with session storage</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Simple test to check if JavaScript is working
+        console.log('Admin navigation test page loaded successfully');
+        
+        // Test cart functionality
+        function testAddToCart() {
+            console.log('Testing add to cart functionality...');
+            // This would normally call the cart API
+            alert('Add to cart test - check browser console for details');
+        }
+
+        // Add click handlers
+        document.querySelectorAll('.admin-nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Admin nav link clicked:', this.textContent);
+                alert('Admin navigation working: ' + this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>

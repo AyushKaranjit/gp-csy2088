@@ -4,6 +4,48 @@
  * CSY2088 Project
  */
 
+// ========== API PATH RESOLUTION ==========
+// Determine correct API path based on current page location
+function getApiPath() {
+    const currentPath = window.location.pathname;
+    console.log('Current path:', currentPath);
+    
+    // Handle different directory structures
+    if (currentPath.includes('/api/')) {
+        console.log('Already in API directory, using empty path');
+        return ''; // Already in api directory
+    } else if (currentPath.includes('/public/')) {
+        console.log('In public directory, using api/ path');
+        return 'api/'; // In public directory, navigate to api
+    } else {
+        // Default case - assume we're in the public root
+        console.log('Using default api/ path');
+        return 'api/';
+    }
+}
+
+// ========== ERROR HANDLING ==========
+// Global error handler to prevent JavaScript errors from breaking the page
+window.addEventListener('error', function(event) {
+    console.error('JavaScript Error:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+    });
+    
+    // Don't let errors break the page
+    event.preventDefault();
+    return true;
+});
+
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled Promise Rejection:', event.reason);
+    event.preventDefault();
+});
+
 // ========== IMMEDIATE GLOBAL FUNCTIONS ==========
 // These functions must be available immediately when the script loads
 
@@ -498,7 +540,7 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
     
     console.log('Sending to API:', data);
     
-    fetch('api/cart-add-working.php', {
+    fetch(getApiPath() + 'cart-add-working.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -535,7 +577,7 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
 }
 
 function updateCartCount() {
-    fetch('api/cart-get.php', {
+    fetch(getApiPath() + 'cart-get.php', {
         credentials: 'same-origin',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -983,7 +1025,7 @@ function quickView(productId) {
 // Note: toggleWishlist function moved to end of file to avoid conflicts
 
 function updateWishlistCount() {
-    fetch('api/wishlist.php', {
+    fetch(getApiPath() + 'wishlist.php', {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -1233,7 +1275,7 @@ function addToCartFromQuickView(productId) {
  * Update cart count with better error handling
  */
 function updateCartCount() {
-    fetch('api/cart-get.php', {
+    fetch(getApiPath() + 'cart-get.php', {
         credentials: 'same-origin',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -1369,7 +1411,7 @@ function quickView(productId) {
 // Authentication Functions
 async function isLoggedIn() {
     try {
-        const response = await fetch('api/auth-status.php', {
+        const response = await fetch(getApiPath() + 'auth-status.php', {
             credentials: 'same-origin',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -1411,7 +1453,7 @@ async function toggleWishlist(productId) {
         wishlistBtn.className = 'fa fa-spinner fa-spin';
     }
     
-    fetch(`api/wishlist.php`, {
+    fetch(getApiPath() + `wishlist.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

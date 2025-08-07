@@ -1,7 +1,18 @@
 <?php
 // Start session and include configuration
 session_start();
+require_once '../config/database.php';
+require_once '../src/Controllers/AuthController.php';
 require_once '../template/config.php';
+
+// Check if user is logged in
+$auth = new AuthController();
+if (!$auth->isLoggedIn()) {
+    header('Location: login.php?redirect=' . urlencode('checkout.php'));
+    exit;
+}
+
+$currentUser = $auth->getCurrentUser();
 
 // Page-specific variables
 $page_title = page_title('Checkout');
@@ -37,26 +48,30 @@ include_header($page_title, $page_description, $current_page);
                     <!-- Customer Information -->
                     <div class="form-section">
                         <h3><i class="fas fa-user"></i> Customer Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="first_name">First Name *</label>
-                                <input type="text" id="first_name" name="first_name" required autocomplete="given-name">
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name *</label>
-                                <input type="text" id="last_name" name="last_name" required autocomplete="family-name">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="email">Email Address *</label>
-                                <input type="email" id="email" name="email" required autocomplete="email">
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" required autocomplete="tel">
+                        <div class="customer-info-display">
+                            <div class="customer-info-card">
+                                <div class="customer-name">
+                                    <strong><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></strong>
+                                </div>
+                                <div class="customer-email">
+                                    <i class="fas fa-envelope"></i> <?php echo htmlspecialchars($currentUser['email']); ?>
+                                </div>
+                                <?php if (!empty($currentUser['phone'])): ?>
+                                <div class="customer-phone">
+                                    <i class="fas fa-phone"></i> <?php echo htmlspecialchars($currentUser['phone']); ?>
+                                </div>
+                                <?php endif; ?>
+                                <a href="profile.php" class="edit-profile-link">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </a>
                             </div>
                         </div>
+                        
+                        <!-- Hidden fields for form submission -->
+                        <input type="hidden" name="first_name" value="<?php echo htmlspecialchars($currentUser['first_name']); ?>">
+                        <input type="hidden" name="last_name" value="<?php echo htmlspecialchars($currentUser['last_name']); ?>">
+                        <input type="hidden" name="email" value="<?php echo htmlspecialchars($currentUser['email']); ?>">
+                        <input type="hidden" name="phone" value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>">
                     </div>
 
                     <!-- Delivery Information -->
@@ -233,8 +248,47 @@ include_header($page_title, $page_description, $current_page);
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--dark-text);
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.customer-info-card {
+    background: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.customer-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+}
+
+.customer-email,
+.customer-phone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.edit-profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    transition: color 0.3s;
+}
+
+.edit-profile-link:hover {
+    color: var(--primary-dark);
 }
 
 .form-row {

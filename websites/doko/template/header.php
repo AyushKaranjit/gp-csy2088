@@ -6,15 +6,30 @@
     <title><?php echo isset($page_title) ? $page_title : 'DOKO | Nepal\'s Premier Online Grocery Store'; ?></title>
     <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service.'; ?>">
     
+    <?php
+    // Determine the correct paths based on current location
+    $current_dir = dirname($_SERVER['SCRIPT_NAME']);
+    $css_path = 'css/';
+    $js_path = 'js/';
+    $images_path = 'images/';
+    
+    // Check if we're in a subdirectory (like api/)
+    if (strpos($current_dir, '/api') !== false) {
+        $css_path = '../css/';
+        $js_path = '../js/';
+        $images_path = '../images/';
+    }
+    ?>
+    
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="<?php echo $images_path; ?>favicon.ico">
     
     <!-- Preconnect to Google Fonts for better performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?php echo $css_path; ?>style.css">
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -161,17 +176,13 @@
                                         <a href="admin.php" class="dropdown-item">
                                             <i class="fas fa-cogs"></i> Admin Panel
                                         </a>
-                                    <?php elseif (isset($currentUser['role']) && $currentUser['role'] === 'manager'): ?>
-                                        <a href="manager.php" class="dropdown-item">
-                                            <i class="fas fa-tasks"></i> Manager Panel
-                                        </a>
                                     <?php else: ?>
                                         <a href="customer.php" class="dropdown-item">
                                             <i class="fas fa-shopping-bag"></i> My Orders
                                         </a>
                                     <?php endif; ?>
                                     <div class="dropdown-divider"></div>
-                                    <a href="?logout=1" class="dropdown-item logout-item" onclick="return confirm('Are you sure you want to logout?')">
+                                    <a href="logout.php" class="dropdown-item logout-item" onclick="return confirm('Are you sure you want to logout?')">
                                         <i class="fas fa-sign-out-alt"></i> Logout
                                     </a>
                                 </div>
@@ -207,12 +218,12 @@
                 <div class="nav-container">
                     <ul class="nav-list" id="nav-list">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link <?php echo ($current_page == 'home') ? 'active' : ''; ?>">
+                            <a href="index.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'home') ? 'active' : ''; ?>">
                                 <i class="fas fa-home"></i> Home
                             </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a href="products.php" class="nav-link <?php echo ($current_page == 'categories' || $current_page == 'products') ? 'active' : ''; ?>">
+                            <a href="products.php" class="nav-link <?php echo (isset($current_page) && ($current_page == 'categories' || $current_page == 'products')) ? 'active' : ''; ?>">
                                 <i class="fas fa-th-large"></i> Categories
                             </a>
                             <div class="dropdown-menu">
@@ -225,17 +236,17 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a href="offers.php" class="nav-link <?php echo ($current_page == 'offers') ? 'active' : ''; ?>">
+                            <a href="offers.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'offers') ? 'active' : ''; ?>">
                                 <i class="fas fa-tag"></i> Offers
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="about.php" class="nav-link <?php echo ($current_page == 'about') ? 'active' : ''; ?>">
+                            <a href="about.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'about') ? 'active' : ''; ?>">
                                 <i class="fas fa-info-circle"></i> About
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="contact.php" class="nav-link <?php echo ($current_page == 'contact') ? 'active' : ''; ?>">
+                            <a href="contact.php" class="nav-link <?php echo (isset($current_page) && $current_page == 'contact') ? 'active' : ''; ?>">
                                 <i class="fas fa-phone"></i> Contact
                             </a>
                         </li>

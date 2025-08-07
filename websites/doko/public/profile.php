@@ -114,10 +114,6 @@ include '../template/breadcrumb.php';
                             <a href="admin.php" class="profile-nav-item">
                                 <i class="fas fa-cogs"></i> Admin Panel
                             </a>
-                        <?php elseif ($userRole === 'manager'): ?>
-                            <a href="manager.php" class="profile-nav-item">
-                                <i class="fas fa-tasks"></i> Manager Panel
-                            </a>
                         <?php endif; ?>
                         <a href="?logout=1" class="profile-nav-item logout" onclick="return confirm('Are you sure you want to logout?')">
                             <i class="fas fa-sign-out-alt"></i> Logout
