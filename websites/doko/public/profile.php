@@ -601,5 +601,5 @@ if (isset($_GET['logout'])) {
 }
 
 // Include footer
-require_once '../template/footer.php';
+include_footer();
 ?>

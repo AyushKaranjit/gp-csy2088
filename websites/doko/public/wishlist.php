@@ -199,7 +199,7 @@ function loadWishlistItems() {
     
     // For each item in wishlist, fetch product details from API
     Promise.all(wishlist.map(item => 
-        fetch(`api/product-detail.php?id=${item.product_id}`)
+        fetch(`api/products/product-detail.php?id=${item.product_id}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.product) {
@@ -274,7 +274,7 @@ function displayWishlistItems(products) {
 }
 
 function addToCart(productId) {
-    fetch(`${DOKO.baseURL}/api/cart-add.php`, {
+    fetch(`${DOKO.baseURL}/api/cart/cart-add.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

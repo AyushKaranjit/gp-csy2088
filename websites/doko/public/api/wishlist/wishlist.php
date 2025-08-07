@@ -28,7 +28,7 @@ function sendResponse($success, $message = '', $data = []) {
 
 try {
     // Use proper database configuration
-    require_once __DIR__ . '/../../config/database.php';
+    require_once __DIR__ . '/../../../config/database.php';
     $db = Database::getInstance();
     $pdo = $db->getConnection();
     

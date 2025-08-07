@@ -21,7 +21,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['DELETE', 'POST'])) {
 }
 
 // Include database configuration with error handling
-$config_path = __DIR__ . '/../../config/database.php';
+$config_path = __DIR__ . '/../../../config/database.php';
 if (!file_exists($config_path)) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
@@ -29,7 +29,7 @@ if (!file_exists($config_path)) {
 }
 
 require_once $config_path;
-require_once __DIR__ . '/../../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
 
 try {
     // Check if user is logged in

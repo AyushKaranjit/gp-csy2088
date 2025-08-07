@@ -105,8 +105,8 @@ try {
         'cart.php' => 'Cart Page',
         'wishlist.php' => 'Wishlist Page',
         'admin.php' => 'Admin Panel',
-        'api/cart-add.php' => 'Cart API',
-        'api/wishlist.php' => 'Wishlist API',
+        'api/cart/cart-add.php' => 'Cart API',
+        'api/wishlist/wishlist.php' => 'Wishlist API',
         'js/main.js' => 'Main JavaScript',
         'js/product-actions.js' => 'Product Actions JavaScript'
     ];

@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Send login request to API
-            const response = await fetch('/api/auth-login.php', {
+            const response = await fetch('/api/users/auth-login.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

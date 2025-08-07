@@ -10,7 +10,7 @@ const ProductManager = {
         // Ensure quantity is a number
         quantity = parseInt(quantity) || 1;
         
-        fetch('/api/cart-add.php', {
+        fetch('/api/cart/cart-add.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ const ProductManager = {
     
     // Toggle wishlist
     toggleWishlist: function(productId) {
-        fetch('/api/wishlist.php', {
+        fetch('/api/wishlist/wishlist.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

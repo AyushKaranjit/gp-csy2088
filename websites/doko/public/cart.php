@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Check if user is logged in
         try {
-            const authResponse = await fetch('api/auth-status.php');
+            const authResponse = await fetch('api/users/auth-status.php');
             const authResult = await authResponse.json();
             
             if (!authResult.success || !authResult.isLoggedIn) {
@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load user profile for pre-filling
     async function loadUserProfile() {
         try {
-            const response = await fetch('api/auth-profile.php');
+            const response = await fetch('api/users/auth-profile.php');
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -850,7 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
         
         try {
-            const response = await fetch('api/customer-orders.php', {
+            const response = await fetch('api/orders/customer-orders.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

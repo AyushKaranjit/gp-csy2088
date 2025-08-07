@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 session_start();
 
 try {
-    require_once __DIR__ . '/../../config/database.php';
-    require_once __DIR__ . '/../../src/Controllers/AuthController.php';
+    require_once __DIR__ . '/../../../config/database.php';
+    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
 
     // Verify admin authentication
     $auth = new AuthController();
@@ -68,7 +68,7 @@ function handleImageUpload() {
         }
 
         // Create uploads directory if it doesn't exist
-        $uploadsDir = __DIR__ . '/../../public/uploads';
+        $uploadsDir = __DIR__ . '/../../uploads';
         if (!is_dir($uploadsDir)) {
             mkdir($uploadsDir, 0755, true);
         }

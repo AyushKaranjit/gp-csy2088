@@ -30,9 +30,10 @@ if (!in_array($_SESSION['role'], ['customer'])) {
 $currentUser = $auth->getCurrentUser();
 $page_title = 'Customer Dashboard - DOKO';
 $current_page = 'dashboard';
-?>
 
-<?php include_once '../template/header.php'; ?>
+// Include header
+include_header($page_title, 'Manage your DOKO account, orders, and profile.', $current_page);
+?>
 
 <main class="main-content customer-dashboard-main">
     <div class="container">
@@ -1015,7 +1016,7 @@ async function loadOrderHistory() {
         loading.style.display = 'block';
         noOrders.style.display = 'none';
         
-        const response = await fetch('/api/customer-orders.php', {
+        const response = await fetch('/api/orders/customer-orders.php', {
             method: 'GET',
             credentials: 'same-origin',
             headers: {
@@ -1084,7 +1085,7 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
         submitBtn.disabled = true;
         
-        const response = await fetch('api/update-profile.php', {
+        const response = await fetch('api/users/update-profile.php', {
             method: 'POST',
             body: formData
         });
@@ -1140,7 +1141,7 @@ document.getElementById('change-password-form').addEventListener('submit', async
     }
     
     try {
-        const response = await fetch('api/change-password.php', {
+        const response = await fetch('api/users/change-password.php', {
             method: 'POST',
             body: formData
         });
@@ -1220,4 +1221,4 @@ document.addEventListener('click', function(e) {
 });
 </script>
 
-<?php include_once '../template/footer.php'; ?>
+<?php include_footer(); ?>

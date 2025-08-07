@@ -160,7 +160,7 @@ function loadSectionData(sectionId) {
 function loadOrders() {
     showLoading('orders-table');
     
-    fetch('api/orders-list.php')
+    fetch('api/orders/orders-list.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -228,7 +228,7 @@ function updateStatCard(id, value) {
 function loadUsers() {
     showLoading('users-table');
     
-    fetch('api/users-list.php')
+    fetch('api/users/users-list.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -280,7 +280,7 @@ function displayUsers(users) {
 function loadProducts() {
     showLoading('products-table');
     
-    fetch('api/products-list.php')
+    fetch('api/products/products-list.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -346,7 +346,7 @@ function displayProducts(products) {
 function loadInventoryData() {
     showLoading('inventory-list');
     
-    fetch('api/inventory-list.php')
+    fetch('api/products/inventory-list.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -407,7 +407,7 @@ function updateInventoryStats(stats) {
 function loadCustomerOrders() {
     showLoading('customer-orders-table');
     
-    fetch('api/customer-orders.php')
+    fetch('api/orders/customer-orders.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -540,7 +540,7 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
     
     console.log('Sending to API:', data);
     
-    fetch(getApiPath() + 'cart-add-working.php', {
+    fetch(getApiPath() + 'cart/cart-add-working.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -577,7 +577,7 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
 }
 
 function updateCartCount() {
-    fetch(getApiPath() + 'cart-get.php', {
+    fetch(getApiPath() + 'cart/cart-get.php', {
         credentials: 'same-origin',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -620,7 +620,7 @@ function initializeForms() {
 function submitProfileForm(form) {
     const formData = new FormData(form);
     
-    fetch('api/profile-update.php', {
+    fetch('api/users/profile-update.php', {
         method: 'POST',
         body: formData
     })
@@ -646,7 +646,7 @@ function submitPasswordForm(form) {
         return;
     }
     
-    fetch('api/password-update.php', {
+    fetch('api/users/password-update.php', {
         method: 'POST',
         body: formData
     })
@@ -856,7 +856,7 @@ function editOrderStatus(orderId, currentStatus) {
 }
 
 function updateOrderStatus(orderId, newStatus) {
-    fetch('api/order-update.php', {
+    fetch('api/orders/order-update.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -888,7 +888,7 @@ function editUser(userId) {
 
 function deleteUser(userId) {
     if (confirm('Are you sure you want to delete this user?')) {
-        fetch(`api/user-delete.php?id=${userId}`, {
+        fetch(`api/users/user-delete.php?id=${userId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -919,7 +919,7 @@ function editProduct(productId) {
 
 function deleteProduct(productId) {
     if (confirm('Are you sure you want to delete this product?')) {
-        fetch(`api/product-delete.php?id=${productId}`, {
+        fetch(`api/products/product-delete.php?id=${productId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -941,7 +941,7 @@ function deleteProduct(productId) {
 function updateStock(productId, currentStock) {
     const newStock = prompt(`Update stock for product ${productId}:`, currentStock);
     if (newStock !== null && !isNaN(newStock)) {
-        fetch('api/stock-update.php', {
+        fetch('api/products/stock-update.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1025,7 +1025,7 @@ function quickView(productId) {
 // Note: toggleWishlist function moved to end of file to avoid conflicts
 
 function updateWishlistCount() {
-    fetch(getApiPath() + 'wishlist.php', {
+    fetch(getApiPath() + 'wishlist/wishlist.php', {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -1196,7 +1196,7 @@ window.addEventListener('error', function(event) {
 function quickView(productId) {
     console.log('Quick view for product:', productId);
     
-    fetch(`/api/product-detail.php?id=${productId}`)
+    fetch(`/api/products/product-detail.php?id=${productId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success && data.product) {
@@ -1275,7 +1275,7 @@ function addToCartFromQuickView(productId) {
  * Update cart count with better error handling
  */
 function updateCartCount() {
-    fetch(getApiPath() + 'cart-get.php', {
+    fetch(getApiPath() + 'cart/cart-get.php', {
         credentials: 'same-origin',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -1411,7 +1411,7 @@ function quickView(productId) {
 // Authentication Functions
 async function isLoggedIn() {
     try {
-        const response = await fetch(getApiPath() + 'auth-status.php', {
+        const response = await fetch(getApiPath() + 'users/auth-status.php', {
             credentials: 'same-origin',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -1453,7 +1453,7 @@ async function toggleWishlist(productId) {
         wishlistBtn.className = 'fa fa-spinner fa-spin';
     }
     
-    fetch(getApiPath() + `wishlist.php`, {
+    fetch(getApiPath() + `wishlist/wishlist.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

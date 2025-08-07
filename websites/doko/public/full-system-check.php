@@ -198,16 +198,16 @@ echo "<h2>2. API Endpoints Verification</h2>";
 echo "<div class='test-section'>";
 
 $apiFiles = [
-    'cart-add.php' => 'Add to Cart API',
-    'cart-get.php' => 'Get Cart API',
-    'cart-remove.php' => 'Remove from Cart API',
-    'wishlist.php' => 'Wishlist API',
-    'auth-login.php' => 'Login API',
-    'auth-register.php' => 'Register API',
-    'auth-status.php' => 'Auth Status API',
-    'products-list.php' => 'Products List API',
-    'product-detail.php' => 'Product Detail API',
-    'categories-list.php' => 'Categories API'
+    'cart/cart-add.php' => 'Add to Cart API',
+    'cart/cart-get.php' => 'Get Cart API',
+    'cart/cart-remove.php' => 'Remove from Cart API',
+    'wishlist/wishlist.php' => 'Wishlist API',
+    'users/auth-login.php' => 'Login API',
+    'users/auth-register.php' => 'Register API',
+    'users/auth-status.php' => 'Auth Status API',
+    'products/products-list.php' => 'Products List API',
+    'products/product-detail.php' => 'Product Detail API',
+    'categories/categories-list.php' => 'Categories API'
 ];
 
 $apiDir = __DIR__ . '/api/';

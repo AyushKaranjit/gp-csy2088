@@ -901,7 +901,7 @@ $page_title = 'My Account - DOKO';
             CustomerAPI.showNotification('Changing password...', 'info');
             
             // Call API to change password
-            const response = await fetch('api/change-password.php', {
+            const response = await fetch('api/users/change-password.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

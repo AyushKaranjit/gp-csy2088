@@ -13,15 +13,15 @@ $baseDir = __DIR__ . '/api/';
 // Test 1: Check if cart-add-working.php exists
 $tests['cart_add_file'] = [
     'name' => 'Cart Add API File',
-    'status' => file_exists($baseDir . 'cart-add-working.php') ? 'PASS' : 'FAIL',
-    'details' => file_exists($baseDir . 'cart-add-working.php') ? 'File exists' : 'File missing'
+    'status' => file_exists($baseDir . 'cart/cart-add-working.php') ? 'PASS' : 'FAIL',
+    'details' => file_exists($baseDir . 'cart/cart-add-working.php') ? 'File exists' : 'File missing'
 ];
 
 // Test 2: Check if wishlist.php exists
 $tests['wishlist_file'] = [
     'name' => 'Wishlist API File', 
-    'status' => file_exists($baseDir . 'wishlist.php') ? 'PASS' : 'FAIL',
-    'details' => file_exists($baseDir . 'wishlist.php') ? 'File exists' : 'File missing'
+    'status' => file_exists($baseDir . 'wishlist/wishlist.php') ? 'PASS' : 'FAIL',
+    'details' => file_exists($baseDir . 'wishlist/wishlist.php') ? 'File exists' : 'File missing'
 ];
 
 // Test 3: Check if admin files exist
@@ -96,7 +96,7 @@ $result = [
 
 // Add recommendations based on failed tests
 if ($tests['cart_add_file']['status'] === 'FAIL') {
-    $result['recommendations'][] = 'Upload cart-add-working.php to api/ directory';
+    $result['recommendations'][] = 'Upload cart-add-working.php to api/cart/ directory';
 }
 if ($tests['database']['status'] === 'FAIL') {
     $result['recommendations'][] = 'Check database configuration and connection';

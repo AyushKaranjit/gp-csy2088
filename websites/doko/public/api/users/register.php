@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-    require_once __DIR__ . '/../../src/Controllers/AuthController.php';try {
+    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';try {
     // Get JSON input
     $input = json_decode(file_get_contents('php://input'), true);
     

@@ -16,8 +16,8 @@ ini_set('log_errors', 1);
 
 try {
     // Include required files with error handling
-    $configPath = __DIR__ . '/../../config/database.php';
-    $authPath = __DIR__ . '/../../src/Controllers/AuthController.php';
+    $configPath = __DIR__ . '/../../../config/database.php';
+    $authPath = __DIR__ . '/../../../src/Controllers/AuthController.php';
     
     if (!file_exists($configPath)) {
         throw new Exception('Database config not found');

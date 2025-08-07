@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-    require_once __DIR__ . '/../../src/Controllers/AuthController.php';try {
+    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';try {
     // Use AuthController for logout
     $auth = new AuthController();
     $result = $auth->logout();
