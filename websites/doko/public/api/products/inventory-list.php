@@ -4,17 +4,12 @@
  * Returns comprehensive inventory information with stock levels
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-require_once '../../config/database.php';
-require_once '../../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../_bootstrap.php';
 
 try {
     $db = Database::getInstance();
-    $auth = new AuthController();
+    $auth = auth_controller();
+    $productsPk = schema_products_pk();
     
     // Start session to check authentication
     if (session_status() === PHP_SESSION_NONE) {
@@ -73,7 +68,7 @@ try {
     
     // Get total count for pagination
     $count_query = "
-        SELECT COUNT(DISTINCT p.product_id) as total
+        SELECT COUNT(DISTINCT p.{$productsPk}) as total
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         $where_clause
@@ -86,7 +81,7 @@ try {
     // Main inventory query
     $query = "
         SELECT 
-            p.product_id,
+            p.{$productsPk} AS product_id,
             p.name as product_name,
             p.sku,
             p.price,
@@ -111,8 +106,8 @@ try {
                 WHEN p.stock_quantity <= (p.low_stock_threshold * 2) THEN 'info'
                 ELSE 'success'
             END as stock_status_class,
-            (SELECT pi.image_path FROM product_images pi WHERE pi.product_id = p.product_id AND pi.is_primary = 1 LIMIT 1) as primary_image,
-            (SELECT COUNT(*) FROM order_items oi WHERE oi.product_id = p.product_id) as total_sold
+            (SELECT pi.image_path FROM product_images pi WHERE pi.product_id = p.{$productsPk} AND pi.is_primary = 1 LIMIT 1) as primary_image,
+            (SELECT COUNT(*) FROM order_items oi WHERE oi.product_id = p.{$productsPk}) as total_sold
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         LEFT JOIN brands b ON p.brand_id = b.brand_id
@@ -152,7 +147,7 @@ try {
         SELECT 
             c.category_id,
             c.name as category_name,
-            COUNT(p.product_id) as product_count,
+            COUNT(p.{$productsPk}) as product_count,
             SUM(p.stock_quantity) as total_stock,
             SUM(CASE WHEN p.stock_quantity <= 0 THEN 1 ELSE 0 END) as out_of_stock_count,
             SUM(CASE WHEN p.stock_quantity <= p.low_stock_threshold AND p.stock_quantity > 0 THEN 1 ELSE 0 END) as low_stock_count
@@ -177,7 +172,7 @@ try {
         
         // Set default image if none exists
         if (empty($item['primary_image'])) {
-            $item['primary_image'] = 'uploads/default-product.jpg';
+            $item['primary_image'] = '/images/default-product.jpg';
         }
         
         // Calculate stock percentage

@@ -15,7 +15,8 @@ try {
   if (!$order) { ApiResponse::error('Order not found', 404); }
   $user = $auth->getCurrentUser();
   if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); }
-  $items = $db->execute('SELECT oi.order_item_id, oi.product_id, oi.quantity, oi.unit_price as price, oi.total_price as total, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id=p.product_id WHERE oi.order_id=?', [$id])->fetchAll();
+  $pk = schema_products_pk();
+  $items = $db->execute("SELECT oi.order_item_id, oi.product_id, oi.quantity, oi.unit_price as price, oi.total_price as total, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id=p.$pk WHERE oi.order_id=?", [$id])->fetchAll();
   ApiResponse::success(['order' => $order, 'items' => $items]);
 } catch (Throwable $e) {
   error_log('order-detail error: '.$e->getMessage());

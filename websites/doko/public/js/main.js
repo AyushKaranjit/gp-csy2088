@@ -22,17 +22,18 @@ function getApiPath() {
 // ========== ERROR HANDLING ==========
 // Global error handler to prevent JavaScript errors from breaking the page
 window.addEventListener('error', function(event) {
-    console.error('JavaScript Error:', {
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        error: event.error
-    });
-    
-    // Don't let errors break the page
-    event.preventDefault();
-    return true;
+    try {
+        console.error('[GlobalError]', event.message, 'at', event.filename + ':' + event.lineno + ':' + event.colno, event.error);
+    } catch(e) {
+        // fallback minimal log
+        console.log('[GlobalError:Fallback]', event.message);
+    }
+    // By default DO NOT suppress native browser error (helps debugging)
+    // Opt-in suppression by setting window.DOKO_SUPPRESS_GLOBAL_ERRORS = true
+    if (window.DOKO_SUPPRESS_GLOBAL_ERRORS) {
+        event.preventDefault();
+        return true; // swallow only when explicitly requested
+    }
 });
 
 // Handle unhandled promise rejections
@@ -51,7 +52,7 @@ if (!window.handleImageError) {
         console.log('[ImageError] Failed:', img.src);
         // If not already using default, try default
         if (!/default-product\.jpg$/i.test(img.src)) {
-            img.src = (window.CDN_BASE || '') + '/uploads/default-product.jpg';
+            img.src = (window.CDN_BASE || '') + '/images/default-product.jpg';
             img.style.objectFit = 'contain';
             img.style.padding = '20px';
             img.style.background = '#f8f9fa';
@@ -444,19 +445,28 @@ function displayCustomerOrders(orders) {
 
 // Cart Functionality
 function initializeCart() {
+    if (window.__DOKO_CART_INIT) { return; }
+    window.__DOKO_CART_INIT = true;
     updateCartCount();
-    
-    // Add to cart buttons
+
+    // Attach listeners only to buttons without inline onclick to prevent duplicate calls
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    let skipped = 0, bound = 0;
     addToCartButtons.forEach(button => {
+        if (button.getAttribute('onclick')) { // inline handler present
+            skipped++;
+            return; // avoid double-trigger (inline + listener)
+        }
+        bound++;
         button.addEventListener('click', function() {
             const productId = this.dataset.productId;
             const productName = this.dataset.productName;
-            const productPrice = this.dataset.productPrice;
-            
-            addToCart(productId, 1, productName); // Fixed parameter order: (id, quantity, name)
+            addToCart(productId, 1, productName);
         });
     });
+    if (window.console) {
+        console.debug('[CartInit] Skipped binding on', skipped, 'buttons already having inline onclick; bound', bound);
+    }
 }
 
 // Add to cart function with quantity from input
@@ -492,7 +502,70 @@ function changeQuantity(productId, change) {
     input.value = newValue;
 }
 
-function addToCart(productId, quantity = 1, productName = 'Product') {
+// ========== GUEST CART (LOCAL STORAGE) SUPPORT ==========
+window.GUEST_CART_KEY = window.GUEST_CART_KEY || 'doko_guest_cart_v1';
+window.GUEST_CART_SYNC_FLAG = window.GUEST_CART_SYNC_FLAG || 'doko_guest_cart_synced';
+
+function loadGuestCart() {
+    try {
+        const raw = localStorage.getItem(window.GUEST_CART_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(it => it && Number.isInteger(it.product_id) && it.product_id > 0 && Number.isInteger(it.quantity) && it.quantity > 0);
+    } catch (e) {
+        console.warn('Failed to parse guest cart', e);
+        return [];
+    }
+}
+
+function saveGuestCart(cart) {
+    try { localStorage.setItem(window.GUEST_CART_KEY, JSON.stringify(cart)); } catch(e) { console.warn('Failed to save guest cart', e); }
+}
+
+function addItemToGuestCart(product_id, quantity) {
+    const cart = loadGuestCart();
+    const existing = cart.find(i => i.product_id === product_id);
+    if (existing) {
+        existing.quantity += quantity;
+    } else {
+        cart.push({ product_id, quantity });
+    }
+    saveGuestCart(cart);
+}
+
+async function syncGuestCartIfNeeded() {
+    // Only sync once per session
+    if (sessionStorage.getItem(window.GUEST_CART_SYNC_FLAG)) return;
+    let logged = false;
+    try { if (typeof isLoggedIn === 'function') logged = await isLoggedIn(); } catch(e) { return; }
+    if (!logged) return;
+    const cart = loadGuestCart();
+    if (!cart.length) return;
+    console.debug('[GuestCart] Sync start with', cart.length, 'items');
+    for (const item of cart) {
+        try {
+            await fetch(getApiPath() + 'cart/add.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity })
+            });
+        } catch (e) {
+            console.warn('[GuestCart] Failed to sync item', item, e);
+        }
+    }
+    // Clear guest cart after attempt (avoid duplicates)
+    saveGuestCart([]);
+    sessionStorage.setItem(window.GUEST_CART_SYNC_FLAG, '1');
+    updateCartCount();
+    console.debug('[GuestCart] Sync complete');
+}
+
+document.addEventListener('DOMContentLoaded', () => { setTimeout(syncGuestCartIfNeeded, 300); });
+
+if (!window.__dokoCartLocks) { window.__dokoCartLocks = new Set(); }
+async function addToCart(productId, quantity = 1, productName = 'Product') {
     // Log the parameters for debugging
     console.log('addToCart called with parameters:', {
         productId: productId,
@@ -526,68 +599,117 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
         return;
     }
     
-    const data = {
-        product_id: parsedProductId,
-        quantity: parsedQuantity
-    };
-    
+    const data = { product_id: parsedProductId, quantity: parsedQuantity };
+
+    // Preflight auth check; if not logged in, use guest cart fallback instead of redirect
+    let logged = false;
+    try { if (typeof isLoggedIn === 'function') logged = await isLoggedIn(); } catch(e) { /* ignore */ }
+    if (!logged) {
+        addItemToGuestCart(parsedProductId, parsedQuantity);
+        showNotification(`${productName} added to cart (guest)`, 'success');
+        updateCartCount();
+        return; // Do not proceed to server add
+    }
+
+    const lockKey = parsedProductId + ':' + parsedQuantity;
+    if (window.__dokoCartLocks.has(lockKey)) {
+        console.warn('Add to cart already in progress for', lockKey);
+        return;
+    }
+    window.__dokoCartLocks.add(lockKey);
+    const btn = document.querySelector(`.add-to-cart[data-product-id="${parsedProductId}"]`);
+    if (btn) { btn.disabled = true; btn.classList.add('loading'); }
+
     console.log('Sending to API:', data);
-    
-    // Use current canonical add endpoint
-    fetch(getApiPath() + 'cart/add.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(data)
-    })
-    .then(response => {
+
+    try {
+        const response = await fetch(getApiPath() + 'cart/add.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+        });
         console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        
-        if (data.success) {
+        const respData = await response.json();
+        console.log('Response data:', respData);
+        if (respData.success) {
             showNotification(`${productName} added to cart!`, 'success');
             updateCartCount();
         } else {
-            if (data.message && data.message.includes('log in')) {
+            if (respData.message && /log in|auth/i.test(respData.message)) {
                 showNotification('Please log in to add items to cart', 'warning');
                 setTimeout(() => {
-                    window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
-                }, 1500);
+                    window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+                }, 1000);
             } else {
-                showNotification(data.message || 'Failed to add to cart', 'error');
+                showNotification(respData.message || 'Failed to add to cart', 'error');
             }
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Cart error:', error);
         showNotification('Network error: Failed to add to cart', 'error');
+    } finally {
+        window.__dokoCartLocks.delete(lockKey);
+        if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
+    }
+}
+
+// ========== CENTRAL API FETCH WRAPPER ==========
+function apiFetch(endpoint, { method = 'GET', data = undefined, formData = undefined, headers = {}, raw = false } = {}) {
+    const url = endpoint.startsWith('http') ? endpoint : getApiPath() + endpoint.replace(/^\//,'');
+    const opts = { method, headers: { 'X-Requested-With':'XMLHttpRequest', ...headers }, credentials: 'same-origin' };
+    if (formData) {
+        opts.body = formData; // browser sets multipart boundary
+    } else if (data !== undefined) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(data);
+    }
+    return fetch(url, opts).then(async resp => {
+        if (raw) return resp;
+        const ct = resp.headers.get('content-type') || '';
+        let payload;
+        if (ct.includes('application/json')) {
+            payload = await resp.json();
+        } else {
+            const text = await resp.text();
+            payload = { success: false, message: text.substring(0,200), status: resp.status };
+        }
+        if (!resp.ok && !payload.success) {
+            payload.status = resp.status;
+            throw payload;
+        }
+        return payload;
     });
 }
 
-function updateCartCount() {
-    fetch(getApiPath() + 'cart/cart-get.php', {
-        credentials: 'same-origin',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+async function updateCartCount() {
+    // If not logged in, derive from guest cart
+    let logged = false;
+    try { if (typeof isLoggedIn === 'function') logged = await isLoggedIn(); } catch(e) { /* ignore */ }
+    const cartCountEl = document.getElementById('cart-count');
+    if (!cartCountEl) return;
+    if (!logged) {
+        const guest = loadGuestCart();
+        const guestTotal = guest.reduce((s,i) => s + i.quantity, 0);
+        cartCountEl.textContent = guestTotal;
+        return;
+    }
+    try {
+        const resp = await fetch(getApiPath() + 'cart/cart-get.php', {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await resp.json();
+        if (data.success) {
+            const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
+            cartCountEl.textContent = totalItems;
         }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const cartCount = document.getElementById('cart-count');
-                if (cartCount) {
-                    const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
-                    cartCount.textContent = totalItems;
-                }
-            }
-        })
-        .catch(error => console.error('Error updating cart count:', error));
+    } catch (e) {
+        console.error('Error updating cart count:', e);
+    }
 }
 
 // Form Handling
@@ -611,25 +733,50 @@ function initializeForms() {
     });
 }
 
+function validateProfileForm(form) {
+    let valid = true;
+    const errors = [];
+    const first = form.querySelector('[name="first_name"]');
+    const last = form.querySelector('[name="last_name"]');
+    const phone = form.querySelector('[name="phone"]');
+    const dob = form.querySelector('[name="date_of_birth"]');
+    const email = form.querySelector('[name="email"]');
+    const setError = (input, msg) => {
+        if (!input) return;
+        valid = false;
+        input.classList.add('field-error');
+        let hint = input.parentNode.querySelector('.field-error-msg');
+        if (!hint) { hint = document.createElement('small'); hint.className='field-error-msg'; input.parentNode.appendChild(hint); }
+        hint.textContent = msg;
+    };
+    form.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
+    form.querySelectorAll('.field-error-msg').forEach(el=>el.remove());
+    if (first && first.value.trim().length < 2) setError(first,'First name too short');
+    if (last && last.value.trim().length < 2) setError(last,'Last name too short');
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) setError(email,'Invalid email');
+    if (phone && phone.value && !/^[+0-9\-()\s]{7,20}$/.test(phone.value)) setError(phone,'Invalid phone');
+    if (dob && dob.value && !/^\d{4}-\d{2}-\d{2}$/.test(dob.value)) setError(dob,'Date format YYYY-MM-DD');
+    return valid;
+}
+
 function submitProfileForm(form) {
+    if (!validateProfileForm(form)) {
+        showNotification('Fix highlighted errors', 'error');
+        return;
+    }
     const formData = new FormData(form);
-    
-    fetch('api/users/profile-update.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Profile updated successfully!', 'success');
-        } else {
-            showNotification(data.message || 'Failed to update profile', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Failed to update profile', 'error');
-    });
+    const btn = form.querySelector('button[type="submit"]');
+    const old = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving'; }
+    apiFetch('users/profile-update.php', { method:'POST', formData })
+        .then(data => {
+            showNotification(data.message || 'Profile updated', 'success');
+        })
+        .catch(err => {
+            console.error('Profile update failed:', err);
+            showNotification(err.message || 'Failed to update profile', 'error');
+        })
+        .finally(()=>{ if (btn){ btn.disabled=false; btn.innerHTML=old; }});
 }
 
 function submitPasswordForm(form) {
@@ -640,23 +787,15 @@ function submitPasswordForm(form) {
         return;
     }
     
-    fetch('api/users/password-update.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Password updated successfully!', 'success');
+    apiFetch('users/password-update.php', { method:'POST', formData })
+        .then(data => {
+            showNotification(data.message || 'Password updated', 'success');
             form.reset();
-        } else {
-            showNotification(data.message || 'Failed to update password', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Failed to update password', 'error');
-    });
+        })
+        .catch(err => {
+            console.error('Password update failed:', err);
+            showNotification(err.message || 'Failed to update password', 'error');
+        });
 }
 
 // Modal Management
@@ -1342,6 +1481,8 @@ window.addToCart = addToCart;
 window.updateCartCount = updateCartCount;
 window.toggleUserDropdown = toggleUserDropdown;
 window.showNotification = showNotification;
+// Provide global hook for Address Book button on profile page
+window.showAddAddressModal = function() { try { openModal('add-address-modal'); } catch(e) { const m=document.getElementById('add-address-modal'); if (m) { m.style.display='flex'; document.body.style.overflow='hidden'; } } };
 
 function showChangePasswordModal() {
     const modal = document.getElementById('change-password-modal');

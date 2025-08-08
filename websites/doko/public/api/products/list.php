@@ -30,6 +30,7 @@ try {
     
     // Get database connection
     $db = Database::getInstance();
+    $productsPk = schema_products_pk();
     
     // Build query
     $where_conditions = ['p.status = ?'];
@@ -70,12 +71,12 @@ try {
     $total = $stmt->fetch()['total'];
     
     // Get products
-    $query = "SELECT p.product_id, p.name, p.description, p.price, p.original_price,
+    $query = "SELECT p.{$productsPk} AS product_id, p.name, p.description, p.price, p.original_price,
                      p.stock_quantity, p.unit, p.featured, p.category_id, p.created_at,
                      c.name as category_name, pi.image_url AS primary_image
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
-              LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
+              LEFT JOIN product_images pi ON p.{$productsPk} = pi.product_id AND pi.is_primary = 1
               WHERE $where_clause
               ORDER BY p.$sort $order
               LIMIT $limit OFFSET $offset";

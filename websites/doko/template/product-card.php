@@ -51,7 +51,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
                  alt="<?php echo htmlspecialchars($product['name']); ?>"
                  loading="lazy"
                  class="product-img"
-                 data-fallback="/uploads/default-product.jpg"
+                 data-fallback="/images/default-product.jpg"
                  onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{handleImageError(this);}"
                  style="display:block;" />
         </a>
@@ -340,7 +340,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 }
 
 .product-price {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* fixed potential earlier typo 1re */
 }
 
 .current-price {

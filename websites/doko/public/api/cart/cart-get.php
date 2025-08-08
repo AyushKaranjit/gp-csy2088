@@ -21,9 +21,13 @@ try {
     }
 
     $db = db();
-    $sql = "SELECT c.cart_id, c.product_id, c.quantity, c.created_at, p.name, p.price, p.stock_quantity
+    // Detect schema variants (centralized helpers)
+    $productsPk = schema_products_pk();
+    $cartPk = schema_cart_pk();
+
+    $sql = "SELECT c.{$cartPk} AS cart_id, c.product_id, c.quantity, c.created_at, p.name, p.price, p.stock_quantity
             FROM cart c
-            JOIN products p ON c.product_id = p.product_id
+            JOIN products p ON c.product_id = p.{$productsPk}
             WHERE c.user_id = ? AND p.status = 'active'
             ORDER BY c.created_at DESC";
     $stmt = $db->execute($sql, [$user['user_id']]);
@@ -40,7 +44,7 @@ try {
             'name' => $r['name'],
             'price' => (float)$r['price'],
             'quantity' => (int)$r['quantity'],
-            'image' => 'uploads/products/default.svg',
+            'image' => '/images/default-product.jpg',
             'stock' => (int)$r['stock_quantity'],
             'item_total' => $itemTotal,
             'created_at' => $r['created_at']

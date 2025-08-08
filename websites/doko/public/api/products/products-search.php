@@ -7,6 +7,7 @@ require_method('GET');
 try {
     $database = Database::getInstance();
     $conn = $database->getConnection();
+    $productsPk = schema_products_pk();
     
     // Get search parameters
     $query = isset($_GET['q']) ? trim($_GET['q']) : '';
@@ -99,14 +100,14 @@ try {
     
     // Main search query
     // Replace named :limit/:offset with positional placeholders to align with unified execute order
-    $searchQuery = "SELECT p.product_id, p.name, p.slug, p.description, p.price, p.original_price,
+    $searchQuery = "SELECT p.{$productsPk} AS product_id, p.name, p.slug, p.description, p.price, p.original_price,
                            p.stock_quantity, p.unit, p.weight, p.weight_unit,
                            p.featured, p.created_at,
                            c.name as category_name, c.slug as category_slug,
                            COALESCE(pi.image_url, 'default.jpg') AS image_url
                     FROM products p
                     LEFT JOIN categories c ON p.category_id = c.category_id
-                    LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
+                    LEFT JOIN product_images pi ON p.{$productsPk} = pi.product_id AND pi.is_primary = 1
                     $whereClause
                     $orderBy
                     LIMIT ? OFFSET ?";
@@ -146,7 +147,7 @@ try {
         
         // Add image URL with fallback
         if (empty($product['image_url'])) {
-            $product['image_url'] = '/uploads/products/default.jpg';
+            $product['image_url'] = '/images/default-product.jpg';
         } else if (strpos($product['image_url'], '/uploads/') !== 0) {
             $product['image_url'] = '/uploads/products/' . ltrim($product['image_url'], '/');
         }

@@ -50,7 +50,7 @@
         
         if (img.src.indexOf('default-product.jpg') === -1) {
             // First fallback: try default product image
-            img.src = 'uploads/default-product.jpg';
+            img.src = '/images/default-product.jpg';
             img.style.objectFit = 'contain';
             img.style.padding = '20px';
             img.style.background = '#f8f9fa';

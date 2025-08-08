@@ -5,6 +5,7 @@ use Doko\Http\ApiResponse;
 require_method('POST');
 
 try {
+
     // Get JSON input (tests send JSON). Fallback to POST form fields if JSON empty
     $raw = file_get_contents('php://input');
     $input = json_decode($raw, true);
@@ -34,8 +35,13 @@ try {
     $db = Database::getInstance();
     $conn = $db->getConnection();
     
+    // Detect schema variants
+    $productsPk = schema_products_pk();
+    $cartPk = schema_cart_pk();
+    $cartHasPrice = schema_cart_has_price();
+    
     // Check if product exists
-    $query = "SELECT product_id, name, price, stock_quantity FROM products WHERE product_id = ? AND status = 'active'";
+    $query = "SELECT {$productsPk} AS product_id, name, price, stock_quantity FROM products WHERE {$productsPk} = ? AND status = 'active'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -48,7 +54,7 @@ try {
     if ($product['stock_quantity'] < $quantity) { ApiResponse::error('Insufficient stock available', 400); return; }
     
     // Check if item already exists in cart
-    $query = "SELECT cart_id, quantity FROM cart WHERE user_id = ? AND product_id = ?";
+    $query = "SELECT {$cartPk} AS cart_id, quantity FROM cart WHERE user_id = ? AND product_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->execute([$user_id, $product_id]);
     $existing = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -56,18 +62,24 @@ try {
     if ($existing) {
         // Update existing cart item
         $new_quantity = $existing['quantity'] + $quantity;
-        $query = "UPDATE cart SET quantity = ?, created_at = NOW() WHERE cart_id = ?";
+        $query = "UPDATE cart SET quantity = ? WHERE {$cartPk} = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$new_quantity, $existing['cart_id']]);
     } else {
-    // Add new cart item (schema requires price column)
-    $query = "INSERT INTO cart (user_id, product_id, quantity, price, created_at) VALUES (?, ?, ?, ?, NOW())";
-    $stmt = $conn->prepare($query);
-    $stmt->execute([$user_id, $product_id, $quantity, $product['price']]);
+        // Add new cart item (handle optional price column)
+        if ($cartHasPrice) {
+            $query = "INSERT INTO cart (user_id, product_id, quantity, price, created_at) VALUES (?, ?, ?, ?, NOW())";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$user_id, $product_id, $quantity, $product['price']]);
+        } else {
+            $query = "INSERT INTO cart (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$user_id, $product_id, $quantity]);
+        }
     }
     
     // Calculate current cart total for response convenience
-    $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.user_id = ?";
+    $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.{$productsPk} WHERE c.user_id = ?";
     $totalStmt = $conn->prepare($totalQuery);
     $totalStmt->execute([$user_id]);
     $total = (float) ($totalStmt->fetchColumn() ?? 0);

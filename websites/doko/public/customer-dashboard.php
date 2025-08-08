@@ -1141,9 +1141,10 @@ document.getElementById('change-password-form').addEventListener('submit', async
     }
     
     try {
-        const response = await fetch('api/users/change-password.php', {
+        const response = await fetch(getApiPath() + 'users/change-password.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         });
         
         const result = await response.json();

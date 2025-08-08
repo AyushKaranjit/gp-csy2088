@@ -58,4 +58,17 @@ function auth_controller(): AuthController { static $a=null; if($a===null){ $a=n
 function int_param(string $key,int $default=0,?int $min=null,?int $max=null): int { $v=isset($_GET[$key])?(int)$_GET[$key]:$default; if($min!==null&&$v<$min)$v=$min; if($max!==null&&$v>$max)$v=$max; return $v; }
 function db(): Database { return Database::getInstance(); }
 function resolve_product_image(?string $c): string { if(!$c) return '/uploads/default-product.jpg'; if(preg_match('#^https?://#i',$c)) return $c; return '/uploads/'.ltrim($c,'/'); }
+
+// --- Schema helpers (centralized) ---
+function schema_table_has(string $table, string $column): bool {
+    $db = db();
+    return (bool)$db->execute(
+        "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1",
+        [$table, $column]
+    )->fetchColumn();
+}
+function schema_products_pk(): string { static $pk=null; if($pk===null){ $pk = schema_table_has('products','product_id') ? 'product_id' : 'id'; } return $pk; }
+function schema_cart_pk(): string { static $pk=null; if($pk===null){ $pk = schema_table_has('cart','cart_id') ? 'cart_id' : 'id'; } return $pk; }
+function schema_cart_has_price(): bool { static $v=null; if($v===null){ $v = schema_table_has('cart','price'); } return $v; }
+function schema_cart_has_updated_at(): bool { static $v=null; if($v===null){ $v = schema_table_has('cart','updated_at'); } return $v; }
 ?>
