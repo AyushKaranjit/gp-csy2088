@@ -1,38 +1,17 @@
 <?php
-/**
- * User Logout API
- * Logout and destroy session
- */
+// Refactored logout endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+require_method('POST');
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';try {
-    // Use AuthController for logout
-    $auth = new AuthController();
+try {
+    $auth = auth_controller();
     $result = $auth->logout();
-    
-    echo json_encode($result);
-    
-} catch (Exception $e) {
-    error_log("Logout API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred during logout'
-    ]);
+    // Ensure standard shape
+    if (!isset($result['success'])) { $result['success'] = true; }
+    ApiResponse::success($result);
+} catch (Throwable $e) {
+    error_log('logout error: '.$e->getMessage());
+    ApiResponse::error('Failed to logout', 500, ['exception' => $e->getMessage()]);
 }
-?>

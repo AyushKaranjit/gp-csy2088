@@ -1,88 +1,30 @@
 <?php
-/**
- * User Registration API
- * User registration in api subdirectory
- */
+// Refactored register endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+require_method('POST');
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';try {
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$input) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid JSON data'
-        ]);
-        exit;
-    }
-    
-    // Required fields
-    $required_fields = ['username', 'email', 'password', 'first_name', 'last_name'];
-    foreach ($required_fields as $field) {
-        if (!isset($input[$field]) || empty(trim($input[$field]))) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => "Field '$field' is required"
-            ]);
-            exit;
+try {
+    $auth = auth_controller();
+    $input = json_input();
+    if (!$input) { ApiResponse::error('Invalid JSON data', 400); }
+    $required = ['username','email','password','first_name','last_name'];
+    foreach ($required as $f) {
+        if (!isset($input[$f]) || trim((string)$input[$f])==='') {
+            ApiResponse::error("Field '$f' is required", 400);
         }
     }
-    
-    // Validate email format
     if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid email format'
-        ]);
-        exit;
+        ApiResponse::error('Invalid email format', 400);
     }
-    
-    // Validate password strength
     if (strlen($input['password']) < 6) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Password must be at least 6 characters long'
-        ]);
-        exit;
+        ApiResponse::error('Password must be at least 6 characters long', 400);
     }
-    
-    // Register user
-    $auth = new AuthController();
     $result = $auth->register($input);
-    
-    if ($result['success']) {
-        echo json_encode($result);
-    } else {
-        http_response_code(400);
-        echo json_encode($result);
-    }
-    
-} catch (Exception $e) {
-    error_log("Registration API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred during registration'
-    ]);
+    if (empty($result['success'])) { ApiResponse::error($result['message'] ?? 'Registration failed', 400, $result); }
+    ApiResponse::success($result);
+} catch (Throwable $e) {
+    error_log('register error: '.$e->getMessage());
+    ApiResponse::error('Registration failed', 500, ['exception' => $e->getMessage()]);
 }
-?>

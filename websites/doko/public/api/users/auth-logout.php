@@ -1,4 +1,5 @@
 <?php
-// Backwards compatibility wrapper for tests expecting /api/users/auth-logout.php
+// Deprecated wrapper for /api/users/logout.php
 require __DIR__ . '/logout.php';
+// Wrapper kept temporarily; will be removed after clients migrate.
 ?>

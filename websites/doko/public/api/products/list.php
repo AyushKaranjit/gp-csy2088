@@ -1,34 +1,8 @@
 <?php
-/**
- * Products List API
- * Get products with filtering and pagination
- */
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
+/** Products List API (refactored with unified bootstrap) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method('GET');
 
 try {
     // Get query parameters
@@ -36,7 +10,7 @@ try {
     $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : (isset($_GET['category']) ? (int)$_GET['category'] : null);
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $featured = isset($_GET['featured']) ? (bool)$_GET['featured'] : null;
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20; if ($limit < 1) $limit = 1; if ($limit > 100) $limit = 100;
     // Support page based pagination for tests: page param overrides offset if present
     if (isset($_GET['page'])) {
         $page = max(1, (int)$_GET['page']);
@@ -143,20 +117,16 @@ try {
     }
     
     $totalPages = ceil($total / $limit);
-    echo json_encode([
-        'success' => true,
-        // Provide both new ('data') and legacy ('products') keys for backward compatibility
+    ApiResponse::success([
         'data' => $formatted_products,
         'products' => $formatted_products,
         'pagination' => [
-            // Legacy snake_case keys expected by tests
             'current_page' => $page,
             'total_pages' => $totalPages,
             'total_items' => (int)$total,
             'items_per_page' => $limit,
             'has_next' => $page < $totalPages,
             'has_previous' => $page > 1,
-            // Existing camelCase keys kept for any newer consumers
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'total' => (int)$total,
@@ -168,10 +138,6 @@ try {
     
 } catch (Exception $e) {
     error_log("Product list API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while fetching products'
-    ]);
+    ApiResponse::error('An error occurred while fetching products', 500);
 }
 ?>

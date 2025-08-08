@@ -1,60 +1,21 @@
 <?php
-/**
- * User Profile API
- * Get current user profile information
- */
+// Refactored user profile endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+require_method('GET');
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-    require_once __DIR__ . '/../../../src/Controllers/AuthController.php';try {
-    // Use AuthController to check if user is logged in
-    $auth = new AuthController();
-    
+try {
+    $auth = auth_controller();
     if (!$auth->isLoggedIn()) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'User not logged in'
-        ]);
-        exit;
+        ApiResponse::error('User not logged in', 401);
     }
-    
-    // Get user profile data
     $profile = $auth->getCurrentUser();
-    
-    if ($profile) {
-        echo json_encode([
-            'success' => true,
-            'user' => $profile
-        ]);
-    } else {
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'User profile not found'
-        ]);
+    if (!$profile) {
+        ApiResponse::error('User profile not found', 404);
     }
-    
-} catch (Exception $e) {
-    error_log("Profile API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while fetching profile'
-    ]);
+    ApiResponse::success(['user' => $profile]);
+} catch (Throwable $e) {
+    error_log('profile error: '.$e->getMessage());
+    ApiResponse::error('Failed to fetch profile', 500, ['exception' => $e->getMessage()]);
 }
-?>

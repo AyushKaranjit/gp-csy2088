@@ -1,47 +1,8 @@
 <?php
-/**
- * Cart Add API
- * Add product to cart
- */
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
-
-// Handle preflight
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Start session safely
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
-require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
+/** Cart Add API (refactored) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method('POST');
 
 try {
     // Get JSON input (tests send JSON). Fallback to POST form fields if JSON empty
@@ -52,47 +13,20 @@ try {
     }
     if (!is_array($input)) { $input = []; }
     
-    if (!isset($input['product_id']) || !isset($input['quantity'])) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product ID and quantity are required'
-        ]);
-        exit;
-    }
+    if (!isset($input['product_id']) || !isset($input['quantity'])) { ApiResponse::error('Product ID and quantity are required', 400); return; }
     
     $product_id = (int)$input['product_id'];
     $quantity = (int)$input['quantity'];
     
-    if ($quantity <= 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Quantity must be greater than 0'
-        ]);
-        exit;
-    }
+    if ($quantity <= 0) { ApiResponse::error('Quantity must be greater than 0', 400); return; }
     
     // Check if user is logged in
     $auth = new AuthController();
-    if (!$auth->isLoggedIn()) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Authentication required'
-        ]);
-        exit;
-    }
+    $isLoggedIn = $auth->isLoggedIn();
+    if (!$isLoggedIn) { ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]); return; }
     
     $user = $auth->getCurrentUser();
-    if (!$user || !isset($user['user_id'])) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'User not found'
-        ]);
-        exit;
-    }
+    if (!$user || !isset($user['user_id'])) { ApiResponse::error('User not found', 401); return; }
     
     $user_id = $user['user_id'];
     
@@ -106,33 +40,12 @@ try {
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$product) {
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product not found'
-        ]);
-        exit;
-    }
+    if (!$product) { ApiResponse::error('Product not found', 404); return; }
     
     // Explicit out of stock check
-    if ($product['stock_quantity'] <= 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product is out of stock'
-        ]);
-        exit;
-    }
+    if ($product['stock_quantity'] <= 0) { ApiResponse::error('Product is out of stock', 400); return; }
     // Check stock availability against requested quantity
-    if ($product['stock_quantity'] < $quantity) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Insufficient stock available'
-        ]);
-        exit;
-    }
+    if ($product['stock_quantity'] < $quantity) { ApiResponse::error('Insufficient stock available', 400); return; }
     
     // Check if item already exists in cart
     $query = "SELECT cart_id, quantity FROM cart WHERE user_id = ? AND product_id = ?";
@@ -159,18 +72,14 @@ try {
     $totalStmt->execute([$user_id]);
     $total = (float) ($totalStmt->fetchColumn() ?? 0);
 
-    echo json_encode([
-        'success' => true,
+    ApiResponse::success([
         'message' => 'Product added to cart successfully',
-        'total' => $total
+        'total' => $total,
+        'is_logged_in' => true
     ]);
     
 } catch (Exception $e) {
     error_log("Add to cart API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while adding to cart'
-    ]);
+    ApiResponse::error('An error occurred while adding to cart', 500);
 }
 ?>

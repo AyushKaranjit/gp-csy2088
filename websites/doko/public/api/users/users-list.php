@@ -1,35 +1,12 @@
 <?php
-/**
- * Users List API
- * Returns comprehensive user information for admin management
- */
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-require_once '../../config/database.php';
-require_once '../../src/Controllers/AuthController.php';
+// Refactored users list admin endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
 try {
-    $db = Database::getInstance();
-    $auth = new AuthController();
-    
-    // Start session to check authentication
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    // Check if user is authenticated and is admin
-    if (!$auth->isLoggedIn() || !$auth->isAdmin()) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Unauthorized access. Admin role required.'
-        ]);
-        exit;
-    }
+    $auth = auth_controller();
+    if (!$auth->isLoggedIn() || !$auth->isAdmin()) { ApiResponse::error('Unauthorized access. Admin role required.', 401); }
+    $db = db();
     
     // Get query parameters
     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -289,47 +266,30 @@ try {
         $customer['total_spent'] = number_format($customer['total_spent'], 2);
     }
     
-    $response = [
-        'success' => true,
-        'message' => 'Users retrieved successfully',
-        'data' => [
-            'users' => $users,
-            'statistics' => $stats,
-            'registration_trends' => $registration_trends,
-            'top_customers' => $top_customers,
-            'pagination' => [
-                'current_page' => $page,
-                'total_pages' => $total_pages,
-                'total_records' => $total_records,
-                'per_page' => $limit,
-                'has_next' => $page < $total_pages,
-                'has_prev' => $page > 1
-            ],
-            'filters' => [
-                'role' => $role_filter,
-                'status' => $status_filter,
-                'search' => $search,
-                'date_from' => $date_from,
-                'date_to' => $date_to,
-                'sort_by' => $sort_by,
-                'sort_order' => $sort_order
-            ]
+    ApiResponse::success([
+        'users' => $users,
+        'statistics' => $stats,
+        'registration_trends' => $registration_trends,
+        'top_customers' => $top_customers,
+        'pagination' => [
+            'current_page' => $page,
+            'total_pages' => $total_pages,
+            'total_records' => $total_records,
+            'per_page' => $limit,
+            'has_next' => $page < $total_pages,
+            'has_prev' => $page > 1
         ],
-        'timestamp' => date('c')
-    ];
-    
-    echo json_encode($response, JSON_PRETTY_PRINT);
-
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error occurred while retrieving users',
-        'error' => $e->getMessage(),
-        'timestamp' => date('c')
+        'filters' => [
+            'role' => $role_filter,
+            'status' => $status_filter,
+            'search' => $search,
+            'date_from' => $date_from,
+            'date_to' => $date_to,
+            'sort_by' => $sort_by,
+            'sort_order' => $sort_order
+        ]
     ]);
-    
-    // Log error for debugging
-    error_log("Users List API Error: " . $e->getMessage());
+} catch (Throwable $e) {
+    error_log('users-list error: '.$e->getMessage());
+    ApiResponse::error('Server error occurred while retrieving users', 500, ['exception' => $e->getMessage()]);
 }
-?>

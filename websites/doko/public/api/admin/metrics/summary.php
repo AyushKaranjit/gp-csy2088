@@ -1,39 +1,53 @@
 <?php
 /**
  * Admin Metrics Summary API
- * Provides high-level KPIs for dashboard.
+ * Returns high-level KPIs & recent orders for dashboard consumption.
  */
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+require_once __DIR__ . '/../../_bootstrap.php';
 
-session_start();
-require_once __DIR__ . '/../../../../config/database.php';
+use Doko\Http\ApiResponse;
+
+require_method('GET');
+ensure_session();
+$auth = auth_controller();
+if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); exit; }
+if (!$auth->isAdmin()) { ApiResponse::error('Access denied', 403); exit; }
+
+// Query params
+$recentLimit = int_param('recent_limit', 5, 1, 50);
 
 try {
-    $db = Database::getInstance();
-    $pdo = $db->getConnection();
+    $database = db();
+    $pdo = $database->getConnection();
 
-    // Basic aggregates (guard with IFNULL)
-    $totals = [];
-    $totals['total_users'] = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    $totals['active_products'] = (int)$pdo->query("SELECT COUNT(*) FROM products WHERE status='active'")->fetchColumn();
-    $totals['total_orders'] = (int)$pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
-    $totals['pending_orders'] = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='pending'")->fetchColumn();
-    $totals['delivered_orders'] = (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='delivered'")->fetchColumn();
-    $totals['total_revenue'] = (float)$pdo->query("SELECT IFNULL(SUM(total_amount),0) FROM orders WHERE payment_status='paid'")->fetchColumn();
-    $totals['low_stock_products'] = (int)$pdo->query("SELECT COUNT(*) FROM products WHERE stock_quantity <= min_stock_level")->fetchColumn();
+    // Aggregate metrics
+    $metrics = [
+        'total_users' => (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn(),
+        'active_products' => (int)$pdo->query("SELECT COUNT(*) FROM products WHERE status='active'")->fetchColumn(),
+        'total_orders' => (int)$pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn(),
+        'pending_orders' => (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='pending'")->fetchColumn(),
+        'delivered_orders' => (int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='delivered'")->fetchColumn(),
+        'total_revenue' => (float)$pdo->query("SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE payment_status='paid'")->fetchColumn(),
+        'low_stock_products' => (int)$pdo->query("SELECT COUNT(*) FROM products WHERE stock_quantity <= min_stock_level")->fetchColumn(),
+    ];
 
-    // Recent orders (last 5)
-    $recentStmt = $pdo->query("SELECT order_id, order_number, user_id, status, total_amount, ordered_at FROM orders ORDER BY ordered_at DESC LIMIT 5");
+    // Recent orders
+    $recentStmt = $pdo->prepare(
+        "SELECT order_id, order_number, user_id, status, total_amount, ordered_at 
+         FROM orders 
+         ORDER BY ordered_at DESC 
+         LIMIT :limit"
+    );
+    $recentStmt->bindValue(':limit', $recentLimit, PDO::PARAM_INT);
+    $recentStmt->execute();
     $recent = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        'success' => true,
-        'metrics' => $totals,
+    ApiResponse::success([
+        'metrics' => $metrics,
         'recent_orders' => $recent,
-        'generated_at' => date('c')
+        'generated_at' => date('c'),
+        'params' => [ 'recent_limit' => $recentLimit ]
     ]);
 } catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode(['success'=>false,'message'=>'Failed to load metrics','error'=>$e->getMessage()]);
+    ApiResponse::error('Failed to load metrics', 500, [ 'error' => $e->getMessage() ]);
 }

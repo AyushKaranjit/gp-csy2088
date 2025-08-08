@@ -1,23 +1,25 @@
 <?php
-// Cancel Order Endpoint (deduplicated)
-header('Content-Type: application/json');
-require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
-if (session_status()===PHP_SESSION_NONE) session_start();
+// Refactored cancel-order endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+
+require_method(['POST','DELETE']);
+
 try {
-  $db = Database::getInstance();
-  $auth = new AuthController();
-  if(!$auth->isLoggedIn()) { http_response_code(401); echo json_encode(['success'=>false,'message'=>'Authentication required']); exit; }
-  $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+  $auth = auth_controller();
+  if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); }
+  $input = json_input();
   $orderId = (int)($input['order_id'] ?? 0);
-  if($orderId<=0){ http_response_code(400); echo json_encode(['success'=>false,'message'=>'Order ID required']); exit; }
+  if ($orderId <= 0) { ApiResponse::error('Order ID required', 400); }
+  $db = db();
+  $order = $db->execute('SELECT order_id,user_id,status FROM orders WHERE order_id=?', [$orderId])->fetch();
+  if (!$order) { ApiResponse::error('Order not found', 404); }
   $user = $auth->getCurrentUser();
-  $order = $db->execute('SELECT order_id,user_id,status FROM orders WHERE order_id=?',[$orderId])->fetch();
-  if(!$order){ http_response_code(404); echo json_encode(['success'=>false,'message'=>'Order not found']); exit; }
-  if(!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Access denied']); exit; }
-  // Tests expect generic "cannot be cancelled" phrase for disallowed statuses (e.g. shipped, delivered, cancelled already)
-  if(!in_array($order['status'], ['pending','confirmed'])) { http_response_code(400); echo json_encode(['success'=>false,'message'=>'Order cannot be cancelled']); exit; }
-  $db->execute('UPDATE orders SET status="cancelled", updated_at=NOW() WHERE order_id=?',[$orderId]);
-  echo json_encode(['success'=>true,'message'=>'Order cancelled successfully']);
-} catch(Exception $e){ http_response_code(500); echo json_encode(['success'=>false,'message'=>'Server error']); }
-?>
+  if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); }
+  if (!in_array($order['status'], ['pending','confirmed'], true)) { ApiResponse::error('Order cannot be cancelled', 400); }
+  $db->execute('UPDATE orders SET status="cancelled", updated_at=NOW() WHERE order_id=?', [$orderId]);
+  ApiResponse::success(['message' => 'Order cancelled successfully']);
+} catch (Throwable $e) {
+  error_log('cancel-order error: '.$e->getMessage());
+  ApiResponse::error('Server error', 500, ['exception' => $e->getMessage()]);
+}

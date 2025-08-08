@@ -1,97 +1,29 @@
 <?php
-/**
- * Cart Remove API
- * Remove product from cart
- */
+// Refactored cart remove endpoint (by product_id) using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: DELETE, POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if (!in_array($_SERVER['REQUEST_METHOD'], ['DELETE', 'POST'])) {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
-require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
+require_method(['DELETE','POST']);
 
 try {
-    // Get JSON input or fallback
-    $raw = file_get_contents('php://input');
-    $input = json_decode($raw, true);
-    if (!$input) { $input = $_POST; }
-    if (!isset($input['product_id'])) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product ID is required'
-        ]);
-        exit;
-    }
-    
-    $product_id = (int)$input['product_id'];
-    
-    // Check if user is logged in
-    $auth = new AuthController();
+    $auth = auth_controller();
     if (!$auth->isLoggedIn()) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Authentication required'
-        ]);
-        exit;
+        ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]);
     }
-    
-    $user = $auth->getCurrentUser();
-    $user_id = $user['user_id'];
-    
-    // Get database connection
-    $db = Database::getInstance();
-    
-    // Remove item from cart
-    $query = "DELETE FROM cart WHERE user_id = ? AND product_id = ?";
-    $stmt = $db->execute($query, [$user_id, $product_id]);
-    
-    if ($stmt->rowCount() > 0) {
-        // compute new total
-        $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.user_id = ?";
-        $totalStmt = $db->execute($totalQuery, [$user_id]);
-        $total = (float) ($totalStmt->fetchColumn() ?? 0);
-        echo json_encode([
-            'success' => true,
-            'message' => 'Product removed from cart successfully',
-            'total' => $total
-        ]);
-    } else {
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product not found in cart'
-        ]);
+    $input = json_input();
+    $productId = isset($input['product_id']) ? (int)$input['product_id'] : 0;
+    if ($productId <= 0) {
+        ApiResponse::error('Product ID is required', 400);
     }
-    
-} catch (Exception $e) {
-    error_log("Remove from cart API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while removing from cart'
-    ]);
+    $db = db();
+    $userId = $auth->getCurrentUser()['user_id'];
+    $res = $db->execute("DELETE FROM cart WHERE user_id = ? AND product_id = ?", [$userId, $productId]);
+    if ($res->rowCount() === 0) {
+        ApiResponse::error('Product not found in cart', 404);
+    }
+    $total = (float)($db->execute("SELECT COALESCE(SUM(c.quantity * p.price),0) FROM cart c JOIN products p ON c.product_id=p.product_id WHERE c.user_id = ?", [$userId])->fetchColumn() ?? 0);
+    ApiResponse::success(['message' => 'Product removed from cart successfully', 'total' => $total, 'is_logged_in' => true]);
+} catch (Throwable $e) {
+    error_log('cart-remove error: '.$e->getMessage());
+    ApiResponse::error('Failed to remove from cart', 500, ['exception' => $e->getMessage()]);
 }
-?>

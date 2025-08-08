@@ -1,71 +1,25 @@
 <?php
-/**
- * Cart Clear API
- * Clear all items from cart
- */
+// Refactored cart clear endpoint using bootstrap & ApiResponse
+require __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: DELETE, POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if (!in_array($_SERVER['REQUEST_METHOD'], ['DELETE', 'POST'])) {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
-require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
+require_method(['DELETE','POST']);
 
 try {
-    // Check if user is logged in
-    $auth = new AuthController();
+    $auth = auth_controller();
     if (!$auth->isLoggedIn()) {
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Authentication required'
-        ]);
-        exit;
+        ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]);
     }
-    
-    $user = $auth->getCurrentUser();
-    $user_id = $user['user_id'];
-    
-    // Get database connection
-    $db = Database::getInstance();
-    
-    // Clear all items from cart
-    $query = "DELETE FROM cart WHERE user_id = ?";
-    $stmt = $db->execute($query, [$user_id]);
-    
-    echo json_encode([
-        'success' => true,
+    $db = db();
+    $userId = $auth->getCurrentUser()['user_id'];
+    $res = $db->execute("DELETE FROM cart WHERE user_id = ?", [$userId]);
+    ApiResponse::success([
         'message' => 'Cart cleared successfully',
-        'items_removed' => $stmt->rowCount(),
-        'total' => 0
+        'items_removed' => $res->rowCount(),
+        'total' => 0,
+        'is_logged_in' => true
     ]);
-    
-} catch (Exception $e) {
-    error_log("Clear cart API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while clearing cart'
-    ]);
+} catch (Throwable $e) {
+    error_log('cart-clear error: '.$e->getMessage());
+    ApiResponse::error('Failed to clear cart', 500, ['exception' => $e->getMessage()]);
 }
-?>

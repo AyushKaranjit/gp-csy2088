@@ -1,8 +1,10 @@
 <?php
+// Deprecated wishlist add stub. Use wishlist.php (POST) instead.
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
-$auth = new AuthController();
-if (!$auth->isLoggedIn()) { http_response_code(401); echo json_encode(['success'=>false,'message'=>'Authentication required']); exit; }
-// Minimal stub
-echo json_encode(['success'=>true,'message'=>'Added to wishlist']);
+http_response_code(410);
+echo json_encode([
+	'success' => false,
+	'message' => 'Deprecated endpoint. Use wishlist.php',
+	'deprecated' => true,
+	'replacement' => 'wishlist.php'
+]);

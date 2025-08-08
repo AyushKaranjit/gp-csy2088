@@ -1,168 +1,94 @@
 <?php
-/**
- * Simple Wishlist API
- * Handles basic wishlist operations with error handling
- */
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, DELETE');
-header('Access-Control-Allow-Headers: Content-Type');
-
-// Error handling
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-// Simple response function
-function sendResponse($success, $message = '', $data = []) {
-    $response = array_merge([
-        'success' => $success,
-        'message' => $message,
-        'count' => 0,
-        'items' => []
-    ], $data);
-    echo json_encode($response);
-    exit;
-}
+/** Wishlist API (refactored thin wrapper) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method(['GET','POST','DELETE']);
 
 try {
-    // Use proper database configuration
-    require_once __DIR__ . '/../../../config/database.php';
-    $db = Database::getInstance();
+    $auth = auth_controller();
+    $isLoggedIn = $auth->isLoggedIn();
+    $db = db();
     $pdo = $db->getConnection();
-    
-    // Check if user is logged in (simple session check)
-    session_start();
-    $userId = $_SESSION['user_id'] ?? null;
-    
+    $user = $auth->getCurrentUser();
+    $userId = $isLoggedIn && $user && isset($user['user_id']) ? (int)$user['user_id'] : 0;
     $method = $_SERVER['REQUEST_METHOD'];
-    
-    // Handle GET requests (get wishlist)
+
+    // Ensure table exists
+    $pdo->exec("CREATE TABLE IF NOT EXISTS wishlist (wishlist_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, product_id INT NOT NULL, added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY uniq_user_product (user_id, product_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     if ($method === 'GET') {
-        if (!$userId) {
-            http_response_code(401);
-            sendResponse(false, 'Authentication required');
+        if (!$isLoggedIn) {
+            ApiResponse::success(['count' => 0, 'items' => [], 'is_logged_in' => false]);
+            return;
         }
-        
-        // Check if wishlist table exists
-        $checkTable = $pdo->query("SHOW TABLES LIKE 'wishlist'")->rowCount();
-        if ($checkTable === 0) {
-            sendResponse(true, 'Wishlist empty', ['count' => 0, 'items' => []]);
-        }
-        
-        // Get wishlist items
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM wishlist WHERE user_id = ?");
+        $stmt = $pdo->prepare('SELECT product_id, added_at FROM wishlist WHERE user_id=? ORDER BY added_at DESC');
         $stmt->execute([$userId]);
-        $count = $stmt->fetch()['count'] ?? 0;
-        
-        sendResponse(true, 'Wishlist loaded', ['count' => (int)$count, 'items' => []]);
+        $items = $stmt->fetchAll();
+        ApiResponse::success(['count' => count($items), 'items' => $items, 'is_logged_in' => true]);
+        return;
     }
-    
-    // Handle POST requests (add/toggle wishlist)
+
+    $input = json_input();
     if ($method === 'POST') {
-        if (!$userId) {
-            http_response_code(401);
-            sendResponse(false, 'Authentication required');
-        }
-        
-        $input = json_decode(file_get_contents('php://input'), true);
-        $productId = (int)($input['product_id'] ?? 0);
+        if (!$isLoggedIn) { ApiResponse::error('Authentication required', 401); return; }
+        $productId = isset($input['product_id']) ? (int)$input['product_id'] : 0;
         $action = $input['action'] ?? 'add';
-        
-        if (!$productId) {
-            sendResponse(false, 'Invalid product ID');
-        }
-        
-        // Check if product exists
-        $productStmt = $pdo->prepare("SELECT product_id, name FROM products WHERE product_id = ?");
-        $productStmt->execute([$productId]);
-        $product = $productStmt->fetch();
-        
-        if (!$product) {
-            sendResponse(false, 'Product not found');
-        }
-        
-        // Check if wishlist table exists, create if not
-        $createTable = "
-            CREATE TABLE IF NOT EXISTS wishlist (
-                wishlist_id INT PRIMARY KEY AUTO_INCREMENT,
-                user_id INT NOT NULL,
-                product_id INT NOT NULL,
-                added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_wishlist (user_id, product_id)
-            )
-        ";
-        $pdo->exec($createTable);
-        
-        // Check if item is in wishlist
-        $checkStmt = $pdo->prepare("SELECT wishlist_id FROM wishlist WHERE user_id = ? AND product_id = ?");
-        $checkStmt->execute([$userId, $productId]);
-        $existsInWishlist = $checkStmt->fetch();
-        
+        if ($productId <= 0) { ApiResponse::error('Invalid product ID', 400); return; }
+        $exists = $pdo->prepare('SELECT wishlist_id FROM wishlist WHERE user_id=? AND product_id=?');
+        $exists->execute([$userId, $productId]);
+        $row = $exists->fetch();
+        $message = '';
+        $inWishlist = false;
         if ($action === 'toggle') {
-            if ($existsInWishlist) {
-                // Remove from wishlist
-                $deleteStmt = $pdo->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
-                $deleteStmt->execute([$userId, $productId]);
+            if ($row) {
+                $del = $pdo->prepare('DELETE FROM wishlist WHERE user_id=? AND product_id=?');
+                $del->execute([$userId, $productId]);
                 $message = 'Removed from wishlist';
-                $inWishlist = false;
             } else {
-                // Add to wishlist
-                $insertStmt = $pdo->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)");
-                $insertStmt->execute([$userId, $productId]);
+                $ins = $pdo->prepare('INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)');
+                $ins->execute([$userId, $productId]);
                 $message = 'Added to wishlist';
                 $inWishlist = true;
             }
-        } else {
-            if ($existsInWishlist) {
-                sendResponse(false, 'Item already in wishlist');
-            }
-            
-            // Add to wishlist
-            $insertStmt = $pdo->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)");
-            $insertStmt->execute([$userId, $productId]);
+        } else { // add
+            if ($row) { ApiResponse::error('Item already in wishlist', 409); return; }
+            $ins = $pdo->prepare('INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)');
+            $ins->execute([$userId, $productId]);
             $message = 'Added to wishlist';
             $inWishlist = true;
         }
-        
-        // Get updated count
-        $countStmt = $pdo->prepare("SELECT COUNT(*) as count FROM wishlist WHERE user_id = ?");
+        $countStmt = $pdo->prepare('SELECT COUNT(*) FROM wishlist WHERE user_id=?');
         $countStmt->execute([$userId]);
-        $count = $countStmt->fetch()['count'] ?? 0;
-        
-        sendResponse(true, $message, [
-            'count' => (int)$count,
-            'in_wishlist' => $inWishlist
+        $count = (int)$countStmt->fetchColumn();
+        ApiResponse::success([
+            'message' => $message,
+            'count' => $count,
+            'in_wishlist' => $inWishlist,
+            'is_logged_in' => true
         ]);
+        return;
     }
-    
-    // Handle DELETE requests
+
     if ($method === 'DELETE') {
-        if (!$userId) {
-            http_response_code(401);
-            sendResponse(false, 'Authentication required');
-        }
-        
-        $productId = (int)($_GET['product_id'] ?? 0);
-        if (!$productId) {
-            sendResponse(false, 'Invalid product ID');
-        }
-        
-        $deleteStmt = $pdo->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
-        $deleteStmt->execute([$userId, $productId]);
-        
-        $countStmt = $pdo->prepare("SELECT COUNT(*) as count FROM wishlist WHERE user_id = ?");
+        if (!$isLoggedIn) { ApiResponse::error('Authentication required', 401); return; }
+        $productId = isset($_GET['product_id']) ? (int)$_GET['product_id'] : 0;
+        if ($productId <= 0) { ApiResponse::error('Invalid product ID', 400); return; }
+        $del = $pdo->prepare('DELETE FROM wishlist WHERE user_id=? AND product_id=?');
+        $del->execute([$userId, $productId]);
+        $countStmt = $pdo->prepare('SELECT COUNT(*) FROM wishlist WHERE user_id=?');
         $countStmt->execute([$userId]);
-        $count = $countStmt->fetch()['count'] ?? 0;
-        
-        sendResponse(true, 'Removed from wishlist', ['count' => (int)$count]);
+        $count = (int)$countStmt->fetchColumn();
+        ApiResponse::success([
+            'message' => 'Removed from wishlist',
+            'count' => $count,
+            'is_logged_in' => true
+        ]);
+        return;
     }
-    
-    sendResponse(false, 'Method not allowed');
-    
+
+    ApiResponse::error('Method not allowed', 405);
 } catch (Exception $e) {
-    error_log("Wishlist API Error: " . $e->getMessage());
-    sendResponse(false, 'Server error occurred');
+    error_log('Wishlist API error: ' . $e->getMessage());
+    ApiResponse::error('Server error occurred', 500);
 }
 ?>

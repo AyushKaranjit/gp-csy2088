@@ -1,34 +1,8 @@
 <?php
-/**
- * Categories List API
- * Get all categories
- */
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
+/** Categories List API (refactored) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method('GET');
 
 try {
     // Get database connection
@@ -58,18 +32,13 @@ try {
         ];
     }
     
-    echo json_encode([
-        'success' => true,
-        'data' => $formatted_categories, // Changed from 'categories' to 'data'
+    ApiResponse::success([
+        'data' => $formatted_categories,
         'total' => count($formatted_categories)
     ]);
     
 } catch (Exception $e) {
     error_log("Categories list API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while fetching categories'
-    ]);
+    ApiResponse::error('An error occurred while fetching categories', 500);
 }
 ?>

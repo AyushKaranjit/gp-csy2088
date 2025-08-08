@@ -1,47 +1,14 @@
 <?php
-/**
- * Product Detail API  
- * Get single product details
- */
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
+/** Product Detail API (refactored) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method('GET');
 
 try {
     // Get product ID from query parameter
     $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
     
-    if ($product_id <= 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Valid product ID is required'
-        ]);
-        exit;
-    }
+    if ($product_id <= 0) { ApiResponse::error('Valid product ID is required', 400); return; }
     
     // Get database connection
     $db = Database::getInstance();
@@ -58,14 +25,7 @@ try {
     $stmt = $db->execute($query, [$product_id]);
     $product = $stmt->fetch();
     
-    if (!$product) {
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Product not found'
-        ]);
-        exit;
-    }
+    if (!$product) { ApiResponse::error('Product not found', 404); return; }
     
     // Format product data
     $image_url = '/uploads/default-product.jpg';
@@ -99,18 +59,13 @@ try {
             round((($product['original_price'] - $product['price']) / $product['original_price']) * 100) : 0
     ];
     
-    echo json_encode([
-        'success' => true,
+    ApiResponse::success([
         'data' => $formatted_product,
-        'product' => $formatted_product // legacy alias
+        'product' => $formatted_product
     ]);
     
 } catch (Exception $e) {
     error_log("Product detail API error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'An error occurred while fetching product details'
-    ]);
+    ApiResponse::error('An error occurred while fetching product details', 500);
 }
 ?>

@@ -1,29 +1,8 @@
 <?php
-/**
- * Product Search API
- * DOKO Grocery E-commerce
- */
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-// Include database configuration with error handling
-$config_path = __DIR__ . '/../../../config/database.php';
-if (!file_exists($config_path)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuration file not found']);
-    exit;
-}
-
-require_once $config_path;
+/** Product Search API (refactored) */
+require_once __DIR__ . '/../_bootstrap.php';
+use Doko\Http\ApiResponse;
+require_method('GET');
 
 try {
     $database = Database::getInstance();
@@ -38,14 +17,7 @@ try {
     $max_price = isset($_GET['max_price']) ? (float)$_GET['max_price'] : null;
     $sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'relevance';
     
-    if (empty($query)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Search query is required'
-        ]);
-        exit;
-    }
+    if (empty($query)) { ApiResponse::error('Search query is required', 400); return; }
     
     $offset = ($page - 1) * $limit;
     
@@ -194,10 +166,9 @@ try {
     
     $totalPages = ceil($totalProducts / $limit);
     
-    echo json_encode([
-        'success' => true,
+    ApiResponse::success([
         'data' => $products,
-        'products' => $products, // legacy alias for tests
+        'products' => $products,
         'search_query' => $query,
         'pagination' => [
             'current_page' => $page,
@@ -216,10 +187,6 @@ try {
     ]);
     
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error: ' . $e->getMessage()
-    ]);
+    ApiResponse::error('Server error: ' . $e->getMessage(), 500);
 }
 ?>
