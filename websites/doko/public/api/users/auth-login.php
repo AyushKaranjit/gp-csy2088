@@ -71,9 +71,13 @@ try {
         exit;
     }
     
+    // Ensure session started for cookie persistence in tests
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
     // Use AuthController for login
     $auth = new AuthController();
     $result = $auth->login($email, $password);
+    error_log('Auth-login result: '.json_encode($result));
     
     if ($result['success']) {
         echo json_encode($result);

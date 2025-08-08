@@ -41,13 +41,10 @@ try {
     // Check if user is logged in
     $auth = new AuthController();
     if (!$auth->isLoggedIn()) {
-        // Return empty cart for non-logged users instead of error
+        http_response_code(401);
         echo json_encode([
-            'success' => true,
-            'items' => [],
-            'total_items' => 0,
-            'total_amount' => 0.0,
-            'message' => 'Not logged in'
+            'success' => false,
+            'message' => 'Authentication required'
         ]);
         exit;
     }
@@ -107,8 +104,10 @@ try {
     echo json_encode([
         'success' => true,
         'items' => $items,
+        // legacy alias expected by tests
         'total_items' => $total_items,
-        'total_amount' => (float)$total_amount
+        'total_amount' => (float)$total_amount,
+        'total' => (float)$total_amount
     ]);
     
 } catch (Exception $e) {

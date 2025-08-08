@@ -5,6 +5,14 @@
  * Compatible with both Composer autoloading and manual includes
  */
 
+// Provide a lightweight stub for PHPUnit base class if library not installed so static analysis doesn't error
+if (!class_exists('PHPUnit\\Framework\\TestCase')) {
+    if (!class_exists('PHPUnitFrameworkTestCaseStub')) {
+        class PHPUnitFrameworkTestCaseStub { protected function setUp(): void {} protected function tearDown(): void {} }
+        class_alias('PHPUnitFrameworkTestCaseStub', 'PHPUnit\\Framework\\TestCase');
+    }
+}
+
 // Simple Database class for testing if not exists
 if (!class_exists('Database')) {
     class Database {
@@ -24,7 +32,6 @@ if (!class_exists('Database')) {
                 $this->connection = new PDO("mysql:host=localhost;dbname=doko_test", "root", "");
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
-                // Use SQLite as fallback for testing
                 $this->connection = new PDO("sqlite::memory:");
             }
         }
@@ -38,6 +45,8 @@ if (!class_exists('Database')) {
         public function lastInsertId() {
             return $this->connection->lastInsertId();
         }
+
+    public function getConnection() { return $this->connection; }
     }
 }
 
@@ -83,39 +92,21 @@ if (!class_exists('AuthController')) {
     }
 }
 
-// Check if PHPUnit is available via Composer
-if (class_exists('PHPUnit\\Framework\\TestCase')) {
-    abstract class TestCase extends PHPUnit\Framework\TestCase
+// Unified TestCase not depending on external PHPUnit presence for static analysis
+abstract class TestCase extends \PHPUnit\Framework\TestCase
+{
+    use TestUtilityTrait;
+
+    protected function setUp(): void
     {
-        use TestUtilityTrait;
-        
-        protected function setUp(): void
-        {
-            parent::setUp();
-            $this->initializeTest();
-        }
-        
-        protected function tearDown(): void
-        {
-            $this->cleanupTest();
-            parent::tearDown();
-        }
+        parent::setUp();
+        $this->initializeTest();
     }
-} else {
-    // Fallback for custom test runner
-    abstract class TestCase
+
+    protected function tearDown(): void
     {
-        use TestUtilityTrait;
-        
-        protected function setUp(): void
-        {
-            $this->initializeTest();
-        }
-        
-        protected function tearDown(): void
-        {
-            $this->cleanupTest();
-        }
+        $this->cleanupTest();
+        parent::tearDown();
     }
 }
 
@@ -179,23 +170,16 @@ trait TestUtilityTrait
         if (!$this->db) return;
         
         try {
-            // Clean up test users (keep only pre-existing ones)
+            // Delete dependent rows first to satisfy FK constraints
+            $this->db->execute("DELETE oi FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.order_number LIKE 'DOKO%' OR o.order_number LIKE 'UT%'");
+            $this->db->execute("DELETE FROM orders WHERE order_number LIKE 'DOKO%' OR order_number LIKE 'UT%'");
+            $this->db->execute("DELETE FROM cart WHERE user_id IN (SELECT user_id FROM users WHERE email LIKE '%@test.com')");
+            $this->db->execute("DELETE FROM wishlist WHERE user_id IN (SELECT user_id FROM users WHERE email LIKE '%@test.com')");
+            $this->db->execute("DELETE FROM products WHERE name LIKE 'Test Product%' OR sku LIKE 'TEST%'");
+            $this->db->execute("DELETE FROM categories WHERE name LIKE 'Test Category%'");
             $this->db->execute("DELETE FROM users WHERE email LIKE '%@test.com'");
-            
-            // Clean up test products
-            $this->db->execute("DELETE FROM products WHERE name LIKE 'Test Product%'");
-            
-            // Clean up test orders
-            $this->db->execute("DELETE FROM orders WHERE total_amount = 999.99");
-            
-            // Clean up test cart items
-            $this->db->execute("DELETE FROM cart WHERE user_id NOT IN (SELECT user_id FROM users)");
-            
-            // Clean up test wishlist items
-            $this->db->execute("DELETE FROM wishlist WHERE user_id NOT IN (SELECT user_id FROM users)");
-            
         } catch (Exception $e) {
-            // Ignore cleanup errors in tests
+            // Ignore cleanup errors to keep tests resilient
         }
     }
     
@@ -219,8 +203,8 @@ trait TestUtilityTrait
         
         $hashedPassword = password_hash($userData['password'], PASSWORD_DEFAULT);
         
-        $sql = "INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    $sql = "INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         
         $stmt = $this->db->execute($sql, [
             $userData['username'],
@@ -230,7 +214,7 @@ trait TestUtilityTrait
             $userData['last_name'],
             $userData['phone'],
             $userData['role'],
-            $userData['status']
+            'active'
         ]);
         
         $userData['user_id'] = $this->db->lastInsertId();
@@ -256,22 +240,61 @@ trait TestUtilityTrait
         
         $productData = array_merge($defaultData, $data);
         
-        $sql = "INSERT INTO products (name, description, price, stock_quantity, category_id, status, unit, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
-        
-        $stmt = $this->db->execute($sql, [
-            $productData['name'],
-            $productData['description'],
-            $productData['price'],
-            $productData['stock_quantity'],
-            $productData['category_id'],
-            $productData['status'],
-            $productData['unit']
-        ]);
+    // Ensure required columns for current schema (sku, slug)
+    $baseSku = strtoupper(preg_replace('/[^A-Z0-9]/i','', substr($productData['name'],0,6)));
+    // Strong uniqueness using uniqid fragment to avoid collisions across many test runs
+    $sku = $baseSku . substr(strtoupper(uniqid()), -6);
+    $check = $this->db->prepare("SELECT 1 FROM products WHERE sku = ? LIMIT 1");
+    while (true) {
+        $check->execute([$sku]);
+        if (!$check->fetchColumn()) break;
+        $sku = $baseSku . substr(strtoupper(uniqid()), -6);
+    }
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/i','-', $productData['name'])) . '-' . substr(uniqid(), -4);
+    // Map legacy 'status' => active flag into new schema 'status' enum and 'featured' boolean
+    $statusValue = $productData['status'] ?? 'active';
+    $featured = 0;
+    if (isset($productData['featured'])) { $featured = $productData['featured'] ? 1 : 0; }
+    $sql = "INSERT INTO products (sku, name, slug, short_description, description, price, original_price, cost_price, category_id, stock_quantity, unit, featured, status, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, NOW())";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        $sku,
+        $productData['name'],
+        $slug,
+        substr($productData['description'],0,120),
+        $productData['description'],
+        $productData['price'],
+        $productData['category_id'],
+        $productData['stock_quantity'],
+        $productData['unit'],
+        $featured,
+        $statusValue
+    ]);
         
         $productData['product_id'] = $this->db->lastInsertId();
         
         return $productData;
+    }
+
+    /**
+     * Create a test category (helper restored after earlier patch corruption)
+     */
+    protected function createTestCategory($data = [])
+    {
+        $default = [
+            'name' => 'Test Category ' . uniqid(),
+            'description' => 'Test category description'
+        ];
+        $categoryData = array_merge($default, $data);
+        $slugBase = strtolower(preg_replace('/[^a-z0-9]+/i','-', $categoryData['name']));
+        $slug = $slugBase . '-' . substr(sha1(uniqid('', true)),0,6);
+        $stmt = $this->db->execute("INSERT INTO categories (name, description, slug, created_at) VALUES (?, ?, ?, NOW())", [
+            $categoryData['name'], $categoryData['description'], $slug
+        ]);
+        $categoryData['category_id'] = $this->db->lastInsertId();
+        $categoryData['slug'] = $slug;
+        return $categoryData;
     }
     
     /**
@@ -293,23 +316,60 @@ trait TestUtilityTrait
      */
     protected function makeHttpRequest($url, $method = 'GET', $data = null, $headers = [])
     {
+        // Ensure we have a PHP session so manual loginUser() state can propagate to HTTP layer
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $sessionId = session_id();
         $ch = curl_init();
+        $baseHost = 'http://localhost';
+        // In docker the Nginx service hostname is 'web'
+        if (getenv('DOCKER_ENV') === 'true') {
+            $baseHost = 'http://web';
+        }
         
+        $cookieFile = tempnam(sys_get_temp_dir(), 'cookie');
+        $defaultHeaders = ['Content-Type: application/json'];
+        // Bridge session to HTTP via custom headers if logged in (helps when PHP-FPM session store isolated)
+        if (!empty($_SESSION['logged_in'])) {
+            if (isset($_SESSION['user_id'])) {
+                $defaultHeaders[] = 'X-Test-User-ID: ' . $_SESSION['user_id'];
+            }
+            if (isset($_SESSION['role'])) {
+                $defaultHeaders[] = 'X-Test-User-Role: ' . $_SESSION['role'];
+            }
+            if (isset($_SESSION['email'])) {
+                $defaultHeaders[] = 'X-Test-User-Email: ' . $_SESSION['email'];
+            }
+            if (isset($_SESSION['username'])) {
+                $defaultHeaders[] = 'X-Test-User-Username: ' . $_SESSION['username'];
+            }
+        }
+        // Inject session cookie manually so API process uses same session (tests call loginUser directly)
+        if ($sessionId) {
+            $cookieHeader = 'PHPSESSID=' . $sessionId;
+            curl_setopt($ch, CURLOPT_COOKIE, $cookieHeader);
+        }
         curl_setopt_array($ch, [
-            CURLOPT_URL => 'http://localhost' . $url,
+            CURLOPT_URL => $baseHost . $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => array_merge(['Content-Type: application/json'], $headers),
-            CURLOPT_COOKIEFILE => tempnam(sys_get_temp_dir(), 'cookie'),
-            CURLOPT_COOKIEJAR => tempnam(sys_get_temp_dir(), 'cookie'),
+            CURLOPT_HTTPHEADER => array_merge($defaultHeaders, $headers),
+            CURLOPT_COOKIEFILE => $cookieFile,
+            CURLOPT_COOKIEJAR => $cookieFile,
         ]);
-        
+        // IMPORTANT: set body BEFORE executing request
         if ($data && in_array($method, ['POST', 'PUT', 'PATCH'])) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
-        
         $response = curl_exec($ch);
+        if ($response === false && $baseHost === 'http://localhost') {
+            // Retry with service name fallback
+            curl_setopt($ch, CURLOPT_URL, 'http://web' . $url);
+            $response = curl_exec($ch);
+        }
+    // (body already sent if applicable)
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         
@@ -332,7 +392,11 @@ trait TestUtilityTrait
     protected function getRequest($url, $headers = [])
     {
         $response = $this->makeHttpRequest($url, 'GET', null, $headers);
-        return $response['data'] ?? json_decode($response['body'], true);
+        // Return merged structure for tests needing raw + decoded
+        if (is_array($response['data'])) {
+            return array_merge($response['data'], ['_status_code' => $response['status_code']]);
+        }
+        return ['raw' => $response['body'], '_status_code' => $response['status_code']];
     }
     
     /**
@@ -341,7 +405,10 @@ trait TestUtilityTrait
     protected function postRequest($url, $data = [], $headers = [])
     {
         $response = $this->makeHttpRequest($url, 'POST', $data, $headers);
-        return $response['data'] ?? json_decode($response['body'], true);
+        if (is_array($response['data'])) {
+            return array_merge($response['data'], ['_status_code' => $response['status_code']]);
+        }
+        return ['raw' => $response['body'], '_status_code' => $response['status_code']];
     }
     
     /**
@@ -385,160 +452,25 @@ trait TestUtilityTrait
         return $data;
     }
     
-    // ========== CUSTOM ASSERTION METHODS ==========
-    
-    protected function assertTrue($condition, $message = 'Expected true but got false')
-    {
-        if (!$condition) {
-            throw new Exception($message);
-        }
-    }
-    
-    protected function assertFalse($condition, $message = 'Expected false but got true')
-    {
-        if ($condition) {
-            throw new Exception($message);
-        }
-    }
-    
-    protected function assertEquals($expected, $actual, $message = 'Values are not equal')
-    {
-        if ($expected != $actual) {
-            throw new Exception($message . " Expected: " . var_export($expected, true) . " Actual: " . var_export($actual, true));
-        }
-    }
-    
-    protected function assertNotEquals($expected, $actual, $message = 'Values should not be equal')
-    {
-        if ($expected == $actual) {
-            throw new Exception($message . " Both values are: " . var_export($expected, true));
-        }
-    }
-    
-    protected function assertNull($actual, $message = 'Expected null')
-    {
-        if ($actual !== null) {
-            throw new Exception($message . " Actual: " . var_export($actual, true));
-        }
-    }
-    
-    protected function assertNotNull($actual, $message = 'Expected not null')
-    {
-        if ($actual === null) {
-            throw new Exception($message);
-        }
-    }
-    
-    protected function assertIsArray($actual, $message = 'Expected array')
-    {
-        if (!is_array($actual)) {
-            throw new Exception($message . " Actual type: " . gettype($actual));
-        }
-    }
-    
-    protected function assertIsString($actual, $message = 'Expected string')
-    {
-        if (!is_string($actual)) {
-            throw new Exception($message . " Actual type: " . gettype($actual));
-        }
-    }
-    
-    protected function assertIsInt($actual, $message = 'Expected integer')
-    {
-        if (!is_int($actual)) {
-            throw new Exception($message . " Actual type: " . gettype($actual));
-        }
-    }
-    
-    protected function assertIsBool($actual, $message = 'Expected boolean')
-    {
-        if (!is_bool($actual)) {
-            throw new Exception($message . " Actual type: " . gettype($actual));
-        }
-    }
-    
-    protected function assertCount($expectedCount, $actual, $message = 'Count mismatch')
-    {
-        $actualCount = is_countable($actual) ? count($actual) : 0;
-        if ($expectedCount != $actualCount) {
-            throw new Exception($message . " Expected count: $expectedCount, Actual count: $actualCount");
-        }
-    }
-    
-    protected function assertGreaterThan($expected, $actual, $message = 'Value not greater than expected')
-    {
-        if ($actual <= $expected) {
-            throw new Exception($message . " Expected > $expected, Actual: $actual");
-        }
-    }
-    
-    protected function assertGreaterThanOrEqual($expected, $actual, $message = 'Value not greater than or equal to expected')
-    {
-        if ($actual < $expected) {
-            throw new Exception($message . " Expected >= $expected, Actual: $actual");
-        }
-    }
-    
-    protected function assertLessThan($expected, $actual, $message = 'Value not less than expected')
-    {
-        if ($actual >= $expected) {
-            throw new Exception($message . " Expected < $expected, Actual: $actual");
-        }
-    }
-    
-    protected function assertLessThanOrEqual($expected, $actual, $message = 'Value not less than or equal to expected')
-    {
-        if ($actual > $expected) {
-            throw new Exception($message . " Expected <= $expected, Actual: $actual");
-        }
-    }
-    
-    protected function assertInstanceOf($expected, $actual, $message = 'Object not instance of expected class')
-    {
-        if (!($actual instanceof $expected)) {
-            $actualClass = is_object($actual) ? get_class($actual) : gettype($actual);
-            throw new Exception($message . " Expected instance of: $expected, Actual: $actualClass");
-        }
-    }
-    
-    protected function assertStringContainsString($needle, $haystack, $message = 'String does not contain expected substring')
-    {
-        if (strpos($haystack, $needle) === false) {
-            throw new Exception($message . " Expected '$needle' in '$haystack'");
-        }
-    }
-    
-    protected function assertJson($jsonString, $message = 'String is not valid JSON')
-    {
-        json_decode($jsonString);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception($message . " JSON error: " . json_last_error_msg());
-        }
-    }
-    
-    protected function assertJsonHasKey($key, $array, $message = 'JSON does not have expected key')
-    {
-        if (!is_array($array) || !array_key_exists($key, $array)) {
-            throw new Exception($message . " Key '$key' not found in: " . json_encode($array));
-        }
-    }
-    
+    // Response assertion helpers required by existing test suite
     protected function assertResponseSuccess($response, $message = 'Response indicates failure')
     {
-        if (is_array($response) && isset($response['success'])) {
-            $this->assertTrue($response['success'], $message . " Response: " . json_encode($response));
-        } else {
-            throw new Exception($message . " Invalid response format: " . json_encode($response));
-        }
+        $this->assertIsArray($response, $message . ' (not array)');
+        $this->assertArrayHasKey('success', $response, $message . ' (missing success key)');
+        $this->assertTrue($response['success'], $message . ' Response: ' . json_encode($response));
     }
-    
     protected function assertResponseError($response, $message = 'Response indicates success but error expected')
     {
-        if (is_array($response) && isset($response['success'])) {
-            $this->assertFalse($response['success'], $message . " Response: " . json_encode($response));
+        if (is_array($response) && array_key_exists('success', $response)) {
+            $this->assertFalse($response['success'], $message . ' Response: ' . json_encode($response));
         } else {
-            // Assume error if no success field
+            // Treat missing success key as error condition (legacy behavior)
             $this->assertTrue(true);
         }
+    }
+    protected function assertJsonHasKey($key, $array, $message = 'JSON missing expected key')
+    {
+        $this->assertIsArray($array, $message . ' (not array)');
+        $this->assertArrayHasKey($key, $array, $message . " key '$key' not found");
     }
 }

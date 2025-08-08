@@ -44,10 +44,15 @@ require_once $config_path;
 require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
 
 try {
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Get JSON input (tests send JSON). Fallback to POST form fields if JSON empty
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true);
+    if (!$input) {
+        $input = $_POST; // fallback
+    }
+    if (!is_array($input)) { $input = []; }
     
-    if (!$input || !isset($input['product_id']) || !isset($input['quantity'])) {
+    if (!isset($input['product_id']) || !isset($input['quantity'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -74,8 +79,7 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'Please log in to add items to cart',
-            'redirect' => '/login.php'
+            'message' => 'Authentication required'
         ]);
         exit;
     }
@@ -111,12 +115,21 @@ try {
         exit;
     }
     
-    // Check stock availability
+    // Explicit out of stock check
+    if ($product['stock_quantity'] <= 0) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Product is out of stock'
+        ]);
+        exit;
+    }
+    // Check stock availability against requested quantity
     if ($product['stock_quantity'] < $quantity) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'Insufficient stock'
+            'message' => 'Insufficient stock available'
         ]);
         exit;
     }
@@ -134,15 +147,22 @@ try {
         $stmt = $conn->prepare($query);
         $stmt->execute([$new_quantity, $existing['cart_id']]);
     } else {
-        // Add new cart item
-        $query = "INSERT INTO cart (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())";
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$user_id, $product_id, $quantity]);
+    // Add new cart item (schema requires price column)
+    $query = "INSERT INTO cart (user_id, product_id, quantity, price, created_at) VALUES (?, ?, ?, ?, NOW())";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$user_id, $product_id, $quantity, $product['price']]);
     }
     
+    // Calculate current cart total for response convenience
+    $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.user_id = ?";
+    $totalStmt = $conn->prepare($totalQuery);
+    $totalStmt->execute([$user_id]);
+    $total = (float) ($totalStmt->fetchColumn() ?? 0);
+
     echo json_encode([
         'success' => true,
-        'message' => 'Product added to cart successfully'
+        'message' => 'Product added to cart successfully',
+        'total' => $total
     ]);
     
 } catch (Exception $e) {

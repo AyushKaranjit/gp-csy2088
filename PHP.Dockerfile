@@ -1,6 +1,7 @@
 FROM php:8.2-fpm-alpine3.18
 
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+# Copy composer binary from official composer image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN apk add --no-cache $PHPIZE_DEPS
 RUN apk add --no-cache linux-headers
@@ -8,6 +9,9 @@ RUN pecl install xdebug
 
 RUN docker-php-ext-enable xdebug 
 RUN docker-php-ext-install pdo pdo_mysql
+
+# Set workdir to project so composer runs in correct path via docker exec
+WORKDIR /websites/doko
 
 # Configure maildev
 
@@ -24,3 +28,8 @@ RUN sed -i '/#!\/bin\/sh/aecho "$(hostname -i)\t$(hostname) $(hostname).localhos
 RUN echo "post_max_size=5000M" > /usr/local/etc/php/conf.d/php-uploadsize.ini
 RUN echo "upload_max_filesize=5000M" >> /usr/local/etc/php/conf.d/php-uploadsize.ini
 RUN echo "short_open_tag=off" >> /usr/local/etc/php/conf.d/opentags.ini
+
+# Faster container start & helpful tools
+RUN apk add --no-cache bash curl git
+
+# Default command stays php-fpm

@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-    bootstrap="bootstrap.php"
-    colors="true"
-    verbose="true"
-    stopOnFailure="false"
-    testSuitesFiltering="false"
->
+<phpunit bootstrap="bootstrap.php" colors="true" verbose="true" stopOnFailure="false">
     <testsuites>
-        <testsuite name="Unit Tests">
+        <testsuite name="Unit">
             <directory>Unit</directory>
         </testsuite>
-        <testsuite name="Integration Tests">
+        <testsuite name="Integration">
             <directory>Integration</directory>
         </testsuite>
-        <testsuite name="API Tests">
+        <testsuite name="API">
             <directory>API</directory>
         </testsuite>
     </testsuites>
-    
-    <filter>
-        <whitelist>
+    <coverage processUncoveredFiles="false">
+        <include>
             <directory suffix=".php">../src</directory>
             <directory suffix=".php">../public/api</directory>
-        </whitelist>
-    </filter>
-    
-    <logging>
-        <log type="coverage-html" target="coverage"/>
-        <log type="coverage-text" target="php://stdout"/>
-    </logging>
+        </include>
+        <report>
+            <html outputDirectory="coverage" />
+            <text outputFile="php://stdout" />
+        </report>
+    </coverage>
 </phpunit>

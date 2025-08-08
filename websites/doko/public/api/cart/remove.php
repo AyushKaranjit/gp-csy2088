@@ -32,10 +32,11 @@ require_once $config_path;
 require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
 
 try {
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$input || !isset($input['product_id'])) {
+    // Get JSON input or fallback
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true);
+    if (!$input) { $input = $_POST; }
+    if (!isset($input['product_id'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -52,7 +53,7 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'User must be logged in'
+            'message' => 'Authentication required'
         ]);
         exit;
     }
@@ -68,9 +69,14 @@ try {
     $stmt = $db->execute($query, [$user_id, $product_id]);
     
     if ($stmt->rowCount() > 0) {
+        // compute new total
+        $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.user_id = ?";
+        $totalStmt = $db->execute($totalQuery, [$user_id]);
+        $total = (float) ($totalStmt->fetchColumn() ?? 0);
         echo json_encode([
             'success' => true,
-            'message' => 'Product removed from cart successfully'
+            'message' => 'Product removed from cart successfully',
+            'total' => $total
         ]);
     } else {
         http_response_code(404);

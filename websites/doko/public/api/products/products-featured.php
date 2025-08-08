@@ -1,28 +1,8 @@
 <?php
 /**
  * Featured Products API
- * DOKO Grocery     // Convert numeric fields and add proper image URLs
-    foreach ($products as &$product) {
-        $product['product_id'] = (int)$product['product_id'];
-        $product['price'] = (float)$product['price'];
-        $product['original_price'] = $product['original_price'] ? (float)$product['original_price'] : null;
-        $product['stock_quantity'] = (int)$product['stock_quantity'];
-        $product['weight'] = $product['weight'] ? (float)$product['weight'] : null;
-        $product['is_featured'] = (bool)$product['is_featured'];
-        
-        // Set default image if none exists
-        if (empty($product['image_url']) || $product['image_url'] === null) {
-            $product['image_url'] = '/uploads/products/product-default.svg';
-        } else if (!str_starts_with($product['image_url'], 'http') && !str_starts_with($product['image_url'], '/')) {
-            $product['image_url'] = '/' . ltrim($product['image_url'], '/');
-        }
-        
-        // Calculate discount percentage if applicable
-        if ($product['original_price'] && $product['original_price'] > $product['price']) {
-            $product['discount_percentage'] = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
-        } else {
-            $product['discount_percentage'] = 0;
-        }
+ * Returns featured products with legacy aliases expected by tests
+ */
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -139,14 +119,17 @@ try {
     
     echo json_encode([
         'success' => true,
-        'data' => $products, // Changed from 'products' to 'data'
+        'data' => $products,
+        'products' => $products, // legacy alias expected by tests
         'pagination' => [
             'current_page' => $page,
             'total_pages' => $totalPages,
             'total_items' => $totalProducts,
             'items_per_page' => $limit,
             'has_next' => $page < $totalPages,
-            'has_previous' => $page > 1
+            'has_previous' => $page > 1,
+            'currentPage' => $page,
+            'totalPages' => $totalPages
         ]
     ]);
     

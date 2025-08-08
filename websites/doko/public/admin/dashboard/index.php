@@ -604,7 +604,7 @@ include '../../../template/admin-header.php';
                                 <p>Process and track orders</p>
                             </div>
                         </a>
-                        <a href="#" class="quick-action-btn" onclick="alert('Analytics dashboard coming soon!')">
+                        <a href="/api/admin/metrics/summary.php" class="quick-action-btn" target="_blank">
                             <div class="quick-action-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>

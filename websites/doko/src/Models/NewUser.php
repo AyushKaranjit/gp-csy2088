@@ -6,7 +6,43 @@
 
 require_once __DIR__ . '/../../config/database.php';
 
-class User {
+// Define default session timeout (in seconds) if not already defined
+if (!defined('SESSION_TIMEOUT')) {
+    define('SESSION_TIMEOUT', 3600);
+}
+
+if (!function_exists('logActivity')) {
+    /**
+     * Generic activity logger
+     * @param int|string|null $userId
+     * @param string $action
+     * @param string|null $entityType
+     * @param int|string|null $entityId
+     * @param mixed $metadata
+     * @param mixed $data
+     */
+    function logActivity($userId, $action, $entityType = null, $entityId = null, $metadata = null, $data = null) {
+        try {
+            $db = Database::getInstance();
+            // Attempt to insert into activity_logs table if it exists
+            $sql = "INSERT INTO activity_logs (user_id, action, entity_type, entity_id, metadata, payload, created_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            $metaJson = $metadata !== null ? (is_string($metadata) ? $metadata : json_encode($metadata)) : null;
+            $dataJson = $data !== null ? (is_string($data) ? $data : json_encode($data)) : null;
+            try {
+                $db->execute($sql, [$userId, $action, $entityType, $entityId, $metaJson, $dataJson]);
+            } catch (Exception $e) {
+                // Fallback to error_log if table missing or insert fails
+                error_log("Activity: user={$userId} action={$action} entity_type={$entityType} entity_id={$entityId}");
+            }
+        } catch (Exception $e) {
+            error_log("logActivity failure: " . $e->getMessage());
+        }
+    }
+}
+
+// Renamed from User to AdvancedUser to avoid collision with legacy User model.
+class AdvancedUser {
     private $db;
     
     public function __construct() {

@@ -32,11 +32,19 @@ require_once $config_path;
 
 try {
     // Get query parameters
-    $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+    // Accept legacy alias 'category' as well
+    $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : (isset($_GET['category']) ? (int)$_GET['category'] : null);
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $featured = isset($_GET['featured']) ? (bool)$_GET['featured'] : null;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
-    $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+    // Support page based pagination for tests: page param overrides offset if present
+    if (isset($_GET['page'])) {
+        $page = max(1, (int)$_GET['page']);
+        $offset = ($page - 1) * $limit;
+    } else {
+        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+        $page = floor($offset / $limit) + 1;
+    }
     $sort = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
     $order = isset($_GET['order']) && strtolower($_GET['order']) === 'asc' ? 'ASC' : 'DESC';
     
@@ -70,6 +78,16 @@ try {
         $params[] = $search_param;
     }
     
+    // Optional price range filters (for tests compatibility)
+    if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+        $where_conditions[] = 'p.price >= ?';
+        $params[] = (float)$_GET['min_price'];
+    }
+    if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+        $where_conditions[] = 'p.price <= ?';
+        $params[] = (float)$_GET['max_price'];
+    }
+
     $where_clause = implode(' AND ', $where_conditions);
     
     // Count total products
@@ -80,9 +98,10 @@ try {
     // Get products
     $query = "SELECT p.product_id, p.name, p.description, p.price, p.original_price,
                      p.stock_quantity, p.unit, p.featured, p.category_id, p.created_at,
-                     c.name as category_name
+                     c.name as category_name, pi.image_url AS primary_image
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
+              LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
               WHERE $where_clause
               ORDER BY p.$sort $order
               LIMIT $limit OFFSET $offset";
@@ -92,10 +111,15 @@ try {
     
     $formatted_products = [];
     foreach ($products as $product) {
-        // Set default image if none exists
+        // Determine image path (support external absolute URL or local upload filename)
         $image_url = '/uploads/default-product.jpg';
-        if (!empty($product['image_url']) && file_exists('../uploads/' . $product['image_url'])) {
-            $image_url = '/uploads/' . $product['image_url'];
+        $candidate = $product['primary_image'] ?? ($product['image_url'] ?? '');
+        if ($candidate) {
+            if (preg_match('#^https?://#i', $candidate)) {
+                $image_url = $candidate; // external
+            } elseif (file_exists(__DIR__ . '/../../uploads/' . $candidate)) {
+                $image_url = '/uploads/' . $candidate;
+            }
         }
         
         $formatted_products[] = [
@@ -118,15 +142,26 @@ try {
         ];
     }
     
+    $totalPages = ceil($total / $limit);
     echo json_encode([
         'success' => true,
-        'data' => $formatted_products, // Changed from 'products' to 'data'
-        'pagination' => [ // Added pagination object
+        // Provide both new ('data') and legacy ('products') keys for backward compatibility
+        'data' => $formatted_products,
+        'products' => $formatted_products,
+        'pagination' => [
+            // Legacy snake_case keys expected by tests
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => (int)$total,
+            'items_per_page' => $limit,
+            'has_next' => $page < $totalPages,
+            'has_previous' => $page > 1,
+            // Existing camelCase keys kept for any newer consumers
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
             'total' => (int)$total,
             'limit' => $limit,
             'offset' => $offset,
-            'currentPage' => floor($offset / $limit) + 1,
-            'totalPages' => ceil($total / $limit),
             'hasMore' => ($offset + $limit) < $total
         ]
     ]);

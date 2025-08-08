@@ -4,7 +4,8 @@
  * Handles all user-related database operations
  */
 
-require_once '../config/database.php';
+// Correct relative path to config (was '../config/database.php' which pointed to a non-existent location)
+require_once __DIR__ . '/../../config/database.php';
 
 class User {
     private $conn;
@@ -21,7 +22,8 @@ class User {
     public $created_at;
 
     public function __construct() {
-        $database = new Database();
+        // Use singleton accessor instead of instantiating directly (constructor is private)
+        $database = Database::getInstance();
         $this->conn = $database->getConnection();
     }
 

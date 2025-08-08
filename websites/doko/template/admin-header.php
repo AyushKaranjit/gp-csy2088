@@ -1,23 +1,8 @@
 <?php
 /**
-// Check if we're in a subdirectory (like api/ or admin/)
-if (strpos($current_dir, '/api/admin') !== false) {
-    // Handle api/admin folder structure: /api/admin/dashboard/, /api/admin/products/, etc.
-    $css_path = '../../../css/';
-    $js_path = '../../../js/';
-    $images_path = '../../../images/';
-} elseif (strpos($current_dir, '/api') !== false) {
-    // Handle regular api folder structure  
-    $css_path = '../css/';
-    $js_path = '../js/';
-    $images_path = '../images/';
-} elseif (strpos($current_dir, '/admin') !== false) {
-    // Handle admin folder structure: /admin/dashboard/, /admin/products/, etc.
-    $css_path = '../../css/';
-    $js_path = '../../js/';
-    $images_path = '../../images/';
-}ader Template
- * Shared navigation and styling for all admin pages
+ * Admin Header Template
+ * Shared navigation and styling for all admin pages.
+ * (Fixed malformed opening comment & path logic)
  */
 
 // Determine the correct paths based on current location
@@ -70,7 +55,9 @@ if (strpos($_SERVER['SCRIPT_NAME'], '/products/') !== false || strpos($_SERVER['
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
-    <!-- Admin Styles -->
+    <!-- Global & Admin Styles -->
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($css_path); ?>style.css?v=<?php echo date('Ymd'); ?>">
+    <!-- Inline Admin Styles -->
     <style>
         /* Prevent any flash of home page content */
         body {

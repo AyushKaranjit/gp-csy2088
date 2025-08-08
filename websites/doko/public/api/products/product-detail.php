@@ -49,9 +49,10 @@ try {
     // Get product details with category information
     $query = "SELECT p.product_id, p.name, p.description, p.price, p.original_price,
                      p.stock_quantity, p.unit, p.category_id, p.created_at, p.updated_at, p.status,
-                     c.name as category_name
+                     c.name as category_name, pi.image_url AS primary_image
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
+              LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
               WHERE p.product_id = ? AND p.status = 'active'";
     
     $stmt = $db->execute($query, [$product_id]);
@@ -68,8 +69,13 @@ try {
     
     // Format product data
     $image_url = '/uploads/default-product.jpg';
-    if (!empty($product['image_url']) && file_exists('../uploads/' . $product['image_url'])) {
-        $image_url = '/uploads/' . $product['image_url'];
+    $candidate = $product['primary_image'] ?? ($product['image_url'] ?? '');
+    if ($candidate) {
+        if (preg_match('#^https?://#i', $candidate)) {
+            $image_url = $candidate;
+        } elseif (file_exists(__DIR__ . '/../../uploads/' . $candidate)) {
+            $image_url = '/uploads/' . $candidate;
+        }
     }
     
     $formatted_product = [
@@ -81,6 +87,8 @@ try {
         'original_price' => $product['original_price'] ? (float)$product['original_price'] : null,
         'image_url' => $image_url,
         'stock' => (int)$product['stock_quantity'],
+        // legacy key expected in some integration tests
+        'stock_quantity' => (int)$product['stock_quantity'],
         'unit' => $product['unit'] ?: 'piece',
         'category_id' => (int)$product['category_id'],
         'category_name' => $product['category_name'],
@@ -93,7 +101,8 @@ try {
     
     echo json_encode([
         'success' => true,
-        'data' => $formatted_product
+        'data' => $formatted_product,
+        'product' => $formatted_product // legacy alias
     ]);
     
 } catch (Exception $e) {

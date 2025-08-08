@@ -1,22 +1,26 @@
 <?php
-require_once '../../config/database.php';
-require_once '../../src/Controllers/AuthController.php';
+// Cleaned and consolidated wishlist toggle endpoint
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src/Controllers/AuthController.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 try {
-    $authController = new AuthController();
-    
-    if (!$authController->isLoggedIn()) {
+    $auth = new AuthController();
+    if (!$auth->isLoggedIn()) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Please login to manage wishlist']);
+        echo json_encode(['success' => false, 'message' => 'Authentication required']);
         exit;
     }
-
-    $user = $authController->getCurrentUser();
+    $user = $auth->getCurrentUser();
     if (!$user) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'User not found']);
@@ -25,147 +29,72 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
-        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+        echo json_encode(['success' => false, 'message' => 'Only POST allowed']);
         exit;
     }
 
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!isset($input['product_id']) || !is_numeric($input['product_id'])) {
+    $input = json_decode(file_get_contents('php://input'), true) ?: [];
+    if (empty($input['product_id']) || !ctype_digit(strval($input['product_id']))) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Invalid product ID']);
+        echo json_encode(['success' => false, 'message' => 'Invalid product_id']);
         exit;
     }
+    $productId = (int)$input['product_id'];
+    $userId = (int)$user['user_id']; // AuthController stores user_id
 
-    $productId = intval($input['product_id']);
-    $userId = $user['id'];
+    $pdo = Database::getInstance()->getConnection();
 
-    // Check if database connection is available
-    if (!isset($pdo)) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Database connection not available']);
-        exit;
-    }
+    // Ensure wishlist table (idempotent creation)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS wishlist (
+        wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        product_id INT NOT NULL,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_user_product (user_id, product_id),
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    // Check if product exists
-    $checkProduct = $pdo->prepare("SELECT id FROM products WHERE id = ?");
-    $checkProduct->execute([$productId]);
-    if (!$checkProduct->fetch()) {
+    // Validate product exists and active
+    $stmt = $pdo->prepare("SELECT product_id FROM products WHERE product_id = ? AND is_active = 1");
+    $stmt->execute([$productId]);
+    if (!$stmt->fetch()) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Product not found']);
         exit;
     }
 
-    // Check if item is already in wishlist
-    $checkWishlist = $pdo->prepare("SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?");
-    $checkWishlist->execute([$userId, $productId]);
-    $existingItem = $checkWishlist->fetch();
-
-    if ($existingItem) {
-        // Remove from wishlist
-        $removeItem = $pdo->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
-        $removeItem->execute([$userId, $productId]);
-        
-        echo json_encode([
-            'success' => true, 
-            'added' => false,
-            'message' => 'Removed from wishlist'
-        ]);
-    } else {
-        // Add to wishlist
-        $addItem = $pdo->prepare("INSERT INTO wishlist (user_id, product_id, created_at) VALUES (?, ?, NOW())");
-        $addItem->execute([$userId, $productId]);
-        
-        echo json_encode([
-            'success' => true, 
-            'added' => true,
-            'message' => 'Added to wishlist'
-        ]);
-    }
-
-} catch (Exception $e) {
-    error_log("Wishlist Toggle Error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Internal server error']);
-}
-?>
-    }
-
-    // Database connection
-    $database = Database::getInstance();
-    $conn = $database->getConnection();
-
-    // Check if product exists
-    $stmt = $conn->prepare("SELECT product_id, name FROM products WHERE product_id = ? AND status = 'active'");
-    $stmt->execute([$productId]);
-    $product = $stmt->fetch();
-    
-    if (!$product) {
-        throw new Exception('Product not found');
-    }
-
-    // Create wishlist table if it doesn't exist
-    $createTable = "CREATE TABLE IF NOT EXISTS wishlist (
-        wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        product_id INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_wishlist (user_id, product_id),
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
-    )";
-    $conn->exec($createTable);
-
-    // Check if item is already in wishlist
-    $stmt = $conn->prepare("SELECT wishlist_id FROM wishlist WHERE user_id = ? AND product_id = ?");
+    // Toggle logic
+    $stmt = $pdo->prepare("SELECT wishlist_id FROM wishlist WHERE user_id = ? AND product_id = ?");
     $stmt->execute([$userId, $productId]);
-    $wishlistItem = $stmt->fetch();
+    $existing = $stmt->fetch();
 
-    $inWishlist = !empty($wishlistItem);
-    $action = '';
-
-    if ($inWishlist) {
-        // Remove from wishlist
-        $stmt = $conn->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
-        
-        if ($stmt->execute([$userId, $productId])) {
-            $action = 'removed from';
-            $inWishlist = false;
-        } else {
-            throw new Exception('Failed to remove from wishlist');
-        }
+    if ($existing) {
+        $del = $pdo->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
+        $del->execute([$userId, $productId]);
+        $added = false;
+        $message = 'Removed from wishlist';
     } else {
-        // Add to wishlist
-        $stmt = $conn->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)");
-        
-        if ($stmt->execute([$userId, $productId])) {
-            $action = 'added to';
-            $inWishlist = true;
-        } else {
-            throw new Exception('Failed to add to wishlist');
-        }
+        $ins = $pdo->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)");
+        $ins->execute([$userId, $productId]);
+        $added = true;
+        $message = 'Added to wishlist';
     }
 
-    // Get updated wishlist count
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM wishlist WHERE user_id = ?");
-    $stmt->execute([$userId]);
-    $result = $stmt->fetch();
-    $wishlistCount = $result['count'];
+    // Updated count
+    $count = $pdo->prepare("SELECT COUNT(*) AS c FROM wishlist WHERE user_id = ?");
+    $count->execute([$userId]);
+    $wishlistCount = (int)$count->fetch()['c'];
 
     echo json_encode([
         'success' => true,
-        'message' => "Product {$action} wishlist successfully",
-        'action' => $action,
-        'inWishlist' => $inWishlist,
-        'wishlistCount' => $wishlistCount
+        'added' => $added,
+        'message' => $message,
+        'wishlist_count' => $wishlistCount
     ]);
-
-} catch (Exception $e) {
-    error_log("Wishlist Toggle Error: " . $e->getMessage());
-    
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
+} catch (Throwable $e) {
+    error_log('Wishlist Toggle Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Internal server error']);
 }
 ?>

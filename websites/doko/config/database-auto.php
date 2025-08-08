@@ -186,6 +186,22 @@ class Database {
             throw new Exception("Database query failed");
         }
     }
+
+    /**
+     * Convenience: fetch single row (added for compatibility with models using fetchRow)
+     */
+    public function fetchRow($query, $params = []) {
+        $stmt = $this->execute($query, $params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Convenience: fetch all rows (added for compatibility with models using fetchAll)
+     */
+    public function fetchAll($query, $params = []) {
+        $stmt = $this->execute($query, $params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     /**
      * Get the last insert ID

@@ -4,8 +4,8 @@
  * Handles all admin dashboard data and operations
  */
 
-require_once '../../config/database.php';
-require_once '../../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src/Controllers/AuthController.php';
 
 header('Content-Type: application/json');
 
@@ -224,7 +224,8 @@ function getPeriodFilter($period) {
 
 function handleGetActivity($db) {
     try {
-        $limit = $_GET['limit'] ?? 20;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+    if ($limit <= 0 || $limit > 200) { $limit = 20; }
         
         $query = "
             SELECT 

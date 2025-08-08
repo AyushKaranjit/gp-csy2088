@@ -40,9 +40,10 @@ try {
     
     // Get products with category information
     $query = "
-        SELECT p.*, c.name as category_name
+        SELECT p.*, c.name as category_name, pi.image_url AS primary_image
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
+        LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
         ORDER BY p.created_at DESC
     ";
     $stmt = $db->query($query);
@@ -588,7 +589,17 @@ body.admin-ready .products-container {
         <?php if (!empty($products)): ?>
             <?php foreach ($products as $product): ?>
                 <div class="product-card" data-category="<?php echo $product['category_id']; ?>" data-status="<?php echo $product['status']; ?>">
-                    <img src="<?php echo !empty($product['image_url']) ? '../../uploads/' . $product['image_url'] : '../../uploads/default-product.jpg'; ?>" 
+                    <?php
+                        $imgFile = !empty($product['primary_image']) ? $product['primary_image'] : ($product['image_url'] ?? ''); // fallback legacy
+                        if (!empty($imgFile) && preg_match('#^https?://#i', $imgFile)) {
+                            $imgPath = $imgFile; // absolute external
+                        } elseif (!empty($imgFile)) {
+                            $imgPath = '../../uploads/' . $imgFile;
+                        } else {
+                            $imgPath = '../../uploads/default-product.jpg';
+                        }
+                    ?>
+                    <img src="<?php echo htmlspecialchars($imgPath); ?>" 
                          alt="<?php echo htmlspecialchars($product['name']); ?>" 
                          class="product-image"
                          onerror="this.src='../../uploads/default-product.jpg'">
@@ -914,24 +925,30 @@ function handleAddProduct($db) {
     $description = $_POST['description'] ?? '';
     $price = $_POST['price'] ?? 0;
     $stock_quantity = $_POST['stock_quantity'] ?? 0;
-    
+
     if (empty($name) || $price <= 0) {
         throw new Exception('Name and valid price are required');
     }
-    
-    // Handle image upload
-    $image_url = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $image_url = handleImageUpload($_FILES['image']);
-    }
-    
-    $query = "INSERT INTO products (name, category_id, description, price, stock_quantity, image_url, status, created_at) 
-              VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())";
-    
+
+    // Basic required fields for enhanced schema (provide placeholders where necessary)
+    $sku = 'SKU-' . strtoupper(uniqid());
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($name))) . '-' . substr(md5(uniqid()), 0, 6);
+
+    // Insert into products WITHOUT legacy image_url column (not present in current schema)
+    $query = "INSERT INTO products (sku, name, slug, description, price, category_id, stock_quantity, status, created_at) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())";
     $stmt = $db->prepare($query);
-    $stmt->execute([$name, $category_id ?: null, $description, $price, $stock_quantity, $image_url]);
-    
-    echo json_encode(['success' => true, 'message' => 'Product added successfully']);
+    $stmt->execute([$sku, $name, $slug, $description, $price, $category_id ?: null, $stock_quantity]);
+    $product_id = $db->lastInsertId();
+
+    // Handle primary image upload into product_images table if provided
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $image_filename = handleImageUpload($_FILES['image']);
+        $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES (?, ?, 1, 0)");
+        $imgStmt->execute([$product_id, $image_filename]);
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Product added successfully', 'product_id' => $product_id]);
 }
 
 function handleUpdateProduct($db) {
@@ -941,25 +958,26 @@ function handleUpdateProduct($db) {
     $description = $_POST['description'] ?? '';
     $price = $_POST['price'] ?? 0;
     $stock_quantity = $_POST['stock_quantity'] ?? 0;
-    
+
     if (!$product_id || empty($name) || $price <= 0) {
         throw new Exception('Product ID, name and valid price are required');
     }
-    
-    // Handle image upload
-    $image_url = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $image_url = handleImageUpload($_FILES['image']);
-        $query = "UPDATE products SET name=?, category_id=?, description=?, price=?, stock_quantity=?, image_url=?, updated_at=NOW() WHERE product_id=?";
-        $params = [$name, $category_id ?: null, $description, $price, $stock_quantity, $image_url, $product_id];
-    } else {
-        $query = "UPDATE products SET name=?, category_id=?, description=?, price=?, stock_quantity=?, updated_at=NOW() WHERE product_id=?";
-        $params = [$name, $category_id ?: null, $description, $price, $stock_quantity, $product_id];
-    }
-    
+
+    $query = "UPDATE products SET name=?, category_id=?, description=?, price=?, stock_quantity=?, updated_at=NOW() WHERE product_id=?";
+    $params = [$name, $category_id ?: null, $description, $price, $stock_quantity, $product_id];
     $stmt = $db->prepare($query);
     $stmt->execute($params);
-    
+
+    // If a new image uploaded, insert into product_images and set it primary, demote previous primary
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $image_filename = handleImageUpload($_FILES['image']);
+        // Demote existing primary
+        $db->prepare("UPDATE product_images SET is_primary = 0 WHERE product_id = ? AND is_primary = 1")->execute([$product_id]);
+        // Insert new
+        $db->prepare("INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES (?, ?, 1, 0)")
+           ->execute([$product_id, $image_filename]);
+    }
+
     echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
 }
 

@@ -20,9 +20,9 @@ try {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    
-    // Check if user is authenticated and is admin/manager
-    if (!$auth->isLoggedIn() || (!$auth->isAdmin() && !$auth->isManager())) {
+
+    // Check if user is authenticated and is admin
+    if (!$auth->isLoggedIn() || !$auth->isAdmin()) {
         http_response_code(401);
         echo json_encode([
             'success' => false,

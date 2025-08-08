@@ -29,13 +29,14 @@ if (!file_exists($config_path)) {
 }
 
 require_once $config_path;
-require_once '../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../../../src/Controllers/AuthController.php';
 
 try {
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!$input || !isset($input['product_id']) || !isset($input['quantity'])) {
+    // Get JSON input or fallback
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true);
+    if (!$input) { $input = $_POST; }
+    if (!isset($input['product_id']) || !isset($input['quantity'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -62,7 +63,7 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'User must be logged in'
+            'message' => 'Authentication required'
         ]);
         exit;
     }
@@ -96,14 +97,21 @@ try {
         exit;
     }
     
-    // Update cart item
+    // Ensure price column present for legacy entries (if null set to current product price)
+    $db->execute("UPDATE cart SET price = ? WHERE user_id = ? AND product_id = ? AND (price IS NULL OR price = 0)", [$product['stock_quantity']?($product['price']??0):($product['price']??0), $user_id, $product_id]);
+    // Update cart item quantity
     $query = "UPDATE cart SET quantity = ?, updated_at = NOW() WHERE user_id = ? AND product_id = ?";
     $stmt = $db->execute($query, [$quantity, $user_id, $product_id]);
     
     if ($stmt->rowCount() > 0) {
+        // compute new total
+        $totalQuery = "SELECT SUM(c.quantity * p.price) as total FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.user_id = ?";
+        $totalStmt = $db->execute($totalQuery, [$user_id]);
+        $total = (float) ($totalStmt->fetchColumn() ?? 0);
         echo json_encode([
             'success' => true,
-            'message' => 'Cart updated successfully'
+            'message' => 'Cart updated successfully',
+            'total' => $total
         ]);
     } else {
         http_response_code(404);

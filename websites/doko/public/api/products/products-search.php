@@ -52,18 +52,19 @@ try {
     // Build the search query
     $whereConditions = ["p.status = 'active'"];
     $params = [];
+    $paramTypes = []; // track for clarity (not strictly needed with PDO)
     
     // Add search condition
     $searchTerms = explode(' ', $query);
     $searchConditions = [];
     
-    foreach ($searchTerms as $index => $term) {
+    $dynamicSearchParams = [];
+    foreach ($searchTerms as $term) {
         $term = trim($term);
-        if (!empty($term)) {
-            $paramKey = ':search_' . $index;
-            $searchConditions[] = "(p.name LIKE $paramKey OR p.description LIKE $paramKey OR c.name LIKE $paramKey)";
-            $params[$paramKey] = '%' . $term . '%';
-        }
+        if ($term === '') continue;
+        $dynamicSearchParams[] = '%' . $term . '%';
+        // placeholders will be added later using positional ? marks
+        $searchConditions[] = '(p.name LIKE ? OR p.description LIKE ? OR c.name LIKE ?)';
     }
     
     if (!empty($searchConditions)) {
@@ -72,25 +73,26 @@ try {
     
     // Add category filter
     if ($category_id) {
-        $whereConditions[] = 'p.category_id = :category_id';
-        $params[':category_id'] = $category_id;
+        $whereConditions[] = 'p.category_id = ?';
+        $params[] = $category_id;
     }
     
     // Add price filters
     if ($min_price !== null) {
-        $whereConditions[] = 'p.price >= :min_price';
-        $params[':min_price'] = $min_price;
+        $whereConditions[] = 'p.price >= ?';
+        $params[] = $min_price;
     }
     
     if ($max_price !== null) {
-        $whereConditions[] = 'p.price <= :max_price';
-        $params[':max_price'] = $max_price;
+        $whereConditions[] = 'p.price <= ?';
+        $params[] = $max_price;
     }
     
     $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
     
     // Determine sort order
     $orderBy = 'ORDER BY ';
+    $relevanceParams = [];
     switch ($sort_by) {
         case 'price_low':
             $orderBy .= 'p.price ASC';
@@ -105,44 +107,46 @@ try {
             $orderBy .= 'p.created_at DESC';
             break;
         case 'featured':
-            $orderBy .= 'p.is_featured DESC, p.name ASC';
+                $orderBy .= 'p.featured DESC, p.name ASC';
             break;
         case 'relevance':
         default:
-            // Simple relevance scoring based on name match
-            $orderBy .= 'CASE ';
-            foreach ($searchTerms as $index => $term) {
-                $term = trim($term);
-                if (!empty($term)) {
-                    $orderBy .= "WHEN p.name LIKE :sort_search_$index THEN 1 ";
-                    $params[":sort_search_$index"] = '%' . $term . '%';
-                }
+            // Use simple LOCATE-based ordering without extra bound params to avoid HY093 issues
+            // First term gets highest priority; fallback to name ASC
+            $firstTerm = null;
+            foreach($searchTerms as $t){ $t = trim($t); if($t!==''){ $firstTerm = $t; break; } }
+            if($firstTerm){
+                // LOCATE returns 0 if not found; order by found first then position then name
+                $safe = str_replace("'", "''", $firstTerm);
+                $orderBy .= "(CASE WHEN LOCATE('{$safe}', p.name) > 0 THEN 0 ELSE 1 END), LOCATE('{$safe}', p.name), p.name ASC";
+            } else {
+                $orderBy .= 'p.name ASC';
             }
-            $orderBy .= 'ELSE 2 END, p.name ASC';
             break;
     }
     
     // Main search query
+    // Replace named :limit/:offset with positional placeholders to align with unified execute order
     $searchQuery = "SELECT p.product_id, p.name, p.slug, p.description, p.price, p.original_price,
-                           p.image_url, p.stock_quantity, p.unit, p.weight, p.weight_unit,
-                           p.is_featured, p.created_at,
-                           c.name as category_name, c.slug as category_slug
+                           p.stock_quantity, p.unit, p.weight, p.weight_unit,
+                           p.featured, p.created_at,
+                           c.name as category_name, c.slug as category_slug,
+                           COALESCE(pi.image_url, 'default.jpg') AS image_url
                     FROM products p
                     LEFT JOIN categories c ON p.category_id = c.category_id
+                    LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
                     $whereClause
                     $orderBy
-                    LIMIT :limit OFFSET :offset";
+                    LIMIT ? OFFSET ?";
     
     $stmt = $conn->prepare($searchQuery);
-    
-    // Bind all parameters
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-    
-    $stmt->execute();
+    // Build final ordered param list: dynamic search (each term repeated 3 times) then filter params then limit/offset
+    $finalParams = [];
+    foreach ($dynamicSearchParams as $sp) { $finalParams[] = $sp; $finalParams[] = $sp; $finalParams[] = $sp; }
+    foreach ($params as $p) { $finalParams[] = $p; }
+    $finalParams[] = (int)$limit;
+    $finalParams[] = (int)$offset;
+    $stmt->execute($finalParams);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Convert numeric fields
@@ -152,7 +156,14 @@ try {
         $product['original_price'] = $product['original_price'] ? (float)$product['original_price'] : null;
         $product['stock_quantity'] = (int)$product['stock_quantity'];
         $product['weight'] = $product['weight'] ? (float)$product['weight'] : null;
-        $product['is_featured'] = (bool)$product['is_featured'];
+        // Normalize featured flag (schema uses 'featured')
+        if (isset($product['featured'])) {
+            $product['is_featured'] = (bool)$product['featured'];
+        } elseif (isset($product['is_featured'])) {
+            $product['is_featured'] = (bool)$product['is_featured'];
+        } else {
+            $product['is_featured'] = false;
+        }
         
         // Calculate discount percentage if applicable
         if ($product['original_price'] && $product['original_price'] > $product['price']) {
@@ -162,8 +173,10 @@ try {
         }
         
         // Add image URL with fallback
-        if (!$product['image_url'] || !file_exists('../uploads/products/' . $product['image_url'])) {
-            $product['image_url'] = 'default.jpg';
+        if (empty($product['image_url'])) {
+            $product['image_url'] = '/uploads/products/default.jpg';
+        } else if (strpos($product['image_url'], '/uploads/') !== 0) {
+            $product['image_url'] = '/uploads/products/' . ltrim($product['image_url'], '/');
         }
     }
     
@@ -173,22 +186,18 @@ try {
                    $whereClause";
     
     $countStmt = $conn->prepare($countQuery);
-    
-    // Bind parameters for count query (excluding sort parameters)
-    foreach ($params as $key => $value) {
-        if (strpos($key, 'sort_search_') !== 0) {
-            $countStmt->bindValue($key, $value);
-        }
-    }
-    
-    $countStmt->execute();
+    $countParams = [];
+    foreach ($dynamicSearchParams as $sp) { $countParams[] = $sp; $countParams[] = $sp; $countParams[] = $sp; }
+    foreach ($params as $p) { $countParams[] = $p; }
+    $countStmt->execute($countParams);
     $totalProducts = (int)$countStmt->fetchColumn();
     
     $totalPages = ceil($totalProducts / $limit);
     
     echo json_encode([
         'success' => true,
-        'data' => $products, // Changed from 'products' to 'data'
+        'data' => $products,
+        'products' => $products, // legacy alias for tests
         'search_query' => $query,
         'pagination' => [
             'current_page' => $page,

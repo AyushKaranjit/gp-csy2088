@@ -8,8 +8,18 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Include the TestCase base class
-require_once __DIR__ . '/TestCase.php';
+// Load full bootstrap (ensures real Database class & env before TestCase fallback definitions)
+$bootstrap = __DIR__ . '/bootstrap.php';
+if (file_exists($bootstrap)) {
+    require_once $bootstrap;
+}
+
+// Include the TestCase base class (after bootstrap so fallback DB isn't used if real one exists)
+if (!class_exists('TestCase')) {
+    require_once __DIR__ . '/TestCase.php';
+} else {
+    require_once __DIR__ . '/TestCase.php'; // still include for utility trait
+}
 
 /**
  * Simple Test Runner Class
@@ -101,7 +111,7 @@ class TestRunner
         try {
             // Setup
             if (method_exists($testInstance, 'setUp')) {
-                $testInstance->setUp();
+                $this->invokeLifecycle($testInstance, 'setUp');
             }
             
             // Run the test
@@ -122,11 +132,24 @@ class TestRunner
             // Teardown
             if (method_exists($testInstance, 'tearDown')) {
                 try {
-                    $testInstance->tearDown();
+                    $this->invokeLifecycle($testInstance, 'tearDown');
                 } catch (Exception $e) {
                     // Ignore teardown errors for now
                 }
             }
+        }
+    }
+
+    private function invokeLifecycle($instance, $method)
+    {
+        try {
+            $ref = new ReflectionMethod($instance, $method);
+            if (!$ref->isPublic()) {
+                $ref->setAccessible(true);
+            }
+            $ref->invoke($instance);
+        } catch (Throwable $t) {
+            throw new Exception("Lifecycle $method failed: " . $t->getMessage());
         }
     }
     

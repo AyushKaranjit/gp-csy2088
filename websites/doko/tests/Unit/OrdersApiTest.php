@@ -32,7 +32,7 @@ class OrdersApiTest extends TestCase
             'shipping_city' => 'Test City',
             'shipping_state' => 'Test State',
             'shipping_zip' => '12345',
-            'payment_method' => 'credit_card'
+            'payment_method' => 'cash_on_delivery'
         ];
         
         $response = $this->postRequest('/api/orders/orders.php', $orderData);
@@ -182,7 +182,7 @@ class OrdersApiTest extends TestCase
             'shipping_city' => 'Test City',
             'shipping_state' => 'Test State',
             'shipping_zip' => '12345',
-            'payment_method' => 'credit_card'
+            'payment_method' => 'cash_on_delivery'
         ];
         
         $response = $this->postRequest('/api/orders/orders.php', $orderData);
@@ -244,28 +244,44 @@ class OrdersApiTest extends TestCase
             'shipping_city' => 'Default City',
             'shipping_state' => 'Default State',
             'shipping_zip' => '12345',
-            'payment_method' => 'credit_card'
+            'payment_method' => 'cash_on_delivery'
         ];
         
         $orderData = array_merge($defaultData, $data);
         $orderData['user_id'] = $userId;
         
-        $stmt = $this->db->prepare("
-            INSERT INTO orders (user_id, total_amount, status, shipping_address, 
-                              shipping_city, shipping_state, shipping_zip, payment_method, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-        
-        $stmt->execute([
-            $orderData['user_id'],
-            $orderData['total_amount'],
-            $orderData['status'],
-            $orderData['shipping_address'],
-            $orderData['shipping_city'],
-            $orderData['shipping_state'],
-            $orderData['shipping_zip'],
-            $orderData['payment_method']
+    // More unique order number to avoid collisions in fast sequential inserts
+    $orderNumber = 'UT' . date('YmdHis') . substr(uniqid('', true), -6);
+        $addressJson = json_encode([
+            'address' => $orderData['shipping_address'],
+            'city' => $orderData['shipping_city'],
+            'state' => $orderData['shipping_state'],
+            'zip' => $orderData['shipping_zip']
         ]);
+        $stmt = $this->db->prepare("INSERT INTO orders (order_number, user_id, status, payment_status, subtotal, tax_amount, shipping_fee, discount_amount, total_amount, shipping_address, billing_address, payment_method, ordered_at, created_at) VALUES (?, ?, ?, 'pending', ?, 0, 0, 0, ?, ?, ?, ?, NOW(), NOW())");
+        $attempts = 0;
+        while (true) {
+            try {
+                $stmt->execute([
+                    $orderNumber,
+                    $orderData['user_id'],
+                    $orderData['status'],
+                    $orderData['total_amount'],
+                    $orderData['total_amount'],
+                    $addressJson,
+                    $addressJson,
+                    $orderData['payment_method']
+                ]);
+                break;
+            } catch (Exception $e) {
+                if (strpos($e->getMessage(), 'Duplicate') !== false && $attempts < 3) {
+                    $orderNumber = 'UT' . date('YmdHis') . substr(uniqid('', true), -6);
+                    $attempts++;
+                    continue;
+                }
+                throw $e;
+            }
+        }
         
         $orderData['order_id'] = $this->db->lastInsertId();
         return $orderData;
@@ -273,19 +289,24 @@ class OrdersApiTest extends TestCase
     
     private function createTestOrderItem($orderId, $productId, $quantity, $price)
     {
-        $stmt = $this->db->prepare("
-            INSERT INTO order_items (order_id, product_id, quantity, price) 
-            VALUES (?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([$orderId, $productId, $quantity, $price]);
-        
+        // Fetch product details for required name & sku columns
+        $prod = $this->db->prepare("SELECT name, sku FROM products WHERE product_id = ? LIMIT 1");
+        $prod->execute([$productId]);
+        $p = $prod->fetch();
+        $productName = $p ? $p['name'] : ('Prod #' . $productId);
+        $productSku = $p && !empty($p['sku']) ? $p['sku'] : ('SKU' . $productId);
+        $stmt = $this->db->prepare("INSERT INTO order_items (order_id, product_id, variant_id, product_name, product_sku, quantity, unit_price, total_price, created_at) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, NOW())");
+        $total = $quantity * $price;
+        $stmt->execute([$orderId, $productId, $productName, $productSku, $quantity, $price, $total]);
         return [
             'order_item_id' => $this->db->lastInsertId(),
             'order_id' => $orderId,
             'product_id' => $productId,
+            'product_name' => $productName,
+            'product_sku' => $productSku,
             'quantity' => $quantity,
-            'price' => $price
+            'unit_price' => $price,
+            'total_price' => $total
         ];
     }
 }

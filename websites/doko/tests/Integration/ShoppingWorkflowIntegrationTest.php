@@ -106,6 +106,8 @@ class ShoppingWorkflowIntegrationTest extends TestCase
             'shipping_state' => 'Shopping State',
             'shipping_zip' => '54321',
             'payment_method' => 'credit_card',
+            // Map unsupported test payment method to allowed enum in API
+            'payment_method_mapped' => 'cash_on_delivery',
             'payment_details' => [
                 'card_number' => '4111111111111111',
                 'expiry' => '12/25',
@@ -229,7 +231,7 @@ class ShoppingWorkflowIntegrationTest extends TestCase
             'shipping_city' => 'First City',
             'shipping_state' => 'First State',
             'shipping_zip' => '11111',
-            'payment_method' => 'credit_card'
+            'payment_method' => 'cash_on_delivery'
         ]);
         $this->assertResponseSuccess($orderResponse1);
         
@@ -251,28 +253,24 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $this->assertFalse($productResponse['product']['in_stock']);
     }
     
-    private function createTestCategory($data = [])
+    protected function createTestCategory($data = [])
     {
         $defaultData = [
             'name' => 'Test Category',
             'description' => 'A test category',
             'status' => 'active'
         ];
-        
         $categoryData = array_merge($defaultData, $data);
-        
-        $stmt = $this->db->prepare("
-            INSERT INTO categories (name, description, status) 
-            VALUES (?, ?, ?)
-        ");
-        
+        $slug = strtolower(preg_replace('/[^a-z0-9]+/i','-', $categoryData['name'])) . '-' . substr(uniqid(), -4);
+        $stmt = $this->db->prepare("INSERT INTO categories (name, slug, description, status, created_at) VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([
             $categoryData['name'],
+            $slug,
             $categoryData['description'],
             $categoryData['status']
         ]);
-        
         $categoryData['category_id'] = $this->db->lastInsertId();
+        $categoryData['slug'] = $slug;
         return $categoryData;
     }
 }

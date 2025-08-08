@@ -38,7 +38,7 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'User must be logged in'
+            'message' => 'Authentication required'
         ]);
         exit;
     }
@@ -56,7 +56,8 @@ try {
     echo json_encode([
         'success' => true,
         'message' => 'Cart cleared successfully',
-        'items_removed' => $stmt->rowCount()
+        'items_removed' => $stmt->rowCount(),
+        'total' => 0
     ]);
     
 } catch (Exception $e) {

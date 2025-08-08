@@ -4,7 +4,8 @@
  * Handles all product-related database operations
  */
 
-require_once '../config/database.php';
+// Correct relative path to config (was '../config/database.php' which was incorrect)
+require_once __DIR__ . '/../../config/database.php';
 
 class Product {
     private $conn;
@@ -25,7 +26,8 @@ class Product {
     public $nutritional_info;
 
     public function __construct() {
-        $database = new Database();
+        // Use singleton accessor; direct instantiation would fail due to private constructor
+        $database = Database::getInstance();
         $this->conn = $database->getConnection();
     }
 

@@ -41,7 +41,8 @@ try {
     // Handle GET requests (get wishlist)
     if ($method === 'GET') {
         if (!$userId) {
-            sendResponse(true, 'Not logged in', ['count' => 0, 'items' => []]);
+            http_response_code(401);
+            sendResponse(false, 'Authentication required');
         }
         
         // Check if wishlist table exists
@@ -61,7 +62,8 @@ try {
     // Handle POST requests (add/toggle wishlist)
     if ($method === 'POST') {
         if (!$userId) {
-            sendResponse(false, 'Please log in to use wishlist');
+            http_response_code(401);
+            sendResponse(false, 'Authentication required');
         }
         
         $input = json_decode(file_get_contents('php://input'), true);
@@ -138,7 +140,8 @@ try {
     // Handle DELETE requests
     if ($method === 'DELETE') {
         if (!$userId) {
-            sendResponse(false, 'Please log in to use wishlist');
+            http_response_code(401);
+            sendResponse(false, 'Authentication required');
         }
         
         $productId = (int)($_GET['product_id'] ?? 0);

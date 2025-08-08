@@ -829,6 +829,72 @@ $page_title = 'My Account - DOKO';
         }
     }
 
+    // Load and render stored addresses (currently from localStorage placeholder)
+    function loadAddresses() {
+        const container = document.querySelector('.addresses-container');
+        if (!container) return;
+        const addresses = JSON.parse(localStorage.getItem('doko_addresses') || '[]');
+        if (!addresses.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>No addresses added</h3>
+                    <p>Add delivery addresses for faster checkout</p>
+                    <button class="btn btn-primary" onclick="showAddAddressModal()">Add Address</button>
+                </div>`;
+            return;
+        }
+        const listHtml = addresses.map(a => `
+            <div class="address-card" data-id="${a.id}">
+                <div class="address-header">
+                    <h4>${escapeHtml(a.label || 'Address')}</h4>
+                    ${a.is_default ? '<span class="badge badge-default">Default</span>' : ''}
+                </div>
+                <div class="address-body">
+                    <p>${escapeHtml(a.address)}</p>
+                    <p>${escapeHtml(a.city)} ${a.postal_code ? ', ' + escapeHtml(a.postal_code) : ''}</p>
+                    <p class="address-meta">Added: ${new Date(a.created_at).toLocaleDateString()}</p>
+                </div>
+                <div class="address-actions">
+                    <button class="btn btn-sm" onclick="editAddress(${a.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAddress(${a.id})"><i class="fas fa-trash"></i> Delete</button>
+                    ${!a.is_default ? `<button class="btn btn-sm" onclick="setDefaultAddress(${a.id})"><i class="fas fa-star"></i> Set Default</button>` : ''}
+                </div>
+            </div>`).join('');
+        container.innerHTML = `<div class="address-list">${listHtml}</div>`;
+    }
+
+    // Helper functions for address actions (local placeholders)
+    function saveAddresses(list) {
+        localStorage.setItem('doko_addresses', JSON.stringify(list));
+    }
+    function findAddressIndex(list, id) { return list.findIndex(a => a.id === id); }
+    function deleteAddress(id) {
+        const list = JSON.parse(localStorage.getItem('doko_addresses') || '[]');
+        const idx = findAddressIndex(list, id);
+        if (idx === -1) return;
+        list.splice(idx, 1);
+        saveAddresses(list);
+        CustomerAPI.showNotification('Address deleted', 'success');
+        loadAddresses();
+    }
+    function setDefaultAddress(id) {
+        const list = JSON.parse(localStorage.getItem('doko_addresses') || '[]');
+        list.forEach(a => a.is_default = (a.id === id));
+        saveAddresses(list);
+        CustomerAPI.showNotification('Default address updated', 'success');
+        loadAddresses();
+    }
+    function editAddress(id) {
+        CustomerAPI.showNotification('Edit address not implemented yet', 'info');
+    }
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"]?/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', loadAddresses);
+
     function showChangePasswordModal() {
         // Create password change modal
         const modal = document.createElement('div');

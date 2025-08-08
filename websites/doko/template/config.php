@@ -15,8 +15,9 @@ if (!defined('SITE_PHONE')) define('SITE_PHONE', '+977-9851234567');
 
 // Define base paths for different setups
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$host = $_SERVER['HTTP_HOST'];
-$script_name = $_SERVER['SCRIPT_NAME'];
+// When run under CLI (PHPUnit) HTTP_HOST may be missing; provide safe defaults
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$script_name = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
 $base_path = dirname($script_name);
 
 // Check if we're in public folder or root and define URLs only once

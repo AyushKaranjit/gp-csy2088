@@ -1,5 +1,11 @@
+    <?php
+    // Determine if we are inside an admin page (any /admin/ path under public)
+    $is_admin_context = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
+    // Choose appropriate class list; keep original 'footer' for existing styling plus 'admin-footer' for admin overrides
+    $footer_class = $is_admin_context ? 'footer admin-footer' : 'footer';
+    ?>
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="<?php echo $footer_class; ?>">
         <div class="container">
             <div class="footer-content">
                 <!-- Company Info -->
@@ -57,7 +63,10 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; <?php echo date('Y'); ?> DOKO. All rights reserved. Made with ❤️ in Nepal.</p>
+                <p>&copy; <?php echo date('Y'); ?> DOKO. All rights reserved. <span style="opacity:.8">Made in Nepal.</span></p>
+                <?php if ($is_admin_context): ?>
+                    <p style="margin-top:.25rem;font-size:.75rem;opacity:.6">Admin Panel Version </p>
+                <?php endif; ?>
             </div>
         </div>
     </footer>
