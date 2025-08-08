@@ -132,7 +132,7 @@ include '../template/breadcrumb.php';
                     </div>
                     
                     <div class="profile-form-container">
-                        <form id="profile-form" class="profile-form" enctype="multipart/form-data">
+                        <form id="profile-form" class="profile-form" enctype="multipart/form-data" onsubmit="return false;">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="first_name">First Name *</label>
@@ -262,12 +262,12 @@ include '../template/breadcrumb.php';
     </div>
 </main>
 
-<!-- Add Address Modal -->
+<!-- Add/Edit Address Modal -->
 <div class="modal" id="add-address-modal" style="display:none;align-items:center;justify-content:center;">
     <div class="modal-content" style="background:#fff;border-radius:10px;max-width:520px;width:95%;padding:1.25rem;box-shadow:0 10px 30px rgba(0,0,0,0.2);position:relative;">
         <button class="close-btn" onclick="closeModal('add-address-modal')" style="position:absolute;right:12px;top:10px;border:none;background:transparent;font-size:1.25rem;cursor:pointer">&times;</button>
-        <h3 style="margin-top:0;margin-bottom:1rem;">Add New Address</h3>
-        <form id="add-address-form">
+        <h3 id="address-modal-title" style="margin-top:0;margin-bottom:1rem;">Add New Address</h3>
+        <form id="add-address-form" data-mode="add">
             <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                 <div class="form-group">
                     <label>Type</label>
@@ -284,22 +284,22 @@ include '../template/breadcrumb.php';
             </div>
             <div class="form-group">
                 <label>Street Address *</label>
-                <input type="text" name="street_address" class="form-control" required>
+                <input type="text" name="street_address" class="form-control" required minlength="3">
             </div>
             <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                 <div class="form-group">
                     <label>City *</label>
-                    <input type="text" name="city" class="form-control" required>
+                    <input type="text" name="city" class="form-control" required minlength="2">
                 </div>
                 <div class="form-group">
                     <label>State *</label>
-                    <input type="text" name="state" class="form-control" required>
+                    <input type="text" name="state" class="form-control" required minlength="2">
                 </div>
             </div>
             <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                 <div class="form-group">
                     <label>Postal Code *</label>
-                    <input type="text" name="postal_code" class="form-control" required>
+                    <input type="text" name="postal_code" class="form-control" required minlength="3" maxlength="10" pattern="[A-Za-z0-9\-\s]+" placeholder="e.g., 44600">
                 </div>
                 <div class="form-group">
                     <label>Country</label>
@@ -321,12 +321,25 @@ include '../template/breadcrumb.php';
         </form>
     </div>
     <style>
-        /* Basic modal fallback styles if not present globally */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 10000; }
-        .modal.active { display: flex !important; }
+        /* Scoped modal fallback styles to avoid conflicts */
+        #add-address-modal.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 10000; }
+        #add-address-modal.modal.active { display: flex !important; }
     </style>
     <script>
-        function showAddAddressModal() { if (typeof openModal === 'function') { openModal('add-address-modal'); } else { document.getElementById('add-address-modal').style.display = 'flex'; } }
+        // Local cache for addresses to support quick edit
+        window.__addressesCache = window.__addressesCache || [];
+
+        function showAddAddressModal() {
+            const title = document.getElementById('address-modal-title');
+            const form = document.getElementById('add-address-form');
+            if (form) {
+                form.reset();
+                form.dataset.mode = 'add';
+                form.dataset.id = '';
+            }
+            if (title) title.textContent = 'Add New Address';
+            if (typeof openModal === 'function') { openModal('add-address-modal'); } else { document.getElementById('add-address-modal').style.display = 'flex'; document.body.style.overflow='hidden'; }
+        }
         async function loadAddresses() {
             const list = document.getElementById('address-list');
             if (!list) return;
@@ -335,6 +348,7 @@ include '../template/breadcrumb.php';
                 const resp = await fetch('/api/users/addresses.php', { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
                 const data = await resp.json();
                 if (!data.success) throw new Error(data.message || 'Failed to load');
+                window.__addressesCache = Array.isArray(data.addresses) ? data.addresses : [];
                 if (!data.addresses || data.addresses.length === 0) {
                     list.innerHTML = '<div class="empty-state"><i class="fas fa-map-marker-alt"></i><h3>No addresses found</h3><p>Add your first delivery address to get started</p></div>';
                     return;
@@ -351,6 +365,7 @@ include '../template/breadcrumb.php';
                                 ${a.landmark ? `<div style="color:#777;margin-top:2px;">Landmark: ${a.landmark}</div>` : ''}
                             </div>
                             <div style="display:flex;gap:0.5rem;">
+                                <button class="btn btn-sm" style="background:#6b7280;color:#fff;" onclick="editAddress(${a.address_id})">Edit</button>
                                 ${a.is_default ? '' : `<button class="btn btn-sm" style="background:#3b82f6;color:#fff;" onclick="setDefaultAddress(${a.address_id})">Set Default</button>`}
                                 <button class="btn btn-sm btn-secondary" onclick="deleteAddress(${a.address_id})">Delete</button>
                             </div>
@@ -362,6 +377,27 @@ include '../template/breadcrumb.php';
                 if (typeof showNotification === 'function') showNotification('Failed to load addresses', 'error');
                 list.innerHTML = '<div class="empty-state">Failed to load addresses</div>';
             }
+        }
+        function editAddress(id) {
+            const address = (window.__addressesCache || []).find(a => String(a.address_id) === String(id));
+            if (!address) { if (typeof showNotification==='function') showNotification('Address not found', 'error'); return; }
+            const form = document.getElementById('add-address-form');
+            const title = document.getElementById('address-modal-title');
+            if (form) {
+                form.dataset.mode = 'edit';
+                form.dataset.id = String(id);
+                form.address_type.value = address.address_type || 'home';
+                form.address_label.value = address.address_label || '';
+                form.street_address.value = address.street_address || '';
+                form.city.value = address.city || '';
+                form.state.value = address.state || '';
+                form.postal_code.value = address.postal_code || '';
+                form.country.value = address.country || 'Nepal';
+                form.landmark.value = address.landmark || '';
+                form.is_default.checked = !!address.is_default;
+            }
+            if (title) title.textContent = 'Edit Address';
+            if (typeof openModal === 'function') { openModal('add-address-modal'); } else { document.getElementById('add-address-modal').style.display = 'flex'; document.body.style.overflow='hidden'; }
         }
         async function setDefaultAddress(id) {
             try {
@@ -382,6 +418,14 @@ include '../template/breadcrumb.php';
                 loadAddresses();
             } catch (e) { if (typeof showNotification === 'function') showNotification('Failed to delete address', 'error'); }
         }
+        function validateAddressPayload(p) {
+            if (!p.street_address || p.street_address.trim().length < 3) return { ok:false, msg:'Street address is too short' };
+            if (!p.city || p.city.trim().length < 2) return { ok:false, msg:'City is required' };
+            if (!p.state || p.state.trim().length < 2) return { ok:false, msg:'State is required' };
+            if (!p.postal_code || p.postal_code.trim().length < 3) return { ok:false, msg:'Postal code is required' };
+            if (!/^[A-Za-z0-9\-\s]{3,10}$/.test(p.postal_code)) return { ok:false, msg:'Postal code format is invalid' };
+            return { ok:true };
+        }
         async function submitAddAddressForm(e) {
             e.preventDefault();
             const form = e.target;
@@ -396,22 +440,24 @@ include '../template/breadcrumb.php';
                 landmark: form.landmark.value.trim() || null,
                 is_default: form.is_default.checked ? 1 : 0
             };
+            const v = validateAddressPayload(payload);
+            if (!v.ok) { if (typeof showNotification==='function') showNotification(v.msg, 'error'); return; }
             try {
-                const resp = await fetch('/api/users/addresses.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify(payload)
-                });
+                const mode = form.dataset.mode || 'add';
+                const id = form.dataset.id || '';
+                const isEdit = mode === 'edit' && id;
+                const endpoint = isEdit ? `/api/users/addresses.php?id=${encodeURIComponent(id)}` : '/api/users/addresses.php';
+                const method = isEdit ? 'PUT' : 'POST';
+                const resp = await fetch(endpoint, { method, headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin', body: JSON.stringify(payload) });
                 const data = await resp.json();
                 if (!data.success) throw new Error(data.message || 'Failed to save');
-                if (typeof showNotification === 'function') showNotification('Address added', 'success');
+                if (typeof showNotification === 'function') showNotification(isEdit ? 'Address updated' : 'Address added', 'success');
                 if (typeof closeModal === 'function') closeModal('add-address-modal'); else document.getElementById('add-address-modal').style.display='none';
                 form.reset();
                 loadAddresses();
             } catch (e) {
                 console.error('Save address error', e);
-                if (typeof showNotification === 'function') showNotification(e.message || 'Failed to add address', 'error');
+                if (typeof showNotification === 'function') showNotification(e.message || 'Failed to save address', 'error');
             }
         }
         document.addEventListener('DOMContentLoaded', function(){
@@ -698,27 +744,15 @@ document.querySelectorAll('.profile-nav-item[data-section]').forEach(item => {
     });
 });
 
-// Profile form submission (fallback only). If main.js is present (apiFetch defined), it will handle profile updates via /api/users/profile-update.php
-if (!window.apiFetch) {
-    document.getElementById('profile-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-        submitBtn.disabled = true;
-        try {
-            const response = await fetch('profile.php', { method: 'POST', body: formData });
-            const result = await response.json();
-            if (result.success) { showNotification(result.message, 'success'); }
-            else { showNotification(result.message, 'error'); }
-        } catch (error) {
-            showNotification('An error occurred. Please try again.', 'error');
-        }
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
-}
+// Activate section based on URL hash (e.g., #order-history, #address-book, #security)
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = (window.location.hash || '').replace('#','');
+    if (!hash) return;
+    const link = document.querySelector(`.profile-nav-item[data-section="${hash}"]`);
+    if (link) link.click();
+});
+
+// Profile form submission handled by main.js via apiFetch to /api/users/profile-update.php
 
 // Simple notification system
 function showNotification(message, type = 'info') {

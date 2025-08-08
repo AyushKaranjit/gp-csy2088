@@ -1,0 +1,4 @@
+# Ignore PHAR binaries and test cache
+websites/doko/composer.phar
+websites/doko/phpunit.phar
+websites/doko/tests/.phpunit.result.cache

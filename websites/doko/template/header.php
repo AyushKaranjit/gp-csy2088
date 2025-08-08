@@ -179,7 +179,7 @@
                                             <i class="fas fa-cogs"></i> Admin Panel
                                         </a>
                                     <?php else: ?>
-                                        <a href="customer.php" class="dropdown-item">
+                                        <a href="profile.php#order-history" class="dropdown-item">
                                             <i class="fas fa-shopping-bag"></i> My Orders
                                         </a>
                                     <?php endif; ?>

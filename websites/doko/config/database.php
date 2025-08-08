@@ -312,6 +312,28 @@ class Database {
             if (!in_array('status', $catCols)) {
                 $this->pdo->exec("ALTER TABLE categories ADD COLUMN status ENUM('active','inactive') DEFAULT 'active' AFTER description");
             }
+            // Ensure user_addresses table exists for Address Book feature
+            $hasAddr = $this->pdo->query("SHOW TABLES LIKE 'user_addresses'")->fetchColumn();
+            if (!$hasAddr) {
+                $this->pdo->exec(<<<SQL
+CREATE TABLE IF NOT EXISTS user_addresses (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    address_type ENUM('home','work','other') DEFAULT 'home',
+    address_label VARCHAR(50) NULL,
+    street_address TEXT NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    country VARCHAR(50) DEFAULT 'Nepal',
+    landmark TEXT NULL,
+    is_default TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id)
+)
+SQL);
+            }
         } catch (Throwable $e) {
             // ignore
         }
