@@ -55,12 +55,31 @@ try {
         throw new Exception('Product not found');
     }
 
+    // Ensure product_images table exists (idempotent safeguard)
+    $db->exec("CREATE TABLE IF NOT EXISTS product_images (
+        image_id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        image_url VARCHAR(1000) NOT NULL,
+        is_primary TINYINT(1) DEFAULT 0,
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (product_id),
+        CONSTRAINT fk_product_images_product FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // Demote existing primary image if any
     $db->prepare('UPDATE product_images SET is_primary = 0 WHERE product_id = ? AND is_primary = 1')->execute([$product_id]);
 
     // Insert new record (store absolute URL directly)
     $ins = $db->prepare('INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES (?, ?, 1, 0)');
     $ins->execute([$product_id, $image_url]);
+
+    // Also persist a shortcut on products table if column exists
+    $colCheck = $db->query("SHOW COLUMNS FROM products LIKE 'image_url'")->fetch();
+    if ($colCheck) {
+        $up = $db->prepare('UPDATE products SET image_url = ? WHERE product_id = ?');
+        $up->execute([$image_url, $product_id]);
+    }
 
     echo json_encode(['success' => true, 'message' => 'Primary image link set', 'product_id' => $product_id, 'image_url' => $image_url]);
 } catch (Exception $e) {

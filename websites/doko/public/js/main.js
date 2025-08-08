@@ -4,24 +4,19 @@
  * CSY2088 Project
  */
 
+// Prevent duplicate execution if script is included twice
+if (window.__DOKO_MAIN_LOADED__) {
+    console.warn('main.js already loaded; skipping duplicate execution');
+} else {
+window.__DOKO_MAIN_LOADED__ = true;
+
 // ========== API PATH RESOLUTION ==========
 // Determine correct API path based on current page location
 function getApiPath() {
-    const currentPath = window.location.pathname;
-    console.log('Current path:', currentPath);
-    
-    // Handle different directory structures
-    if (currentPath.includes('/api/')) {
-        console.log('Already in API directory, using empty path');
-        return ''; // Already in api directory
-    } else if (currentPath.includes('/public/')) {
-        console.log('In public directory, using api/ path');
-        return 'api/'; // In public directory, navigate to api
-    } else {
-        // Default case - assume we're in the public root
-        console.log('Using default api/ path');
-        return 'api/';
-    }
+    // Always return an absolute /api/ base so nested routes (e.g. /admin/dashboard) still work
+    // Optionally allow override via global variable window.API_BASE
+    if (window.API_BASE) return window.API_BASE.replace(/\/*$/, '/') ;
+    return '/api/';
 }
 
 // ========== ERROR HANDLING ==========
@@ -49,34 +44,30 @@ window.addEventListener('unhandledrejection', function(event) {
 // ========== IMMEDIATE GLOBAL FUNCTIONS ==========
 // These functions must be available immediately when the script loads
 
-// Global Image Error Handler - Available immediately
-window.handleImageError = function(img) {
-    console.log('Image failed to load:', img.src);
-    
-    // Progressive fallback system
-    if (img.src.indexOf('default-product.jpg') === -1) {
-        // Try default product image first
-        img.src = 'uploads/default-product.jpg';
-        img.style.objectFit = 'contain';
-        img.style.padding = '20px';
-        img.style.background = '#f8f9fa';
-        console.log('Fallback to default-product.jpg');
-    } else {
-        // Create a placeholder if image still fails
+// Global Image Error Handler (idempotent): provide consistent fallback
+if (!window.handleImageError) {
+    window.handleImageError = function(img) {
+        if (!img || !img.src) return;
+        console.log('[ImageError] Failed:', img.src);
+        // If not already using default, try default
+        if (!/default-product\.jpg$/i.test(img.src)) {
+            img.src = (window.CDN_BASE || '') + '/uploads/default-product.jpg';
+            img.style.objectFit = 'contain';
+            img.style.padding = '20px';
+            img.style.background = '#f8f9fa';
+            return;
+        }
+        // Avoid duplicate placeholders
         img.style.display = 'none';
-        const placeholder = document.createElement('div');
-        placeholder.className = 'image-placeholder';
-        placeholder.innerHTML = '<i class="fas fa-image"></i><br><span>Image not available</span>';
-        placeholder.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa;color:#6c757d;font-size:0.8rem;text-align:center;';
         if (img.parentNode && !img.parentNode.querySelector('.image-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'image-placeholder';
+            placeholder.innerHTML = '<i class="fas fa-image"></i><br><span>Image not available</span>';
+            placeholder.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa;color:#6c757d;font-size:0.8rem;text-align:center;';
             img.parentNode.appendChild(placeholder);
         }
-        console.log('Created placeholder for failed image');
-    }
-};
-
-// Also create a shorthand reference
-const handleImageError = window.handleImageError;
+    };
+}
 
 // ========== IMAGE HANDLING FUNCTIONS ==========
 
@@ -93,6 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCart();
     initializeForms();
 });
+
+} // end duplicate load guard
 
 // Dashboard Navigation System
 function initializeDashboard() {
@@ -540,7 +533,8 @@ function addToCart(productId, quantity = 1, productName = 'Product') {
     
     console.log('Sending to API:', data);
     
-    fetch(getApiPath() + 'cart/cart-add-working.php', {
+    // Use current canonical add endpoint
+    fetch(getApiPath() + 'cart/add.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

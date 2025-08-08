@@ -15,6 +15,15 @@ class ApiResponse {
         'http://127.0.0.1',
     ];
 
+    private static function augment(array $payload): array {
+        // Auto-inject is_logged_in flag if session indicates
+        if (session_status() === PHP_SESSION_ACTIVE || isset($_COOKIE[session_name()])) {
+            if (session_status() !== PHP_SESSION_ACTIVE) { @session_start(); }
+            $payload += ['is_logged_in' => (!empty($_SESSION['logged_in']))];
+        }
+        return $payload;
+    }
+
     public static function send(array $payload, int $status = 200, array $headers = []): void {
         http_response_code($status);
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
@@ -29,7 +38,7 @@ class ApiResponse {
         foreach ($headers as $k => $v) {
             header($k . ': ' . $v, true);
         }
-        echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    echo json_encode(self::augment($payload), JSON_UNESCAPED_UNICODE);
     }
 
     public static function success(array $data = [], int $status = 200): void {

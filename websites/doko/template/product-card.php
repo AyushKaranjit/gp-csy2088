@@ -47,12 +47,13 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
     <div class="product-image">
         <a href="product-detail.php?id=<?php echo $product['id']; ?>" class="product-image-link">
-            <img src="<?php echo htmlspecialchars($product['image']); ?>" 
-                 alt="<?php echo htmlspecialchars($product['name']); ?>" 
+            <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                 alt="<?php echo htmlspecialchars($product['name']); ?>"
                  loading="lazy"
-                 onerror="handleImageError(this)"
-                 style="display: block;">
-        </a>>
+                 class="product-img"
+                 data-fallback="/uploads/default-product.jpg"
+                 onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{handleImageError(this);}"
+                 style="display:block;" />
         </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>
@@ -143,11 +144,11 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
                 <input type="number" id="qty-<?php echo $product['id']; ?>" name="qty-<?php echo $product['id']; ?>" class="qty-input-mini" value="1" min="1" max="<?php echo $product['stock_quantity'] ?? 99; ?>" autocomplete="off">
                 <button type="button" class="qty-btn-mini plus" onclick="changeQuantity(<?php echo $product['id']; ?>, 1)">+</button>
             </div>
-            <button class="btn btn-primary btn-block add-to-cart" 
-                    onclick="addToCart(<?php echo $product['id']; ?>, 1, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
-                    data-product-id="<?php echo $product['id']; ?>"
-                    data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
-                    data-product-price="<?php echo $product['price']; ?>">>
+        <button class="btn btn-primary btn-block add-to-cart"
+            onclick="addToCart(<?php echo $product['id']; ?>, 1, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
+            data-product-id="<?php echo $product['id']; ?>"
+            data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
+            data-product-price="<?php echo $product['price']; ?>">
                 <i class="fas fa-shopping-cart"></i>
                 Add to Cart
             </button>

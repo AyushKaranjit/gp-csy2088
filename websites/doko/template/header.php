@@ -42,8 +42,10 @@
     
     <!-- Immediate Image Error Handler Fallback -->
     <script>
-    // Fallback handleImageError function - available immediately
-    window.handleImageError = function(img) {
+    // Expose a consistent absolute API base for scripts (works under nested routes)
+    window.API_BASE = '/api/';
+    // Fallback handleImageError function - only define if not already provided
+    if (!window.handleImageError) window.handleImageError = function(img) {
         console.log('Image load error for:', img.src);
         
         if (img.src.indexOf('default-product.jpg') === -1) {
