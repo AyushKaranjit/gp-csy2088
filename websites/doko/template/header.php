@@ -91,20 +91,26 @@
             <div class="container">
                 <div class="header-content">
                     <!-- Professional DOKO Logo -->
-                    <div class="logo">
-                        <a href="index.php" style="display: flex; align-items: center; gap: 15px; text-decoration: none;">
-                            <div class="logo-icon doko-basket-icon">
-                                <div class="basket-container">
-                                    <div class="basket-body">
-                                        <div class="weave-pattern"></div>
-                                        <div class="weave-pattern"></div>
-                                        <div class="weave-pattern"></div>
-                                    </div>
-                                    <div class="basket-handles">
-                                        <div class="handle-left"></div>
-                                        <div class="handle-right"></div>
-                                    </div>
-                                </div>
+                    <div class="logo" style="gap:10px;align-items:center;">
+                        <a href="index.php" class="doko-logo-link" aria-label="DOKO Nepali Traditional Basket Home" style="align-items:center;display:flex;">
+                            <div class="logo-icon doko-basket-icon" aria-hidden="true">
+                                <svg class="doko-svg" viewBox="0 0 64 64" role="img" focusable="false">
+                                    <defs>
+                                        <linearGradient id="dokoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#8B4513"/>
+                                            <stop offset="55%" stop-color="#A0522D"/>
+                                            <stop offset="100%" stop-color="#D17A2D"/>
+                                        </linearGradient>
+                                        <pattern id="weavePattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                                            <rect x="0" y="0" width="6" height="6" fill="#c27d46"/>
+                                            <rect x="0" y="0" width="6" height="3" fill="#b36a33"/>
+                                            <rect x="0" y="3" width="6" height="1" fill="#d58d54"/>
+                                        </pattern>
+                                    </defs>
+                                    <path d="M8 10 L56 10 L50 46 Q32 54 14 46 Z" fill="url(#weavePattern)" stroke="#5c3311" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M8 10 L56 10" stroke="url(#dokoGrad)" stroke-width="6" stroke-linecap="round"/>
+                                    <path d="M14 18 L50 18 M12 26 L52 26 M16 34 L48 34" stroke="#a45d2a" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                                </svg>
                             </div>
                             <div class="logo-text">
                                 <span class="logo-main">DOKO</span>
@@ -175,7 +181,11 @@
                             <!-- Logged in user dropdown -->
                             <div class="header-action user-dropdown">
                                 <div class="user-info" onclick="toggleUserDropdown()">
-                                    <i class="fas fa-user-circle"></i>
+                                    <?php if (!empty($currentUser['profile_image'])): ?>
+                                        <img src="<?php echo htmlspecialchars($currentUser['profile_image']); ?>" alt="Avatar" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.onerror=null;this.src='/images/default-avatar.png'"> 
+                                    <?php else: ?>
+                                        <i class="fas fa-user-circle"></i>
+                                    <?php endif; ?>
                                     <span><?php echo htmlspecialchars($currentUser['first_name']); ?></span>
                                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                                 </div>
@@ -206,7 +216,7 @@
                             <a href="wishlist.php">
                                 <i class="fas fa-heart"></i>
                                 <span>Wishlist</span>
-                                <span class="wishlist-count">0</span>
+                                <span class="wishlist-count" id="wishlist-count">0</span>
                             </a>
                         </div>
 

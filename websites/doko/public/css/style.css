@@ -258,8 +258,8 @@ a:hover {
 }
 
 .logo-icon {
-    width: 45px;
-    height: 45px;
+    width: 32px;
+    height: 32px;
     background: var(--gradient-primary);
     border-radius: 12px;
     display: flex;
@@ -275,6 +275,18 @@ a:hover {
 /* Traditional Nepali Doko Basket Design */
 .doko-basket-icon {
     background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #D2691E 100%); /* Natural basket colors */
+}
+
+/* Enhanced SVG based DOKO logo (conical basket) */
+.doko-logo-link { display:flex; align-items:center; gap:6px; text-decoration:none; }
+.doko-svg { width:24px; height:24px; display:block; }
+.doko-basket-icon { position:relative; }
+.doko-basket-icon::after { content:""; position:absolute; inset:0; border-radius:12px; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(255,255,255,0) 65%); mix-blend-mode:overlay; pointer-events:none; }
+.logo-text .logo-main { letter-spacing:1px; font-weight:700; }
+.logo-text .logo-tagline { display:block; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; color:#a5551f; font-weight:600; line-height:1.1; }
+@media (prefers-reduced-motion: no-preference) {
+    .doko-svg path { transition: filter .6s ease, transform .6s ease; }
+    .doko-logo-link:hover .doko-svg path { filter:brightness(1.08); transform:translateY(-1px); }
 }
 
 .basket-container {

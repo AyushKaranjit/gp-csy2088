@@ -137,222 +137,77 @@ include_header($page_title, $page_description, $current_page);
                 <!-- Products Grid -->
                 <div class="products-grid" id="products-grid">
                     <?php
-                    // Sample products (in real application, fetch from database based on filters)
-                    $all_products = [
-                        [
-                            'id' => 1,
-                            'name' => 'Fresh Tomatoes (1kg)',
-                            'price' => 85.00,
-                            'original_price' => 95.00,
-                            'image' => product_image('Fresh Tomatoes'),
-                            'category_id' => 1,
-                            'category' => 'Fresh Vegetables',
-                            'rating' => 4.5,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Fresh local tomatoes, handpicked daily from local farms'
-                        ],
-                        [
-                            'id' => 2,
-                            'name' => 'Royal Banana (1 dozen)',
-                            'price' => 120.00,
-                            'original_price' => null,
-                            'image' => product_image('Royal Banana'),
-                            'category_id' => 2,
-                            'category' => 'Fresh Fruits',
-                            'rating' => 4.8,
-                            'in_stock' => true,
-                            'is_new' => true,
-                            'description' => 'Premium quality ripe bananas, sweet and nutritious'
-                        ],
-                        [
-                            'id' => 3,
-                            'name' => 'DDC Fresh Milk (1L)',
-                            'price' => 85.00,
-                            'original_price' => null,
-                            'image' => product_image('DDC Fresh Milk'),
-                            'category_id' => 3,
-                            'category' => 'Dairy Products',
-                            'rating' => 4.7,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Pure pasteurized milk from DDC, rich in calcium and vitamins'
-                        ],
-                        [
-                            'id' => 4,
-                            'name' => 'Basmati Rice (5kg)',
-                            'price' => 1250.00,
-                            'original_price' => 1350.00,
-                            'image' => product_image('Basmati Rice'),
-                            'category_id' => 4,
-                            'category' => 'Grains & Pulses',
-                            'rating' => 4.6,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Premium aged basmati rice, aromatic and long grain'
-                        ],
-                        [
-                            'id' => 5,
-                            'name' => 'Green Apples (1kg)',
-                            'price' => 380.00,
-                            'original_price' => null,
-                            'image' => product_image('Green Apples'),
-                            'category_id' => 2,
-                            'category' => 'Fresh Fruits',
-                            'rating' => 4.4,
-                            'in_stock' => true,
-                            'is_new' => true,
-                            'description' => 'Crisp and juicy green apples imported from Kashmir'
-                        ],
-                        [
-                            'id' => 6,
-                            'name' => 'Everest Garam Masala (100g)',
-                            'price' => 85.00,
-                            'original_price' => 95.00,
-                            'image' => product_image('Everest Garam Masala'),
-                            'category_id' => 5,
-                            'category' => 'Spices & Herbs',
-                            'rating' => 4.9,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Authentic Nepali garam masala blend for traditional cooking'
-                        ],
-                        [
-                            'id' => 7,
-                            'name' => 'Fresh Palungo (500g)',
-                            'price' => 45.00,
-                            'original_price' => null,
-                            'image' => product_image('Fresh Palungo'),
-                            'category_id' => 1,
-                            'category' => 'Fresh Vegetables',
-                            'rating' => 4.3,
-                            'in_stock' => true,
-                            'is_new' => true,
-                            'description' => 'Fresh spinach leaves, rich in iron and vitamins'
-                        ],
-                        [
-                            'id' => 8,
-                            'name' => 'Juju Dhau (200ml)',
-                            'price' => 95.00,
-                            'original_price' => 110.00,
-                            'image' => product_image('Juju Dhau'),
-                            'category_id' => 3,
-                            'category' => 'Dairy Products',
-                            'rating' => 4.6,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Traditional Bhaktapur yogurt, creamy and delicious'
-                        ],
-                        [
-                            'id' => 9,
-                            'name' => 'Red Onions (1kg)',
-                            'price' => 65.00,
-                            'original_price' => null,
-                            'image' => product_image('Red Onions'),
-                            'category_id' => 1,
-                            'category' => 'Fresh Vegetables',
-                            'rating' => 4.1,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Fresh red onions, essential for Nepali cooking'
-                        ],
-                        [
-                            'id' => 10,
-                            'name' => 'Real Juice Orange (1L)',
-                            'price' => 165.00,
-                            'original_price' => null,
-                            'image' => product_image('Real Juice Orange'),
-                            'category_id' => 6,
-                            'category' => 'Snacks & Beverages',
-                            'rating' => 4.0,
-                            'in_stock' => true,
-                            'is_new' => true,
-                            'description' => 'Pure orange juice with pulp, no artificial flavors'
-                        ],
-                        [
-                            'id' => 11,
-                            'name' => 'Bhatbhateni Brown Bread',
-                            'price' => 75.00,
-                            'original_price' => 85.00,
-                            'image' => product_image('Bhatbhateni Brown Bread'),
-                            'category_id' => 6,
-                            'category' => 'Snacks & Beverages',
-                            'rating' => 4.4,
-                            'in_stock' => true,
-                            'is_new' => false,
-                            'description' => 'Healthy whole wheat brown bread, soft and nutritious'
-                        ],
-                        [
-                            'id' => 12,
-                            'name' => 'Mountain Honey (500g)',
-                            'price' => 650.00,
-                            'original_price' => null,
-                            'image' => product_image('Mountain Honey'),
-                            'category_id' => 6,
-                            'category' => 'Snacks & Beverages',
-                            'rating' => 4.8,
-                            'in_stock' => true,
-                            'is_new' => true,
-                            'description' => 'Pure wildflower honey from Himalayan regions'
-                        ]
-                    ];
-
-                    // Filter products based on criteria
-                    $filtered_products = $all_products;
-
-                    // Filter by category
-                    if ($category_id) {
-                        $filtered_products = array_filter($filtered_products, function($product) use ($category_id) {
-                            return $product['category_id'] == $category_id;
-                        });
+                    // DB-driven product retrieval
+                    $filtered_products = [];
+                    try {
+                        $db = Database::getInstance();
+                                            // Some pages include only config.php (not api/_bootstrap.php) so helper
+                                            // functions might not be loaded. Provide a lightweight fallback.
+                                            if (!function_exists('schema_products_pk')) {
+                                                function schema_products_pk(): string { return 'product_id'; }
+                                            }
+                                            $pk = schema_products_pk();
+                        $where = ["p.status = 'active'"];
+                        $params = [];
+                        if ($category_id) { $where[] = 'p.category_id = ?'; $params[] = $category_id; }
+                        if ($search_query) { $where[] = '(p.name LIKE ? OR p.description LIKE ?)'; $params[] = '%'.$search_query.'%'; $params[] = '%'.$search_query.'%'; }
+                        if ($min_price > 0) { $where[] = 'p.price >= ?'; $params[] = $min_price; }
+                        if ($max_price > 0) { $where[] = 'p.price <= ?'; $params[] = $max_price; }
+                        $whereSql = $where ? ('WHERE '.implode(' AND ',$where)) : '';
+                        // Sorting
+                        $order = 'p.name ASC';
+                        switch ($sort_by) {
+                            case 'name_desc': $order = 'p.name DESC'; break;
+                            case 'price_asc': $order = 'p.price ASC'; break;
+                            case 'price_desc': $order = 'p.price DESC'; break;
+                            case 'rating': $order = 'p.rating DESC'; break; // if rating column exists
+                            case 'newest': $order = 'p.created_at DESC'; break;
+                        }
+                        $sql = "SELECT p.$pk AS id, p.name, p.price, p.stock_quantity, p.status, p.created_at,
+                                       COALESCE(pi.image_url, 'uploads/default-product.jpg') AS image,
+                                       c.name AS category,
+                                       p.description,
+                                       p.original_price
+                                FROM products p
+                                LEFT JOIN product_images pi ON pi.product_id = p.$pk AND pi.is_primary = 1
+                                LEFT JOIN categories c ON c.category_id = p.category_id
+                                $whereSql
+                                ORDER BY $order
+                                LIMIT 120"; // safety limit
+                        $stmt = $db->execute($sql, $params);
+                        $rows = $stmt->fetchAll();
+                        foreach ($rows as $r) {
+                            $filtered_products[] = [
+                                'id' => (int)$r['id'],
+                                'name' => $r['name'],
+                                'price' => (float)$r['price'],
+                                'original_price' => isset($r['original_price']) ? (float)$r['original_price'] : null,
+                                'image' => $r['image'] ?: 'uploads/default-product.jpg',
+                                'category_id' => null, // category id optional
+                                'category' => $r['category'] ?? 'General',
+                                'rating' => isset($r['rating']) ? (float)$r['rating'] : 0,
+                                'in_stock' => ($r['stock_quantity'] ?? 0) > 0 && strtolower($r['status']) === 'active',
+                                'is_new' => false,
+                                'description' => $r['description'] ?? '',
+                                'stock_quantity' => (int)($r['stock_quantity'] ?? 0),
+                                'status' => $r['status']
+                            ];
+                        }
+                    } catch (Throwable $e) {
+                        error_log('products.php query failed: '.$e->getMessage());
                     }
 
-                    // Filter by search query
-                    if ($search_query) {
-                        $filtered_products = array_filter($filtered_products, function($product) use ($search_query) {
-                            return stripos($product['name'], $search_query) !== false || 
-                                   stripos($product['description'], $search_query) !== false ||
-                                   stripos($product['category'], $search_query) !== false;
-                        });
+                    // Fallback: if DB empty, show a friendly message
+                    if (!$filtered_products) {
+                        echo '<p>No products found. Please add products in the admin panel.</p>';
                     }
 
-                    // Filter by price range
-                    $filtered_products = array_filter($filtered_products, function($product) use ($min_price, $max_price) {
-                        return $product['price'] >= $min_price && $product['price'] <= $max_price;
+                    // Manual PHP-side price range filtering if DB lacks conditions (already applied above though)
+                    $filtered_products = array_filter($filtered_products, function($p) use ($min_price, $max_price) {
+                        return $p['price'] >= $min_price && $p['price'] <= $max_price;
                     });
 
-                    // Sort products
-                    switch ($sort_by) {
-                        case 'name_desc':
-                            usort($filtered_products, function($a, $b) {
-                                return strcmp($b['name'], $a['name']);
-                            });
-                            break;
-                        case 'price_asc':
-                            usort($filtered_products, function($a, $b) {
-                                return $a['price'] <=> $b['price'];
-                            });
-                            break;
-                        case 'price_desc':
-                            usort($filtered_products, function($a, $b) {
-                                return $b['price'] <=> $a['price'];
-                            });
-                            break;
-                        case 'rating':
-                            usort($filtered_products, function($a, $b) {
-                                return $b['rating'] <=> $a['rating'];
-                            });
-                            break;
-                        case 'newest':
-                            usort($filtered_products, function($a, $b) {
-                                return ($b['is_new'] ?? 0) <=> ($a['is_new'] ?? 0);
-                            });
-                            break;
-                        default: // name
-                            usort($filtered_products, function($a, $b) {
-                                return strcmp($a['name'], $b['name']);
-                            });
-                    }
+                    // Sorting already handled in SQL; optional fallback removed.
 
                     // Display products
                     if (empty($filtered_products)): ?>

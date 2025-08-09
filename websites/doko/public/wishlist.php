@@ -175,71 +175,56 @@ const DOKO = {
     baseURL: window.location.origin
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadWishlistItems();
-});
+document.addEventListener('DOMContentLoaded', function() { loadUnifiedWishlist(); });
 
-function loadWishlistItems() {
+async function loadUnifiedWishlist(){
     const container = document.getElementById('wishlist-items-container');
     const emptyState = document.getElementById('empty-wishlist');
-    
-    // Get wishlist from localStorage
-    const wishlist = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
-    
-    if (wishlist.length === 0) {
-        emptyState.style.display = 'block';
-        container.innerHTML = '<div class="empty-wishlist" id="empty-wishlist"><div class="empty-state"><i class="fas fa-heart"></i><h3>Your wishlist is empty</h3><p>Save your favorite products to buy them later</p><a href="products.php" class="btn btn-primary">Start Shopping</a></div></div>';
+        if(!skipLoading){
+            container.innerHTML = '<div class="loading">Loading wishlist items...</div>';
+        }
+    let serverIds = [];
+    let isLoggedIn = false;
+    try {
+        const resp = await fetch('api/wishlist/wishlist.php', {credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}});
+        if (resp.status === 200) {
+            const data = await resp.json();
+            if (data && data.success) { serverIds = (data.items||[]).map(i=>parseInt(i.product_id)); isLoggedIn = true; }
+        }
+    } catch(e){ /* ignore */ }
+    // Local storage fallback (legacy) - merge
+    let localList = [];
+    try { localList = JSON.parse(localStorage.getItem('doko_wishlist')||'[]').map(i=>parseInt(i.product_id)); } catch(e) { localList=[]; }
+    const allIdsSet = new Set([ ...localList, ...serverIds ]);
+    const allIds = Array.from(allIdsSet);
+    if (allIds.length === 0){
+        emptyState.style.display='block';
+        container.innerHTML = emptyState.outerHTML;
         return;
     }
-    
-    emptyState.style.display = 'none';
-    
-    // Show loading state
-    container.innerHTML = '<div class="loading">Loading wishlist items...</div>';
-    
-    // For each item in wishlist, fetch product details from API
-    Promise.all(wishlist.map(item => 
-        fetch(`api/products/product-detail.php?id=${item.product_id}`)
-            .then(async response => {
-                let json;
-                try { json = await response.json(); } catch(e) { return { _bad: true }; }
-                if (!response.ok) {
-                    // If product truly gone (404) mark for cleanup
-                    if (response.status === 404) return { _missing: true, product_id: item.product_id };
-                    return { _bad: true };
-                }
-                if (json && (json.product || json.data)) {
-                    const p = json.product || json.data;
-                    return p;
-                }
-                return { _bad: true };
-            })
-            .catch(error => {
-                console.warn('Wishlist fetch error for product', item.product_id, error);
-                return { _bad: true };
-            })
-    )).then(results => {
-        // Remove missing products from localStorage automatically
-        const missingIds = results.filter(r => r && r._missing).map(r => r.product_id);
-        if (missingIds.length) {
-            let wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
-            wl = wl.filter(entry => !missingIds.includes(parseInt(entry.product_id)));
-            localStorage.setItem('doko_wishlist', JSON.stringify(wl));
-            console.info('Removed missing wishlist product IDs:', missingIds.join(','));
-        }
-        const validProducts = results.filter(r => r && !r._bad && !r._missing);
-        if (validProducts.length === 0) {
-            container.innerHTML = '<div class="empty-wishlist"><div class="empty-state"><i class="fas fa-heart"></i><h3>Your wishlist items are no longer available</h3><p>Browse products and add new favorites.</p><a href="products.php" class="btn btn-primary">Shop Products</a></div></div>';
+    emptyState.style.display='none';
+    // Fetch product details in parallel (limit concurrency if large)
+    const detailPromises = allIds.map(pid => fetch(`api/products/product-detail.php?id=${pid}`).then(r=>r.json()).catch(()=>null));
+    const results = await Promise.all(detailPromises);
+    const products = [];
+    results.forEach((res,idx)=>{
+        const pid = allIds[idx];
+        if(res && (res.product||res.data)){
+            const p = res.product||res.data; products.push(p);
         } else {
-            displayWishlistItems(validProducts);
+            // If missing remove from local storage & server (best effort)
+            let wl = JSON.parse(localStorage.getItem('doko_wishlist')||'[]');
+            wl = wl.filter(entry => parseInt(entry.product_id)!==pid); localStorage.setItem('doko_wishlist', JSON.stringify(wl));
         }
-    }).catch(error => {
-        console.error('Error loading wishlist items:', error);
-        container.innerHTML = '<div class="error-message">Error loading wishlist items</div>';
     });
+    if (products.length === 0){
+        container.innerHTML = '<div class="empty-wishlist"><div class="empty-state"><i class="fas fa-heart"></i><h3>Your wishlist items are no longer available</h3><p>Browse products and add new favorites.</p><a href="products.php" class="btn btn-primary">Shop Products</a></div></div>';
+        return;
+    }
+    displayWishlistItems(products, isLoggedIn);
 }
 
-function displayWishlistItems(products) {
+function displayWishlistItems(products, isLoggedIn) {
     const container = document.getElementById('wishlist-items-container');
     
     if (products.length === 0) {
@@ -269,7 +254,7 @@ function displayWishlistItems(products) {
                             <button class="btn btn-primary add-to-cart" data-id="${product.product_id}">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
-                            <button class="remove-wishlist" data-id="${product.product_id}" title="Remove from wishlist">
+                            <button class="remove-wishlist" data-id="${product.product_id}" title="Remove from wishlist" data-logged-in="${isLoggedIn}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -288,8 +273,14 @@ function displayWishlistItems(products) {
     });
     
     container.querySelectorAll('.remove-wishlist').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const productId = this.dataset.id;
+            const logged = this.getAttribute('data-logged-in') === 'true';
+            if (logged){
+                try {
+                    await fetch(`api/wishlist/wishlist.php?product_id=${productId}`, { method:'DELETE', credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'} });
+                } catch(e){}
+            }
             removeFromWishlist(productId);
         });
     });
@@ -326,18 +317,31 @@ function addToCart(productId) {
 }
 
 function removeFromWishlist(productId) {
-    let wishlist = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
-    wishlist = wishlist.filter(item => item.product_id != productId);
+    // Update local storage list
+    let wishlist = [];
+    try { wishlist = JSON.parse(localStorage.getItem('doko_wishlist')||'[]'); } catch(e){ wishlist=[]; }
+    wishlist = wishlist.filter(item => parseInt(item.product_id) !== parseInt(productId));
     localStorage.setItem('doko_wishlist', JSON.stringify(wishlist));
-    
-    // Reload wishlist display
-    loadWishlistItems();
-    
-    // Update wishlist count if function exists
-    if (typeof WishlistManager !== 'undefined' && WishlistManager.updateWishlistCount) {
-        WishlistManager.updateWishlistCount();
+
+    // Optimistically remove DOM node
+    const itemEl = document.querySelector(`.wishlist-item[data-id="${productId}"]`);
+    if (itemEl && itemEl.parentElement) {
+        const grid = itemEl.parentElement;
+        itemEl.remove();
+        // If grid now empty, reload fully to show empty state template
+        if (!grid.querySelector('.wishlist-item')) {
+            loadUnifiedWishlist(true); // skip loading spinner, will show empty state
+        }
+    } else {
+        // Fallback full reload if structure unexpected
+        loadUnifiedWishlist(true);
     }
-    
+
+    // Update header wishlist count if available
+    if (typeof updateWishlistCount === 'function') { try { updateWishlistCount(); } catch(e){} }
+    const badge = document.getElementById('wishlist-count');
+    if (badge) { badge.textContent = wishlist.length.toString(); }
+
     showNotification('Item removed from wishlist', 'success');
 }
 

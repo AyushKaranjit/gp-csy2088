@@ -21,8 +21,8 @@ try {
     
     if ($quantity <= 0) { ApiResponse::error('Quantity must be greater than 0', 400); return; }
     
-    // Check if user is logged in
-    $auth = new AuthController();
+    // Auth (use shared helper for consistency / session reuse)
+    $auth = auth_controller();
     $isLoggedIn = $auth->isLoggedIn();
     if (!$isLoggedIn) { ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]); return; }
     
@@ -40,18 +40,36 @@ try {
     $cartPk = schema_cart_pk();
     $cartHasPrice = schema_cart_has_price();
     
-    // Check if product exists
-    $query = "SELECT {$productsPk} AS product_id, name, price, stock_quantity FROM products WHERE {$productsPk} = ? AND status = 'active'";
+    // Fetch product (primary attempt enforcing active status)
+    $query = "SELECT {$productsPk} AS product_id, name, price, stock_quantity, status FROM products WHERE {$productsPk} = ? AND status = 'active'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$product) { ApiResponse::error('Product not found', 404); return; }
+
+    // Fallback: if not found try without status filter (could be inactive / debugging) but do NOT allow adding if inactive
+    if (!$product) {
+        $fallbackStmt = $conn->prepare("SELECT {$productsPk} AS product_id, name, price, stock_quantity, status FROM products WHERE {$productsPk} = ? LIMIT 1");
+        $fallbackStmt->execute([$product_id]);
+        $productFallback = $fallbackStmt->fetch(PDO::FETCH_ASSOC);
+        if ($productFallback) {
+            ApiResponse::error('Product not available (inactive)', 404, [
+                'product_id'=>$product_id,
+                'status'=>$productFallback['status'],
+                'reason'=>'inactive'
+            ]);
+            return;
+        }
+        ApiResponse::error('Product not found', 404, [
+            'product_id'=>$product_id,
+            'reason'=>'not_found',
+            'hint'=>'Ensure product exists in products table and is active; UI demo data may not be seeded into DB.'
+        ]);
+        return;
+    }
     
     // Explicit out of stock check
-    if ($product['stock_quantity'] <= 0) { ApiResponse::error('Product is out of stock', 400); return; }
-    // Check stock availability against requested quantity
-    if ($product['stock_quantity'] < $quantity) { ApiResponse::error('Insufficient stock available', 400); return; }
+    if ($product['stock_quantity'] <= 0) { ApiResponse::error('Product is out of stock', 400, ['reason'=>'out_of_stock','stock'=>$product['stock_quantity']]); return; }
+    if ($product['stock_quantity'] < $quantity) { ApiResponse::error('Insufficient stock available', 400, ['reason'=>'insufficient_stock','stock'=>$product['stock_quantity']]); return; }
     
     // Check if item already exists in cart
     $query = "SELECT {$cartPk} AS cart_id, quantity FROM cart WHERE user_id = ? AND product_id = ?";
@@ -65,6 +83,7 @@ try {
         $query = "UPDATE cart SET quantity = ? WHERE {$cartPk} = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$new_quantity, $existing['cart_id']]);
+        $finalQuantity = $new_quantity;
     } else {
         // Add new cart item (handle optional price column)
         if ($cartHasPrice) {
@@ -76,6 +95,7 @@ try {
             $stmt = $conn->prepare($query);
             $stmt->execute([$user_id, $product_id, $quantity]);
         }
+        $finalQuantity = $quantity;
     }
     
     // Calculate current cart total for response convenience
@@ -87,11 +107,18 @@ try {
     ApiResponse::success([
         'message' => 'Product added to cart successfully',
         'total' => $total,
-        'is_logged_in' => true
+        'item' => [
+            'product_id' => $product['product_id'],
+            'name' => $product['name'],
+            'price' => (float)$product['price'],
+            'quantity' => $finalQuantity
+        ],
+        'is_logged_in' => true,
+        'reason' => 'added'
     ]);
     
 } catch (Exception $e) {
     error_log("Add to cart API error: " . $e->getMessage());
-    ApiResponse::error('An error occurred while adding to cart', 500);
+    ApiResponse::error('An error occurred while adding to cart', 500, [ 'exception' => $e->getMessage() ]);
 }
 ?>

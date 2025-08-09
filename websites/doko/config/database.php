@@ -65,6 +65,13 @@ class Database {
             $this->pdo = new PDO($dsn, $this->username, $this->password, $this->options);
             $this->pdo->exec("SET NAMES utf8mb4");
             $this->pdo->query("SELECT 1");
+            // IMPORTANT: When the database is pre-created by Docker (MYSQL_DATABASE env)
+            // it will exist but contain *no tables*. Our original logic only ran
+            // initializeSchema() when the database itself was missing (error 1049),
+            // which meant a blank database never received the schema or seed data.
+            // We now proactively run initializeSchema() after a successful connection;
+            // the method is idempotent (it checks for existing tables) so this is safe.
+            $this->initializeSchema();
             $this->ensureTestCompatibility();
         } catch (PDOException $e) {
             if ($e->getCode() == 1049) { // Unknown database -> attempt create

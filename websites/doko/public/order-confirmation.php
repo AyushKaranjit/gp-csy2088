@@ -487,158 +487,114 @@ include_header($page_title, $page_description, $current_page);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const orderIdParam = params.get('order_id');
     let orderData = null;
-    
-    // Try to get order data from sessionStorage
-    const sessionOrderData = sessionStorage.getItem('order_data');
-    if (sessionOrderData) {
-        orderData = JSON.parse(sessionOrderData);
-        sessionStorage.removeItem('order_data'); // Remove after use
-    }
-    
-    if (!orderData) {
-        // If no order data, redirect to home
+
+    function showFallbackRedirect(){
         window.location.href = 'index.php';
-        return;
     }
-    
-    // Load order items
-    function loadOrderItems() {
+
+    // Primary: if order_id present, fetch from API
+    if (orderIdParam) {
+        fetch('api/users/order-detail.php?order_id=' + encodeURIComponent(orderIdParam), {credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}})
+            .then(r=>r.json())
+            .then(j=>{
+                if(j && j.success && j.order){
+                    hydrateFromApi(j.order);
+                } else {
+                    // fallback to sessionStorage
+                    loadFromSession();
+                }
+            })
+            .catch(()=>{ loadFromSession(); });
+    } else {
+        loadFromSession();
+    }
+
+    function loadFromSession(){
+        const sessionOrderData = sessionStorage.getItem('order_data');
+        if (sessionOrderData) {
+            try { orderData = JSON.parse(sessionOrderData); } catch(e){}
+            sessionStorage.removeItem('order_data');
+            if(orderData){ hydrateFromSession(orderData); return; }
+        }
+        showFallbackRedirect();
+    }
+
+    function hydrateFromApi(order){
+        // order from API has different structure than session simulation
+        orderData = order;
+        // Items
+        const itemsContainer = document.getElementById('order-items-list');
+        itemsContainer.innerHTML = (order.items||[]).map(it=>`
+            <div class="order-item">
+                <div class="order-item-image">
+                    <img src="${it.image}" alt="${it.name}" loading="lazy" onerror="handleImageError(this)">
+                </div>
+                <div class="order-item-details">
+                    <div class="order-item-name">${it.name}</div>
+                    <div class="order-item-quantity">Quantity: ${it.quantity} × Rs. ${(+it.price).toFixed(2)}</div>
+                </div>
+                <div class="order-item-price">Rs. ${(it.line_total).toFixed(2)}</div>
+            </div>`).join('') || '<p>No items found.</p>';
+        // Customer info not embedded; show minimal
+        document.getElementById('customer-info').innerHTML = '<p>Thank you for your purchase! (Account order)</p>';
+        // Delivery info
+        const addr = order.shipping_address || {};
+        document.getElementById('delivery-info').innerHTML = `
+            <div class="info-grid">
+                <div class="info-item"><div class="info-label">Address:</div><div class="info-value">${addr.address||'-'}</div></div>
+                <div class="info-item"><div class="info-label">City:</div><div class="info-value">${(addr.city||'').toString()}</div></div>
+                <div class="info-item"><div class="info-label">State:</div><div class="info-value">${(addr.state||'').toString()}</div></div>
+                <div class="info-item"><div class="info-label">Postal Code:</div><div class="info-value">${(addr.zip||'').toString()}</div></div>
+            </div>`;
+        // Payment
+        document.getElementById('payment-info').innerHTML = `<div class="info-item"><span style="font-weight:600">Method:</span> ${order.payment_method}</div>`;
+        // Totals
+        document.getElementById('conf-subtotal').textContent = 'Rs. ' + (order.totals.subtotal).toFixed(2);
+        document.getElementById('conf-delivery').textContent = (order.totals.shipping === 0 ? 'FREE' : 'Rs. ' + (order.totals.shipping).toFixed(2));
+        document.getElementById('conf-total').textContent = 'Rs. ' + (order.totals.total).toFixed(2);
+    }
+
+    function hydrateFromSession(data){
+        orderData = data;
+        // Items
         const container = document.getElementById('order-items-list');
-        let itemsHTML = '';
-        
-        orderData.items.forEach(item => {
-            itemsHTML += `
-                <div class="order-item">
-                    <div class="order-item-image">
-                        <img src="${item.image}" alt="${item.name}" loading="lazy">
-                    </div>
-                    <div class="order-item-details">
-                        <div class="order-item-name">${item.name}</div>
-                        <div class="order-item-quantity">Quantity: ${item.quantity} × Rs. ${item.price.toFixed(2)}</div>
-                    </div>
-                    <div class="order-item-price">Rs. ${(item.price * item.quantity).toFixed(2)}</div>
+        container.innerHTML = (orderData.items||[]).map(item=>`
+            <div class="order-item">
+                <div class="order-item-image">
+                    <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="handleImageError(this)">
                 </div>
-            `;
-        });
-        
-        container.innerHTML = itemsHTML;
-    }
-    
-    // Load customer information
-    function loadCustomerInfo() {
-        const container = document.getElementById('customer-info');
-        const customer = orderData.customer;
-        
-        container.innerHTML = `
+                <div class="order-item-details">
+                    <div class="order-item-name">${item.name}</div>
+                    <div class="order-item-quantity">Quantity: ${item.quantity} × Rs. ${(item.price).toFixed(2)}</div>
+                </div>
+                <div class="order-item-price">Rs. ${(item.price * item.quantity).toFixed(2)}</div>
+            </div>`).join('');
+        // Customer info
+        const c = orderData.customer||{};
+        document.getElementById('customer-info').innerHTML = `
             <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Name:</div>
-                    <div class="info-value">${customer.first_name} ${customer.last_name}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Email:</div>
-                    <div class="info-value">${customer.email}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Phone:</div>
-                    <div class="info-value">${customer.phone}</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Load delivery information
-    function loadDeliveryInfo() {
-        const container = document.getElementById('delivery-info');
-        const delivery = orderData.delivery;
-        
-        container.innerHTML = `
+                <div class="info-item"><div class="info-label">Name:</div><div class="info-value">${c.first_name||''} ${c.last_name||''}</div></div>
+                <div class="info-item"><div class="info-label">Email:</div><div class="info-value">${c.email||''}</div></div>
+                <div class="info-item"><div class="info-label">Phone:</div><div class="info-value">${c.phone||''}</div></div>
+            </div>`;
+        const d = orderData.delivery||{};
+        document.getElementById('delivery-info').innerHTML = `
             <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Address:</div>
-                    <div class="info-value">${delivery.address}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">City:</div>
-                    <div class="info-value">${delivery.city.charAt(0).toUpperCase() + delivery.city.slice(1)}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Area:</div>
-                    <div class="info-value">${delivery.area}</div>
-                </div>
-                ${delivery.landmark ? `
-                <div class="info-item">
-                    <div class="info-label">Landmark:</div>
-                    <div class="info-value">${delivery.landmark}</div>
-                </div>
-                ` : ''}
-                <div class="info-item">
-                    <div class="info-label">Delivery Date:</div>
-                    <div class="info-value">${new Date(delivery.delivery_date).toLocaleDateString()}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Time Slot:</div>
-                    <div class="info-value">${getTimeSlotText(delivery.delivery_time)}</div>
-                </div>
-                ${delivery.delivery_notes ? `
-                <div class="info-item" style="grid-column: 1 / -1;">
-                    <div class="info-label">Special Instructions:</div>
-                    <div class="info-value">${delivery.delivery_notes}</div>
-                </div>
-                ` : ''}
-            </div>
-        `;
-    }
-    
-    // Load payment information
-    function loadPaymentInfo() {
-        const container = document.getElementById('payment-info');
-        const paymentMethod = orderData.payment_method;
-        
-        const paymentMethods = {
-            'cod': { name: 'Cash on Delivery', icon: 'fas fa-money-bill-wave' },
-            'esewa': { name: 'eSewa', icon: 'fab fa-cc-visa' },
-            'khalti': { name: 'Khalti', icon: 'fas fa-mobile-alt' }
-        };
-        
-        const method = paymentMethods[paymentMethod];
-        
-        container.innerHTML = `
-            <div class="info-item">
-                <i class="${method.icon}"></i>
-                <span style="margin-left: 0.5rem;">${method.name}</span>
-            </div>
-        `;
-    }
-    
-    // Load order summary
-    function loadOrderSummary() {
-        const subtotal = orderData.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+                <div class="info-item"><div class="info-label">Address:</div><div class="info-value">${d.address||''}</div></div>
+                <div class="info-item"><div class="info-label">City:</div><div class="info-value">${(d.city||'').toString()}</div></div>
+                <div class="info-item"><div class="info-label">Area:</div><div class="info-value">${d.area||''}</div></div>
+                ${(d.landmark?`<div class=\"info-item\"><div class=\"info-label\">Landmark:</div><div class=\"info-value\">${d.landmark}</div></div>`:'')}
+            </div>`;
+        document.getElementById('payment-info').innerHTML = `<div class="info-item"><span style="font-weight:600">Method:</span> ${orderData.payment_method}</div>`;
+        const subtotal = (orderData.items||[]).reduce((t,i)=>t + (i.price * i.quantity),0);
         const deliveryCharge = subtotal >= 1000 ? 0 : 50;
-        const total = orderData.total;
-        
-        document.getElementById('conf-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
-        document.getElementById('conf-delivery').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
-        document.getElementById('conf-total').textContent = `Rs. ${total.toFixed(2)}`;
+        document.getElementById('conf-subtotal').textContent = 'Rs. ' + subtotal.toFixed(2);
+        document.getElementById('conf-delivery').textContent = deliveryCharge===0 ? 'FREE' : 'Rs. ' + deliveryCharge.toFixed(2);
+        document.getElementById('conf-total').textContent = 'Rs. ' + (orderData.total|| (subtotal+deliveryCharge)).toFixed(2);
     }
-    
-    // Helper function for time slot text
-    function getTimeSlotText(timeSlot) {
-        const timeSlots = {
-            'morning': 'Morning (8:00 AM - 12:00 PM)',
-            'afternoon': 'Afternoon (12:00 PM - 5:00 PM)',
-            'evening': 'Evening (5:00 PM - 8:00 PM)'
-        };
-        return timeSlots[timeSlot] || timeSlot;
-    }
-    
-    // Initialize all sections
-    loadOrderItems();
-    loadCustomerInfo();
-    loadDeliveryInfo();
-    loadPaymentInfo();
-    loadOrderSummary();
 });
 </script>
 

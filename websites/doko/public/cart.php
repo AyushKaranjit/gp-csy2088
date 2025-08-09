@@ -89,14 +89,15 @@ include_header($page_title, $page_description, $current_page);
                     </div>
                     
                     <div class="promo-code-section">
-                        <input type="text" id="promo-code" placeholder="Enter promo code" class="promo-input">
-                        <button id="apply-promo" class="btn btn-outline btn-sm">Apply</button>
+                        <input type="text" id="promo-code" name="promo_code" placeholder="Enter promo code" class="promo-input" autocomplete="off">
+                        <button id="apply-promo" class="btn btn-outline btn-sm" type="button">Apply</button>
                     </div>
                     
                     <div class="cart-actions">
-                        <button id="proceed-checkout" class="btn btn-primary btn-lg">
+                        <button id="proceed-checkout" class="btn btn-primary btn-lg" type="button">
                             <i class="fas fa-lock"></i> Proceed to Checkout
                         </button>
+                        <button id="clear-cart" class="btn btn-outline" type="button">Clear Cart</button>
                         <a href="products.php" class="btn btn-outline">Continue Shopping</a>
                     </div>
                 </div>
@@ -521,164 +522,7 @@ include_header($page_title, $page_description, $current_page);
 </style>
 
 <script>
-// Unified cart page logic: uses server cart when logged in, falls back to guest cart localStorage (GUEST_CART_KEY)
-document.addEventListener('DOMContentLoaded', async function() {
-    const API_BASE = (typeof getApiPath === 'function') ? getApiPath() : 'api/';
-    const container = document.getElementById('cart-items-container');
-    const emptyCartEl = document.getElementById('empty-cart');
-    let cart = [];
-    // Expose for legacy inline handlers (e.g., placeOrder())
-    window.__dokoCartData = cart;
-
-    function getGuestCartRaw() {
-        try { return JSON.parse(localStorage.getItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1')) || []; } catch(e){ return []; }
-    }
-
-    function normalizeGuestCart(raw) {
-        // raw items only have product_id + quantity; enrich via lightweight fetch later if needed
-        return raw.map(it => ({
-            product_id: it.product_id,
-            id: it.product_id,
-            quantity: it.quantity,
-            name: it.name || 'Item #' + it.product_id,
-            price: parseFloat(it.price || 0),
-            image: it.image || 'images/default-product.jpg'
-        }));
-    }
-
-    async function isLoggedInFast() {
-        try {
-            const r = await fetch(API_BASE + 'users/auth-status.php', { headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' });
-            const j = await r.json();
-            return j && j.success && j.isLoggedIn;
-        } catch(e){ return false; }
-    }
-
-    async function fetchServerCart() {
-        try {
-            const r = await fetch(API_BASE + 'cart/get.php', { headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' });
-            const j = await r.json();
-            if (j.success && Array.isArray(j.items)) {
-                return j.items.map(it => ({
-                    id: it.product_id,
-                    product_id: it.product_id,
-                    name: it.name,
-                    quantity: it.quantity,
-                    price: it.price,
-                    image: it.image || 'images/default-product.jpg'
-                }));
-            }
-        } catch(e){ console.warn('Server cart fetch failed', e); }
-        return [];
-    }
-
-    async function hydrateGuestDetails(items) {
-        if (!items.length) return items;
-        const missingInfo = items.some(it => !it.name || !it.price || it.price === 0);
-        if (!missingInfo) return items; // already enriched
-        try {
-            const resp = await fetch(API_BASE + 'products/bulk-details.php', {
-                method: 'POST',
-                headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
-                body: JSON.stringify({ product_ids: items.map(i=>i.product_id) })
-            });
-            const data = await resp.json();
-            if (data.success && data.items) {
-                const map = new Map(data.items.map(d => [d.product_id, d]));
-                return items.map(it => {
-                    const d = map.get(it.product_id);
-                    if (!d) return it;
-                    return { ...it, name: d.name, price: d.price, image: d.image };
-                });
-            }
-        } catch(e){ console.warn('Guest hydrate failed', e); }
-        return items;
-    }
-
-    function renderCart() {
-        if (!cart.length) {
-            emptyCartEl.style.display = 'block';
-            container.querySelectorAll('.cart-item').forEach(el => el.remove());
-            updateCartSummary();
-            return;
-        }
-        emptyCartEl.style.display = 'none';
-        // Remove existing rendered items (keep emptyCart element)
-        container.querySelectorAll('.cart-item').forEach(el => el.remove());
-        const html = cart.map((item, idx) => `
-            <div class="cart-item" data-index="${idx}">
-                <div class="item-image"><img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy"></div>
-                <div class="item-details">
-                    <div class="item-name">${escapeHtml(item.name)}</div>
-                    <div class="item-price">Rs. ${Number(item.price).toFixed(2)}</div>
-                    <div class="item-quantity">
-                        <button class="qty-btn qty-decrease" data-index="${idx}"><i class="fas fa-minus"></i></button>
-                        <input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${idx}">
-                        <button class="qty-btn qty-increase" data-index="${idx}"><i class="fas fa-plus"></i></button>
-                    </div>
-                </div>
-                <div class="item-total">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div>
-                <div class="remove-item" data-index="${idx}"><i class="fas fa-trash"></i></div>
-            </div>`).join('');
-        emptyCartEl.insertAdjacentHTML('beforebegin', html);
-        updateCartSummary();
-    }
-
-    function updateCartSummary() {
-        const subtotal = cart.reduce((s,it)=> s + (Number(it.price)||0)*it.quantity, 0);
-        const deliveryCharge = subtotal >= 1000 ? 0 : 50;
-        const total = subtotal + deliveryCharge;
-        document.getElementById('cart-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
-        document.getElementById('delivery-charge').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
-        document.getElementById('cart-total').textContent = `Rs. ${total.toFixed(2)}`;
-        if (typeof updateCartCount === 'function') updateCartCount();
-    }
-
-    function saveGuestCartBack() {
-        // Persist minimal structure back to guest cart
-        const minimal = cart.map(it => ({ product_id: it.product_id, quantity: it.quantity }));
-        try { localStorage.setItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1', JSON.stringify(minimal)); } catch(e){}
-    }
-
-    function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
-
-    document.addEventListener('click', function(e){
-        const btnDec = e.target.closest('.qty-decrease');
-        const btnInc = e.target.closest('.qty-increase');
-        const btnRem = e.target.closest('.remove-item');
-        if (!btnDec && !btnInc && !btnRem) return;
-        const idxAttr = (btnDec||btnInc||btnRem).getAttribute('data-index');
-        const idx = parseInt(idxAttr,10);
-        if (Number.isNaN(idx) || !cart[idx]) return;
-        if (btnDec) { if (cart[idx].quantity>1) cart[idx].quantity--; }
-        if (btnInc) { cart[idx].quantity++; }
-        if (btnRem) { cart.splice(idx,1); }
-        saveGuestCartBack();
-        renderCart();
-    });
-
-    document.addEventListener('change', function(e){
-        if (!e.target.classList.contains('qty-input')) return;
-        const idx = parseInt(e.target.getAttribute('data-index'),10);
-        const val = Math.max(1, parseInt(e.target.value,10)||1);
-        if (cart[idx]) { cart[idx].quantity = val; saveGuestCartBack(); renderCart(); }
-    });
-
-    // Initialize flow
-    const logged = await isLoggedInFast();
-    if (logged) {
-    cart = await fetchServerCart();
-    window.__dokoCartData = cart;
-    } else {
-    cart = normalizeGuestCart(getGuestCartRaw());
-        if (cart.some(it => !it.name || !it.price)) {
-            cart = await hydrateGuestDetails(cart);
-        }
-    window.__dokoCartData = cart;
-    }
-    renderCart();
-});
-    
+// Legacy cart logic removed; CartModule below is the single source of truth.
     // Promo code functionality
     document.getElementById('apply-promo').addEventListener('click', function() {
         const promoCode = document.getElementById('promo-code').value.trim().toUpperCase();
@@ -701,17 +545,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Checkout button
     document.getElementById('proceed-checkout').addEventListener('click', async function() {
-        if (cart.length === 0) {
+        const currentCart = Array.isArray(window.__dokoCartData) ? window.__dokoCartData : (typeof cart !== 'undefined' ? cart : []);
+        if (currentCart.length === 0) {
             alert('Your cart is empty!');
             return;
         }
         
         // Check if user is logged in
         try {
-            const authResponse = await fetch('api/users/auth-status.php');
+            const authResponse = await fetch('api/users/auth-status.php', { headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' });
             const authResult = await authResponse.json();
-            
-            if (!authResult.success || !authResult.isLoggedIn) {
+            const logged = authResult && authResult.success && (authResult.isLoggedIn || authResult.logged_in || authResult.is_logged_in || (authResult.user && authResult.user.id));
+            if (!logged) {
                 if (confirm('Please login to place an order. Would you like to login now?')) {
                     window.location.href = 'login.php?redirect=' + encodeURIComponent('cart.php');
                 }
@@ -752,22 +597,22 @@ document.addEventListener('DOMContentLoaded', async function() {
                     <h3>Place Your Order</h3>
                     <button type="button" class="close-btn" onclick="hideCheckoutModal()">&times;</button>
                 </div>
-                <form id="checkout-form" class="modal-body">
+        <form id="checkout-form" class="modal-body">
                     <div class="form-group">
-                        <label for="delivery_address">Delivery Address *</label>
-                        <textarea id="delivery_address" name="delivery_address" class="form-control" rows="3" 
+            <label for="checkout_delivery_address">Delivery Address *</label>
+            <textarea id="checkout_delivery_address" name="delivery_address" class="form-control" rows="3" 
                                   placeholder="Enter your complete delivery address" required></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label for="phone">Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" class="form-control" 
+            <label for="checkout_phone">Phone Number *</label>
+            <input type="tel" id="checkout_phone" name="phone" class="form-control" 
                                placeholder="+977-9851234567" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="payment_method">Payment Method</label>
-                        <select id="payment_method" name="payment_method" class="form-control" onchange="handlePaymentMethodChange()">
+            <label for="checkout_payment_method">Payment Method</label>
+            <select id="checkout_payment_method" name="payment_method" class="form-control" onchange="handlePaymentMethodChange()">
                             <option value="cash_on_delivery">Cash on Delivery</option>
                             <option value="online_payment">Online Payment (Digital Wallet/Bank Transfer)</option>
                             <option value="bank_transfer">Bank Transfer</option>
@@ -794,8 +639,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                                     <p><small>Please transfer amount and provide reference number.</small></p>
                                 </div>
                                 <div class="form-group" style="margin-top: 1rem;">
-                                    <label for="transaction_id">Transaction ID / Reference Number</label>
-                                    <input type="text" id="transaction_id" name="transaction_id" class="form-control" 
+                                    <label for="checkout_transaction_id">Transaction ID / Reference Number</label>
+                                    <input type="text" id="checkout_transaction_id" name="transaction_id" class="form-control" 
                                            placeholder="Enter transaction ID or reference number">
                                 </div>
                             </div>
@@ -803,8 +648,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                     </div>
                     
                     <div class="form-group">
-                        <label for="special_instructions">Special Instructions (Optional)</label>
-                        <textarea id="special_instructions" name="special_instructions" class="form-control" rows="2" 
+                        <label for="checkout_special_instructions">Special Instructions (Optional)</label>
+                        <textarea id="checkout_special_instructions" name="special_instructions" class="form-control" rows="2" 
                                   placeholder="Any special delivery instructions..."></textarea>
                     </div>
                     
@@ -846,23 +691,28 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load user profile for pre-filling
     async function loadUserProfile() {
         try {
-            const response = await fetch('api/users/auth-profile.php');
-            const result = await response.json();
-            
-            if (result.success && result.data) {
-                const user = result.data;
-                if (user.address) {
-                    document.getElementById('delivery_address').value = user.address;
-                }
+            // Correct endpoint for fetching profile data is profile.php (GET)
+            const response = await fetch('api/users/profile.php', {headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
+            let result=null; try { result = await response.json(); } catch(parseErr){ console.warn('Profile JSON parse failed', parseErr); }
+            if (result && result.success && (result.user || result.data)) {
+                const user = result.user || result.data;
+                // We only have first_name/last_name/phone normally; address might come later
                 if (user.phone) {
-                    document.getElementById('phone').value = user.phone;
+                    const phoneEl = document.getElementById('checkout_phone'); if(phoneEl && !phoneEl.value) phoneEl.value = user.phone;
+                }
+                // If future API returns address fields, combine them
+                const addrEl = document.getElementById('checkout_delivery_address');
+                if (addrEl && !addrEl.value) {
+                    if (user.address) addrEl.value = user.address;
+                    else if (user.street_address) {
+                        const composed = [user.street_address, user.city, user.state].filter(Boolean).join(', ');
+                        if (composed) addrEl.value = composed;
+                    }
                 }
             }
         } catch (error) {
             console.error('Error loading user profile:', error);
         }
-        
-        // Update checkout summary
         updateCheckoutSummary();
     }
     
@@ -927,30 +777,46 @@ document.addEventListener('DOMContentLoaded', async function() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
         
         try {
-            const response = await fetch('api/orders/customer-orders.php', {
+            // Primary: use legacy consolidated endpoint /api/orders/orders.php (expects shipping_* fields)
+            let payload = {
+                shipping_address: orderData.delivery_address,
+                shipping_city: 'Kathmandu',
+                shipping_state: 'Bagmati',
+                shipping_zip: '00000',
+                payment_method: (orderData.payment_method === 'online_payment') ? 'cash_on_delivery' : (orderData.payment_method||'cash_on_delivery')
+            };
+            const response = await fetch('api/orders/orders.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData)
+                headers: { 'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest' },
+                body: JSON.stringify(payload)
             });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                // Clear cart via module (handles guest persistence) or fallback to clearing window data
+            let text = await response.text();
+            let result; try { result = JSON.parse(text); } catch(parseErr){ console.warn('Order JSON parse failed', parseErr, text); result = null; }
+            // If deprecated (410) or not found, fallback to users/customer-orders.php contract
+            if (!result || !result.success) {
+                if (result && result.status === 410 || (response.status === 404 || response.status === 410)) {
+                    const fallbackResp = await fetch('api/users/customer-orders.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest' },
+                        body: JSON.stringify(orderData)
+                    });
+                    const fbText = await fallbackResp.text();
+                    try { result = JSON.parse(fbText); } catch(e){ console.warn('Fallback order parse failed', e, fbText); }
+                }
+            }
+            if (result && result.success) {
                 if (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.clearAll === 'function') {
                     CartModule.clearAll();
                 } else {
                     window.__dokoCartData = [];
                     try { localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1','[]'); } catch(e) {}
                 }
-
                 hideCheckoutModal();
-                alert('Order placed successfully! Order Number: ' + result.data.order_number);
+                const on = (result.data && (result.data.order_number || result.data.order_id)) ? (result.data.order_number || 'ORDER-'+result.data.order_id) : 'ORDER';
+                alert('Order placed successfully! Order Number: ' + on);
                 window.location.href = 'profile.php?section=order-history';
             } else {
-                alert('Error placing order: ' + result.message);
+                alert('Error placing order: ' + (result ? result.message : 'Unknown server response'));
             }
         } catch (error) {
             console.error('Error placing order:', error);
@@ -967,7 +833,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     window.handlePaymentMethodChange = handlePaymentMethodChange;
     
     function handlePaymentMethodChange() {
-        const paymentMethod = document.getElementById('payment_method').value;
+    const paymentMethod = document.getElementById('checkout_payment_method').value;
         const paymentDetails = document.getElementById('payment-details');
         const onlineInfo = document.getElementById('online-payment-info');
         const bankInfo = document.getElementById('bank-transfer-info');
@@ -1003,15 +869,44 @@ const CartModule = (function(){
     let cart = []; let loggedIn = false; window.__dokoCartData = cart;
     function getGuestCartRaw(){try{return JSON.parse(localStorage.getItem(window.GUEST_CART_KEY||'doko_guest_cart_v1'))||[]}catch(e){return[]}}
     function normalizeGuestCart(raw){return raw.map(it=>({product_id:it.product_id,id:it.product_id,quantity:it.quantity,name:it.name||'Item #'+it.product_id,price:parseFloat(it.price||0),image:it.image||'images/default-product.jpg'}));}
-    async function isLoggedInFast(){try{const r=await fetch(API_BASE+'users/auth-status.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();return j&&j.success&&j.isLoggedIn}catch(e){return false}}
+    async function isLoggedInFast(){
+        try {
+            const r = await fetch(API_BASE+'users/auth-status.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
+            const j = await r.json();
+            // Support multiple possible flag names for backwards compatibility
+            const flag = j && j.success && (j.isLoggedIn || j.logged_in || j.is_logged_in || (j.user && j.user.id));
+            return !!flag;
+        } catch(e){
+            console.warn('isLoggedInFast failed', e);
+            return false;
+        }
+    }
     async function fetchServerCart(){try{const r=await fetch(API_BASE+'cart/get.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();if(j.success&&Array.isArray(j.items)){return j.items.map(it=>({id:it.product_id,product_id:it.product_id,name:it.name,quantity:it.quantity,price:it.price,image:it.image||'images/default-product.jpg'}))}}catch(e){console.warn('Server cart fetch failed',e);}return[]}
     async function hydrateGuestDetails(items){if(!items.length)return items;const needs=items.some(it=>!it.name||!it.price||it.price===0);if(!needs)return items;try{const resp=await fetch(API_BASE+'products/bulk-details.php',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({product_ids:items.map(i=>i.product_id)})});const data=await resp.json();if(data.success&&data.items){const map=new Map(data.items.map(d=>[d.product_id,d]));return items.map(it=>{const d=map.get(it.product_id);return d?{...it,name:d.name,price:d.price,image:d.image}:it;})}}catch(e){console.warn('Guest hydrate failed',e);}return items}
     function escapeHtml(str){return(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
     function updateCartSummary(){const subtotal=cart.reduce((s,it)=>s+(Number(it.price)||0)*it.quantity,0);const deliveryCharge=subtotal>=1000?0:50;const total=subtotal+deliveryCharge;const sEl=document.getElementById('cart-subtotal');if(!sEl)return; sEl.textContent=`Rs. ${subtotal.toFixed(2)}`;document.getElementById('delivery-charge').textContent=deliveryCharge===0?'FREE':`Rs. ${deliveryCharge.toFixed(2)}`;document.getElementById('cart-total').textContent=`Rs. ${total.toFixed(2)}`;if(typeof updateCartCount==='function')updateCartCount();}
-    function renderCart(){if(!container||!emptyCartEl)return;if(!cart.length){emptyCartEl.style.display='block';container.querySelectorAll('.cart-item').forEach(el=>el.remove());updateCartSummary();return;}emptyCartEl.style.display='none';container.querySelectorAll('.cart-item').forEach(el=>el.remove());const frag=document.createDocumentFragment();cart.forEach((item,idx)=>{const div=document.createElement('div');div.className='cart-item';div.dataset.index=idx;div.innerHTML=`<div class="item-image"><img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy"></div><div class="item-details"><div class="item-name">${escapeHtml(item.name)}</div><div class="item-price">Rs. ${Number(item.price).toFixed(2)}</div><div class="item-quantity"><button class="qty-btn qty-decrease" data-index="${idx}"><i class="fas fa-minus"></i></button><input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${idx}"><button class="qty-btn qty-increase" data-index="${idx}"><i class="fas fa-plus"></i></button></div></div><div class="item-total">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div><div class="remove-item" data-index="${idx}"><i class="fas fa-trash"></i></div>`;frag.appendChild(div);});
-        // Insert the fragment before the emptyCart element (compatible with DocumentFragment)
+    function renderCart(){
+        if(!container||!emptyCartEl)return;
+        if(!cart.length){
+            emptyCartEl.style.display='block';
+            container.querySelectorAll('.cart-item').forEach(el=>el.remove());
+            updateCartSummary();
+            return;
+        }
+        emptyCartEl.style.display='none';
+        container.querySelectorAll('.cart-item').forEach(el=>el.remove());
+        const frag=document.createDocumentFragment();
+        cart.forEach((item,idx)=>{
+            const div=document.createElement('div');
+            div.className='cart-item';
+            div.dataset.index=idx;
+            const qtyId=`cart-qty-${item.product_id}-${idx}`; // guaranteed unique even if duplicate product ids appear
+            div.innerHTML=`<div class=\"item-image\"><img src=\"${item.image}\" alt=\"${escapeHtml(item.name)}\" loading=\"lazy\"></div><div class=\"item-details\"><div class=\"item-name\">${escapeHtml(item.name)}</div><div class=\"item-price\">Rs. ${Number(item.price).toFixed(2)}</div><div class=\"item-quantity\"><button class=\"qty-btn qty-decrease\" data-index=\"${idx}\" type=\"button\" aria-label=\"Decrease quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-minus\"></i></button><input type=\"number\" class=\"qty-input\" id=\"${qtyId}\" name=\"cart_quantities[${item.product_id}]\" value=\"${item.quantity}\" min=\"1\" data-index=\"${idx}\" aria-label=\"Quantity for ${escapeHtml(item.name)}\" autocomplete=\"off\"><button class=\"qty-btn qty-increase\" data-index=\"${idx}\" type=\"button\" aria-label=\"Increase quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-plus\"></i></button></div></div><div class=\"item-total\">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div><div class=\"remove-item\" data-index=\"${idx}\" role=\"button\" aria-label=\"Remove ${escapeHtml(item.name)}\"><i class=\"fas fa-trash\"></i></div>`;
+            frag.appendChild(div);
+        });
         if(emptyCartEl.parentNode){emptyCartEl.parentNode.insertBefore(frag, emptyCartEl);}else{emptyCartEl.before(frag);} 
-        updateCartSummary();}
+        updateCartSummary();
+    }
     function saveGuestCartBack(){if(loggedIn)return;try{localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1',JSON.stringify(cart.map(it=>({product_id:it.product_id,quantity:it.quantity,name:it.name,price:it.price,image:it.image}))))}catch(e){}}
     function qtyChange(idx,delta){if(!cart[idx])return;const n=cart[idx].quantity+delta;if(n<1)return;cart[idx].quantity=n;window.__dokoCartData=cart;saveGuestCartBack();renderCart();}
     function setQty(idx,val){if(!cart[idx])return;cart[idx].quantity=Math.max(1,val|0);window.__dokoCartData=cart;saveGuestCartBack();renderCart();}
@@ -1019,8 +914,22 @@ const CartModule = (function(){
     function bind(){if(!container)return;container.addEventListener('click',e=>{const dec=e.target.closest('.qty-decrease');const inc=e.target.closest('.qty-increase');const rem=e.target.closest('.remove-item');if(dec)qtyChange(parseInt(dec.dataset.index,10),-1);if(inc)qtyChange(parseInt(inc.dataset.index,10),1);if(rem)removeItem(parseInt(rem.dataset.index,10));});container.addEventListener('change',e=>{if(e.target.classList.contains('qty-input'))setQty(parseInt(e.target.dataset.index,10),parseInt(e.target.value,10)||1);});document.body.addEventListener('click',e=>{if(e.target.id==='place-order-btn'&&typeof window.placeOrder==='function'){window.placeOrder();}});}
     async function init(){loggedIn=await isLoggedInFast();cart=loggedIn?await fetchServerCart():normalizeGuestCart(getGuestCartRaw());if(!loggedIn&&cart.some(it=>!it.name||!it.price))cart=await hydrateGuestDetails(cart);window.__dokoCartData=cart;bind();renderCart();}
     function getItems(){ return cart.slice(); }
-    function clearAll(){ cart = []; window.__dokoCartData = cart; saveGuestCartBack(); renderCart(); }
+    async function clearAll(){
+        if(loggedIn){
+            try { await fetch(API_BASE+'cart/clear.php',{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'}); } catch(e){ console.warn('Server clear failed', e); }
+        } else {
+            try { localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1','[]'); } catch(e){}
+        }
+        cart = []; window.__dokoCartData = cart; renderCart();
+    }
     return { init, getItems, clearAll };
 })();
-document.addEventListener('DOMContentLoaded',()=>CartModule.init());
+document.addEventListener('DOMContentLoaded',()=>{
+    CartModule.init();
+    // Wire clear cart button
+    const clearBtn=document.getElementById('clear-cart');
+    if(clearBtn){ clearBtn.addEventListener('click',()=>{ if(confirm('Clear all items from cart?')) CartModule.clearAll(); }); }
+    // Debug helper: detect duplicate IDs (dev only)
+    (function(){const seen=new Map();const dups=[];document.querySelectorAll('[id]').forEach(el=>{const id=el.id;if(seen.has(id)){dups.push(id);}else{seen.set(id,el);}});if(dups.length){console.warn('Duplicate IDs detected:',dups);} });
+});
 </script>

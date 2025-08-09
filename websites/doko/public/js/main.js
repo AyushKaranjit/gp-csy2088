@@ -401,7 +401,7 @@ function updateInventoryStats(stats) {
 function loadCustomerOrders() {
     showLoading('customer-orders-table');
     
-    fetch('api/orders/customer-orders.php')
+    fetch('api/users/customer-orders.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -1589,12 +1589,11 @@ async function isLoggedIn() {
     try {
         const response = await fetch(getApiPath() + 'users/auth-status.php', {
             credentials: 'same-origin',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         const result = await response.json();
-        return result.success && result.logged_in;
+        // Accept any of the possible keys for backwards compatibility
+        return !!(result && result.success && (result.logged_in || result.is_logged_in || result.isLoggedIn || (result.user && result.user.id)));
     } catch (error) {
         console.error('Error checking authentication status:', error);
         return false;
@@ -1649,11 +1648,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Toggle Wishlist Function
 async function toggleWishlist(productId) {
-    // Check if user is logged in
-    const loggedIn = await isLoggedIn();
+    // Check if user is logged in (robust multi-key detection)
+    let loggedIn = false;
+    try { loggedIn = await isLoggedIn(); } catch(e) { loggedIn = false; }
     if (!loggedIn) {
         showNotification('Please login to use wishlist', 'info');
-        showAuthModal('login');
+        if (typeof showAuthModal === 'function') { showAuthModal('login'); }
         return;
     }
     

@@ -166,14 +166,13 @@ include __DIR__ . '/../template/breadcrumb.php';
                                 </div>
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" id="phone" name="phone" class="form-control" autocomplete="tel" value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>" placeholder="+977-9851234567">
+                                    <input type="tel" id="phone" name="phone" class="form-control" autocomplete="tel" inputmode="tel" value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>" placeholder="+977-9851234567">
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="address">Address</label>
-                                <textarea id="address" name="address" class="form-control" rows="3" 
-                                          placeholder="Enter your complete address"><?php echo htmlspecialchars($currentUser['address'] ?? ''); ?></textarea>
+                                <textarea id="address" name="address" class="form-control" rows="3" autocomplete="street-address" placeholder="Enter your complete address"><?php echo htmlspecialchars($currentUser['address'] ?? ''); ?></textarea>
                             </div>
                             
                             <div class="form-group">
@@ -201,6 +200,47 @@ include __DIR__ . '/../template/breadcrumb.php';
                         </div>
                     </div>
                 </section>
+                
+                                    <script>
+                                    // Lightweight order history loader for profile page
+                                    (function(){
+                                        const container = document.getElementById('orders-container');
+                                        if(!container) return;
+                                        function fmtDate(ts){ if(!ts) return ''; const d=new Date(ts.replace(' ','T')); return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+                                        function renderOrders(list){
+                                            if(!list || !list.length){ container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><h3>No orders yet</h3><p>Your placed orders will appear here.</p></div>'; return; }
+                                            const rows = list.map(o=>`<div class="order-row">
+                                                <div class="order-col id">${o.order_number?('#'+o.order_number):('#'+(o.order_id||o.id))}</div>
+                                                    <div class="order-col date">${fmtDate(o.created_at||o.ordered_at)}</div>
+                                                    <div class="order-col total">Rs. ${(parseFloat(o.total_amount||o.total||0)).toFixed(2)}</div>
+                                                    <div class="order-col status ${ (o.status||'pending').toLowerCase() }">${o.status||'pending'}</div>
+                                                    <div class="order-col action"><a class="btn btn-sm btn-primary" href="order-confirmation.php?order_id=${o.order_id||o.id}">View</a></div>
+                                            </div>`).join('');
+                                            container.innerHTML = `<div class="orders-list">${rows}</div>`;
+                                        }
+                                        function showLoading(){ container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>'; }
+                                        showLoading();
+                                        fetch('api/users/customer-orders.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'})
+                                            .then(r=>r.json()).then(j=>{ if(j.success && j.orders){ renderOrders(j.orders); } else { renderOrders([]); } })
+                                            .catch(e=>{ console.warn('Order history load failed',e); renderOrders([]); });
+                                    })();
+                                    </script>
+                
+                                    <style>
+                                    .orders-list { display:flex; flex-direction:column; gap:.75rem; }
+                                    .order-row { display:grid; grid-template-columns: 100px 140px 140px 120px 80px; gap:.5rem; align-items:center; background:#fff; padding:.75rem 1rem; border:1px solid var(--border-color); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+                                    .order-col.id { font-weight:600; }
+                                    .order-col.total { font-weight:600; color:var(--primary-color); }
+                                    .order-col.status { text-transform:capitalize; font-size:.85rem; font-weight:600; padding:.35rem .6rem; border-radius:999px; justify-self:start; background:#eef; }
+                                    .order-col.status.pending { background:#fff3cd; color:#946200; }
+                                    .order-col.status.processing { background:#cfe2ff; color:#084298; }
+                                    .order-col.status.delivered { background:#d1e7dd; color:#0f5132; }
+                                    .order-col.status.cancelled { background:#f8d7da; color:#842029; }
+                                    @media (max-width:700px){
+                                        .order-row { grid-template-columns: 1fr 1fr; grid-template-areas:"id status" "date total" "action action"; }
+                                        .order-col.id{grid-area:id;} .order-col.status{grid-area:status;} .order-col.date{grid-area:date;} .order-col.total{grid-area:total;} .order-col.action{grid-area:action;}
+                                    }
+                                    </style>
 
                 <!-- Address Book Section -->
                 <section id="address-book" class="profile-section">
@@ -705,6 +745,33 @@ include __DIR__ . '/../template/breadcrumb.php';
 </style>
 
 <script>
+// AJAX profile form submission including image
+document.addEventListener('DOMContentLoaded', function(){
+    const form = document.getElementById('profile-form');
+    if(!form) return;
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const fd = new FormData(form);
+        const btn = form.querySelector('button[type="submit"]');
+        const orig = btn.innerHTML; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';
+        try {
+            const resp = await fetch('api/users/profile-update.php', { method:'POST', body: fd, credentials:'same-origin' });
+            const data = await resp.json();
+            if(!data.success){ throw new Error(data.message||'Update failed'); }
+            showNotification('Profile updated', 'success');
+            if(data.user && data.user.profile_image){
+                // Update preview
+                const prev = document.getElementById('profile-image-preview');
+                if(prev){ prev.innerHTML = '<img src="'+data.user.profile_image+'" style="width:100%;height:100%;object-fit:cover;" />'; }
+                // Update header avatar if present
+                const headerImg = document.querySelector('.user-info img');
+                if(headerImg){ headerImg.src = data.user.profile_image; }
+            }
+        } catch(err){
+            console.error(err); showNotification(err.message,'error');
+        } finally { btn.disabled=false; btn.innerHTML=orig; }
+    });
+});
 // Profile image live preview
 const profileImageInput = document.getElementById('profile_image');
 if (profileImageInput) {

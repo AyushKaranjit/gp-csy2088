@@ -289,13 +289,36 @@ include_header($page_title, $page_description, $current_page);
             </div>
             
             <div class="map-container">
-                <div class="map-placeholder">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h3>Interactive Map</h3>
-                    <p>Our store location in Thamel, Kathmandu</p>
-                    <a href="https://maps.google.com" target="_blank" class="btn btn-primary">
-                        Open in Google Maps
-                    </a>
+                <div class="map-wrapper" id="map-wrapper">
+                    <img 
+                        src="https://staticmap.openstreetmap.de/staticmap.php?center=27.7148,85.3123&zoom=15&size=1200x675&markers=27.7148,85.3123,red-pushpin" 
+                        alt="Map of Thamel, Kathmandu" 
+                        class="map-static-img" 
+                        width="1200" height="675" 
+                        decoding="async" 
+                        loading="lazy"
+                        referrerpolicy="no-referrer" 
+                        onerror="this.onerror=null;this.src='/images/kathmandu-map.jpg';" />
+                    <div class="map-overlay" id="map-overlay" role="button" aria-label="Load interactive map of Thamel, Kathmandu">
+                        <div class="map-overlay-content">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>Interactive Map</h3>
+                            <p>Our store location in Thamel, Kathmandu</p>
+                            <div class="map-actions">
+                                <button type="button" id="load-map" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-map"></i> Load Map
+                                </button>
+                                <a href="https://www.google.com/maps/place/Thamel,+Kathmandu" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> Open in Google Maps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <noscript>
+                        <div class="map-noscript">
+                            <p>View our location on <a href="https://www.google.com/maps/place/Thamel,+Kathmandu" target="_blank" rel="noopener">Google Maps</a>.</p>
+                        </div>
+                    </noscript>
                 </div>
             </div>
         </div>
@@ -599,33 +622,53 @@ include_header($page_title, $page_description, $current_page);
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--shadow);
+    position: relative;
 }
 
-.map-placeholder {
-    height: 400px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+.map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 */
+    background: #e2e8f0 url('/images/kathmandu-map.jpg') center/cover no-repeat;
+}
+
+.map-static-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9) contrast(1.05);
+}
+
+.map-wrapper iframe {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%; border: 0;
+}
+
+.map-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(44,85,48,0.35); /* more transparent so map image visible */
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    color: white;
+    justify-content: center;
     text-align: center;
+    color: #fff;
+    cursor: pointer;
+    transition: background .3s, opacity .3s;
 }
 
-.map-placeholder i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
+.map-overlay:hover { background: rgba(44,85,48,0.45); }
 
-.map-placeholder h3 {
-    margin-bottom: 0.5rem;
-    color: white;
-}
+.map-overlay-content i { font-size: 3.5rem; margin-bottom: .75rem; }
+.map-overlay-content h3 { margin: 0 0 .5rem; color: #fff; }
+.map-overlay-content p { margin: 0 0 1.25rem; color: rgba(255,255,255,0.9); }
 
-.map-placeholder p {
-    margin-bottom: 2rem;
-    color: rgba(255,255,255,0.9);
-}
+.map-actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+
+.map-noscript { padding: 1rem; background:#fff; font-size:.9rem; }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
@@ -722,6 +765,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please fill in all required fields.');
             }
         });
+    }
+    // Lazy load Google Map
+    const overlay = document.getElementById('map-overlay');
+    const loadBtn = document.getElementById('load-map');
+    function loadMap(){
+        if (!overlay || overlay.dataset.loaded) return;
+        const wrapper = document.getElementById('map-wrapper');
+        if (!wrapper) return;
+        const iframe = document.createElement('iframe');
+        iframe.loading = 'lazy';
+        iframe.referrerPolicy = 'no-referrer-when-downgrade';
+        iframe.allowFullscreen = true;
+        iframe.src = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.258318116201!2d85.30860447524144!3d27.70903142514662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19d7d8b3db01%3A0x4ddf5b8e1b1c2b4d!2sThamel%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1691400000000';
+        wrapper.appendChild(iframe);
+        overlay.style.opacity = '0';
+        setTimeout(()=>{ overlay.remove(); }, 300);
+        overlay.dataset.loaded = '1';
+    }
+    if (overlay) {
+        overlay.addEventListener('click', loadMap);
+    }
+    if (loadBtn) {
+        loadBtn.addEventListener('click', function(e){ e.stopPropagation(); loadMap(); });
     }
 });
 </script>

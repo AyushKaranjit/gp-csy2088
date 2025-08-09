@@ -207,10 +207,13 @@ class AuthController {
         return [
             'user_id' => $_SESSION['user_id'],
             'username' => $_SESSION['username'],
-            'email' => $_SESSION['email'],
-            'first_name' => $_SESSION['first_name'],
-            'last_name' => $_SESSION['last_name'],
-            'role' => $_SESSION['role']
+            'email' => $_SESSION['email'] ?? null,
+            'first_name' => $_SESSION['first_name'] ?? null,
+            'last_name' => $_SESSION['last_name'] ?? null,
+            'role' => $_SESSION['role'] ?? null,
+            'profile_image' => $_SESSION['profile_image'] ?? null,
+            'phone' => $_SESSION['phone'] ?? null,
+            'address' => $_SESSION['address'] ?? null
         ];
     }
     
