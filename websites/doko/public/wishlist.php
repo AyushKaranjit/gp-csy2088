@@ -200,21 +200,36 @@ function loadWishlistItems() {
     // For each item in wishlist, fetch product details from API
     Promise.all(wishlist.map(item => 
         fetch(`api/products/product-detail.php?id=${item.product_id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.product) {
-                    return data.product;
+            .then(async response => {
+                let json;
+                try { json = await response.json(); } catch(e) { return { _bad: true }; }
+                if (!response.ok) {
+                    // If product truly gone (404) mark for cleanup
+                    if (response.status === 404) return { _missing: true, product_id: item.product_id };
+                    return { _bad: true };
                 }
-                return null;
+                if (json && (json.product || json.data)) {
+                    const p = json.product || json.data;
+                    return p;
+                }
+                return { _bad: true };
             })
             .catch(error => {
-                console.error('Error fetching product:', item.product_id, error);
-                return null;
+                console.warn('Wishlist fetch error for product', item.product_id, error);
+                return { _bad: true };
             })
-    )).then(products => {
-        const validProducts = products.filter(p => p !== null);
+    )).then(results => {
+        // Remove missing products from localStorage automatically
+        const missingIds = results.filter(r => r && r._missing).map(r => r.product_id);
+        if (missingIds.length) {
+            let wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
+            wl = wl.filter(entry => !missingIds.includes(parseInt(entry.product_id)));
+            localStorage.setItem('doko_wishlist', JSON.stringify(wl));
+            console.info('Removed missing wishlist product IDs:', missingIds.join(','));
+        }
+        const validProducts = results.filter(r => r && !r._bad && !r._missing);
         if (validProducts.length === 0) {
-            container.innerHTML = '<div class="error-message">No valid wishlist items found</div>';
+            container.innerHTML = '<div class="empty-wishlist"><div class="empty-state"><i class="fas fa-heart"></i><h3>Your wishlist items are no longer available</h3><p>Browse products and add new favorites.</p><a href="products.php" class="btn btn-primary">Shop Products</a></div></div>';
         } else {
             displayWishlistItems(validProducts);
         }
@@ -234,10 +249,19 @@ function displayWishlistItems(products) {
     
     const html = `
         <div class="wishlist-grid">
-            ${products.map(product => `
+            ${products.map(product => {
+                // Normalize image URL from API (may already start with /uploads)
+                let img = product.image_url || 'uploads/default-product.jpg';
+                if (img.startsWith('/')) {
+                    img = img; // already absolute relative to origin
+                } else if (!/^https?:/i.test(img)) {
+                    // If not absolute, prepend /uploads/ unless already has uploads/
+                    if (!img.startsWith('uploads/')) img = 'uploads/' + img;
+                    img = '/' + img.replace(/^\/+/, '');
+                }
+                return `
                 <div class="wishlist-item" data-id="${product.product_id}">
-                    <img src="${DOKO.baseURL}/uploads/products/${product.image_url || 'default.jpg'}" 
-                         alt="${product.name}" class="wishlist-item-image">
+                    <img src="${img}" alt="${product.name}" class="wishlist-item-image" onerror="this.onerror=null;this.src='/uploads/default-product.jpg';">
                     <div class="wishlist-item-content">
                         <h3>${product.name}</h3>
                         <div class="wishlist-item-price">Rs. ${parseFloat(product.price).toFixed(2)}</div>
@@ -250,10 +274,8 @@ function displayWishlistItems(products) {
                             </button>
                         </div>
                     </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
+                </div>`;}).join('')}
+        </div>`;
     
     container.innerHTML = html;
     
@@ -274,31 +296,31 @@ function displayWishlistItems(products) {
 }
 
 function addToCart(productId) {
-    fetch(`${DOKO.baseURL}/api/cart/cart-add.php`, {
+    // Delegate to global unified addToCart if present (handles guest cart, locks, notifications)
+    if (typeof window.addToCart === 'function') {
+        window.addToCart(productId, 1, 'Product');
+        return;
+    }
+    fetch(`${DOKO.baseURL}/api/cart/add.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: 1
-        })
+        credentials: 'same-origin',
+        body: JSON.stringify({ product_id: parseInt(productId), quantity: 1 })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
         if (data.success) {
-            // Show success message
             showNotification('Product added to cart!', 'success');
-            // Update cart count if function exists
-            if (typeof CartManager !== 'undefined' && CartManager.updateCartCount) {
-                CartManager.updateCartCount();
-            }
+            if (typeof updateCartCount === 'function') { updateCartCount(); }
         } else {
-            showNotification('Error adding to cart: ' + data.message, 'error');
+            showNotification('Error adding to cart: ' + (data.message || 'Unknown error'), 'error');
         }
     })
-    .catch(error => {
-        console.error('Error adding to cart:', error);
+    .catch(err => {
+        console.error('Error adding to cart:', err);
         showNotification('Error adding to cart', 'error');
     });
 }

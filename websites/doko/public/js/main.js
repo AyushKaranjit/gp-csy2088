@@ -473,6 +473,14 @@ function initializeCart() {
 function addToCartWithQuantity(productId, productName = 'Product') {
     const quantityInput = document.getElementById(`qty-${productId}`);
     const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+
+    // Persist last chosen quantity for this product
+    try {
+        const key = 'doko_last_qty';
+        const store = JSON.parse(localStorage.getItem(key) || '{}');
+        store[productId] = quantity;
+        localStorage.setItem(key, JSON.stringify(store));
+    } catch(e) { /* ignore quota errors */ }
     
     console.log('addToCartWithQuantity called with:', {
         productId: productId,
@@ -523,13 +531,23 @@ function saveGuestCart(cart) {
     try { localStorage.setItem(window.GUEST_CART_KEY, JSON.stringify(cart)); } catch(e) { console.warn('Failed to save guest cart', e); }
 }
 
-function addItemToGuestCart(product_id, quantity) {
+function addItemToGuestCart(product_id, quantity, meta = {}) {
     const cart = loadGuestCart();
     const existing = cart.find(i => i.product_id === product_id);
     if (existing) {
         existing.quantity += quantity;
+        // refresh meta if new meta contains richer info (e.g., name/price)
+        if (meta && (meta.name || meta.price || meta.image)) {
+            if (meta.name) existing.name = meta.name;
+            if (meta.price) existing.price = meta.price;
+            if (meta.image) existing.image = meta.image;
+        }
     } else {
-        cart.push({ product_id, quantity });
+        const enriched = { product_id, quantity };
+        if (meta.name) enriched.name = meta.name;
+        if (meta.price) enriched.price = meta.price;
+        if (meta.image) enriched.image = meta.image;
+        cart.push(enriched);
     }
     saveGuestCart(cart);
 }
@@ -563,6 +581,18 @@ async function syncGuestCartIfNeeded() {
 }
 
 document.addEventListener('DOMContentLoaded', () => { setTimeout(syncGuestCartIfNeeded, 300); });
+// Restore persisted per-product quantities (for listing/product detail)
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const store = JSON.parse(localStorage.getItem('doko_last_qty') || '{}');
+        Object.entries(store).forEach(([pid, qty]) => {
+            const input = document.getElementById(`qty-${pid}`);
+            if (input && !isNaN(qty) && qty > 0) {
+                input.value = qty;
+            }
+        });
+    } catch(e) { /* ignore */ }
+});
 
 if (!window.__dokoCartLocks) { window.__dokoCartLocks = new Set(); }
 async function addToCart(productId, quantity = 1, productName = 'Product') {
@@ -605,8 +635,37 @@ async function addToCart(productId, quantity = 1, productName = 'Product') {
     let logged = false;
     try { if (typeof isLoggedIn === 'function') logged = await isLoggedIn(); } catch(e) { /* ignore */ }
     if (!logged) {
-        addItemToGuestCart(parsedProductId, parsedQuantity);
-        showNotification(`${productName} added to cart (guest)`, 'success');
+        // Attempt to capture price & image from the product card in DOM for better guest cart rendering
+        let priceVal; let imageUrl;
+        try {
+            const card = document.querySelector(`.product-card[data-product-id="${parsedProductId}"]`) || document.querySelector(`[data-product-id="${parsedProductId}"]`);
+            if (card) {
+                // Prefer explicit data-product-price on button
+                const addBtn = card.querySelector('.add-to-cart[data-product-price]');
+                if (addBtn) {
+                    const rawBtnPrice = addBtn.getAttribute('data-product-price');
+                    if (rawBtnPrice && !isNaN(rawBtnPrice)) priceVal = parseFloat(rawBtnPrice);
+                }
+                if (priceVal === undefined) {
+                    const priceEl = card.querySelector('.current-price, .product-price, .price, [data-price]');
+                    if (priceEl) {
+                        const raw = priceEl.getAttribute('data-price') || priceEl.textContent;
+                        // Remove commas and currency symbols
+                        const cleaned = raw.replace(/[^0-9.,]/g,'').replace(/,/g,'');
+                        const m = cleaned.match(/([0-9]+(?:\.[0-9]+)?)/);
+                        if (m) priceVal = parseFloat(m[1]);
+                    }
+                }
+                const imgEl = card.querySelector('img[data-src], img');
+                if (imgEl) {
+                    imageUrl = imgEl.getAttribute('data-src') || imgEl.src;
+                }
+            }
+        } catch(e) { /* ignore */ }
+    addItemToGuestCart(parsedProductId, parsedQuantity, { name: productName, price: priceVal, image: imageUrl });
+    const lineSubtotal = priceVal ? (priceVal * parsedQuantity) : null;
+    const subtotalText = lineSubtotal !== null ? ` (Subtotal: Rs. ${lineSubtotal.toFixed(2)})` : '';
+    showNotification(`${productName} x${parsedQuantity} added to cart${subtotalText}`, 'success');
         updateCartCount();
         return; // Do not proceed to server add
     }
@@ -618,7 +677,13 @@ async function addToCart(productId, quantity = 1, productName = 'Product') {
     }
     window.__dokoCartLocks.add(lockKey);
     const btn = document.querySelector(`.add-to-cart[data-product-id="${parsedProductId}"]`);
-    if (btn) { btn.disabled = true; btn.classList.add('loading'); }
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('loading');
+        // Visual feedback spinner
+        if (!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    }
 
     console.log('Sending to API:', data);
 
@@ -636,10 +701,20 @@ async function addToCart(productId, quantity = 1, productName = 'Product') {
         const respData = await response.json();
         console.log('Response data:', respData);
         if (respData.success) {
-            showNotification(`${productName} added to cart!`, 'success');
+            const unitPrice = (respData.item && respData.item.price) || undefined;
+            const lineSubtotal = unitPrice ? unitPrice * parsedQuantity : undefined;
+            const subtotalText = lineSubtotal ? ` (Subtotal: Rs. ${lineSubtotal.toFixed(2)})` : '';
+            showNotification(`${productName} x${parsedQuantity} added to cart!${subtotalText}`, 'success');
             updateCartCount();
         } else {
-            if (respData.message && /log in|auth/i.test(respData.message)) {
+            // Enhanced messaging
+            if (response.status === 404 || /not\s+found/i.test(respData.message || '')) {
+                showNotification('This product is no longer available.', 'warning');
+                if (btn) { btn.disabled = true; btn.classList.add('disabled'); }
+            } else if (/out of stock|insufficient stock/i.test(respData.message || '')) {
+                showNotification('This product is currently out of stock.', 'warning');
+                if (btn) { btn.disabled = true; btn.classList.add('disabled'); }
+            } else if (respData.message && /log in|auth/i.test(respData.message)) {
                 showNotification('Please log in to add items to cart', 'warning');
                 setTimeout(() => {
                     window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
@@ -653,7 +728,11 @@ async function addToCart(productId, quantity = 1, productName = 'Product') {
         showNotification('Network error: Failed to add to cart', 'error');
     } finally {
         window.__dokoCartLocks.delete(lockKey);
-        if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+            if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+        }
     }
 }
 
@@ -686,26 +765,29 @@ function apiFetch(endpoint, { method = 'GET', data = undefined, formData = undef
 }
 
 async function updateCartCount() {
+    // Helper: update all cart count display nodes (supports id or class based markup)
+    const updateAllDisplays = (val) => {
+        const nodes = document.querySelectorAll('#cart-count, .cart-count');
+        nodes.forEach(n => { n.textContent = val; });
+    };
     // If not logged in, derive from guest cart
     let logged = false;
     try { if (typeof isLoggedIn === 'function') logged = await isLoggedIn(); } catch(e) { /* ignore */ }
-    const cartCountEl = document.getElementById('cart-count');
-    if (!cartCountEl) return;
     if (!logged) {
         const guest = loadGuestCart();
         const guestTotal = guest.reduce((s,i) => s + i.quantity, 0);
-        cartCountEl.textContent = guestTotal;
+        updateAllDisplays(guestTotal);
         return;
     }
     try {
-        const resp = await fetch(getApiPath() + 'cart/cart-get.php', {
+        const resp = await fetch(getApiPath() + 'cart/get.php', {
             credentials: 'same-origin',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         const data = await resp.json();
         if (data.success) {
             const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
-            cartCountEl.textContent = totalItems;
+            updateAllDisplays(totalItems);
         }
     } catch (e) {
         console.error('Error updating cart count:', e);
@@ -1158,52 +1240,45 @@ function quickView(productId) {
 // Note: toggleWishlist function moved to end of file to avoid conflicts
 
 function updateWishlistCount() {
-    fetch(getApiPath() + 'wishlist/wishlist.php', {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text();
-    })
-    .then(text => {
-        try {
-            const data = JSON.parse(text);
-            if (data.success) {
-                const wishlistCount = document.getElementById('wishlist-count');
-                if (wishlistCount) {
-                    wishlistCount.textContent = data.count || 0;
-                }
+    const wishlistCountEl = document.getElementById('wishlist-count');
+    if (!wishlistCountEl) return;
+    let attemptedRetry = false;
+    const doFetch = () => {
+        fetch(getApiPath() + 'wishlist/wishlist.php', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (response.status === 401) { wishlistCountEl.textContent = '0'; return null; }
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            return response.text();
+        })
+        .then(text => {
+            if (text === null) return;
+            try {
+                const data = JSON.parse(text);
+                if (data && data.success) {
+                    wishlistCountEl.textContent = data.count || 0;
+                } else if (!attemptedRetry) {
+                    attemptedRetry = true; setTimeout(doFetch, 400);
+                } else { wishlistCountEl.textContent = '0'; }
+            } catch (e) {
+                if (!attemptedRetry) { attemptedRetry = true; setTimeout(doFetch, 400); }
+                else { wishlistCountEl.textContent = '0'; }
             }
-        } catch (e) {
-            console.error('Invalid JSON response for wishlist:', text);
-            // Set count to 0 if there's an error
-            const wishlistCount = document.getElementById('wishlist-count');
-            if (wishlistCount) {
-                wishlistCount.textContent = '0';
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error updating wishlist count:', error);
-        // Set count to 0 if there's an error
-        const wishlistCount = document.getElementById('wishlist-count');
-        if (wishlistCount) {
-            wishlistCount.textContent = '0';
-        }
-    });
+        })
+        .catch(err => {
+            if (attemptedRetry) { console.debug('Wishlist count fetch failed after retry:', err); }
+            else { attemptedRetry = true; setTimeout(doFetch, 400); }
+        });
+    };
+    doFetch();
 }
 
 // Add error handling for JavaScript errors
 window.addEventListener('error', function(e) {
     console.error('JavaScript Error:', e.error);
-    console.error('  at', e.filename + ':' + e.lineno + ':' + e.colno);
 });
 
 // Initialize everything when DOM is ready
@@ -1404,42 +1479,8 @@ function addToCartFromQuickView(productId) {
 
 // Note: toggleWishlist function moved to end of file to avoid conflicts
 
-/**
- * Update cart count with better error handling
- */
-function updateCartCount() {
-    fetch(getApiPath() + 'cart/cart-get.php', {
-        credentials: 'same-origin',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            // If not logged in or error, just set to 0
-            return { success: true, items: [] };
-        }
-    })
-    .then(data => {
-        if (data.success) {
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                const totalItems = data.items ? data.items.reduce((sum, item) => sum + parseInt(item.quantity), 0) : 0;
-                cartCount.textContent = totalItems;
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error updating cart count:', error);
-        // Silently fail for cart count updates
-        const cartCount = document.getElementById('cart-count');
-        if (cartCount) {
-            cartCount.textContent = '0';
-        }
-    });
-}
+// (Removed duplicate updateCartCount definition here; canonical version earlier in file includes
+// guest cart fallback and auth pre-check to avoid unnecessary 401 fetch noise.)
 
 // ========== INITIALIZATION ==========
 
@@ -1571,6 +1612,40 @@ function showAuthModal(type = 'login') {
 
 // Make showAuthModal available globally immediately
 window.showAuthModal = showAuthModal;
+
+// Preload wishlist state on initial render to set filled hearts
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        if (typeof isLoggedIn === 'function' && await isLoggedIn()) {
+            const resp = await fetch(getApiPath() + 'wishlist/wishlist.php', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!resp.ok) return;
+            const data = await resp.json();
+            if (data && data.success && Array.isArray(data.items)) {
+                const setIds = new Set(data.items.map(i => parseInt(i.product_id)));
+                // Product card hearts pattern: [onclick="toggleWishlist(ID)"] i OR .wishlist-btn with data-product-id
+                document.querySelectorAll('[onclick^="toggleWishlist("] i, .wishlist-btn[data-product-id]').forEach(el => {
+                    let pid = null;
+                    if (el.dataset && el.dataset.productId) pid = parseInt(el.dataset.productId);
+                    if (!pid) {
+                        const match = el.closest('[onclick^="toggleWishlist("]')?.getAttribute('onclick')?.match(/toggleWishlist\((\d+)\)/);
+                        if (match) pid = parseInt(match[1]);
+                    }
+                    if (pid && setIds.has(pid)) {
+                        if (el.tagName === 'I') {
+                            el.classList.remove('fa-heart-o');
+                            el.classList.add('fa-heart');
+                        } else if (el.querySelector('i')) {
+                            const icon = el.querySelector('i');
+                            icon.classList.remove('fa-heart-o');
+                            icon.classList.add('fa-heart');
+                        }
+                        el.classList.add('in-wishlist');
+                    }
+                });
+            }
+        }
+    } catch (e) { console.warn('Wishlist preload failed', e); }
+}, { once: true });
 
 // Toggle Wishlist Function
 async function toggleWishlist(productId) {

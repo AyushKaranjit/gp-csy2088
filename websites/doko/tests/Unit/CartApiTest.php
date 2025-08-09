@@ -22,7 +22,7 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add to cart
-        $response = $this->postRequest('/api/cart/cart-add.php', [
+    $response = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 2
         ]);
@@ -44,13 +44,13 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add product to cart
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);
         
         // Get cart contents
-        $response = $this->getRequest('/api/cart/cart-get.php');
+    $response = $this->getRequest('/api/cart/get.php');
         
         $this->assertResponseSuccess($response);
         $this->assertJsonHasKey('items', $response);
@@ -67,13 +67,13 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add to cart
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);
         
         // Update quantity
-        $response = $this->postRequest('/api/cart/cart-update.php', [
+    $response = $this->postRequest('/api/cart/update.php', [
             'product_id' => $product['product_id'],
             'quantity' => 3
         ]);
@@ -81,7 +81,7 @@ class CartApiTest extends TestCase
         $this->assertResponseSuccess($response);
         
         // Verify updated quantity
-        $cartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $cartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertEquals(3, $cartResponse['items'][0]['quantity']);
     }
     
@@ -93,20 +93,20 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add to cart
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 2
         ]);
         
         // Remove from cart
-        $response = $this->postRequest('/api/cart/cart-remove.php', [
+    $response = $this->postRequest('/api/cart/remove.php', [
             'product_id' => $product['product_id']
         ]);
         
         $this->assertResponseSuccess($response);
         
         // Verify removal
-        $cartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $cartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertCount(0, $cartResponse['items']);
     }
     
@@ -119,22 +119,22 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add products to cart
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product1['product_id'],
             'quantity' => 1
         ]);
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product2['product_id'],
             'quantity' => 2
         ]);
         
         // Clear cart
-        $response = $this->postRequest('/api/cart/cart-clear.php');
+    $response = $this->postRequest('/api/cart/clear.php');
         
         $this->assertResponseSuccess($response);
         
         // Verify cart is empty
-        $cartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $cartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertCount(0, $cartResponse['items']);
         $this->assertEquals(0, $cartResponse['total']);
     }
@@ -148,17 +148,17 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Add products with specific quantities
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product1['product_id'],
             'quantity' => 2  // 2 × $10.00 = $20.00
         ]);
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product2['product_id'],
             'quantity' => 1  // 1 × $25.50 = $25.50
         ]);
         
         // Get cart and verify total
-        $response = $this->getRequest('/api/cart/cart-get.php');
+    $response = $this->getRequest('/api/cart/get.php');
         
         $this->assertResponseSuccess($response);
         $this->assertEquals(45.50, $response['total']); // $20.00 + $25.50
@@ -167,7 +167,7 @@ class CartApiTest extends TestCase
     public function testCartRequiresAuthentication()
     {
         // Try to access cart without login
-        $response = $this->getRequest('/api/cart/cart-get.php');
+    $response = $this->getRequest('/api/cart/get.php');
         
         $this->assertResponseError($response);
         $this->assertStringContainsString('authentication', strtolower($response['message']));
@@ -186,7 +186,7 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Try to add to cart
-        $response = $this->postRequest('/api/cart/cart-add.php', [
+    $response = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);
@@ -208,7 +208,7 @@ class CartApiTest extends TestCase
         $this->loginUser($user);
         
         // Try to add more than available
-        $response = $this->postRequest('/api/cart/cart-add.php', [
+    $response = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 5  // More than available stock (3)
         ]);

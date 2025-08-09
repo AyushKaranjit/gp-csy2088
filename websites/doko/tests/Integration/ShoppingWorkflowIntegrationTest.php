@@ -58,33 +58,33 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $this->assertResponseSuccess($loginResponse);
         
         // 5. Add products to cart
-        $addToCartResponse1 = $this->postRequest('/api/cart/cart-add.php', [
+    $addToCartResponse1 = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product1['product_id'],
             'quantity' => 1
         ]);
         $this->assertResponseSuccess($addToCartResponse1);
         
-        $addToCartResponse2 = $this->postRequest('/api/cart/cart-add.php', [
+    $addToCartResponse2 = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product2['product_id'],
             'quantity' => 2
         ]);
         $this->assertResponseSuccess($addToCartResponse2);
         
         // 6. View cart contents
-        $cartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $cartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertResponseSuccess($cartResponse);
         $this->assertCount(2, $cartResponse['items']);
         $this->assertEquals(499.97, $cartResponse['total']); // $299.99 + (2 × $99.99)
         
         // 7. Update cart quantity
-        $updateCartResponse = $this->postRequest('/api/cart/cart-update.php', [
+    $updateCartResponse = $this->postRequest('/api/cart/update.php', [
             'product_id' => $product2['product_id'],
             'quantity' => 1  // Reduce from 2 to 1
         ]);
         $this->assertResponseSuccess($updateCartResponse);
         
         // 8. Verify cart update
-        $updatedCartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $updatedCartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertEquals(399.98, $updatedCartResponse['total']); // $299.99 + $99.99
         
         // 9. Add to wishlist
@@ -123,7 +123,7 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $orderId = $orderResponse['order_id'];
         
         // 12. Verify cart is cleared after order
-        $clearedCartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $clearedCartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertCount(0, $clearedCartResponse['items']);
         $this->assertEquals(0, $clearedCartResponse['total']);
         
@@ -191,14 +191,14 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $this->assertResponseSuccess($loginResponse);
         
         // 4. Transfer guest cart to user cart (simulate cart merge)
-        $mergeCartResponse = $this->postRequest('/api/cart/cart-add.php', [
+    $mergeCartResponse = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 2
         ]);
         $this->assertResponseSuccess($mergeCartResponse);
         
         // 5. Verify cart contents
-        $cartResponse = $this->getRequest('/api/cart/cart-get.php');
+    $cartResponse = $this->getRequest('/api/cart/get.php');
         $this->assertResponseSuccess($cartResponse);
         $this->assertCount(1, $cartResponse['items']);
         $this->assertEquals(50.00, $cartResponse['total']); // 2 × $25.00
@@ -219,7 +219,7 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         
         // 3. User 1 adds product to cart
         $this->loginUser($user1);
-        $addResponse1 = $this->postRequest('/api/cart/cart-add.php', [
+    $addResponse1 = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);
@@ -240,7 +240,7 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $this->loginUser($user2);
         
         // 6. User 2 tries to add same product (should fail - out of stock)
-        $addResponse2 = $this->postRequest('/api/cart/cart-add.php', [
+    $addResponse2 = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);

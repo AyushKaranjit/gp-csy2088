@@ -73,7 +73,7 @@ try {
     // Get products
     $query = "SELECT p.{$productsPk} AS product_id, p.name, p.description, p.price, p.original_price,
                      p.stock_quantity, p.unit, p.featured, p.category_id, p.created_at,
-                     c.name as category_name, pi.image_url AS primary_image
+                     c.name as category_name, COALESCE(pi.image_url, '/images/default-product.jpg') AS primary_image
               FROM products p
               LEFT JOIN categories c ON p.category_id = c.category_id
               LEFT JOIN product_images pi ON p.{$productsPk} = pi.product_id AND pi.is_primary = 1
@@ -121,6 +121,7 @@ try {
     ApiResponse::success([
         'data' => $formatted_products,
         'products' => $formatted_products,
+        'total' => (int)$total,
         'pagination' => [
             'current_page' => $page,
             'total_pages' => $totalPages,

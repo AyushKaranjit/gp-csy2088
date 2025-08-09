@@ -68,11 +68,13 @@ websites/doko/
 - `GET /api-categories-detail.php?id={id}` - Get category details
 
 ### Shopping Cart
-- `GET /api-cart-get.php` - Get cart contents
-- `POST /api-cart-add.php` - Add item to cart
-- `PUT /api-cart-update.php` - Update cart item
-- `DELETE /api-cart-remove.php` - Remove cart item
-- `DELETE /api-cart-clear.php` - Clear entire cart
+- `GET /api/cart/get.php` (or legacy `api-cart-get.php`) - Get cart contents
+- `POST /api/cart/add.php` (preferred; legacy alias `cart-add.php`) - Add item to cart
+- `PUT /api/cart/update.php` (legacy `api-cart-update.php`) - Update cart item
+- `DELETE /api/cart/remove.php` (legacy `api-cart-remove.php`) - Remove cart item
+- `DELETE /api/cart/clear.php` (legacy `api-cart-clear.php`) - Clear entire cart
+* Cart (canonical): `add.php`, `update.php`, `remove.php`, `clear.php`, `get.php` under `/api/cart/` (all legacy wrappers removed)
+* Wishlist: unified `/api/wishlist/wishlist.php` (GET list, POST add/toggle, DELETE remove). All former legacy variants have been removed after migration.
 
 ## 💾 Database
 

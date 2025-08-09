@@ -20,7 +20,9 @@ $productCategory = $product['category'] ?? $product['category_name'] ?? 'General
 $productDescription = $product['short_description'] ?? $product['description'] ?? '';
 $stockQuantity = $product['stock_quantity'] ?? 0;
 $productUnit = $product['unit'] ?? 'piece';
-$inStock = $product['in_stock'] ?? ($stockQuantity > 0);
+$status = $product['status'] ?? 'active';
+$isInactive = strtolower($status) !== 'active';
+$inStock = !$isInactive && ($product['in_stock'] ?? ($stockQuantity > 0));
 
 // Set default values for missing fields
 $product = array_merge([
@@ -35,7 +37,9 @@ $product = array_merge([
     'unit' => $productUnit,
     'rating' => $product['rating'] ?? 0,
     'in_stock' => $inStock,
-    'discount_percentage' => 0
+    'discount_percentage' => 0,
+    'status' => $status,
+    'is_inactive' => $isInactive
 ], $product);
 
 // Calculate discount percentage if original price exists
@@ -45,15 +49,25 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 ?>
 
 <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
-    <div class="product-image">
+    <div class="product-image ratio-4x3">
         <a href="product-detail.php?id=<?php echo $product['id']; ?>" class="product-image-link">
-            <img src="<?php echo htmlspecialchars($product['image']); ?>"
+            <?php
+            $img = trim((string)$product['image']);
+            $isExternal = preg_match('~^https?://~i', $img);
+            if ($img === '' || $img === 'uploads/products/default.svg' || $img === 'images/default-product.jpg') {
+                // unified default placeholder path (could be CDN later)
+                $img = '/images/default-product.jpg';
+            }
+            $lowQualityPlaceholder = '/images/default-product.jpg'; // could generate LQIP variants
+            ?>
+            <img src="<?php echo htmlspecialchars($lowQualityPlaceholder); ?>"
+                 data-src="<?php echo htmlspecialchars($img); ?>"
                  alt="<?php echo htmlspecialchars($product['name']); ?>"
                  loading="lazy"
-                 class="product-img"
+                 class="product-img lazy-blur<?php echo $isExternal ? ' external-img' : ''; ?>"
                  data-fallback="/images/default-product.jpg"
-                 onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{handleImageError(this);}"
-                 style="display:block;" />
+                 onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback'); this.classList.remove('loading');}else{this.src='/images/default-product.jpg';}"
+                 decoding="async" />
         </a>
         
         <?php if ($product['discount_percentage'] > 0): ?>
@@ -64,7 +78,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         
         <?php if (!$product['in_stock']): ?>
         <div class="product-badge out-of-stock-badge">
-            Out of Stock
+            <?php echo $product['is_inactive'] ? 'Unavailable' : 'Out of Stock'; ?>
         </div>
         <?php endif; ?>
         
@@ -145,7 +159,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
                 <button type="button" class="qty-btn-mini plus" onclick="changeQuantity(<?php echo $product['id']; ?>, 1)">+</button>
             </div>
         <button class="btn btn-primary btn-block add-to-cart"
-            onclick="addToCart(<?php echo $product['id']; ?>, 1, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
+            onclick="addToCartWithQuantity(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')"
             data-product-id="<?php echo $product['id']; ?>"
             data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
             data-product-price="<?php echo $product['price']; ?>">
@@ -156,7 +170,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
         <?php else: ?>
         <button class="btn btn-secondary btn-block" disabled>
             <i class="fas fa-ban"></i>
-            Out of Stock
+            <?php echo $product['is_inactive'] ? 'Unavailable' : 'Out of Stock'; ?>
         </button>
         <?php endif; ?>
     </div>
@@ -177,10 +191,15 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
+/* Aspect Ratio Wrapper */
 .product-image {
     position: relative;
-    height: 200px;
     overflow: hidden;
+}
+.product-image.ratio-4x3 { aspect-ratio: 4 / 3; }
+@supports not (aspect-ratio: 4 / 3) { /* legacy fallback */
+    .product-image.ratio-4x3 { height: 0; padding-bottom: 75%; }
+    .product-image.ratio-4x3 > a, .product-image.ratio-4x3 img { position: absolute; inset: 0; }
 }
 
 .product-image-link {
@@ -193,8 +212,13 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: var(--transition);
+    transition: var(--transition), filter .6s ease;
+    display: block;
 }
+
+/* Blur-up Lazy Loading */
+.product-image img.lazy-blur { filter: blur(20px); transform: scale(1.03); }
+.product-image img.lazy-blur.loaded { filter: blur(0); transform: scale(1); }
 
 .product-card:hover .product-image img {
     transform: scale(1.05);
@@ -422,9 +446,7 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .product-image {
-        height: 150px;
-    }
+    /* Aspect ratio handles height automatically */
     
     .product-info {
         padding: 1rem;
@@ -435,3 +457,27 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     }
 }
 </style>
+<script>
+// Progressive / lazy load observer (idempotent)
+(function(){
+    if(window.__DOKO_LAZY_INIT) return; window.__DOKO_LAZY_INIT = true;
+    const supportsObserver = 'IntersectionObserver' in window;
+    const images = [];
+    document.addEventListener('DOMContentLoaded', init);
+    function init(){
+        document.querySelectorAll('img.lazy-blur[data-src]').forEach(img=>{ if(!img.dataset.lazyBound){ img.dataset.lazyBound=1; images.push(img);} });
+        if(!supportsObserver){ images.forEach(loadImage); return; }
+        const io = new IntersectionObserver((entries)=>{
+            entries.forEach(entry=>{ if(entry.isIntersecting){ loadImage(entry.target); io.unobserve(entry.target);} });
+        },{rootMargin:'200px 0px'});
+        images.forEach(i=>io.observe(i));
+    }
+    function loadImage(img){
+        const src = img.getAttribute('data-src'); if(!src) return;
+        const high = new Image();
+        high.onload = function(){ img.src = src; img.classList.add('loaded'); };
+        high.onerror = function(){ img.dispatchEvent(new Event('error')); };
+        high.src = src;
+    }
+})();
+</script>

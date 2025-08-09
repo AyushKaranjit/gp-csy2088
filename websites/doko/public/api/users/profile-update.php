@@ -96,10 +96,18 @@ try {
         ApiResponse::error('Failed to update profile', 500);
     }
 
-    // Return updated row snippet
+    // Return updated row snippet & refresh session cache so UI reflects changes immediately
     $sel = $pdo->prepare('SELECT user_id, username, email, first_name, last_name, phone, date_of_birth, gender, profile_image, role FROM users WHERE user_id = ?');
     $sel->execute([$_SESSION['user_id']]);
     $user = $sel->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
+        // Update session values (only those we allow to change / expose)
+        foreach (['first_name','last_name','phone','date_of_birth','gender','profile_image'] as $k) {
+            if (array_key_exists($k, $user)) {
+                $_SESSION[$k] = $user[$k];
+            }
+        }
+    }
     ApiResponse::success(['message' => 'Profile updated', 'user' => $user]);
 } catch (Throwable $e) {
     error_log('profile-update error: '.$e->getMessage());

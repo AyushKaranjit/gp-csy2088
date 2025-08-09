@@ -1,8 +1,8 @@
     <?php
-    // Determine if we are inside an admin page (any /admin/ path under public)
+    // Detect admin context (kept for future conditional logic if needed)
     $is_admin_context = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
-    // Choose appropriate class list; keep original 'footer' for existing styling plus 'admin-footer' for admin overrides
-    $footer_class = $is_admin_context ? 'footer admin-footer' : 'footer';
+    // Unified footer styling for both storefront and admin
+    $footer_class = 'footer';
     ?>
     <!-- Footer -->
     <footer class="<?php echo $footer_class; ?>">
@@ -64,9 +64,7 @@
 
             <div class="footer-bottom">
                 <p>&copy; <?php echo date('Y'); ?> DOKO. All rights reserved. <span style="opacity:.8">Made in Nepal.</span></p>
-                <?php if ($is_admin_context): ?>
-                    <p style="margin-top:.25rem;font-size:.75rem;opacity:.6">Admin Panel Version </p>
-                <?php endif; ?>
+                <!-- Unified footer: removed separate admin version line to match home page exactly -->
             </div>
         </div>
     </footer>

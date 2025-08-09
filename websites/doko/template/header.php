@@ -13,11 +13,16 @@
     $js_path = 'js/';
     $images_path = 'images/';
     
-    // Check if we're in a subdirectory (like api/)
+    // Check if we're in a subdirectory (like api/ or admin/*)
     if (strpos($current_dir, '/api') !== false) {
         $css_path = '../css/';
         $js_path = '../js/';
         $images_path = '../images/';
+    } elseif (strpos($current_dir, '/admin') !== false) {
+        // Admin pages nested inside /admin/{section}/
+        $css_path = '../../css/';
+        $js_path = '../../js/';
+        $images_path = '../../images/';
     }
     ?>
     
@@ -33,6 +38,9 @@
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <?php if (!empty($ADMIN_UI)): // Extra icon set for admin pages ?>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <?php endif; ?>
     
     <?php if (isset($additional_css)): ?>
         <?php foreach ($additional_css as $css): ?>
@@ -74,8 +82,9 @@
     };
     </script>
 </head>
-<body>
-    <!-- Header -->
+<body<?php echo !empty($ADMIN_UI) ? ' class="admin-context"' : ''; ?>>
+    <!-- Header (suppressed for admin context) -->
+    <?php if (empty($ADMIN_UI)): ?>
     <header class="header">
         <!-- Main Header -->
         <div class="header-main">
@@ -264,6 +273,7 @@
     <!-- Move user dropdown outside nav for proper z-index and click handling -->
     <!-- ...existing code... -->
     </header>
+    <?php endif; ?>
     
     <!-- Mobile Navigation Script -->
     <script src="js/mobile-nav.js"></script>

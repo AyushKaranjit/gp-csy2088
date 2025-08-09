@@ -1,4 +1,24 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../template/config.php';
+
+// Page-specific variables
+$page_title = page_title('Shopping Cart');
+$page_description = 'Review your selected items and proceed to checkout at DOKO.';
+$current_page = 'cart';
+
+// Breadcrumb items
+$breadcrumb_items = [
+    ['title' => 'Home', 'url' => 'index.php'],
+    ['title' => 'Shopping Cart', 'url' => '']
+];
+
+// Include header
+include_header($page_title, $page_description, $current_page);
+?>
+<?php
 // Start session and include configuration
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -501,109 +521,163 @@ include_header($page_title, $page_description, $current_page);
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cart functionality
-    let cart = JSON.parse(localStorage.getItem('doko_cart')) || [];
-    
-    // Load cart items
-    function loadCartItems() {
-        const container = document.getElementById('cart-items-container');
-        const emptyCart = document.getElementById('empty-cart');
-        
-        if (cart.length === 0) {
-            emptyCart.style.display = 'block';
+// Unified cart page logic: uses server cart when logged in, falls back to guest cart localStorage (GUEST_CART_KEY)
+document.addEventListener('DOMContentLoaded', async function() {
+    const API_BASE = (typeof getApiPath === 'function') ? getApiPath() : 'api/';
+    const container = document.getElementById('cart-items-container');
+    const emptyCartEl = document.getElementById('empty-cart');
+    let cart = [];
+    // Expose for legacy inline handlers (e.g., placeOrder())
+    window.__dokoCartData = cart;
+
+    function getGuestCartRaw() {
+        try { return JSON.parse(localStorage.getItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1')) || []; } catch(e){ return []; }
+    }
+
+    function normalizeGuestCart(raw) {
+        // raw items only have product_id + quantity; enrich via lightweight fetch later if needed
+        return raw.map(it => ({
+            product_id: it.product_id,
+            id: it.product_id,
+            quantity: it.quantity,
+            name: it.name || 'Item #' + it.product_id,
+            price: parseFloat(it.price || 0),
+            image: it.image || 'images/default-product.jpg'
+        }));
+    }
+
+    async function isLoggedInFast() {
+        try {
+            const r = await fetch(API_BASE + 'users/auth-status.php', { headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' });
+            const j = await r.json();
+            return j && j.success && j.isLoggedIn;
+        } catch(e){ return false; }
+    }
+
+    async function fetchServerCart() {
+        try {
+            const r = await fetch(API_BASE + 'cart/get.php', { headers:{'X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin' });
+            const j = await r.json();
+            if (j.success && Array.isArray(j.items)) {
+                return j.items.map(it => ({
+                    id: it.product_id,
+                    product_id: it.product_id,
+                    name: it.name,
+                    quantity: it.quantity,
+                    price: it.price,
+                    image: it.image || 'images/default-product.jpg'
+                }));
+            }
+        } catch(e){ console.warn('Server cart fetch failed', e); }
+        return [];
+    }
+
+    async function hydrateGuestDetails(items) {
+        if (!items.length) return items;
+        const missingInfo = items.some(it => !it.name || !it.price || it.price === 0);
+        if (!missingInfo) return items; // already enriched
+        try {
+            const resp = await fetch(API_BASE + 'products/bulk-details.php', {
+                method: 'POST',
+                headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+                body: JSON.stringify({ product_ids: items.map(i=>i.product_id) })
+            });
+            const data = await resp.json();
+            if (data.success && data.items) {
+                const map = new Map(data.items.map(d => [d.product_id, d]));
+                return items.map(it => {
+                    const d = map.get(it.product_id);
+                    if (!d) return it;
+                    return { ...it, name: d.name, price: d.price, image: d.image };
+                });
+            }
+        } catch(e){ console.warn('Guest hydrate failed', e); }
+        return items;
+    }
+
+    function renderCart() {
+        if (!cart.length) {
+            emptyCartEl.style.display = 'block';
+            container.querySelectorAll('.cart-item').forEach(el => el.remove());
+            updateCartSummary();
             return;
         }
-        
-        emptyCart.style.display = 'none';
-        
-        let cartHTML = '';
-        cart.forEach((item, index) => {
-            cartHTML += `
-                <div class="cart-item" data-index="${index}">
-                    <div class="item-image">
-                        <img src="${item.image}" alt="${item.name}" loading="lazy">
-                    </div>
-                    <div class="item-details">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">Rs. ${item.price.toFixed(2)}</div>
-                        <div class="item-quantity">
-                            <button class="qty-btn qty-decrease" data-index="${index}">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${index}">
-                            <button class="qty-btn qty-increase" data-index="${index}">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="item-total">Rs. ${(item.price * item.quantity).toFixed(2)}</div>
-                    <div class="remove-item" data-index="${index}">
-                        <i class="fas fa-trash"></i>
+        emptyCartEl.style.display = 'none';
+        // Remove existing rendered items (keep emptyCart element)
+        container.querySelectorAll('.cart-item').forEach(el => el.remove());
+        const html = cart.map((item, idx) => `
+            <div class="cart-item" data-index="${idx}">
+                <div class="item-image"><img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy"></div>
+                <div class="item-details">
+                    <div class="item-name">${escapeHtml(item.name)}</div>
+                    <div class="item-price">Rs. ${Number(item.price).toFixed(2)}</div>
+                    <div class="item-quantity">
+                        <button class="qty-btn qty-decrease" data-index="${idx}"><i class="fas fa-minus"></i></button>
+                        <input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${idx}">
+                        <button class="qty-btn qty-increase" data-index="${idx}"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
-            `;
-        });
-        
-        container.innerHTML = cartHTML;
+                <div class="item-total">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div>
+                <div class="remove-item" data-index="${idx}"><i class="fas fa-trash"></i></div>
+            </div>`).join('');
+        emptyCartEl.insertAdjacentHTML('beforebegin', html);
         updateCartSummary();
     }
-    
-    // Update cart summary
+
     function updateCartSummary() {
-        const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const subtotal = cart.reduce((s,it)=> s + (Number(it.price)||0)*it.quantity, 0);
         const deliveryCharge = subtotal >= 1000 ? 0 : 50;
-        const discount = 0; // Will be calculated based on promo codes
-        const total = subtotal + deliveryCharge - discount;
-        
+        const total = subtotal + deliveryCharge;
         document.getElementById('cart-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
         document.getElementById('delivery-charge').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
         document.getElementById('cart-total').textContent = `Rs. ${total.toFixed(2)}`;
-        
-        // Update cart count in header
-        const cartCount = document.querySelector('.cart-count');
-        if (cartCount) {
-            cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
-        }
+        if (typeof updateCartCount === 'function') updateCartCount();
     }
-    
-    // Event listeners
-    document.addEventListener('click', function(e) {
-        const index = parseInt(e.target.closest('[data-index]')?.getAttribute('data-index'));
-        
-        if (e.target.closest('.qty-decrease')) {
-            if (cart[index].quantity > 1) {
-                cart[index].quantity--;
-                saveCart();
-                loadCartItems();
-            }
-        }
-        
-        if (e.target.closest('.qty-increase')) {
-            cart[index].quantity++;
-            saveCart();
-            loadCartItems();
-        }
-        
-        if (e.target.closest('.remove-item')) {
-            cart.splice(index, 1);
-            saveCart();
-            loadCartItems();
-        }
+
+    function saveGuestCartBack() {
+        // Persist minimal structure back to guest cart
+        const minimal = cart.map(it => ({ product_id: it.product_id, quantity: it.quantity }));
+        try { localStorage.setItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1', JSON.stringify(minimal)); } catch(e){}
+    }
+
+    function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+
+    document.addEventListener('click', function(e){
+        const btnDec = e.target.closest('.qty-decrease');
+        const btnInc = e.target.closest('.qty-increase');
+        const btnRem = e.target.closest('.remove-item');
+        if (!btnDec && !btnInc && !btnRem) return;
+        const idxAttr = (btnDec||btnInc||btnRem).getAttribute('data-index');
+        const idx = parseInt(idxAttr,10);
+        if (Number.isNaN(idx) || !cart[idx]) return;
+        if (btnDec) { if (cart[idx].quantity>1) cart[idx].quantity--; }
+        if (btnInc) { cart[idx].quantity++; }
+        if (btnRem) { cart.splice(idx,1); }
+        saveGuestCartBack();
+        renderCart();
     });
-    
-    // Quantity input change
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('qty-input')) {
-            const index = parseInt(e.target.getAttribute('data-index'));
-            const newQuantity = parseInt(e.target.value);
-            if (newQuantity > 0) {
-                cart[index].quantity = newQuantity;
-                saveCart();
-                loadCartItems();
-            }
-        }
+
+    document.addEventListener('change', function(e){
+        if (!e.target.classList.contains('qty-input')) return;
+        const idx = parseInt(e.target.getAttribute('data-index'),10);
+        const val = Math.max(1, parseInt(e.target.value,10)||1);
+        if (cart[idx]) { cart[idx].quantity = val; saveGuestCartBack(); renderCart(); }
     });
+
+    // Initialize flow
+    const logged = await isLoggedInFast();
+    if (logged) {
+    cart = await fetchServerCart();
+    window.__dokoCartData = cart;
+    } else {
+    cart = normalizeGuestCart(getGuestCartRaw());
+        if (cart.some(it => !it.name || !it.price)) {
+            cart = await hydrateGuestDetails(cart);
+        }
+    window.__dokoCartData = cart;
+    }
+    renderCart();
+});
     
     // Promo code functionality
     document.getElementById('apply-promo').addEventListener('click', function() {
@@ -755,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="hideCheckoutModal()">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="placeOrder()">
+                        <button type="button" class="btn btn-primary" id="place-order-btn">
                         <i class="fas fa-shopping-bag"></i> Place Order
                     </button>
                 </div>
@@ -802,7 +876,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let itemsHtml = '';
         let subtotal = 0;
         
-        cart.forEach(item => {
+    (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []).forEach(item => {
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
             itemsHtml += `
@@ -833,12 +907,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
+            ? CartModule.getItems()
+            : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
         const orderData = {
             delivery_address: formData.get('delivery_address'),
             phone: formData.get('phone'),
             payment_method: formData.get('payment_method'),
             special_instructions: formData.get('special_instructions'),
-            cart_items: cart.map(item => ({
+            cart_items: currentCart.map(item => ({
                 product_id: item.id,
                 quantity: item.quantity,
                 price: item.price
@@ -861,14 +938,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
-                // Clear cart
-                cart = [];
-                saveCart();
-                
-                // Hide modal
+                // Clear cart via module (handles guest persistence) or fallback to clearing window data
+                if (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.clearAll === 'function') {
+                    CartModule.clearAll();
+                } else {
+                    window.__dokoCartData = [];
+                    try { localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1','[]'); } catch(e) {}
+                }
+
                 hideCheckoutModal();
-                
-                // Show success message and redirect
                 alert('Order placed successfully! Order Number: ' + result.data.order_number);
                 window.location.href = 'profile.php?section=order-history';
             } else {
@@ -909,16 +987,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function saveCart() {
-        localStorage.setItem('doko_cart', JSON.stringify(cart));
-    }
-    
-    // Initialize
-    loadCartItems();
-});
+// (Obsolete legacy doko_cart code removed in favour of unified logic above)
 </script>
 
 <?php
 // Include footer
 include_footer();
 ?>
+<script>
+// Cart module injected after full HTML to avoid header emission issues
+const CartModule = (function(){
+    const API_BASE = (typeof getApiPath === 'function') ? getApiPath() : 'api/';
+    const container = document.getElementById('cart-items-container');
+    const emptyCartEl = document.getElementById('empty-cart');
+    let cart = []; let loggedIn = false; window.__dokoCartData = cart;
+    function getGuestCartRaw(){try{return JSON.parse(localStorage.getItem(window.GUEST_CART_KEY||'doko_guest_cart_v1'))||[]}catch(e){return[]}}
+    function normalizeGuestCart(raw){return raw.map(it=>({product_id:it.product_id,id:it.product_id,quantity:it.quantity,name:it.name||'Item #'+it.product_id,price:parseFloat(it.price||0),image:it.image||'images/default-product.jpg'}));}
+    async function isLoggedInFast(){try{const r=await fetch(API_BASE+'users/auth-status.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();return j&&j.success&&j.isLoggedIn}catch(e){return false}}
+    async function fetchServerCart(){try{const r=await fetch(API_BASE+'cart/get.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();if(j.success&&Array.isArray(j.items)){return j.items.map(it=>({id:it.product_id,product_id:it.product_id,name:it.name,quantity:it.quantity,price:it.price,image:it.image||'images/default-product.jpg'}))}}catch(e){console.warn('Server cart fetch failed',e);}return[]}
+    async function hydrateGuestDetails(items){if(!items.length)return items;const needs=items.some(it=>!it.name||!it.price||it.price===0);if(!needs)return items;try{const resp=await fetch(API_BASE+'products/bulk-details.php',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({product_ids:items.map(i=>i.product_id)})});const data=await resp.json();if(data.success&&data.items){const map=new Map(data.items.map(d=>[d.product_id,d]));return items.map(it=>{const d=map.get(it.product_id);return d?{...it,name:d.name,price:d.price,image:d.image}:it;})}}catch(e){console.warn('Guest hydrate failed',e);}return items}
+    function escapeHtml(str){return(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
+    function updateCartSummary(){const subtotal=cart.reduce((s,it)=>s+(Number(it.price)||0)*it.quantity,0);const deliveryCharge=subtotal>=1000?0:50;const total=subtotal+deliveryCharge;const sEl=document.getElementById('cart-subtotal');if(!sEl)return; sEl.textContent=`Rs. ${subtotal.toFixed(2)}`;document.getElementById('delivery-charge').textContent=deliveryCharge===0?'FREE':`Rs. ${deliveryCharge.toFixed(2)}`;document.getElementById('cart-total').textContent=`Rs. ${total.toFixed(2)}`;if(typeof updateCartCount==='function')updateCartCount();}
+    function renderCart(){if(!container||!emptyCartEl)return;if(!cart.length){emptyCartEl.style.display='block';container.querySelectorAll('.cart-item').forEach(el=>el.remove());updateCartSummary();return;}emptyCartEl.style.display='none';container.querySelectorAll('.cart-item').forEach(el=>el.remove());const frag=document.createDocumentFragment();cart.forEach((item,idx)=>{const div=document.createElement('div');div.className='cart-item';div.dataset.index=idx;div.innerHTML=`<div class="item-image"><img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy"></div><div class="item-details"><div class="item-name">${escapeHtml(item.name)}</div><div class="item-price">Rs. ${Number(item.price).toFixed(2)}</div><div class="item-quantity"><button class="qty-btn qty-decrease" data-index="${idx}"><i class="fas fa-minus"></i></button><input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${idx}"><button class="qty-btn qty-increase" data-index="${idx}"><i class="fas fa-plus"></i></button></div></div><div class="item-total">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div><div class="remove-item" data-index="${idx}"><i class="fas fa-trash"></i></div>`;frag.appendChild(div);});
+        // Insert the fragment before the emptyCart element (compatible with DocumentFragment)
+        if(emptyCartEl.parentNode){emptyCartEl.parentNode.insertBefore(frag, emptyCartEl);}else{emptyCartEl.before(frag);} 
+        updateCartSummary();}
+    function saveGuestCartBack(){if(loggedIn)return;try{localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1',JSON.stringify(cart.map(it=>({product_id:it.product_id,quantity:it.quantity,name:it.name,price:it.price,image:it.image}))))}catch(e){}}
+    function qtyChange(idx,delta){if(!cart[idx])return;const n=cart[idx].quantity+delta;if(n<1)return;cart[idx].quantity=n;window.__dokoCartData=cart;saveGuestCartBack();renderCart();}
+    function setQty(idx,val){if(!cart[idx])return;cart[idx].quantity=Math.max(1,val|0);window.__dokoCartData=cart;saveGuestCartBack();renderCart();}
+    function removeItem(idx){cart.splice(idx,1);window.__dokoCartData=cart;saveGuestCartBack();renderCart();}
+    function bind(){if(!container)return;container.addEventListener('click',e=>{const dec=e.target.closest('.qty-decrease');const inc=e.target.closest('.qty-increase');const rem=e.target.closest('.remove-item');if(dec)qtyChange(parseInt(dec.dataset.index,10),-1);if(inc)qtyChange(parseInt(inc.dataset.index,10),1);if(rem)removeItem(parseInt(rem.dataset.index,10));});container.addEventListener('change',e=>{if(e.target.classList.contains('qty-input'))setQty(parseInt(e.target.dataset.index,10),parseInt(e.target.value,10)||1);});document.body.addEventListener('click',e=>{if(e.target.id==='place-order-btn'&&typeof window.placeOrder==='function'){window.placeOrder();}});}
+    async function init(){loggedIn=await isLoggedInFast();cart=loggedIn?await fetchServerCart():normalizeGuestCart(getGuestCartRaw());if(!loggedIn&&cart.some(it=>!it.name||!it.price))cart=await hydrateGuestDetails(cart);window.__dokoCartData=cart;bind();renderCart();}
+    function getItems(){ return cart.slice(); }
+    function clearAll(){ cart = []; window.__dokoCartData = cart; saveGuestCartBack(); renderCart(); }
+    return { init, getItems, clearAll };
+})();
+document.addEventListener('DOMContentLoaded',()=>CartModule.init());
+</script>

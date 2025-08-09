@@ -29,11 +29,12 @@
 - `categories-detail.php` - Get category details
 
 #### Cart (`/api/cart/`)
-- `cart-get.php` - Get cart
-- `update.php` - Add/update line
-- `remove.php` - Remove line
-- `clear.php` - Clear cart
-- Legacy variants (`cart-add-*`) deprecated
+- `get.php` (canonical cart fetch)
+- `add.php` (add line)
+- `update.php` (update quantity)
+- `remove.php` (remove line)
+- `clear.php` (clear cart)
+- Removed all deprecated experimental and wrapper variants (`cart-add-*`, `cart-*.php` duplicates) to reduce clutter.
 
 #### Orders (`/api/orders/`)
 - `orders-list.php` - Paginated list
@@ -54,8 +55,8 @@
 - Deprecated wrappers: `auth-login|auth-logout|auth-register|auth-status` (kept temporarily)
 
 #### Wishlist (`/api/wishlist/`)
-- `wishlist.php` - Unified wishlist API
-- Legacy variants (`wishlist-toggle.php`, `wishlist-get.php`, `wishlist-simple.php`, `wishlist-backup.php`) deprecated
+- `wishlist.php` - Unified wishlist API (GET list, POST add/toggle, DELETE remove)
+- Legacy stubs removed (toggle/get/add/remove/simple/backup) after migration window.
 
 #### Uploads (`/api/uploads/`)
 - `image-upload.php` - General image upload functionality
@@ -65,9 +66,9 @@
 All active endpoints share `_bootstrap.php` and `ApiResponse` for consistency.
 
 Deprecation Strategy:
-- Deprecated endpoints return HTTP 410 or include `meta.deprecated`.
-- Wrappers retained briefly to avoid breaking existing clients.
-- Planned removals after migration window: legacy cart add scripts, wishlist legacy scripts, deprecated admin * listings, wrapper auth-* endpoints.
+- Deprecated endpoints returned HTTP 410 during migration window and are now removed (wishlist legacy set, experimental cart variants).
+- All cart wrappers removed after test migration.
+- Future removals pending: deprecated admin * listings, wrapper auth-* endpoints after confirmation.
 
 ## Path Configuration
 

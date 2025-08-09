@@ -187,15 +187,15 @@ require_once __DIR__ . '/../template/header.php';
                         <div class="quantity-selector">
                             <label for="quantity">Quantity:</label>
                             <div class="quantity-input">
-                                <button type="button" class="qty-btn minus" onclick="changeQuantity(-1)">-</button>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" autocomplete="off">
-                                <button type="button" class="qty-btn plus" onclick="changeQuantity(1)">+</button>
+                                <button type="button" class="qty-btn minus" onclick="changeQuantity(<?php echo $product['product_id']; ?>, -1)">-</button>
+                                <input type="number" id="qty-<?php echo $product['product_id']; ?>" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" autocomplete="off">
+                                <button type="button" class="qty-btn plus" onclick="changeQuantity(<?php echo $product['product_id']; ?>, 1)">+</button>
                             </div>
                         </div>
                         
                         <div class="action-buttons">
                 <button class="btn btn-primary btn-lg add-to-cart" 
-                        onclick="addToCart(<?php echo $product['product_id']; ?>, document.getElementById('quantity').value, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')">
+                        onclick="addToCartWithQuantity(<?php echo $product['product_id']; ?>, '<?php echo htmlspecialchars($product['name'], ENT_QUOTES); ?>')">
                     <i class="fas fa-shopping-cart"></i>
                     Add to Cart
                 </button>

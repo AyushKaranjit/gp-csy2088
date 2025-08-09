@@ -59,7 +59,12 @@ try {
     $orders = [];
 }
 
-include '../../../template/admin-header.php';
+// Unified theme: storefront header + admin navigation
+$ADMIN_UI = true; // suppress storefront header
+$additional_css = $additional_css ?? [];
+$additional_css[] = '/css/admin.css';
+include '../../../template/header.php';
+include '../../../template/admin-nav.php';
 ?>
 
 <!-- Link to main stylesheet for footer and other styles -->

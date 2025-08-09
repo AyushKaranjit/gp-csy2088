@@ -21,7 +21,7 @@ class OrdersApiTest extends TestCase
         ]);
         
         // Add product to cart first
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 2
         ]);
@@ -172,7 +172,7 @@ class OrdersApiTest extends TestCase
         ]);
         
         // Add to cart and create order
-        $this->postRequest('/api/cart/cart-add.php', [
+    $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 3
         ]);

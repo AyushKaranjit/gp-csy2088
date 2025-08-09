@@ -40,7 +40,8 @@ try {
     
     // Get products with category information
     $query = "
-        SELECT p.*, c.name as category_name, pi.image_url AS primary_image
+        SELECT p.*, c.name as category_name,
+               COALESCE(pi.image_url, '/images/default-product.jpg') AS primary_image
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
@@ -60,7 +61,12 @@ try {
     $categories = [];
 }
 
-include '../../../template/admin-header.php';
+// Unified theme: storefront header + admin navigation
+$ADMIN_UI = true; // suppress storefront header
+$additional_css = $additional_css ?? [];
+$additional_css[] = '/css/admin.css';
+include '../../../template/header.php';
+include '../../../template/admin-nav.php';
 ?>
 <script>
 // Product Image Management Helpers
@@ -72,22 +78,11 @@ async function dokoFetchRemote(pid){
 async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id)return; if(!confirm('Delete image '+id+'?'))return; const res=await fetch('/api/products/product-image-delete.php?image_id='+id,{method:'DELETE',credentials:'same-origin'}); const d=await res.json(); alert(d.message); if(d.success) location.reload(); }
 </script>
 
-<!-- Immediate visibility fix -->
-<script>
-document.documentElement.className += ' admin-ready';
-if (document.body) document.body.className += ' admin-ready';
-</script>
+<!-- Remove duplicate early visibility script to prevent image flicker -->
 
 <style>
-/* Prevent flash of unstyled content */
-body:not(.admin-ready) .products-container {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-body.admin-ready .products-container {
-    opacity: 1;
-}
+/* Simplified: always visible (previous admin-ready toggle caused image blink) */
+.products-container { opacity:1; }
 
 /* Product Management Specific Styles */
 .products-container {
@@ -554,6 +549,21 @@ body.admin-ready .products-container {
     }
 }
 </style>
+<script>
+// Ensure lazy loader shared with product-card is available on admin page (idempotent)
+(function(){
+    if(window.__DOKO_LAZY_INIT) return; window.__DOKO_LAZY_INIT = true;
+    const supportsObserver = 'IntersectionObserver' in window;
+    function setup(){
+        const imgs = document.querySelectorAll('img.lazy-blur[data-src]:not([data-lazy-bound])');
+        if(!supportsObserver){ imgs.forEach(loadImage); return; }
+        const io = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ loadImage(e.target); io.unobserve(e.target);} }); }, {rootMargin:'200px 0px'});
+        imgs.forEach(img=>{ img.dataset.lazyBound=1; io.observe(img); });
+    }
+    function loadImage(img){ const src=img.getAttribute('data-src'); if(!src) return; const hi=new Image(); hi.onload=()=>{img.src=src; img.classList.add('loaded');}; hi.onerror=()=>{img.dispatchEvent(new Event('error'));}; hi.src=src; }
+    if(document.readyState==='complete' || document.readyState==='interactive') setTimeout(setup,200); else document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,200));
+})();
+</script>
 
 <div class="products-container">
     <!-- Products Header -->
@@ -599,19 +609,30 @@ body.admin-ready .products-container {
             <?php foreach ($products as $product): ?>
                 <div class="product-card" data-category="<?php echo $product['category_id']; ?>" data-status="<?php echo $product['status']; ?>">
                     <?php
-                        $imgFile = !empty($product['primary_image']) ? $product['primary_image'] : ($product['image_url'] ?? ''); // fallback legacy
-                        if (!empty($imgFile) && preg_match('#^https?://#i', $imgFile)) {
-                            $imgPath = $imgFile; // absolute external
-                        } elseif (!empty($imgFile)) {
-                            $imgPath = '../../uploads/' . $imgFile;
+                        $imgFile = $product['primary_image'] ?? $product['image_url'] ?? '';
+                        $imgFile = trim((string)$imgFile);
+                        $isExternal = preg_match('#^https?://#i', $imgFile);
+                        if($imgFile === '' || $imgFile === 'uploads/products/default.svg') {
+                            $highRes = '/images/default-product.jpg';
+                        } elseif ($isExternal) {
+                            $highRes = $imgFile; // direct external link
                         } else {
-                            $imgPath = '../../uploads/default-product.jpg';
+                            // stored relative path already? Normalize
+                            if(strpos($imgFile, '/uploads/') === 0) { $highRes = $imgFile; }
+                            elseif(strpos($imgFile,'uploads/') === 0) { $highRes = '/' . $imgFile; }
+                            else { $highRes = '/uploads/' . ltrim($imgFile,'/'); }
                         }
+                        $lqip = '/images/default-product.jpg';
                     ?>
-                    <img src="<?php echo htmlspecialchars($imgPath); ?>" 
-                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
-                         class="product-image"
-                         onerror="this.src='../../uploads/default-product.jpg'">
+                    <div class="product-image ratio-4x3">
+                        <img src="<?php echo htmlspecialchars($lqip); ?>"
+                             data-src="<?php echo htmlspecialchars($highRes); ?>"
+                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                             class="product-img lazy-blur"
+                             loading="lazy"
+                             data-fallback="/images/default-product.jpg"
+                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/images/default-product.jpg';}" />
+                    </div>
                     
                     <div class="product-info">
                         <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
@@ -1043,29 +1064,7 @@ function handleImageUpload($file) {
     return $filename;
 }
 
-// Prevent flash of unstyled content - Initialize early
-echo '<script>
-// Set admin-ready class immediately to prevent flickering
-document.documentElement.className += " admin-ready";
-if (document.body) {
-    document.body.className += " admin-ready";
-}
-document.addEventListener("DOMContentLoaded", function() {
-    document.body.classList.add("admin-ready");
-    // Ensure visibility
-    document.body.style.visibility = "visible";
-});
-// Also set when script loads
-setTimeout(function() {
-    if (document.body) {
-        document.body.classList.add("admin-ready");
-        document.body.style.visibility = "visible";
-    }
-}, 1);
-</script>';
-
-// Add Bootstrap Icons to head section
-echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">';
+// Removed duplicate flicker suppression; header already loads icons if needed.
 
 ?>
 <?php include '../../../template/footer.php'; ?>

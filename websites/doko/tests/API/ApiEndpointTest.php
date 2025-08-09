@@ -102,11 +102,11 @@ class ApiEndpointTest extends TestCase
     public function testCartEndpointsRequireAuth()
     {
         $cartEndpoints = [
-            '/api/cart/cart-get.php',
-            '/api/cart/cart-add.php',
-            '/api/cart/cart-update.php',
-            '/api/cart/cart-remove.php',
-            '/api/cart/cart-clear.php'
+            '/api/cart/get.php',
+            '/api/cart/add.php',
+            '/api/cart/update.php',
+            '/api/cart/remove.php',
+            '/api/cart/clear.php'
         ];
         
         // Test without authentication
@@ -126,11 +126,11 @@ class ApiEndpointTest extends TestCase
         $product = $this->createTestProduct();
         
         // Test cart-get (should work when authenticated)
-        $getResponse = $this->getRequest('/api/cart/cart-get.php');
+    $getResponse = $this->getRequest('/api/cart/get.php');
         $this->assertIsArray($getResponse);
         
         // Test cart-add with valid data
-        $addResponse = $this->postRequest('/api/cart/cart-add.php', [
+    $addResponse = $this->postRequest('/api/cart/add.php', [
             'product_id' => $product['product_id'],
             'quantity' => 1
         ]);
@@ -292,7 +292,7 @@ class ApiEndpointTest extends TestCase
         ];
         
         foreach ($invalidRequests as $index => $data) {
-            $response = $this->postRequest('/api/cart/cart-add.php', $data);
+            $response = $this->postRequest('/api/cart/add.php', $data);
             $this->assertIsArray($response, "Request $index should return structured response");
             
             if (isset($response['success'])) {

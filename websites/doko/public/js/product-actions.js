@@ -6,56 +6,38 @@
 // Product Manager for handling product-related actions
 const ProductManager = {
     // Add to cart with specific quantity
-    addToCartWithQuantity: function(productId, quantity = 1) {
-        // Ensure quantity is a number
+    addToCartWithQuantity: function(productId, quantity = 1, productName = 'Product') {
         quantity = parseInt(quantity) || 1;
-        
-        fetch('/api/cart/cart-add.php', {
+        // Reuse global addToCart if present (has guest cart + locking logic)
+        if (typeof window.addToCart === 'function') {
+            window.addToCart(productId, quantity, productName);
+            return;
+        }
+        // Fallback minimal implementation
+        fetch('/api/cart/add.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: quantity
-            })
+            headers: { 'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest' },
+            credentials:'same-origin',
+            body: JSON.stringify({ product_id: productId, quantity })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Show success notification
+        .then(r=>r.json())
+        .then(data=>{
+            if(data.success){
                 this.showNotification('Product added to cart!', 'success');
-                // Update cart count if function exists
-                if (typeof updateCartCount === 'function') {
-                    updateCartCount();
-                }
+                if (typeof updateCartCount==='function') updateCartCount();
+            } else if (data.message && /auth|login/i.test(data.message)) {
+                this.showNotification('Please login to add items to cart', 'warning');
+                setTimeout(()=>{ window.location.href='/login.php?redirect='+encodeURIComponent(location.pathname); },1200);
             } else {
-                if (data.redirect) {
-                    // User needs to login
-                    this.showNotification('Please login to add items to cart', 'warning');
-                    setTimeout(() => {
-                        window.location.href = data.redirect + '?redirect=' + encodeURIComponent(window.location.pathname);
-                    }, 1500);
-                } else {
-                    this.showNotification(data.message || 'Failed to add to cart', 'error');
-                }
+                this.showNotification(data.message||'Failed to add to cart','error');
             }
         })
-        .catch(error => {
-            console.error('Error adding to cart:', error);
-            this.showNotification('An error occurred. Please try again.', 'error');
-        });
+        .catch(e=>{ console.error('AddToCart fallback error', e); this.showNotification('Network error adding to cart','error'); });
     },
     
     // Toggle wishlist
-    toggleWishlist: function(productId) {
+    toggleWishlist: function(productId, ev) {
+        const eventRef = ev || window.event; // support inline onclick
         fetch('/api/wishlist/wishlist.php', {
             method: 'POST',
             headers: {
@@ -73,7 +55,13 @@ const ProductManager = {
             if (data.success) {
                 this.showNotification(data.message, 'success');
                 // Update wishlist icon
-                const wishlistBtn = event.target.closest('button');
+                let wishlistBtn = null;
+                if (eventRef && eventRef.target) {
+                    wishlistBtn = eventRef.target.closest('button');
+                } else {
+                    // attempt to locate by data attribute fallback
+                    wishlistBtn = document.querySelector(`[data-wishlist-btn="${productId}"]`);
+                }
                 if (wishlistBtn) {
                     const icon = wishlistBtn.querySelector('i');
                     if (icon) {
