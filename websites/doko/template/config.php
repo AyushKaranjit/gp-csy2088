@@ -12,6 +12,8 @@ if (!defined('SITE_NAME')) define('SITE_NAME', 'DOKO');
 if (!defined('SITE_TAGLINE')) define('SITE_TAGLINE', 'Fresh Groceries');
 if (!defined('SITE_EMAIL')) define('SITE_EMAIL', 'care@doko.com.np');
 if (!defined('SITE_PHONE')) define('SITE_PHONE', '+977-9851234567');
+// Enable server-side proxy for external product/hero images to avoid CORB and allow caching
+if (!defined('IMAGE_PROXY_ENABLED')) define('IMAGE_PROXY_ENABLED', true);
 
 // Define base paths for different setups
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';

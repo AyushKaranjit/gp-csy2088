@@ -236,7 +236,8 @@ function displayWishlistItems(products, isLoggedIn) {
         <div class="wishlist-grid">
             ${products.map(product => {
                 // Normalize image URL from API (may already start with /uploads)
-                let img = product.image_url || 'uploads/default-product.jpg';
+                let img = product.image_url || '';
+                if(!img || /default-product/.test(img)){ img = '/api/image-proxy.php?url='+encodeURIComponent('https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=600&q=60'); }
                 if (img.startsWith('/')) {
                     img = img; // already absolute relative to origin
                 } else if (!/^https?:/i.test(img)) {
@@ -246,7 +247,7 @@ function displayWishlistItems(products, isLoggedIn) {
                 }
                 return `
                 <div class="wishlist-item" data-id="${product.product_id}">
-                    <img src="${img}" alt="${product.name}" class="wishlist-item-image" onerror="this.onerror=null;this.src='/uploads/default-product.jpg';">
+                    <img src="${img}" alt="${product.name}" class="wishlist-item-image" onerror="this.onerror=null;this.src='/api/image-proxy.php?url='+encodeURIComponent('https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=600&q=60');">
                     <div class="wishlist-item-content">
                         <h3>${product.name}</h3>
                         <div class="wishlist-item-price">Rs. ${parseFloat(product.price).toFixed(2)}</div>

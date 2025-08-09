@@ -28,11 +28,11 @@ try {
     }
     
     // Check if user is authenticated and has proper permissions
-    if (!$auth->isLoggedIn() || (!$auth->isAdmin() && !$auth->isManager())) {
+    if (!$auth->isLoggedIn() || (!$auth->isAdmin())) {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'Unauthorized access. Admin or Manager role required.'
+            'message' => 'Unauthorized access. Admin role required.'
         ]);
         exit;
     }

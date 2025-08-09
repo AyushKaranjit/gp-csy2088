@@ -35,6 +35,29 @@ $current_page = 'dashboard';
 include_header($page_title, 'Manage your DOKO account, orders, and profile.', $current_page);
 ?>
 
+<style>
+/* Reuse hero slider styles if not already loaded on this page */
+.hero-dashboard { position:relative; overflow:hidden; margin-top:-40px; }
+.hero-dashboard .hero-background-slider { position:absolute; inset:0; }
+.hero-dashboard .hero-slide-track { position:absolute; inset:0; }
+.hero-dashboard .hero-slide { position:absolute; inset:0; background:#223 center/cover no-repeat; opacity:0; transition:opacity 1.2s ease, transform 7s linear; transform:scale(1.05); }
+.hero-dashboard .hero-slide.active { opacity:1; transform:scale(1); }
+.hero-dashboard .hero-background-slider .hero-slide-track.scroll-mode { display:flex; width:200%; animation:heroScrollDash 40s linear infinite; }
+.hero-dashboard .hero-background-slider .hero-slide-track.scroll-mode .hero-slide { position:relative; flex:0 0 20%; min-width:20%; opacity:1; transform:scale(1); transition:none; }
+@keyframes heroScrollDash { 0% { transform:translateX(0);} 100% { transform:translateX(-50%);} }
+.hero-dashboard .hero-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(20,45,25,0.65),rgba(35,70,40,0.55)); }
+.hero-dashboard .hero-inner { position:relative; z-index:2; padding:3.5rem 0 2.5rem; text-align:center; color:#fff; }
+.hero-dashboard h1 { color:#fff; font-size:2.2rem; margin-bottom:.75rem; }
+.hero-dashboard p { color:rgba(255,255,255,0.9); max-width:760px; margin:0 auto 1.25rem; }
+@media(max-width:768px){ .hero-dashboard .hero-inner{ padding:2.5rem 0 1.75rem;} .hero-dashboard h1{font-size:1.9rem;} }
+</style>
+<section class="hero-dashboard hero-with-slider">
+    <div class="hero-background-slider"><div class="hero-slide-track" id="hero-slide-track"></div><div class="hero-overlay"></div></div>
+    <div class="container hero-inner">
+        <h1>Welcome Back, <?php echo htmlspecialchars($currentUser['first_name']); ?>!</h1>
+        <p>Your personalized dashboard for orders, profile, and fresh grocery deals.</p>
+    </div>
+</section>
 <main class="main-content customer-dashboard-main">
     <div class="container">
         <div class="dashboard-layout">
@@ -1223,3 +1246,14 @@ document.addEventListener('click', function(e) {
 </script>
 
 <?php include_footer(); ?>
+<script>
+// Dashboard hero slider images (override if already set earlier)
+window.HERO_SLIDER_IMAGES = [
+    'https://images.unsplash.com/photo-1600891963937-7454abc03b79?auto=format&fit=crop&w=1920&q=70',
+    'https://images.unsplash.com/photo-1587049352851-bc34c85a6d3b?auto=format&fit=crop&w=1920&q=70',
+    'https://images.unsplash.com/photo-1582979512210-9896a89f73d6?auto=format&fit=crop&w=1920&q=70',
+    'https://images.unsplash.com/photo-1495195134817-aeb325a55b65?auto=format&fit=crop&w=1920&q=70',
+    'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=1920&q=70'
+];
+if(typeof HeroBackgroundSlider!=='undefined'){ HeroBackgroundSlider.init(); }
+</script>

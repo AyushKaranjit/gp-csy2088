@@ -52,13 +52,21 @@ if ($product['original_price'] && $product['original_price'] > $product['price']
     <div class="product-image ratio-4x3">
         <a href="product-detail.php?id=<?php echo $product['id']; ?>" class="product-image-link">
             <?php
-            $img = trim((string)$product['image']);
-            $isExternal = preg_match('~^https?://~i', $img);
-            if ($img === '' || $img === 'uploads/products/default.svg' || $img === 'images/default-product.jpg') {
-                // unified default placeholder path (could be CDN later)
-                $img = '/images/default-product.jpg';
+            // Resolve external curated image first
+            require_once __DIR__ . '/image-service.php';
+            $resolvedExternal = getProductImage($product['name']);
+            $img = trim((string)($product['image'] ?? ''));
+            $isExternalOriginal = preg_match('~^https?://~i', $img);
+            // Prefer curated external if local image is default or missing
+            if ($img === '' || stripos($img, 'default') !== false || !$isExternalOriginal) {
+                $img = $resolvedExternal ?: $img;
             }
-            $lowQualityPlaceholder = '/images/default-product.jpg'; // could generate LQIP variants
+            $isExternal = preg_match('~^https?://~i', $img);
+            if(!$isExternal && (strpos($img,'uploads/')===0 || strpos($img,'/uploads/')===0)) {
+                // keep relative local paths; leave as-is
+            }
+            if($img === '' ){ $img = '/images/default-product.jpg'; }
+            $lowQualityPlaceholder = '/images/default-product.jpg';
             ?>
             <img src="<?php echo htmlspecialchars($lowQualityPlaceholder); ?>"
                  data-src="<?php echo htmlspecialchars($img); ?>"

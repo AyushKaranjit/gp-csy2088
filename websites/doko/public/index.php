@@ -9,6 +9,25 @@ $current_page = 'home';
 include_header($page_title, $page_description, $current_page);
 ?>
 
+<style>
+.hero-with-slider { position: relative; overflow:hidden; }
+.hero-with-slider .hero-background-slider { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+.hero-with-slider .hero-background-slider .hero-slide-track { position:absolute; inset:0; }
+.hero-with-slider .hero-background-slider .hero-slide { position:absolute; inset:0; background: #1f1f1f center/cover no-repeat; opacity:0; transition:opacity 1.2s ease, transform 7s linear; will-change:opacity,transform; }
+.hero-with-slider .hero-background-slider .hero-slide::before { content:""; position:absolute; inset:0; background: var(--gradient-overlay, linear-gradient(135deg,rgba(20,45,25,0.65),rgba(35,70,40,0.55))); }
+.hero-with-slider .hero-background-slider .hero-slide { background-image: var(--bg-url); transform: scale(1.05); }
+.hero-with-slider .hero-background-slider .hero-slide.active { opacity:1; transform: scale(1); z-index:1; }
+.hero-with-slider .hero-background-slider .hero-slide-track.scroll-mode { display:flex; width:calc(200%); animation:heroScroll 40s linear infinite; }
+.hero-with-slider .hero-background-slider .hero-slide-track.scroll-mode .hero-slide { position:relative; flex:0 0 20%; min-width:20%; opacity:1; transform:scale(1); transition:none; }
+@keyframes heroScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+.hero-with-slider .hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.55)); pointer-events:none; }
+.hero-with-slider .hero-content { position:relative; z-index:2; padding:4.5rem 0 4rem; }
+@media (max-width:768px){ .hero-with-slider .hero-content{ padding:3rem 0 3rem; } }
+/* Button styling adjustments for contrast */
+.hero-with-slider .hero-buttons .btn-outline { background:rgba(255,255,255,0.1); backdrop-filter: blur(4px); }
+.hero-with-slider .hero-buttons .btn-outline:hover { background:rgba(255,255,255,0.2); }
+</style>
+
 <!-- Hero Section -->
 <section class="hero hero-with-slider">
     <div class="hero-background-slider"><div class="hero-slide-track" id="hero-slide-track"></div><div class="hero-overlay"></div></div>
@@ -37,7 +56,11 @@ include_header($page_title, $page_description, $current_page);
             <p class="section-subtitle">Discover fresh, premium quality products across all categories</p>
         </div>
         <div class="categories-grid">
-            <?php $category_images = array_fill(1, 6, 'uploads/default-product.jpg'); ?>
+            <?php 
+            require_once __DIR__ . '/../template/image-service.php';
+            $category_images = [];
+            foreach($product_categories as $cid=>$cinfo){ $category_images[$cid] = getCategoryImage($cid); }
+            ?>
             <?php foreach ($product_categories as $id => $category): ?>
                 <div class="category-card">
                     <a href="products.php?category=<?php echo $id; ?>" class="category-link">
@@ -69,7 +92,7 @@ include_header($page_title, $page_description, $current_page);
             $featured_products = [];
             try {
                 $db = Database::getInstance();
-                $sql = "SELECT p.product_id AS id, p.name, p.price, NULL AS original_price, COALESCE(pi.image_url, 'uploads/default-product.jpg') AS image, c.name AS category, 4.5 AS rating, (p.stock_quantity > 0) AS in_stock FROM products p LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1 LEFT JOIN categories c ON p.category_id = c.category_id WHERE p.status='active' ORDER BY p.created_at DESC LIMIT 8";
+                $sql = "SELECT p.product_id AS id, p.name, p.price, NULL AS original_price, COALESCE(pi.image_url, '') AS image, c.name AS category, 4.5 AS rating, (p.stock_quantity > 0) AS in_stock FROM products p LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1 LEFT JOIN categories c ON p.category_id = c.category_id WHERE p.status='active' ORDER BY p.created_at DESC LIMIT 8";
                 $stmt = $db->execute($sql);
                 $featured_products = $stmt->fetchAll();
             } catch (Exception $e) { error_log('Featured products query failed: '.$e->getMessage()); }
@@ -78,7 +101,8 @@ include_header($page_title, $page_description, $current_page);
                 $pid = (int)$p['id'];
                 $pnameAttr = htmlspecialchars($p['name'], ENT_QUOTES);
                 $pname = clean_output($p['name']);
-                $img = htmlspecialchars($p['image']);
+                // Prefer mapped external image when DB image missing or default
+                $img = htmlspecialchars(resolve_display_product_image($p['image'],$p['name']));
                 $cat = clean_output($p['category']);
                 $rating = (float)$p['rating'];
                 $price = (float)$p['price'];

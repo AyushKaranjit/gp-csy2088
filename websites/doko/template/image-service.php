@@ -4,120 +4,188 @@
  * Generates placeholder images with proper names
  */
 
-// Function to generate image URL from API services
-function getImageUrl($category, $name, $width = 300, $height = 300) {
-    // Clean the name for URL
-    $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $name));
-    $cleanName = str_replace(' ', '+', $cleanName);
-    
-    // Use local default image with multiple fallback paths
-    return 'uploads/default-product.jpg'; // Use local default image to avoid CORS
+// Generate an external image URL (Unsplash static query as last resort)
+function getImageUrl($category, $name, $width = 600, $height = 600) {
+    $clean = strtolower(trim(preg_replace('/[^a-z0-9\s-]/i','', $name)));
+    $clean = preg_replace('/\s+/','+', $clean);
+    // Unsplash source (random per request) fallback
+    return "https://source.unsplash.com/{$width}x{$height}/?grocery,$category,$clean";
 }
 
 // Function to get product image with multiple fallbacks
 function getProductImagePath($productName, $productId = null) {
-    // Clean product name for filename
-    $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $productName));
-    $cleanName = str_replace(' ', '-', trim($cleanName));
-    
-    // Check multiple possible locations for images
-    $possiblePaths = [
-        "uploads/products/{$cleanName}.jpg",
-        "uploads/products/{$cleanName}.png",
-        "uploads/products/{$cleanName}.svg",
-        "images/products/{$cleanName}.jpg",
-        "images/products/{$cleanName}.png",
-        "uploads/products/product-{$productId}.jpg",
-        "uploads/products/product-{$productId}.png",
-        "uploads/default-product.jpg", // Primary fallback
-        "images/default-product.jpg",  // Secondary fallback
-        "uploads/default-product.svg"  // Final fallback
-    ];
-    
-    // Return the first existing file or the primary fallback
-    return $possiblePaths[count($possiblePaths) - 3]; // Return primary fallback
+    global $productImages; // curated map
+    $key = strtolower(trim(preg_replace('/[^a-z0-9\s-]/','', $productName)));
+    $key = preg_replace('/\s+/', '-', $key);
+    if(isset($productImages[$key])) return $productImages[$key];
+    // Local file scan (only if running with filesystem access)
+    $candidates = [];
+    if($key){
+        $candidates[] = "uploads/products/{$key}.jpg";
+        $candidates[] = "uploads/products/{$key}.png";
+        $candidates[] = "images/products/{$key}.jpg";
+        $candidates[] = "images/products/{$key}.png";
+    }
+    if($productId){
+        $candidates[] = "uploads/products/product-{$productId}.jpg";
+        $candidates[] = "uploads/products/product-{$productId}.png";
+    }
+    foreach($candidates as $rel){
+        $abs = __DIR__.'/../public/'.ltrim($rel,'/');
+        if(is_file($abs)) return '/'.$rel; // serve existing local file
+    }
+    // fallback to dynamic unsplash query for product name
+    return getImageUrl('product',$productName,800,800);
 }
 
 // Category image function
 function getCategoryImagePath($categoryName, $categoryId = null) {
-    $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $categoryName));
-    $cleanName = str_replace(' ', '-', trim($cleanName));
-    
-    $possiblePaths = [
-        "uploads/categories/{$cleanName}.jpg",
-        "uploads/categories/{$cleanName}.png",
-        "images/categories/{$cleanName}.jpg",
-        "uploads/categories/default-category.jpg",
-        "uploads/default-product.jpg" // Final fallback
+    global $categoryImages;
+    if($categoryId && isset($categoryImages[$categoryId])) return $categoryImages[$categoryId];
+    $clean = strtolower(trim(preg_replace('/[^a-z0-9\s-]/','', $categoryName)));
+    $clean = preg_replace('/\s+/','-', $clean);
+    $candidates = [
+        "uploads/categories/{$clean}.jpg",
+        "uploads/categories/{$clean}.png",
+        "images/categories/{$clean}.jpg",
+        "images/categories/{$clean}.png"
     ];
-    
-    return $possiblePaths[count($possiblePaths) - 1]; // Return fallback
+    foreach($candidates as $rel){
+        $abs = __DIR__.'/../public/'.ltrim($rel,'/');
+        if(is_file($abs)) return '/'.$rel;
+    }
+    return getImageUrl('category',$categoryName,600,600);
 }
 
 // Product image mappings for consistent images
+// Curated stable Unsplash image IDs (static photos) for common products
 $productImages = [
-    'tomatoes' => 'uploads/default-product.jpg',
-    'bananas' => 'uploads/default-product.jpg',
-    'milk' => 'uploads/default-product.jpg',
-    'rice' => 'uploads/default-product.jpg',
-    'apples' => 'uploads/default-product.jpg',
-    'spinach' => 'uploads/default-product.jpg',
-    'garam-masala' => 'uploads/default-product.jpg',
-    'yogurt' => 'uploads/default-product.jpg',
-    'onions' => 'uploads/default-product.jpg',
-    'orange-juice' => 'uploads/default-product.jpg',
-    'bread' => 'uploads/default-product.jpg',
-    'honey' => 'uploads/default-product.jpg',
+    'tomatoes'      => 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=70',
+    'banana'        => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=800&q=70',
+    'bananas'       => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=800&q=70',
+    'milk'          => 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=800&q=70',
+    'rice'          => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=70',
+    'apples'        => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
+    'apple'         => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
+    'spinach'       => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
+    'palungo'       => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
+    'garam-masala'  => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=800&q=70',
+    'masala'        => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=800&q=70',
+    'yogurt'        => 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70',
+    'jujudhau'      => 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70',
+    'onions'        => 'https://images.unsplash.com/photo-1603031599551-eea48f937111?auto=format&fit=crop&w=800&q=70',
+    'onion'         => 'https://images.unsplash.com/photo-1603031599551-eea48f937111?auto=format&fit=crop&w=800&q=70',
+    'orange-juice'  => 'https://images.unsplash.com/photo-1586201375761-83865001e31b?auto=format&fit=crop&w=800&q=70',
+    'juice'         => 'https://images.unsplash.com/photo-1586201375761-83865001e31b?auto=format&fit=crop&w=800&q=70',
+    'bread'         => 'https://images.unsplash.com/photo-1608198093002-ad4e005484b2?auto=format&fit=crop&w=800&q=70',
+    'honey'         => 'https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=800&q=70',
+    // Newly added extended curated mappings
+    'red-apples'    => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
+    'instant-coffee'=> 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=70',
+    'coffee'        => 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=70',
+    'chicken'       => 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=800&q=70',
+    'rohu-fish'     => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=70',
+    'fish'          => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=70',
+    'basmati-rice'  => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=70',
+    'red-lentils'   => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
+    'lentils'       => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
+    'masoor'        => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
+    'chickpeas'     => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
+    'turmeric-powder'=>'https://images.unsplash.com/photo-1627308597744-1046f9e2d135?auto=format&fit=crop&w=800&q=70',
+    'turmeric'      => 'https://images.unsplash.com/photo-1627308597744-1046f9e2d135?auto=format&fit=crop&w=800&q=70',
 ];
+
+// Expanded curated mappings for products causing errors
+$productImages['red-lentils'] = '/uploads/products/red-lentils.jpg';
+$productImages['masoor-dal'] = '/uploads/products/masoor-dal.jpg';
+$productImages['organic-eggs'] = '/uploads/products/organic-eggs.jpg';
+$productImages['green-vegetables'] = '/uploads/products/green-vegetables.jpg';
+
+// Wrap curated product URLs via proxy if enabled (only static images.unsplash.com)
+if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
+    foreach($productImages as $k=>$v){
+        if(str_starts_with($v,'https://images.unsplash.com/')){
+            $productImages[$k] = '/api/image-proxy.php?url='.rawurlencode($v);
+        }
+    }
+}
 
 // Category image mappings
 $categoryImages = [
-    1 => 'uploads/default-product.jpg',
-    2 => 'uploads/default-product.jpg',
-    3 => 'uploads/default-product.jpg',
-    4 => 'uploads/default-product.jpg',
-    5 => 'uploads/default-product.jpg',
-    6 => 'uploads/default-product.jpg',
+    1 => 'https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=600&q=60', // Vegetables
+    2 => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=600&q=60', // Fruits
+    3 => 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=600&q=60', // Dairy
+    4 => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=60', // Grains
+    5 => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=600&q=60', // Spices
+    6 => 'https://images.unsplash.com/photo-1608198093002-ad4e005484b2?auto=format&fit=crop&w=600&q=60', // Bakery
 ];
+
+if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
+    foreach($categoryImages as $k=>$v){
+        if(str_starts_with($v,'https://images.unsplash.com/')){
+            $categoryImages[$k] = '/api/image-proxy.php?url='.rawurlencode($v);
+        }
+    }
+}
 
 // Function to get product image by product name
 function getProductImage($productName) {
     global $productImages;
-    
-    $key = strtolower(str_replace([' ', '(', ')', 'kg', 'l', 'ml', 'g'], '', $productName));
-    $key = trim(preg_replace('/\d+/', '', $key)); // Remove numbers
-    $key = str_replace(['fresh', 'ddc', 'royal', 'everest', 'mountain', 'bhatbhateni'], '', $key);
-    $key = trim($key);
-    
+    // Lowercase & remove parentheses
+    $key = strtolower($productName);
+    $key = str_replace(['(',')'], ' ', $key);
+    // Remove measurement tokens (kg, g, ml, l) ONLY at word boundaries
+    $key = preg_replace('/\b(\d+(?:\.\d+)?)(kg|g|ml|l)\b/u',' ', $key); // quantities like 1kg, 500g
+    $key = preg_replace('/\b(kg|g|ml|l)\b/u',' ', $key);
+    // Remove numbers left over
+    $key = preg_replace('/\d+/',' ', $key);
+    // Remove brand/noise words
+    $noise = ['fresh','ddc','royal','everest','mountain','bhatbhateni','organic','premium'];
+    $parts = preg_split('/\s+/', trim($key));
+    $parts = array_filter($parts, function($p) use ($noise){ return $p !== '' && !in_array($p, $noise, true); });
+    $key = implode('-', $parts); // use hyphen separator
+    // Normalize plural basic (very light)
+    if(substr($key,-1)==='s' && strlen($key)>3){ $singular = substr($key,0,-1); if(isset($productImages[$singular])) $key=$singular; }
     // Map common variations
     $mappings = [
-        'tomatoes' => 'tomatoes',
         'banana' => 'bananas',
-        'milk' => 'milk',
-        'rice' => 'rice',
-        'apples' => 'apples',
         'apple' => 'apples',
         'palungo' => 'spinach',
-        'spinach' => 'spinach',
         'garammasala' => 'garam-masala',
         'masala' => 'garam-masala',
         'jujudhau' => 'yogurt',
-        'yogurt' => 'yogurt',
-        'onions' => 'onions',
         'onion' => 'onions',
-        'juice' => 'orange-juice',
-        'bread' => 'bread',
-        'honey' => 'honey',
+        'juice' => 'orange-juice'
     ];
-    
-    $mapped = $mappings[$key] ?? $key;
-    return $productImages[$mapped] ?? "uploads/default-product.jpg";
+    if(isset($mappings[$key])) $key = $mappings[$key];
+    if(isset($productImages[$key])) return $productImages[$key];
+    // Fallback dynamic query with cleaned words (replace hyphens with commas for broader Unsplash match)
+    $query = str_replace('-', ' ', $key);
+    $dyn = getImageUrl('product', $query, 800, 800);
+    // Do NOT proxy dynamic source.unsplash.com (frequent 302 & random); return direct
+    return $dyn;
+}
+
+// Unified display resolver: prefer explicit usable image else mapped external
+if (!function_exists('resolve_display_product_image')) {
+    function resolve_display_product_image(?string $raw, string $name): string {
+        if ($raw) {
+            $lower = strtolower($raw);
+            // If already proxied or external and not a default placeholder, keep it
+            if ((str_starts_with($lower,'/api/image-proxy.php') || str_starts_with($lower,'http')) && !str_contains($lower,'default-product')) {
+                return $raw;
+            }
+        }
+        return getProductImage($name);
+    }
 }
 
 // Function to get category image
 function getCategoryImage($categoryId) {
     global $categoryImages;
-    return $categoryImages[$categoryId] ?? "https://source.unsplash.com/300x300/?grocery+food";
+    if(isset($categoryImages[$categoryId])) return $categoryImages[$categoryId];
+    $dyn = getImageUrl('category','grocery food',600,600);
+    return $dyn;
 }
 
 // Export functions for use in templates

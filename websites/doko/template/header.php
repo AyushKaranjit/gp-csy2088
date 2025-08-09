@@ -54,32 +54,31 @@
     window.API_BASE = '/api/';
     // Fallback handleImageError function - only define if not already provided
     if (!window.handleImageError) window.handleImageError = function(img) {
-        console.log('Image load error for:', img.src);
-        
-        if (img.src.indexOf('default-product.jpg') === -1) {
-            // First fallback: try default product image
+        if(!img||!img.src) return;
+        if(!window.__imageErrorCache) window.__imageErrorCache=new Set();
+        if(!window.__imageErrorCache.has(img.src)){
+            console.debug('[ImageError]', img.src);
+            window.__imageErrorCache.add(img.src);
+        }
+        if (!/default-product\.jpg$/i.test(img.src)) {
             img.src = '/images/default-product.jpg';
-            img.style.objectFit = 'contain';
-            img.style.padding = '20px';
-            img.style.background = '#f8f9fa';
-            console.log('Applied default product image fallback');
-        } else {
-            // If default image also fails, create placeholder
-            img.style.display = 'none';
-            
-            // Only create placeholder if one doesn't exist
-            if (!img.parentNode.querySelector('.image-placeholder')) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'image-placeholder';
-                placeholder.innerHTML = '<i class="fas fa-image"></i><br><span>Image not available</span>';
-                placeholder.style.cssText = 'width:100%;height:100%;display:flex!important;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa!important;color:#6c757d!important;font-size:0.8rem;text-align:center;border-radius:8px;min-height:200px;';
-                
-                // Insert placeholder after the image
-                img.parentNode.insertBefore(placeholder, img.nextSibling);
-                console.log('Created image placeholder');
-            }
+            img.style.objectFit='contain';img.style.padding='20px';img.style.background='#f8f9fa';
+            return;
+        }
+        img.style.display='none';
+        if(img.parentNode && !img.parentNode.__placeholderAdded){
+            const placeholder=document.createElement('div');
+            placeholder.className='image-placeholder';
+            placeholder.innerHTML='<i class="fas fa-image"></i><br><span>Image not available</span>';
+            placeholder.style.cssText='width:100%;height:100%;display:flex!important;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa!important;color:#6c757d!important;font-size:0.8rem;text-align:center;border-radius:8px;min-height:200px;';
+            img.parentNode.insertBefore(placeholder, img.nextSibling);
+            img.parentNode.__placeholderAdded=true;
         }
     };
+    </script>
+    <script>
+    // Expose auth state early (set after PHP auth resolution later in body too if needed)
+    window.DOKO_LOGGED_IN = <?php echo isset($_SESSION['user_id']) ? 'true':'false'; ?>;
     </script>
 </head>
 <body<?php echo !empty($ADMIN_UI) ? ' class="admin-context"' : ''; ?>>

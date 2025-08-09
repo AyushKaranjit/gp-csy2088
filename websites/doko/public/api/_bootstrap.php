@@ -70,7 +70,7 @@ if (!function_exists('csrf_check')) { function csrf_check(bool $requiredForState
 if (!function_exists('auth_controller')) { function auth_controller(): AuthController { static $a=null; if($a===null){ $a=new AuthController(); } return $a; } }
 if (!function_exists('int_param')) { function int_param(string $key,int $default=0,?int $min=null,?int $max=null): int { $v=isset($_GET[$key])?(int)$_GET[$key]:$default; if($min!==null&&$v<$min)$v=$min; if($max!==null&&$v>$max)$v=$max; return $v; } }
 if (!function_exists('db')) { function db(): Database { return Database::getInstance(); } }
-if (!function_exists('resolve_product_image')) { function resolve_product_image(?string $c): string { if(!$c) return '/uploads/default-product.jpg'; if(preg_match('#^https?://#i',$c)) return $c; return '/uploads/'.ltrim($c,'/'); } }
+if (!function_exists('resolve_product_image')) { function resolve_product_image(?string $c, ?string $name=null): string { require_once __DIR__.'/../../template/image-service.php'; return resolve_display_product_image($c ?? '', $name ?? ($c ?? 'Product')); } }
 
 // --- Schema helpers (centralized) ---
 if (!function_exists('schema_table_has')) { function schema_table_has(string $table, string $column): bool {

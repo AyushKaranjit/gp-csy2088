@@ -3,6 +3,7 @@
 session_start();
 require_once __DIR__ . '/../template/config.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../template/image-service.php';
 
 // Get filter parameters
 $category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
@@ -164,7 +165,7 @@ include_header($page_title, $page_description, $current_page);
                             case 'newest': $order = 'p.created_at DESC'; break;
                         }
                         $sql = "SELECT p.$pk AS id, p.name, p.price, p.stock_quantity, p.status, p.created_at,
-                                       COALESCE(pi.image_url, 'uploads/default-product.jpg') AS image,
+                                       COALESCE(pi.image_url, '') AS image,
                                        c.name AS category,
                                        p.description,
                                        p.original_price
@@ -182,7 +183,7 @@ include_header($page_title, $page_description, $current_page);
                                 'name' => $r['name'],
                                 'price' => (float)$r['price'],
                                 'original_price' => isset($r['original_price']) ? (float)$r['original_price'] : null,
-                                'image' => $r['image'] ?: 'uploads/default-product.jpg',
+                                'image' => resolve_display_product_image($r['image'], $r['name']),
                                 'category_id' => null, // category id optional
                                 'category' => $r['category'] ?? 'General',
                                 'rating' => isset($r['rating']) ? (float)$r['rating'] : 0,

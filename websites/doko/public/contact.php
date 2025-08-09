@@ -289,30 +289,20 @@ include_header($page_title, $page_description, $current_page);
             </div>
             
             <div class="map-container">
-                <div class="map-wrapper" id="map-wrapper">
+                <div class="map-wrapper" id="map-wrapper" data-map-lat="27.7148" data-map-lng="85.3123">
                     <img 
-                        src="https://staticmap.openstreetmap.de/staticmap.php?center=27.7148,85.3123&zoom=15&size=1200x675&markers=27.7148,85.3123,red-pushpin" 
-                        alt="Map of Thamel, Kathmandu" 
+                        src="/images/kathmandu-map.jpg" 
+                        alt="Kathmandu area placeholder while live map loads" 
                         class="map-static-img" 
                         width="1200" height="675" 
                         decoding="async" 
                         loading="lazy"
-                        referrerpolicy="no-referrer" 
-                        onerror="this.onerror=null;this.src='/images/kathmandu-map.jpg';" />
-                    <div class="map-overlay" id="map-overlay" role="button" aria-label="Load interactive map of Thamel, Kathmandu">
-                        <div class="map-overlay-content">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <h3>Interactive Map</h3>
-                            <p>Our store location in Thamel, Kathmandu</p>
-                            <div class="map-actions">
-                                <button type="button" id="load-map" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-map"></i> Load Map
-                                </button>
-                                <a href="https://www.google.com/maps/place/Thamel,+Kathmandu" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
-                                    <i class="fas fa-external-link-alt"></i> Open in Google Maps
-                                </a>
-                            </div>
-                        </div>
+                        onload="this.classList.add('loaded');"
+                        onerror="this.onerror=null;this.src='/images/kathmandu-map.svg';this.classList.add('loaded');" />
+                    <div class="map-overlay-lite" aria-label="Map quick actions">
+                        <a href="https://www.google.com/maps/place/Thamel,+Kathmandu" target="_blank" rel="noopener" class="btn btn-outline btn-sm" title="Open in Google Maps">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
                     </div>
                     <noscript>
                         <div class="map-noscript">
@@ -640,33 +630,29 @@ include_header($page_title, $page_description, $current_page);
     height: 100%;
     object-fit: cover;
     filter: brightness(0.9) contrast(1.05);
+    opacity: 0;
+    transition: opacity .6s ease;
 }
+.map-static-img.loaded { opacity: 1; }
+.map-wrapper iframe.google-map-bg {position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .6s ease;}
+.map-wrapper iframe.google-map-bg.visible{opacity:1;}
 
 .map-wrapper iframe {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%; border: 0;
 }
 
-.map-overlay {
+.map-overlay-lite {
     position: absolute;
-    inset: 0;
-    background: rgba(44,85,48,0.35); /* more transparent so map image visible */
+    top: .75rem;
+    right: .75rem;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #fff;
-    cursor: pointer;
-    transition: background .3s, opacity .3s;
+    gap: .5rem;
+    background: rgba(0,0,0,0.35);
+    padding: .5rem;
+    border-radius: .5rem;
 }
-
-.map-overlay:hover { background: rgba(44,85,48,0.45); }
-
-.map-overlay-content i { font-size: 3.5rem; margin-bottom: .75rem; }
-.map-overlay-content h3 { margin: 0 0 .5rem; color: #fff; }
-.map-overlay-content p { margin: 0 0 1.25rem; color: rgba(255,255,255,0.9); }
-
-.map-actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+.map-overlay-lite .btn { padding: .4rem .6rem; }
 
 .map-noscript { padding: 1rem; background:#fff; font-size:.9rem; }
 
@@ -767,27 +753,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     // Lazy load Google Map
-    const overlay = document.getElementById('map-overlay');
-    const loadBtn = document.getElementById('load-map');
-    function loadMap(){
-        if (!overlay || overlay.dataset.loaded) return;
-        const wrapper = document.getElementById('map-wrapper');
-        if (!wrapper) return;
-        const iframe = document.createElement('iframe');
-        iframe.loading = 'lazy';
-        iframe.referrerPolicy = 'no-referrer-when-downgrade';
-        iframe.allowFullscreen = true;
-        iframe.src = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.258318116201!2d85.30860447524144!3d27.70903142514662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19d7d8b3db01%3A0x4ddf5b8e1b1c2b4d!2sThamel%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1691400000000';
+    const wrapper = document.getElementById('map-wrapper');
+    function injectMap(){
+        if(!wrapper || wrapper.dataset.mapLoaded) return;
+        const iframe=document.createElement('iframe');
+        iframe.className='google-map-bg';
+        iframe.loading='lazy';
+        iframe.referrerPolicy='no-referrer-when-downgrade';
+        iframe.allowFullscreen=true;
+        iframe.src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.258318116201!2d85.30860447524144!3d27.70903142514662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19d7d8b3db01%3A0x4ddf5b8e1b1c2b4d!2sThamel%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1691400000000';
+        iframe.addEventListener('load',()=>{ iframe.classList.add('visible'); });
         wrapper.appendChild(iframe);
-        overlay.style.opacity = '0';
-        setTimeout(()=>{ overlay.remove(); }, 300);
-        overlay.dataset.loaded = '1';
+        wrapper.dataset.mapLoaded='1';
     }
-    if (overlay) {
-        overlay.addEventListener('click', loadMap);
-    }
-    if (loadBtn) {
-        loadBtn.addEventListener('click', function(e){ e.stopPropagation(); loadMap(); });
+    if('IntersectionObserver' in window && wrapper){
+        const io=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){injectMap();io.disconnect();}});},{rootMargin:'0px 0px 200px 0px'});
+        io.observe(wrapper);
+    } else {
+        // Fallback: inject after slight delay
+        setTimeout(injectMap,1200);
     }
 });
 </script>
