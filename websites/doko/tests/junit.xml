@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="58" assertions="0" errors="58" warnings="0" failures="0" skipped="0" time="156.816141">
+    <testsuite name="Unit" tests="39" assertions="0" errors="39" warnings="0" failures="0" skipped="0" time="105.537812">
+      <testsuite name="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" tests="11" assertions="0" errors="11" warnings="0" failures="0" skipped="0" time="29.916938">
+        <testcase name="testCanCreateAuthController" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="11" assertions="0" time="2.941902">
+          <error type="Exception">AuthControllerTest::testCanCreateAuthController
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testUserCanLogin" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="16" assertions="0" time="2.690218">
+          <error type="Exception">AuthControllerTest::testUserCanLogin
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testLoginFailsWithInvalidPassword" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="32" assertions="0" time="2.698856">
+          <error type="Exception">AuthControllerTest::testLoginFailsWithInvalidPassword
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testLoginFailsWithNonExistentUser" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="48" assertions="0" time="2.694417">
+          <error type="Exception">AuthControllerTest::testLoginFailsWithNonExistentUser
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testUserCanRegister" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="58" assertions="0" time="2.707578">
+          <error type="Exception">AuthControllerTest::testUserCanRegister
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testRegistrationFailsWithDuplicateEmail" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="76" assertions="0" time="2.702938">
+          <error type="Exception">AuthControllerTest::testRegistrationFailsWithDuplicateEmail
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanDetectAdminRole" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="96" assertions="0" time="2.711203">
+          <error type="Exception">AuthControllerTest::testCanDetectAdminRole
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanDetectCustomerRole" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="106" assertions="0" time="2.714057">
+          <error type="Exception">AuthControllerTest::testCanDetectCustomerRole
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetCurrentUser" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="116" assertions="0" time="2.681518">
+          <error type="Exception">AuthControllerTest::testCanGetCurrentUser
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanLogout" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="130" assertions="0" time="2.677845">
+          <error type="Exception">AuthControllerTest::testCanLogout
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testInactiveUserCannotLogin" class="AuthControllerTest" classname="AuthControllerTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\AuthControllerTest.php" line="146" assertions="0" time="2.696407">
+          <error type="Exception">AuthControllerTest::testInactiveUserCannotLogin
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+      <testsuite name="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" tests="9" assertions="0" errors="9" warnings="0" failures="0" skipped="0" time="24.304283">
+        <testcase name="testCanAddProductToCart" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="11" assertions="0" time="2.704654">
+          <error type="Exception">CartApiTest::testCanAddProductToCart
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetCartContents" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="35" assertions="0" time="2.694670">
+          <error type="Exception">CartApiTest::testCanGetCartContents
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanUpdateCartQuantity" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="62" assertions="0" time="2.693429">
+          <error type="Exception">CartApiTest::testCanUpdateCartQuantity
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanRemoveFromCart" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="88" assertions="0" time="2.702264">
+          <error type="Exception">CartApiTest::testCanRemoveFromCart
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanClearCart" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="113" assertions="0" time="2.692098">
+          <error type="Exception">CartApiTest::testCanClearCart
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCartCalculatesTotalCorrectly" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="142" assertions="0" time="2.701134">
+          <error type="Exception">CartApiTest::testCartCalculatesTotalCorrectly
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCartRequiresAuthentication" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="167" assertions="0" time="2.709356">
+          <error type="Exception">CartApiTest::testCartRequiresAuthentication
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCannotAddOutOfStockProduct" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="176" assertions="0" time="2.711651">
+          <error type="Exception">CartApiTest::testCannotAddOutOfStockProduct
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCannotAddMoreThanAvailableStock" class="CartApiTest" classname="CartApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\CartApiTest.php" line="198" assertions="0" time="2.695026">
+          <error type="Exception">CartApiTest::testCannotAddMoreThanAvailableStock
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+      <testsuite name="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" tests="9" assertions="0" errors="9" warnings="0" failures="0" skipped="0" time="24.297655">
+        <testcase name="testCanCreateOrder" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="11" assertions="0" time="2.704959">
+          <error type="Exception">OrdersApiTest::testCanCreateOrder
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetUserOrders" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="46" assertions="0" time="2.694838">
+          <error type="Exception">OrdersApiTest::testCanGetUserOrders
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetOrderDetail" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="73" assertions="0" time="2.693002">
+          <error type="Exception">OrdersApiTest::testCanGetOrderDetail
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanUpdateOrderStatus" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="101" assertions="0" time="2.707479">
+          <error type="Exception">OrdersApiTest::testCanUpdateOrderStatus
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanCancelOrder" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="124" assertions="0" time="2.696692">
+          <error type="Exception">OrdersApiTest::testCanCancelOrder
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCannotCancelShippedOrder" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="145" assertions="0" time="2.699359">
+          <error type="Exception">OrdersApiTest::testCannotCancelShippedOrder
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testOrderReducesProductStock" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="162" assertions="0" time="2.694080">
+          <error type="Exception">OrdersApiTest::testOrderReducesProductStock
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetOrdersByStatus" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="196" assertions="0" time="2.697041">
+          <error type="Exception">OrdersApiTest::testCanGetOrdersByStatus
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testUserCanOnlyAccessOwnOrders" class="OrdersApiTest" classname="OrdersApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\OrdersApiTest.php" line="218" assertions="0" time="2.710206">
+          <error type="Exception">OrdersApiTest::testUserCanOnlyAccessOwnOrders
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+      <testsuite name="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" tests="10" assertions="0" errors="10" warnings="0" failures="0" skipped="0" time="27.018937">
+        <testcase name="testCanGetProductsList" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="11" assertions="0" time="2.695522">
+          <error type="Exception">ProductsApiTest::testCanGetProductsList
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetProductDetail" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="25" assertions="0" time="2.690652">
+          <error type="Exception">ProductsApiTest::testCanGetProductDetail
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanSearchProducts" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="45" assertions="0" time="2.692370">
+          <error type="Exception">ProductsApiTest::testCanSearchProducts
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetFeaturedProducts" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="60" assertions="0" time="2.693574">
+          <error type="Exception">ProductsApiTest::testCanGetFeaturedProducts
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanFilterProductsByCategory" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="79" assertions="0" time="2.723931">
+          <error type="Exception">ProductsApiTest::testCanFilterProductsByCategory
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanSortProducts" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="103" assertions="0" time="2.713027">
+          <error type="Exception">ProductsApiTest::testCanSortProducts
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testProductDetailReturnsErrorForInvalidId" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="124" assertions="0" time="2.706832">
+          <error type="Exception">ProductsApiTest::testProductDetailReturnsErrorForInvalidId
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetProductsWithPagination" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="133" assertions="0" time="2.701312">
+          <error type="Exception">ProductsApiTest::testCanGetProductsWithPagination
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testProductsIncludeStockStatus" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="151" assertions="0" time="2.714335">
+          <error type="Exception">ProductsApiTest::testProductsIncludeStockStatus
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCanGetProductsByPriceRange" class="ProductsApiTest" classname="ProductsApiTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Unit\ProductsApiTest.php" line="173" assertions="0" time="2.687380">
+          <error type="Exception">ProductsApiTest::testCanGetProductsByPriceRange
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+    <testsuite name="Integration" tests="7" assertions="0" errors="7" warnings="0" failures="0" skipped="0" time="18.893329">
+      <testsuite name="ShoppingWorkflowIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\ShoppingWorkflowIntegrationTest.php" tests="3" assertions="0" errors="3" warnings="0" failures="0" skipped="0" time="8.105295">
+        <testcase name="testCompleteShoppingWorkflow" class="ShoppingWorkflowIntegrationTest" classname="ShoppingWorkflowIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\ShoppingWorkflowIntegrationTest.php" line="11" assertions="0" time="2.697140">
+          <error type="Exception">ShoppingWorkflowIntegrationTest::testCompleteShoppingWorkflow
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testGuestToRegisteredUserConversion" class="ShoppingWorkflowIntegrationTest" classname="ShoppingWorkflowIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\ShoppingWorkflowIntegrationTest.php" line="160" assertions="0" time="2.718127">
+          <error type="Exception">ShoppingWorkflowIntegrationTest::testGuestToRegisteredUserConversion
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testOutOfStockHandling" class="ShoppingWorkflowIntegrationTest" classname="ShoppingWorkflowIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\ShoppingWorkflowIntegrationTest.php" line="207" assertions="0" time="2.690028">
+          <error type="Exception">ShoppingWorkflowIntegrationTest::testOutOfStockHandling
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+      <testsuite name="UserAuthIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\UserAuthIntegrationTest.php" tests="4" assertions="0" errors="4" warnings="0" failures="0" skipped="0" time="10.788034">
+        <testcase name="testCompleteUserRegistrationAndLoginFlow" class="UserAuthIntegrationTest" classname="UserAuthIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\UserAuthIntegrationTest.php" line="11" assertions="0" time="2.696872">
+          <error type="Exception">UserAuthIntegrationTest::testCompleteUserRegistrationAndLoginFlow
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testPasswordChangeFlow" class="UserAuthIntegrationTest" classname="UserAuthIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\UserAuthIntegrationTest.php" line="75" assertions="0" time="2.708744">
+          <error type="Exception">UserAuthIntegrationTest::testPasswordChangeFlow
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testUserRolePermissions" class="UserAuthIntegrationTest" classname="UserAuthIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\UserAuthIntegrationTest.php" line="117" assertions="0" time="2.692720">
+          <error type="Exception">UserAuthIntegrationTest::testUserRolePermissions
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testAccountActivationFlow" class="UserAuthIntegrationTest" classname="UserAuthIntegrationTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\Integration\UserAuthIntegrationTest.php" line="141" assertions="0" time="2.689698">
+          <error type="Exception">UserAuthIntegrationTest::testAccountActivationFlow
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+    <testsuite name="API" tests="12" assertions="0" errors="12" warnings="0" failures="0" skipped="0" time="32.385000">
+      <testsuite name="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" tests="12" assertions="0" errors="12" warnings="0" failures="0" skipped="0" time="32.385000">
+        <testcase name="testAllProductEndpointsRespond" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="11" assertions="0" time="2.705525">
+          <error type="Exception">ApiEndpointTest::testAllProductEndpointsRespond
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testProductDetailEndpoint" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="31" assertions="0" time="2.698360">
+          <error type="Exception">ApiEndpointTest::testProductDetailEndpoint
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCategoryEndpoints" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="50" assertions="0" time="2.698930">
+          <error type="Exception">ApiEndpointTest::testCategoryEndpoints
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testAuthenticationEndpoints" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="66" assertions="0" time="2.694840">
+          <error type="Exception">ApiEndpointTest::testAuthenticationEndpoints
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testCartEndpointsRequireAuth" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="102" assertions="0" time="2.701781">
+          <error type="Exception">ApiEndpointTest::testCartEndpointsRequireAuth
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testOrderEndpointsRequireAuth" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="140" assertions="0" time="2.689931">
+          <error type="Exception">ApiEndpointTest::testOrderEndpointsRequireAuth
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testWishlistEndpoints" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="163" assertions="0" time="2.700631">
+          <error type="Exception">ApiEndpointTest::testWishlistEndpoints
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testAdminEndpointsRequireAdminAuth" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="190" assertions="0" time="2.693265">
+          <error type="Exception">ApiEndpointTest::testAdminEndpointsRequireAdminAuth
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testApiErrorHandling" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="232" assertions="0" time="2.696047">
+          <error type="Exception">ApiEndpointTest::testApiErrorHandling
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testApiResponseHeaders" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="252" assertions="0" time="2.686966">
+          <error type="Exception">ApiEndpointTest::testApiResponseHeaders
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testApiRateLimiting" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="268" assertions="0" time="2.705706">
+          <error type="Exception">ApiEndpointTest::testApiRateLimiting
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+        <testcase name="testApiDataValidation" class="ApiEndpointTest" classname="ApiEndpointTest" file="C:\Users\DEII\Downloads\Doko\websites\doko\tests\API\ApiEndpointTest.php" line="279" assertions="0" time="2.713018">
+          <error type="Exception">ApiEndpointTest::testApiDataValidation
+Exception: Database connection failed: Unable to connect to database.
+
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:151
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:125
+C:\Users\DEII\Downloads\Doko\websites\doko\tests\TestCase.php:103</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

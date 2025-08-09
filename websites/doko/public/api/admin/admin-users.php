@@ -13,11 +13,11 @@ ensure_session();
 $auth = auth_controller();
 if (!$auth->isLoggedIn()) {
     ApiResponse::error('Authentication required', 401);
-    exit;
+    return; // avoid exiting entire test process
 }
 if (!$auth->isAdmin()) {
     ApiResponse::error('Access denied', 403);
-    exit;
+    return; // avoid exiting entire test process
 }
 
 $page = int_param('page', 1, 1);

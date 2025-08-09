@@ -3,8 +3,8 @@
  * Customer Dashboard
  * Profile management and order history for customers
  */
-require_once '../template/config.php';
-require_once '../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../template/config.php';
+require_once __DIR__ . '/../src/Controllers/AuthController.php';
 
 $auth = new AuthController();
 

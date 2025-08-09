@@ -10,7 +10,7 @@ try {
     $isLoggedIn = $auth->isLoggedIn();
     $user = $auth->getCurrentUser();
     if (!$isLoggedIn || !$user || !isset($user['user_id'])) {
-        ApiResponse::success([
+        ApiResponse::error('Authentication required', 401, [
             'items' => [],
             'total_items' => 0,
             'total_amount' => 0.0,

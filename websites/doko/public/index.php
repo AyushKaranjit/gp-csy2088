@@ -3,8 +3,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once '../template/config.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../template/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Page-specific variables
 $page_title = page_title('Home');

@@ -7,16 +7,16 @@ require_method(['POST','DELETE']);
 
 try {
   $auth = auth_controller();
-  if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); }
+  if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); return; }
   $input = json_input();
   $orderId = (int)($input['order_id'] ?? 0);
-  if ($orderId <= 0) { ApiResponse::error('Order ID required', 400); }
+  if ($orderId <= 0) { ApiResponse::error('Order ID required', 400); return; }
   $db = db();
   $order = $db->execute('SELECT order_id,user_id,status FROM orders WHERE order_id=?', [$orderId])->fetch();
-  if (!$order) { ApiResponse::error('Order not found', 404); }
+  if (!$order) { ApiResponse::error('Order not found', 404); return; }
   $user = $auth->getCurrentUser();
-  if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); }
-  if (!in_array($order['status'], ['pending','confirmed'], true)) { ApiResponse::error('Order cannot be cancelled', 400); }
+  if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); return; }
+  if (!in_array($order['status'], ['pending','confirmed'], true)) { ApiResponse::error('Order cannot be cancelled', 400); return; }
   $db->execute('UPDATE orders SET status="cancelled", updated_at=NOW() WHERE order_id=?', [$orderId]);
   ApiResponse::success(['message' => 'Order cancelled successfully']);
 } catch (Throwable $e) {

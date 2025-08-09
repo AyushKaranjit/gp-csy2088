@@ -10,8 +10,8 @@ use Doko\Http\ApiResponse;
 require_method('GET');
 ensure_session();
 $auth = auth_controller();
-if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); exit; }
-if (!$auth->isAdmin()) { ApiResponse::error('Access denied', 403); exit; }
+if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); return; }
+if (!$auth->isAdmin()) { ApiResponse::error('Access denied', 403); return; }
 
 $page = int_param('page', 1, 1);
 $perPage = int_param('per_page', 10, 1, 100);

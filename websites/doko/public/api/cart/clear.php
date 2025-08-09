@@ -7,9 +7,7 @@ require_method(['DELETE','POST']);
 
 try {
     $auth = auth_controller();
-    if (!$auth->isLoggedIn()) {
-        ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]);
-    }
+    if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401, ['is_logged_in' => false]); return; }
     $db = db();
     $userId = $auth->getCurrentUser()['user_id'];
     $res = $db->execute("DELETE FROM cart WHERE user_id = ?", [$userId]);

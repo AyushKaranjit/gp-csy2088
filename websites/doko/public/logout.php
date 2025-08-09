@@ -3,7 +3,7 @@
  * Simple logout script
  */
 session_start();
-require_once '../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../src/Controllers/AuthController.php';
 
 try {
     $auth = new AuthController();

@@ -1,10 +1,11 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once '../template/config.php';
+require_once __DIR__ . '/../template/config.php';
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle form submission (default to GET when REQUEST_METHOD not set, e.g., CLI smoke tests)
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($requestMethod === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -69,7 +70,7 @@ include_header($page_title, $page_description, $current_page);
 ?>
 
 <!-- Breadcrumb -->
-<?php include '../template/breadcrumb.php'; ?>
+<?php include __DIR__ . '/../template/breadcrumb.php'; ?>
 
 <!-- Main Content -->
 <main class="main-content">

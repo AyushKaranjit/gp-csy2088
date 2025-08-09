@@ -7,14 +7,14 @@ require_method('GET');
 
 try {
   $auth = auth_controller();
-  if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); }
+  if (!$auth->isLoggedIn()) { ApiResponse::error('Authentication required', 401); return; }
   $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-  if ($id <= 0) { ApiResponse::error('Invalid order id', 400); }
+  if ($id <= 0) { ApiResponse::error('Invalid order id', 400); return; }
   $db = db();
   $order = $db->execute('SELECT * FROM orders WHERE order_id=?', [$id])->fetch();
-  if (!$order) { ApiResponse::error('Order not found', 404); }
+  if (!$order) { ApiResponse::error('Order not found', 404); return; }
   $user = $auth->getCurrentUser();
-  if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); }
+  if (!$auth->isAdmin() && (int)$order['user_id'] !== (int)$user['user_id']) { ApiResponse::error('Access denied', 403); return; }
   $pk = schema_products_pk();
   $items = $db->execute("SELECT oi.order_item_id, oi.product_id, oi.quantity, oi.unit_price as price, oi.total_price as total, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id=p.$pk WHERE oi.order_id=?", [$id])->fetchAll();
   ApiResponse::success(['order' => $order, 'items' => $items]);

@@ -18,7 +18,7 @@ try {
 
     if ($method === 'GET') {
         if (!$isLoggedIn) {
-            ApiResponse::success(['count' => 0, 'items' => [], 'is_logged_in' => false]);
+            ApiResponse::error('Authentication required', 401, ['count' => 0, 'items' => [], 'is_logged_in' => false]);
             return;
         }
         $stmt = $pdo->prepare('SELECT product_id, added_at FROM wishlist WHERE user_id=? ORDER BY added_at DESC');

@@ -1,8 +1,8 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once '../template/config.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../template/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Get filter parameters
 $category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
@@ -34,7 +34,7 @@ include_header($page_title, $page_description, $current_page);
 ?>
 
 <!-- Breadcrumb -->
-<?php include '../template/breadcrumb.php'; ?>
+<?php include __DIR__ . '/../template/breadcrumb.php'; ?>
 
 <!-- Main Content -->
 <main class="main-content">
@@ -366,7 +366,7 @@ include_header($page_title, $page_description, $current_page);
                         </div>
                     <?php else: ?>
                         <?php foreach ($filtered_products as $product): ?>
-                            <?php include '../template/product-card.php'; ?>
+                            <?php include __DIR__ . '/../template/product-card.php'; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>

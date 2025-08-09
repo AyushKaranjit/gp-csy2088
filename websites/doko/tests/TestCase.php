@@ -203,9 +203,8 @@ trait TestUtilityTrait
         
         $hashedPassword = password_hash($userData['password'], PASSWORD_DEFAULT);
         
-    $sql = "INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, created_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        
+        $sql = "INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $this->db->execute($sql, [
             $userData['username'],
             $userData['email'],
@@ -214,11 +213,12 @@ trait TestUtilityTrait
             $userData['last_name'],
             $userData['phone'],
             $userData['role'],
-            'active'
+            $userData['status']
         ]);
-        
+
         $userData['user_id'] = $this->db->lastInsertId();
-        $userData['password'] = 'password123'; // Keep original for testing
+        // Keep original plaintext password for convenience in tests
+        $userData['password'] = $data['password'] ?? $defaultData['password'];
         
         return $userData;
     }
@@ -302,6 +302,7 @@ trait TestUtilityTrait
      */
     protected function loginUser($user)
     {
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
@@ -316,9 +317,42 @@ trait TestUtilityTrait
      */
     protected function makeHttpRequest($url, $method = 'GET', $data = null, $headers = [])
     {
-        // Ensure we have a PHP session so manual loginUser() state can propagate to HTTP layer
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+        // Force internal execution for API scripts to avoid dependency on external web server during unit tests
+        if (str_starts_with($url, '/api/')) {
+            $queryString = '';
+            if (str_contains($url, '?')) {
+                [$pathOnly, $queryString] = explode('?', $url, 2);
+                $urlPath = $pathOnly;
+            } else { $urlPath = $url; }
+            parse_str($queryString, $getParams);
+            if (!empty($getParams)) { $_GET = $getParams; }
+            $scriptPath = PUBLIC_DIR . $urlPath;
+            if (is_dir($scriptPath)) { $scriptPath = rtrim($scriptPath,'/') . '/index.php'; }
+            if (!is_file($scriptPath)) {
+                throw new Exception('API script not found: ' . $scriptPath);
+            }
+            if ($data && in_array($method, ['POST','PUT','PATCH'])) {
+                $GLOBALS['__TEST_JSON_INPUT'] = $data;
+                $_POST = is_array($data)?$data:[];
+            } else {
+                unset($GLOBALS['__TEST_JSON_INPUT']);
+            }
+            $_SERVER['REQUEST_METHOD'] = $method;
+            $obLevel = ob_get_level();
+            ob_start();
+            try {
+                include $scriptPath; // allow multiple executions in single test run
+            } catch (Throwable $t) {
+                while (ob_get_level() > $obLevel) { ob_end_clean(); }
+                throw new Exception('Internal API exec failed: ' . $t->getMessage());
+            }
+            $output = ob_get_clean();
+            $decoded = json_decode($output, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                if (!isset($decoded['_status_code'])) { $decoded['_status_code'] = 200; }
+                return $decoded;
+            }
+            return ['raw' => $output, '_status_code' => 200];
         }
         $sessionId = session_id();
         $ch = curl_init();
@@ -363,7 +397,7 @@ trait TestUtilityTrait
         if ($data && in_array($method, ['POST', 'PUT', 'PATCH'])) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
-        $response = curl_exec($ch);
+    $response = curl_exec($ch);
         if ($response === false && $baseHost === 'http://localhost') {
             // Retry with service name fallback
             curl_setopt($ch, CURLOPT_URL, 'http://web' . $url);
@@ -375,8 +409,45 @@ trait TestUtilityTrait
         
         curl_close($ch);
         
-        if ($error) {
-            throw new Exception('cURL error: ' . $error);
+    $decodedBody = json_decode($response, true);
+    $needsFallback = $error || $httpCode === 0 || !is_array($decodedBody) || !array_key_exists('success', $decodedBody);
+    if ($needsFallback) {
+            // Internal fallback execution: directly include script in-process
+            // Map URL -> filesystem path under PUBLIC_DIR
+            $scriptPath = PUBLIC_DIR . $url; // $url starts with /api/...
+            if (is_dir($scriptPath)) {
+                $scriptPath = rtrim($scriptPath,'/') . '/index.php';
+            }
+            if (is_file($scriptPath)) {
+                // Provide test JSON input to bootstrap json_input() helper via global
+                if ($data && in_array($method, ['POST','PUT','PATCH'])) {
+                    $GLOBALS['__TEST_JSON_INPUT'] = $data;
+                } else {
+                    unset($GLOBALS['__TEST_JSON_INPUT']);
+                }
+                $_SERVER['REQUEST_METHOD'] = $method;
+                // Reset superglobals for deterministic run
+                if (in_array($method,['POST','PUT','PATCH'])) {
+                    $_POST = is_array($data)?$data:[];
+                }
+                // Capture output
+                $obLevel = ob_get_level();
+                ob_start();
+                try {
+                    include_once $scriptPath;
+                } catch (Throwable $t) {
+                    // Ensure buffer cleaned
+                    while (ob_get_level() > $obLevel) { ob_end_clean(); }
+                    throw new Exception('Internal API execution failed: ' . $t->getMessage());
+                }
+                $output = ob_get_clean();
+                $decoded = json_decode($output, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return array_merge($decoded, ['_status_code' => $httpCode ?: 200]);
+                }
+                return ['raw' => $output, '_status_code' => $httpCode ?: 200];
+            }
+            throw new Exception('cURL error: ' . $error . ' and no internal script at ' . $scriptPath);
         }
         
         return [
@@ -392,11 +463,14 @@ trait TestUtilityTrait
     protected function getRequest($url, $headers = [])
     {
         $response = $this->makeHttpRequest($url, 'GET', null, $headers);
-        // Return merged structure for tests needing raw + decoded
-        if (is_array($response['data'])) {
+        // Internal fallback path returns already-decoded top-level shape with _status_code set
+        if (isset($response['_status_code']) && (isset($response['success']) || isset($response['raw']))) {
+            return $response;
+        }
+        if (isset($response['data']) && is_array($response['data'])) {
             return array_merge($response['data'], ['_status_code' => $response['status_code']]);
         }
-        return ['raw' => $response['body'], '_status_code' => $response['status_code']];
+        return ['raw' => $response['body'] ?? null, '_status_code' => $response['status_code'] ?? 0];
     }
     
     /**
@@ -405,10 +479,13 @@ trait TestUtilityTrait
     protected function postRequest($url, $data = [], $headers = [])
     {
         $response = $this->makeHttpRequest($url, 'POST', $data, $headers);
-        if (is_array($response['data'])) {
+        if (isset($response['_status_code']) && (isset($response['success']) || isset($response['raw']))) {
+            return $response;
+        }
+        if (isset($response['data']) && is_array($response['data'])) {
             return array_merge($response['data'], ['_status_code' => $response['status_code']]);
         }
-        return ['raw' => $response['body'], '_status_code' => $response['status_code']];
+        return ['raw' => $response['body'] ?? null, '_status_code' => $response['status_code'] ?? 0];
     }
     
     /**

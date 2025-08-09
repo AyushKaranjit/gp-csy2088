@@ -47,24 +47,24 @@ class AuthController {
             $stmt->execute();
             
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (getenv('TEST_MODE')) {
+            if (getenv('DEBUG_AUTH')) {
                 error_log('[AuthController::login] Lookup email=' . $email . ' found=' . ($user ? 'yes' : 'no'));
             }
             
             if (!$user) {
-                if (getenv('TEST_MODE')) { error_log('[AuthController::login] User not found'); }
+                if (getenv('DEBUG_AUTH')) { error_log('[AuthController::login] User not found'); }
                 return ['success' => false, 'message' => 'Invalid email or password'];
             }
             
             // Check if account is active
             if ($user['status'] !== 'active') {
-                if (getenv('TEST_MODE')) { error_log('[AuthController::login] Status not active: ' . $user['status']); }
+                if (getenv('DEBUG_AUTH')) { error_log('[AuthController::login] Status not active: ' . $user['status']); }
                 return ['success' => false, 'message' => 'Account is not active'];
             }
             
             // Verify password
             $pwOk = password_verify($password, $user['password']);
-            if (getenv('TEST_MODE')) {
+            if (getenv('DEBUG_AUTH')) {
                 error_log('[AuthController::login] Password verify result=' . ($pwOk ? 'true' : 'false'));
             }
             if (!$pwOk) {
@@ -220,7 +220,7 @@ class AuthController {
             session_unset();
             session_destroy();
         }
-        return ['success' => true, 'message' => 'Logged out successfully'];
+    return ['success' => true, 'message' => 'Logout successful'];
     }
 }
 ?>

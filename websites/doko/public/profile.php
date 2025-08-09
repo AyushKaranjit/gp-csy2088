@@ -1,8 +1,8 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once '../template/config.php';
-require_once '../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../template/config.php';
+require_once __DIR__ . '/../src/Controllers/AuthController.php';
 
 // Check if user is logged in
 $auth = new AuthController();
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Update profile in database
-        require_once '../config/database.php';
+    require_once __DIR__ . '/../config/database.php';
         $database = Database::getInstance();
         $pdo = $database->getConnection();
         
@@ -81,7 +81,7 @@ $breadcrumb_items = [
     ['name' => 'Home', 'url' => 'index.php'],
     ['name' => 'My Profile', 'url' => '', 'active' => true]
 ];
-include '../template/breadcrumb.php'; 
+include __DIR__ . '/../template/breadcrumb.php'; 
 ?>
 
 <!-- Main Content -->

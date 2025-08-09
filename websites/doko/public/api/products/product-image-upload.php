@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 session_start();
-require_once '../../template/config.php';
-require_once '../../src/Controllers/AuthController.php';
+require_once __DIR__ . '/../../template/config.php';
+require_once __DIR__ . '/../../src/Controllers/AuthController.php';
 
 // Verify admin authentication
 $auth = new AuthController();
@@ -58,7 +58,8 @@ try {
     $uniqueFileName = uniqid('product_') . '.' . $fileExtension;
     
     // Create uploads directory if it doesn't exist
-    $uploadDir = '../uploads/';
+    // This API file resides in public/api/products/ -> public/uploads is ../../uploads from here
+    $uploadDir = __DIR__ . '/../../uploads/';
     if (!is_dir($uploadDir)) {
         if (!mkdir($uploadDir, 0755, true)) {
             throw new Exception('Failed to create upload directory');
@@ -76,7 +77,7 @@ try {
         'success' => true,
         'message' => 'Image uploaded successfully',
         'filename' => $uniqueFileName,
-        'url' => '/uploads/' . $uniqueFileName
+    'url' => '/uploads/' . $uniqueFileName
     ]);
     
 } catch (Exception $e) {

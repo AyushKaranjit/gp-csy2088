@@ -1,7 +1,7 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once '../template/config.php';
+require_once __DIR__ . '/../template/config.php';
 
 // Check if order data exists
 $order_data = null;
@@ -33,7 +33,7 @@ include_header($page_title, $page_description, $current_page);
 ?>
 
 <!-- Breadcrumb -->
-<?php include '../template/breadcrumb.php'; ?>
+<?php include __DIR__ . '/../template/breadcrumb.php'; ?>
 
 <!-- Main Content -->
 <main class="main-content">

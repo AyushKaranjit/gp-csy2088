@@ -5,13 +5,8 @@ use Doko\Http\ApiResponse;
 require_method('POST');
 
 try {
-    // Debug: Log that we reached this point
-    error_log("Auth-login: Starting processing");
-    
-    // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    error_log("Auth-login: Input received: " . json_encode($input));
+    // Get JSON input (test harness injects via json_input helper)
+    $input = json_input();
     
     if (!$input || !isset($input['email']) || !isset($input['password'])) { ApiResponse::error('Email and password are required', 400); return; }
     
@@ -27,7 +22,6 @@ try {
     // Use AuthController for login
     $auth = new AuthController();
     $result = $auth->login($email, $password);
-    error_log('Auth-login result: '.json_encode($result));
     
     if ($result['success']) { ApiResponse::success($result); }
     else { ApiResponse::error($result['message'] ?? 'Login failed', 401, ['code' => 'AUTH_FAILED']); }

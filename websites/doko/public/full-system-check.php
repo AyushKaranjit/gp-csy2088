@@ -158,28 +158,41 @@ echo "<div class='test-section'>";
 try {
     require_once __DIR__ . '/../config/database.php';
     $db = Database::getInstance();
-    $conn = $db->getConnection();
     echo success("Database connection established") . "<br>";
     $totalTests++;
     $passedTests++;
     
-    // Test database name
-    $result = $conn->query("SELECT DATABASE() as db_name")->fetch();
-    echo info("Connected to database: " . $result['db_name']) . "<br>";
-    
-    // Check tables
-    $tables = $conn->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-    echo info("Found " . count($tables) . " tables") . "<br>";
-    
-    $requiredTables = ['users', 'products', 'categories', 'cart', 'orders', 'order_items'];
-    foreach ($requiredTables as $table) {
-        $totalTests++;
-        if (in_array($table, $tables)) {
-            echo success("Table '$table' exists") . "<br>";
-            $passedTests++;
-        } else {
-            echo error("Table '$table' missing") . "<br>";
-            $errors[] = "Missing table: $table";
+    // Check if using mock data
+    if ($db->isUsingMockData()) {
+        echo warning("Using mock data service (database not available)") . "<br>";
+        echo info("Mock data includes: users, products, categories") . "<br>";
+        
+        // Test mock data
+        $result = $db->query("SELECT COUNT(*) as count FROM users");
+        $count = $result->fetchColumn();
+        echo info("Mock users available: " . $count) . "<br>";
+        
+    } else {
+        $conn = $db->getConnection();
+        
+        // Test database name
+        $result = $conn->query("SELECT DATABASE() as db_name")->fetch();
+        echo info("Connected to database: " . $result['db_name']) . "<br>";
+        
+        // Check tables
+        $tables = $conn->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        echo info("Found " . count($tables) . " tables") . "<br>";
+        
+        $requiredTables = ['users', 'products', 'categories', 'cart', 'orders', 'order_items'];
+        foreach ($requiredTables as $table) {
+            $totalTests++;
+            if (in_array($table, $tables)) {
+                echo success("Table '$table' exists") . "<br>";
+                $passedTests++;
+            } else {
+                echo error("Table '$table' missing") . "<br>";
+                $errors[] = "Missing table: $table";
+            }
         }
     }
     
@@ -284,7 +297,7 @@ echo "<div class='test-section'>";
 
 try {
     // Check for users
-    $stmt = $conn->query("SELECT role, COUNT(*) as count FROM users GROUP BY role");
+    $stmt = $db->query("SELECT role, COUNT(*) as count FROM users GROUP BY role");
     $roles = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     
     echo "<table>";
@@ -299,10 +312,10 @@ try {
         
         if ($count > 0) {
             $passedTests++;
-        } else if ($role === 'admin') {
+        } else if ($role === 'admin' && !$db->isUsingMockData()) {
             // Auto-create admin if missing
             echo "<tr><td colspan='3'>" . info("Creating default admin user...") . "</td></tr>";
-            $stmt = $conn->prepare("INSERT INTO users (username, email, password, first_name, last_name, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO users (username, email, password, first_name, last_name, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 'admin',
                 'admin@doko.com',
@@ -347,7 +360,7 @@ echo "<div class='test-section'>";
 
 try {
     // Check products
-    $stmt = $conn->query("SELECT COUNT(*) as count, MIN(price) as min_price, MAX(price) as max_price, AVG(stock_quantity) as avg_stock FROM products WHERE status = 'active'");
+    $stmt = $db->query("SELECT COUNT(*) as count, MIN(price) as min_price, MAX(price) as max_price, AVG(stock_quantity) as avg_stock FROM products WHERE status = 'active'");
     $productStats = $stmt->fetch();
     
     $totalTests++;
@@ -362,7 +375,7 @@ try {
     }
     
     // Check categories - Fixed query
-    $stmt = $conn->query("SELECT COUNT(*) as count FROM categories");
+    $stmt = $db->query("SELECT COUNT(*) as count FROM categories");
     $categoryCount = $stmt->fetch()['count'];
     
     $totalTests++;
@@ -371,7 +384,7 @@ try {
         $passedTests++;
         
         // List categories
-        $stmt = $conn->query("SELECT name, (SELECT COUNT(*) FROM products WHERE category_id = categories.category_id) as product_count FROM categories LIMIT 5");
+        $stmt = $db->query("SELECT name, (SELECT COUNT(*) FROM products WHERE category_id = categories.category_id) as product_count FROM categories LIMIT 5");
         $categories = $stmt->fetchAll();
         echo "<table>";
         echo "<tr><th>Category</th><th>Products</th></tr>";
@@ -385,7 +398,7 @@ try {
     }
     
     // Check for products without images
-    $stmt = $conn->query("SELECT COUNT(*) as count FROM products WHERE (image_url IS NULL OR image_url = '') AND status = 'active'");
+    $stmt = $db->query("SELECT COUNT(*) as count FROM products WHERE (images IS NULL OR images = '' OR images = '[]') AND status = 'active'");
     $noImageCount = $stmt->fetch()['count'];
     if ($noImageCount > 0) {
         echo warning("$noImageCount products without images") . "<br>";
@@ -408,7 +421,7 @@ echo "<div class='test-section'>";
 try {
     // Check cart table
     $totalTests++;
-    $stmt = $conn->query("SHOW COLUMNS FROM cart");
+    $stmt = $db->query("SHOW COLUMNS FROM cart");
     $cartColumns = $stmt->fetchAll(PDO::FETCH_COLUMN);
     $requiredCartColumns = ['cart_id', 'user_id', 'product_id', 'quantity'];
     
@@ -423,13 +436,13 @@ try {
     
     // Check wishlist table
     $totalTests++;
-    $stmt = $conn->query("SHOW TABLES LIKE 'wishlist'");
+    $stmt = $db->query("SHOW TABLES LIKE 'wishlist'");
     if ($stmt->rowCount() > 0) {
         echo success("Wishlist table exists") . "<br>";
         $passedTests++;
     } else {
         echo warning("Wishlist table doesn't exist - creating...") . "<br>";
-        $conn->exec("
+        $db->exec("
             CREATE TABLE IF NOT EXISTS wishlist (
                 wishlist_id INT PRIMARY KEY AUTO_INCREMENT,
                 user_id INT NOT NULL,
@@ -461,7 +474,7 @@ echo "<div class='test-section'>";
 try {
     // Check orders table
     $totalTests++;
-    $stmt = $conn->query("SELECT COUNT(*) as total_orders, COUNT(DISTINCT user_id) as unique_customers FROM orders");
+    $stmt = $db->query("SELECT COUNT(*) as total_orders, COUNT(DISTINCT user_id) as unique_customers FROM orders");
     $orderStats = $stmt->fetch();
     
     echo info("Total orders: " . $orderStats['total_orders']) . "<br>";
@@ -470,7 +483,7 @@ try {
     
     // Check order_items table
     $totalTests++;
-    $stmt = $conn->query("SHOW TABLES LIKE 'order_items'");
+    $stmt = $db->query("SHOW TABLES LIKE 'order_items'");
     if ($stmt->rowCount() > 0) {
         echo success("Order items table exists") . "<br>";
         $passedTests++;
@@ -568,7 +581,7 @@ echo "<div class='test-section'>";
 
 // Check for SQL injection protection
 $totalTests++;
-$stmt = $conn->query("SELECT COUNT(*) as count FROM users WHERE password NOT LIKE '$2y$%'");
+$stmt = $db->query("SELECT COUNT(*) as count FROM users WHERE password NOT LIKE '$2y$%'");
 $insecurePasswords = $stmt->fetch()['count'];
 if ($insecurePasswords == 0) {
     echo success("All passwords are properly hashed") . "<br>";
