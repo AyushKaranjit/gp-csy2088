@@ -7,6 +7,13 @@ require_method('POST');
 try {
     // Get JSON input (test harness injects via json_input helper)
     $input = json_input();
+    // Fallback: accept standard form submission if JSON body empty
+    if ((!$input || !is_array($input) || empty($input)) && !empty($_POST)) {
+        $input = [
+            'email' => $_POST['email'] ?? null,
+            'password' => $_POST['password'] ?? null
+        ];
+    }
     
     if (!$input || !isset($input['email']) || !isset($input['password'])) { ApiResponse::error('Email and password are required', 400); return; }
     
