@@ -149,18 +149,59 @@ function getProductImage($productName) {
     // Map common variations
     $mappings = [
         'banana' => 'bananas',
+        'bananas' => 'bananas',
         'apple' => 'apples',
+        'apples' => 'apples',
+        'mango' => 'mangoes',
+        'mangoes' => 'mangoes',
+        'orange' => 'oranges',
+        'oranges' => 'oranges',
         'palungo' => 'spinach',
+        'spinach' => 'spinach',
         'garammasala' => 'garam-masala',
         'masala' => 'garam-masala',
         'jujudhau' => 'yogurt',
+        'curd' => 'yogurt',
+        'dahi' => 'yogurt',
+        'milk' => 'fresh-milk',
         'onion' => 'onions',
+        'onions' => 'onions',
+        'potato' => 'potatoes',
+        'potatoes' => 'potatoes',
+        'tomato' => 'tomatoes',
+        'tomatoes' => 'tomatoes',
+        'cabbage' => 'cabbage',
+        'cauliflower' => 'cauliflower',
+        'broccoli' => 'broccoli',
+        'carrot' => 'carrots',
+        'carrots' => 'carrots',
+        'lentil' => 'lentils',
+        'lentils' => 'lentils',
+        'dal' => 'lentils',
+        'rice' => 'rice-grains',
+        'flour' => 'wheat-flour',
+        'atta' => 'wheat-flour',
+        'sugar' => 'sugar-crystals',
+        'salt' => 'sea-salt',
+        'oil' => 'cooking-oil',
+        'butter' => 'butter',
+        'cheese' => 'cheese',
+        'egg' => 'eggs',
+        'eggs' => 'eggs',
+        'chili' => 'red-chillies',
+        'chilli' => 'red-chillies',
+        'pepper' => 'black-pepper',
+        'spice' => 'spices',
+        'spices' => 'spices',
         'juice' => 'orange-juice'
     ];
     if(isset($mappings[$key])) $key = $mappings[$key];
     if(isset($productImages[$key])) return $productImages[$key];
     // Fallback dynamic query with cleaned words (replace hyphens with commas for broader Unsplash match)
-    $query = str_replace('-', ' ', $key);
+    // Restrict random queries to grocery domain to avoid unrelated people images
+    $query = preg_replace('/[^a-z0-9\s]/',' ', $key);
+    $query = trim($query) ?: 'fresh vegetables';
+    $query .= ' grocery food';
     $dyn = getImageUrl('product', $query, 800, 800);
     // Do NOT proxy dynamic source.unsplash.com (frequent 302 & random); return direct
     return $dyn;

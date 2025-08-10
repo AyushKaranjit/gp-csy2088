@@ -196,3 +196,42 @@ document.head.appendChild(style);
 
 // Export for global use
 window.ProductManager = ProductManager;
+
+// --- Global convenience wrappers expected by inline HTML onclick attributes ---
+// Safely define only if not already present to avoid clobbering any advanced implementation.
+if (typeof window.addToCartWithQuantity !== 'function') {
+    window.addToCartWithQuantity = function(productId, productName) {
+        // Try to locate a quantity input: specific id pattern qty-<id> else generic 'quantity'
+        let qtyInput = document.getElementById('qty-' + productId) || document.getElementById('quantity');
+        let quantity = 1;
+        if (qtyInput) {
+            let parsed = parseInt(qtyInput.value, 10);
+            if (!isNaN(parsed) && parsed > 0) quantity = parsed;
+        }
+        ProductManager.addToCartWithQuantity(productId, quantity, productName || 'Product');
+    };
+}
+
+if (typeof window.toggleWishlist !== 'function') {
+    window.toggleWishlist = function(productId, ev){
+        ProductManager.toggleWishlist(productId, ev);
+    };
+}
+
+// Remove item from wishlist (expects element with data-wishlist-item)
+if (typeof window.removeFromWishlist !== 'function') {
+    window.removeFromWishlist = async function(productId, ev){
+        try {
+            await fetch(`/api/wishlist/wishlist.php?product_id=${productId}`, { method:'DELETE', credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'} });
+        } catch(e) { /* ignore network error for UX resilience */ }
+        // Update count if exposed
+        if (typeof updateWishlistCount === 'function') { try { updateWishlistCount(); } catch(e){} }
+        // Remove DOM node if present
+        const item = document.querySelector(`[data-wishlist-item='${productId}']`) || document.querySelector(`.wishlist-item[data-id='${productId}']`);
+        if (item) item.remove();
+        // Provide minimal feedback
+        if (ProductManager && typeof ProductManager.showNotification === 'function') {
+            ProductManager.showNotification('Item removed from wishlist', 'success');
+        }
+    };
+}

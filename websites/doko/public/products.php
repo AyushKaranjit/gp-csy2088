@@ -291,6 +291,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<!-- Core product actions (wishlist, add to cart) -->
+<script src="js/product-actions.js?v=<?php echo time(); ?>"></script>
+<!-- Main global helpers -->
+<script src="js/main.js?v=<?php echo time(); ?>"></script>
 
 <style>
 .products-layout {

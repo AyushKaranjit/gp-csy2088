@@ -84,12 +84,21 @@
     }
     
     // Verify that the JavaScript files actually exist
-    $main_js_exists = file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'main.js');
-    $mobile_js_exists = file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'mobile-nav.js');
+    // Use DOCUMENT_ROOT to resolve existence to web root /js directory for consistency
+    $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__), '/\\');
+    $main_js_exists = file_exists($doc_root . '/js/main.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'main.js');
+    $mobile_js_exists = file_exists($doc_root . '/js/mobile-nav.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'mobile-nav.js');
+    $product_actions_exists = file_exists($doc_root . '/js/product-actions.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'product-actions.js');
     ?>
     
+    <?php if ($product_actions_exists): ?>
+    <script src="<?php echo $js_path; ?>product-actions.js?v=<?php echo date('YmdHis'); ?>" onerror="console.error('Failed to load product-actions.js');"></script>
+    <?php else: ?>
+    <script>console.warn('product-actions.js not found at path: <?php echo $js_path; ?>product-actions.js');</script>
+    <?php endif; ?>
+
     <?php if ($main_js_exists): ?>
-    <script src="<?php echo $js_path; ?>main.js?v=<?php echo date('YmdHis'); ?>"></script>
+    <script src="<?php echo $js_path; ?>main.js?v=<?php echo date('YmdHis'); ?>" onerror="console.error('main.js failed to load');"></script>
     <?php else: ?>
     <script>console.error('main.js not found at path: <?php echo $js_path; ?>main.js');</script>
     <?php endif; ?>
