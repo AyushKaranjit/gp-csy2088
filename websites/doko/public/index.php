@@ -12,15 +12,9 @@ include_header($page_title, $page_description, $current_page);
 <style>
 .hero-with-slider { position: relative; overflow:hidden; }
 .hero-with-slider .hero-background-slider { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
-.hero-with-slider .hero-background-slider .hero-slide-track { position:absolute; inset:0; }
-.hero-with-slider .hero-background-slider .hero-slide { position:absolute; inset:0; background: #1f1f1f center/cover no-repeat; opacity:0; transition:opacity 1.2s ease, transform 7s linear; will-change:opacity,transform; }
-.hero-with-slider .hero-background-slider .hero-slide::before { content:""; position:absolute; inset:0; background: var(--gradient-overlay, linear-gradient(135deg,rgba(20,45,25,0.65),rgba(35,70,40,0.55))); }
-.hero-with-slider .hero-background-slider .hero-slide { background-image: var(--bg-url); transform: scale(1.05); }
-.hero-with-slider .hero-background-slider .hero-slide.active { opacity:1; transform: scale(1); z-index:1; }
-/* Continuous scrolling variant */
-.hero-with-slider .hero-background-slider .hero-slide-track.scroll-mode { display:flex; width:200%; animation:heroScroll 55s linear infinite; will-change:transform; }
-.hero-with-slider .hero-background-slider .hero-slide-track.scroll-mode .hero-slide { position:relative; flex:0 0 auto; opacity:1; transition:none; background-size:cover; background-position:center; }
-@keyframes heroScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+.hero-with-slider .hero-background-slider .hero-slide-track { position:absolute; inset:0; display:flex; }
+.hero-with-slider .hero-background-slider .hero-slide { position:relative; height:100%; background:#1f1f1f center/cover no-repeat; }
+.hero-with-slider .hero-background-slider .hero-slide::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(20,45,25,0.55),rgba(30,60,35,0.55)); }
 .hero-with-slider .hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.55)); pointer-events:none; }
 .hero-with-slider .hero-content { position:relative; z-index:2; padding:4.5rem 0 4rem; }
 @media (max-width:768px){ .hero-with-slider .hero-content{ padding:3rem 0 3rem; } }
@@ -38,7 +32,7 @@ include_header($page_title, $page_description, $current_page);
             <p>Nepal's most trusted online grocery store. Farm-fresh vegetables, fruits, dairy and essentials delivered with guaranteed quality.</p>
             <div class="hero-buttons">
                 <a href="products.php" class="btn btn-primary btn-lg">Shop Now</a>
-                <a href="about.php" class="btn btn-outline btn-lg">Learn More</a>
+                <a href="about.php" class="btn btn-primary btn-lg btn-alt-primary" style="--btn-alt-bg: var(--primary-color);">Learn More</a>
             </div>
             <div class="hero-features">
                 <div class="feature"><i class="fas fa-truck"></i><span>Free Delivery over Rs. 1000</span></div>
@@ -200,27 +194,28 @@ include_header($page_title, $page_description, $current_page);
         
         <div class="testimonials-grid">
             <?php
+            // Generic customer testimonials (no public figures)
             $testimonials = [
                 [
-                    'name' => 'Sunita Maharjan',
-                    'location' => 'Lalitpur',
-                    'rating' => 5,
-                    'comment' => 'DOKO has made grocery shopping so convenient! Fresh products delivered right to my doorstep. Highly recommended!',
-                    'image' => 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
-                ],
-                [
-                    'name' => 'Ramesh Adhikari',
+                    'name' => 'Satisfied Customer',
                     'location' => 'Kathmandu',
                     'rating' => 5,
-                    'comment' => 'Amazing service and quality products. The vegetables are always fresh and the delivery is always on time.',
-                    'image' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
+                    'comment' => 'Ordering groceries is now effortless. Fresh produce and timely delivery every time!',
+                    'image' => 'uploads/default-product.jpg'
                 ],
                 [
-                    'name' => 'Maya Shrestha',
+                    'name' => 'Happy Shopper',
+                    'location' => 'Lalitpur',
+                    'rating' => 5,
+                    'comment' => 'Great quality and reliable service. Prices are reasonable and selection is growing.',
+                    'image' => 'uploads/default-product.jpg'
+                ],
+                [
+                    'name' => 'Regular Buyer',
                     'location' => 'Bhaktapur',
                     'rating' => 4,
-                    'comment' => 'Great variety of products and competitive prices. DOKO has become my go-to for all grocery needs.',
-                    'image' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
+                    'comment' => 'Wide variety and consistent freshness. A couple more local organic options would be perfect.',
+                    'image' => 'uploads/default-product.jpg'
                 ]
             ];
 

@@ -96,10 +96,14 @@ $productImages = [
 ];
 
 // Expanded curated mappings for products causing errors
-$productImages['red-lentils'] = '/uploads/products/red-lentils.jpg';
-$productImages['masoor-dal'] = '/uploads/products/masoor-dal.jpg';
-$productImages['organic-eggs'] = '/uploads/products/organic-eggs.jpg';
-$productImages['green-vegetables'] = '/uploads/products/green-vegetables.jpg';
+// Override earlier local placeholder overrides with stable remote images (or keep if local file exists later)
+$productImages['red-lentils'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
+$productImages['masoor-dal'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
+$productImages['red-lentils-masoor'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
+$productImages['organic-eggs'] = 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70';
+$productImages['green-vegetables'] = 'https://images.unsplash.com/photo-1582515073490-dc84f0f7e827?auto=format&fit=crop&w=800&q=70';
+// Ensure specific keys used by cleaning logic are present
+$productImages['fresh-milk'] = 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=800&q=70';
 
 // Wrap curated product URLs via proxy if enabled (only static images.unsplash.com)
 if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
@@ -112,12 +116,13 @@ if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
 
 // Category image mappings
 $categoryImages = [
-    1 => 'https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=600&q=60', // Vegetables
-    2 => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=600&q=60', // Fruits
-    3 => 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=600&q=60', // Dairy
-    4 => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=60', // Grains
-    5 => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=600&q=60', // Spices
-    6 => 'https://images.unsplash.com/photo-1608198093002-ad4e005484b2?auto=format&fit=crop&w=600&q=60', // Bakery
+    // Curated local images chosen for closer relevance per category
+    1 => '/images/sydney-rae-t4XYbj1q_Cc-unsplash.jpg',             // Fresh Vegetables (mixed fresh produce)
+    2 => '/images/marcos-paulo-prado-0py70yxumAk-unsplash.jpg',     // Fresh Fruits
+    3 => '/images/nathan-dumlao-bRdRUUtbxO0-unsplash.jpg',          // Dairy Products (milk/latte context)
+    4 => '/images/micheile-henderson-3TgIneA4xjM-unsplash.jpg',     // Grains & Pulses
+    5 => '/images/kimberly-fowler-_L0jF0tt2kE-unsplash.jpg',        // Spices & Herbs
+    6 => '/images/sean-bernstein-BdrrunAzTjQ-unsplash.jpg',         // Snacks & Beverages (packaged goods)
 ];
 
 if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){

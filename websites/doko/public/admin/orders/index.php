@@ -44,7 +44,7 @@ try {
             u.last_name,
             u.email,
             u.phone,
-            COUNT(oi.item_id) as item_count
+            COUNT(oi.order_item_id) as item_count
         FROM orders o
         LEFT JOIN users u ON o.user_id = u.user_id
         LEFT JOIN order_items oi ON o.order_id = oi.order_id

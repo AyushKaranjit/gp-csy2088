@@ -91,6 +91,9 @@ class AuthController {
                 case 'admin':
                     $redirect_url = 'admin.php';
                     break;
+                case 'manager':
+                    $redirect_url = 'manager.php';
+                    break;
                 case 'customer':
                     $redirect_url = 'customer.php';
                     break;
@@ -185,6 +188,11 @@ class AuthController {
         return $this->isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'customer';
     }
     
+    public function isManager() {
+        $this->ensureSession();
+        return $this->isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'manager';
+    }
+    
     public function hasRole($role) {
         $this->ensureSession();
         return $this->isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === $role;
@@ -192,6 +200,10 @@ class AuthController {
     
     public function hasAdminAccess() {
         return $this->isAdmin();
+    }
+    
+    public function hasManagerAccess() {
+        return $this->isManager() || $this->isAdmin();
     }
     
     public function getUserRole() {

@@ -13,13 +13,18 @@
     $js_path = 'js/';
     $images_path = 'images/';
     
-    // Check if we're in a subdirectory (like api/ or admin/*)
+    // Check if we're in a subdirectory (like api/, admin/*, or manager/*)
     if (strpos($current_dir, '/api') !== false) {
         $css_path = '../css/';
         $js_path = '../js/';
         $images_path = '../images/';
     } elseif (strpos($current_dir, '/admin') !== false) {
         // Admin pages nested inside /admin/{section}/
+        $css_path = '../../css/';
+        $js_path = '../../js/';
+        $images_path = '../../images/';
+    } elseif (strpos($current_dir, '/manager') !== false) {
+        // Manager pages nested inside /manager/{section}/
         $css_path = '../../css/';
         $js_path = '../../js/';
         $images_path = '../../images/';
@@ -120,10 +125,14 @@
 
                     <!-- Enhanced Search Bar -->
                     <div class="search-container">
-                        <button class="search-btn" type="button">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <input type="text" id="search-box" class="search-box" placeholder="Search for fresh vegetables, fruits, dairy products...">
+                        <form action="products.php" method="GET" class="search-form" id="search-form">
+                            <button class="search-btn" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <input type="text" id="search-box" name="search" class="search-box" 
+                                   placeholder="Search for fresh vegetables, fruits, dairy products..."
+                                   value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                        </form>
                     </div>
 
                     <!-- Header Actions -->
@@ -300,6 +309,212 @@
             document.addEventListener('click', function(e) {
                 if (!userDropdown.contains(e.target)) {
                     userDropdown.classList.remove('active');
+                }
+            });
+        }
+        
+        // Enhanced Search Functionality
+        var searchForm = document.getElementById('search-form');
+        var searchBox = document.getElementById('search-box');
+        var searchContainer = document.querySelector('.search-container');
+        
+        if (searchForm && searchBox) {
+            // Create search suggestions dropdown
+            var suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'search-suggestions';
+            suggestionsContainer.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid #ddd;
+                border-top: none;
+                border-radius: 0 0 8px 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                max-height: 300px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+            `;
+            searchContainer.appendChild(suggestionsContainer);
+            
+            var searchTimeout;
+            var currentSuggestionIndex = -1;
+            
+            // Handle form submission
+            searchForm.addEventListener('submit', function(e) {
+                var searchTerm = searchBox.value.trim();
+                if (searchTerm === '') {
+                    e.preventDefault();
+                    searchBox.focus();
+                    return false;
+                }
+                
+                // Update the form action to handle different page contexts
+                var currentLocation = window.location.pathname;
+                var searchUrl = '/products.php';
+                
+                // If we're in a nested directory, adjust the path
+                if (currentLocation.includes('/admin/') || currentLocation.includes('/manager/') || currentLocation.includes('/api/')) {
+                    searchUrl = '../../products.php';
+                } else if (currentLocation.includes('/')) {
+                    // Check depth and adjust accordingly
+                    var depth = (currentLocation.match(/\//g) || []).length;
+                    if (depth > 1) {
+                        searchUrl = '../products.php';
+                    }
+                }
+                
+                searchForm.action = searchUrl;
+                hideSuggestions();
+            });
+            
+            // Live search suggestions
+            searchBox.addEventListener('input', function(e) {
+                var query = e.target.value.trim();
+                
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                if (query.length < 2) {
+                    hideSuggestions();
+                    return;
+                }
+                
+                searchTimeout = setTimeout(function() {
+                    fetchSuggestions(query);
+                }, 300);
+            });
+            
+            // Handle keyboard navigation
+            searchBox.addEventListener('keydown', function(e) {
+                var suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                        updateSuggestionSelection(suggestions);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                        updateSuggestionSelection(suggestions);
+                        break;
+                    case 'Enter':
+                        if (currentSuggestionIndex >= 0 && suggestions[currentSuggestionIndex]) {
+                            e.preventDefault();
+                            suggestions[currentSuggestionIndex].click();
+                        }
+                        break;
+                    case 'Escape':
+                        hideSuggestions();
+                        break;
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchContainer.contains(e.target)) {
+                    hideSuggestions();
+                }
+            });
+            
+            function fetchSuggestions(query) {
+                fetch('/api/products/products-search.php?q=' + encodeURIComponent(query) + '&limit=5')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data && data.data.length > 0) {
+                            showSuggestions(data.data, query);
+                        } else {
+                            hideSuggestions();
+                        }
+                    })
+                    .catch(error => {
+                        console.debug('Search suggestions error:', error);
+                        hideSuggestions();
+                    });
+            }
+            
+            function showSuggestions(products, query) {
+                currentSuggestionIndex = -1;
+                suggestionsContainer.innerHTML = '';
+                
+                products.forEach(function(product, index) {
+                    var suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'suggestion-item';
+                    suggestionItem.style.cssText = `
+                        padding: 10px 15px;
+                        cursor: pointer;
+                        border-bottom: 1px solid #f0f0f0;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        transition: background-color 0.2s;
+                    `;
+                    
+                    var productImage = product.primary_image || '/images/default-product.jpg';
+                    var productName = product.name || 'Unknown Product';
+                    var productPrice = product.price ? 'Rs. ' + parseFloat(product.price).toFixed(2) : '';
+                    
+                    suggestionItem.innerHTML = `
+                        <img src="${productImage}" alt="${productName}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; color: #333;">${highlightQuery(productName, query)}</div>
+                            ${productPrice ? '<div style="font-size: 0.9rem; color: #666;">' + productPrice + '</div>' : ''}
+                        </div>
+                    `;
+                    
+                    suggestionItem.addEventListener('click', function() {
+                        searchBox.value = productName;
+                        hideSuggestions();
+                        searchForm.submit();
+                    });
+                    
+                    suggestionItem.addEventListener('mouseenter', function() {
+                        currentSuggestionIndex = index;
+                        updateSuggestionSelection(suggestionsContainer.querySelectorAll('.suggestion-item'));
+                    });
+                    
+                    suggestionsContainer.appendChild(suggestionItem);
+                });
+                
+                suggestionsContainer.style.display = 'block';
+            }
+            
+            function hideSuggestions() {
+                suggestionsContainer.style.display = 'none';
+                currentSuggestionIndex = -1;
+            }
+            
+            function updateSuggestionSelection(suggestions) {
+                suggestions.forEach(function(item, index) {
+                    if (index === currentSuggestionIndex) {
+                        item.style.backgroundColor = '#f8f9fa';
+                        searchBox.value = item.querySelector('div div').textContent;
+                    } else {
+                        item.style.backgroundColor = '';
+                    }
+                });
+            }
+            
+            function highlightQuery(text, query) {
+                if (!query) return text;
+                var regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                return text.replace(regex, '<strong style="color: #FF6B35;">$1</strong>');
+            }
+            
+            // Auto-focus search on '/' key press (popular shortcut)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    var activeElement = document.activeElement;
+                    if (!activeElement || (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA')) {
+                        e.preventDefault();
+                        searchBox.focus();
+                        searchBox.select();
+                    }
                 }
             });
         }

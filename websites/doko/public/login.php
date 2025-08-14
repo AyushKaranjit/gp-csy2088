@@ -2,6 +2,7 @@
 // Start session and include configuration
 session_start();
 require_once __DIR__ . '/../template/config.php';
+require_once __DIR__ . '/../config/env.php'; // Load environment variables
 
 // Page-specific variables
 $page_title = page_title('Login');
@@ -17,6 +18,22 @@ $breadcrumb_items = [
 // Include header
 include_header($page_title, $page_description, $current_page);
 ?>
+
+<!-- OAuth SDK Scripts -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- OAuth Configuration -->
+<script>
+const OAUTH_CONFIG = {
+    google: {
+        client_id: '<?php echo env('GOOGLE_CLIENT_ID', 'demo-google-client-id'); ?>',
+        redirect_uri: '<?php echo (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']); ?>/api/oauth/google.php'
+    }
+};
+
+// Debug: Log the configuration to verify it's loaded
+console.log('OAUTH_CONFIG loaded:', OAUTH_CONFIG);
+</script>
 
 <!-- Breadcrumb -->
 <?php include __DIR__ . '/../template/breadcrumb.php'; ?>
@@ -70,13 +87,9 @@ include_header($page_title, $page_description, $current_page);
                     </div>
 
                     <div class="social-login">
-                        <button class="btn btn-social google-btn">
+                        <button id="google-signin-button" class="btn btn-social google-btn" onclick="handleGoogleButtonClick()">
                             <i class="fab fa-google"></i>
                             Continue with Google
-                        </button>
-                        <button class="btn btn-social facebook-btn">
-                            <i class="fab fa-facebook-f"></i>
-                            Continue with Facebook
                         </button>
                     </div>
 
@@ -333,11 +346,6 @@ include_header($page_title, $page_description, $current_page);
     color: #db4437;
 }
 
-.facebook-btn:hover {
-    border-color: #3b5998;
-    color: #3b5998;
-}
-
 .auth-footer {
     text-align: center;
 }
@@ -458,18 +466,235 @@ function togglePassword() {
     }
 }
 
+// Google OAuth Functions
+function initGoogleLogin() {
+    if (typeof google === 'undefined') {
+        console.log('Google SDK not loaded yet, will initialize on button click');
+        return;
+    }
+
+    // Check for valid client ID
+    const clientId = OAUTH_CONFIG.google.client_id;
+    if (!clientId || clientId === 'demo-google-client-id') {
+        console.warn('Google Client ID not properly configured');
+        return;
+    }
+
+    try {
+        console.log('Initializing Google OAuth with Client ID:', clientId.substring(0, 20) + '...');
+        
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCallback,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            itp_support: true,
+            // Enable FedCM for future compatibility
+            use_fedcm_for_prompt: true
+        });
+
+        window.googleOAuthInitialized = true;
+        console.log('Google OAuth initialized successfully on page load');
+    } catch (error) {
+        console.error('Google OAuth initialization error:', error);
+        // Don't show notification here, wait for user action
+    }
+}
+
+function handleGoogleButtonClick() {
+    if (typeof google === 'undefined') {
+        safeShowNotification('Google login is not available. Please refresh the page and try again.', 'error');
+        return;
+    }
+
+    try {
+        // Check if Google OAuth is already initialized, if not initialize it
+        if (!window.googleOAuthInitialized) {
+            google.accounts.id.initialize({
+                client_id: OAUTH_CONFIG.google.client_id,
+                callback: handleGoogleCallback,
+                auto_select: false,
+                cancel_on_tap_outside: true,
+                itp_support: true,
+                use_fedcm_for_prompt: true
+            });
+            window.googleOAuthInitialized = true;
+            console.log('Google OAuth initialized on button click');
+        }
+
+        // Directly show the Google Sign-In modal to avoid FedCM issues
+        // This provides a consistent experience regardless of browser FedCM settings
+        console.log('Showing Google Sign-In modal');
+        showGoogleSignInModal();
+        
+    } catch (error) {
+        console.error('Google login error:', error);
+        safeShowNotification('Google login failed. Please try again.', 'error');
+    }
+}
+
+function showGoogleSignInModal() {
+    // Remove any existing modal
+    const existing = document.getElementById('google-temp-signin');
+    if (existing) existing.remove();
+    
+    const existingBackdrop = document.querySelector('.google-signin-backdrop');
+    if (existingBackdrop) existingBackdrop.remove();
+
+    // Use renderButton instead of prompt to avoid popup/FedCM issues
+    const tempDiv = document.createElement('div');
+    tempDiv.id = 'google-temp-signin';
+    tempDiv.style.cssText = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
+        z-index: 10000; 
+        background: white; 
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        border: 1px solid #e1e5e9;
+        min-width: 300px;
+        text-align: center;
+    `;
+    
+    // Add backdrop
+    const backdrop = document.createElement('div');
+    backdrop.className = 'google-signin-backdrop';
+    backdrop.style.cssText = `
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: rgba(0,0,0,0.5); 
+        z-index: 9999;
+    `;
+    
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        position: absolute; 
+        top: 15px; 
+        right: 20px; 
+        background: none; 
+        border: none; 
+        font-size: 28px; 
+        cursor: pointer; 
+        color: #666;
+    `;
+    
+    // Title
+    const title = document.createElement('h3');
+    title.textContent = 'Sign in with Google';
+    title.style.cssText = 'margin: 0 0 15px 0; color: #333; font-family: Arial, sans-serif;';
+    
+    // Info text
+    const infoText = document.createElement('p');
+    infoText.textContent = 'Click the Google button below to sign in';
+    infoText.style.cssText = 'margin: 0 0 20px 0; color: #666; font-size: 14px; font-family: Arial, sans-serif;';
+    
+    // Button container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = 'margin: 20px 0;';
+    
+    // Cleanup function
+    const cleanup = () => {
+        if (document.body.contains(backdrop)) document.body.removeChild(backdrop);
+        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+    };
+    
+    closeBtn.onclick = cleanup;
+    backdrop.onclick = cleanup;
+    
+    tempDiv.appendChild(closeBtn);
+    tempDiv.appendChild(title);
+    tempDiv.appendChild(infoText);
+    tempDiv.appendChild(buttonContainer);
+    
+    document.body.appendChild(backdrop);
+    document.body.appendChild(tempDiv);
+    
+    // Render the Google sign-in button (this should now work since initialize was called)
+    try {
+        google.accounts.id.renderButton(buttonContainer, {
+            theme: 'filled_blue',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'rectangular',
+            width: 250
+        });
+    } catch (renderError) {
+        console.error('Error rendering Google button:', renderError);
+        cleanup();
+        safeShowNotification('Unable to load Google sign-in. Please try again.', 'error');
+    }
+}
+
+function handleGoogleCallback(response) {
+    console.log('Google OAuth callback received:', response);
+    
+    if (response.credential) {
+        console.log('Credential length:', response.credential.length);
+        console.log('Credential preview:', response.credential.substring(0, 50) + '...');
+        
+        // Send the credential to our backend
+        fetch('api/oauth/google.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
+        })
+        .then(res => {
+            console.log('API response status:', res.status);
+            console.log('API response headers:', res.headers);
+            
+            // Always try to parse JSON, regardless of status
+            return res.json().then(data => {
+                return { data, status: res.status };
+            });
+        })
+        .then(result => {
+            console.log('API response data:', result.data);
+            
+            if (result.status === 200 && result.data.success) {
+                safeShowNotification('Google login successful! Welcome to DOKO.', 'success');
+                setTimeout(() => {
+                    window.location.href = result.data.redirect_url || 'index.php';
+                }, 1000);
+            } else {
+                // Show the actual error message from the API
+                const errorMessage = result.data.error || result.data.message || 'Google login failed.';
+                console.error('API Error:', errorMessage);
+                safeShowNotification('Login failed: ' + errorMessage, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Google login error:', error);
+            safeShowNotification('Google login failed. Please try again.', 'error');
+        });
+    } else {
+        safeShowNotification('Google login failed - no credential received.', 'error');
+    }
+}
+
+// Safe notification function that works even if Utils is not loaded
+function safeShowNotification(message, type) {
+    if (typeof Utils !== 'undefined' && Utils.showNotification) {
+        Utils.showNotification(message, type);
+    } else {
+        // Fallback notification
+        alert(message);
+    }
+}
+
 // Form submission
 document.addEventListener('DOMContentLoaded', function() {
-    // Safe notification function that works even if Utils is not loaded
-    function safeShowNotification(message, type) {
-        if (typeof Utils !== 'undefined' && Utils.showNotification) {
-            Utils.showNotification(message, type);
-        } else {
-            // Fallback notification
-            alert(message);
-        }
-    }
-    
     document.getElementById('login-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -489,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Send login request to API
-            const response = await fetch('/api/users/auth-login.php', {
+            const response = await fetch('api/users/auth-login.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -544,14 +769,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Social login handlers
-    document.querySelector('.google-btn').addEventListener('click', function() {
-        alert('Google login integration would be implemented here');
-    });
-
-    document.querySelector('.facebook-btn').addEventListener('click', function() {
-        alert('Facebook login integration would be implemented here');
-    });
+    // Social login handlers - initialize Google OAuth when page loads
+    // Wait a bit for Google SDK to fully load
+    setTimeout(() => {
+        initGoogleLogin();
+        
+        // Add GSI event listeners to capture and log warnings
+        if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+            // Override console methods to capture GSI warnings
+            const originalWarn = console.warn;
+            const originalLog = console.log;
+            
+            console.warn = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && args[0].includes('GSI')) {
+                    console.log('🔍 GSI Warning captured:', ...args);
+                }
+                originalWarn.apply(console, args);
+            };
+            
+            console.log = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && args[0].includes('[GSI_LOGGER]')) {
+                    console.log('🔍 GSI Logger captured:', ...args);
+                }
+                originalLog.apply(console, args);
+            };
+        }
+    }, 1000);
 });
 
 // Check if user is already logged in - this can run immediately

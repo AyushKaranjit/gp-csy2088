@@ -81,6 +81,9 @@
     } elseif (strpos($current_script, '/admin/') !== false) {
         // Handle admin subdirectories like /admin/dashboard/, /admin/products/, etc.
         $js_path = '../../js/';
+    } elseif (strpos($current_script, '/manager/') !== false) {
+        // Handle manager subdirectories like /manager/dashboard/, /manager/products/, etc.
+        $js_path = '../../js/';
     }
     
     // Verify that the JavaScript files actually exist

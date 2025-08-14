@@ -1039,7 +1039,7 @@ async function loadOrderHistory() {
         loading.style.display = 'block';
         noOrders.style.display = 'none';
         
-        const response = await fetch('/api/orders/customer-orders.php', {
+        const response = await fetch('api/orders/customer-orders.php', {
             method: 'GET',
             credentials: 'same-origin',
             headers: {

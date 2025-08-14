@@ -71,11 +71,11 @@ include '../../../template/admin-nav.php';
 <script>
 // Product Image Management Helpers
 async function dokoListImages(pid){
-    const res = await fetch('/api/products/product-images-list.php?product_id='+pid,{credentials:'same-origin'}); const d=await res.json(); if(!d.success){alert(d.message||'Failed');return;} console.log('Images',d.images); alert('Images: '+d.images.map(i=>i.image_url+(i.is_primary?' [primary]':'' )).join('\n')); }
+    const res = await fetch('../../../api/products/product-images-list.php?product_id='+pid,{credentials:'same-origin'}); const d=await res.json(); if(!d.success){alert(d.message||'Failed');return;} console.log('Images',d.images); alert('Images: '+d.images.map(i=>i.image_url+(i.is_primary?' [primary]':'' )).join('\n')); }
 async function dokoFetchRemote(pid){
     const url=prompt('Remote image URL:'); if(!url)return; const primary = confirm('Force as primary?');
-    const res = await fetch('/api/products/product-image-fetch.php',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({product_id:pid,url,force_primary:primary})}); const d=await res.json(); alert(d.message|| (d.success?'Done':'Failed')); if(d.success) location.reload(); }
-async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id)return; if(!confirm('Delete image '+id+'?'))return; const res=await fetch('/api/products/product-image-delete.php?image_id='+id,{method:'DELETE',credentials:'same-origin'}); const d=await res.json(); alert(d.message); if(d.success) location.reload(); }
+    const res = await fetch('../../../api/products/product-image-fetch.php',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({product_id:pid,url,force_primary:primary})}); const d=await res.json(); alert(d.message|| (d.success?'Done':'Failed')); if(d.success) location.reload(); }
+async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id)return; if(!confirm('Delete image '+id+'?'))return; const res=await fetch('../../../api/products/product-image-delete.php?image_id='+id,{method:'DELETE',credentials:'same-origin'}); const d=await res.json(); alert(d.message); if(d.success) location.reload(); }
 </script>
 
 <!-- Remove duplicate early visibility script to prevent image flicker -->
