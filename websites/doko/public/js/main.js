@@ -18,17 +18,14 @@
 
 // Hero Background Slider (continuous scrolling, no fade, local images only)
 window.HeroBackgroundSlider = window.HeroBackgroundSlider || (function(){
-  // Select a curated set of local grocery images. Order matters (visual flow of colors & categories)
+  // Use the project's local hero images (public/images). Include all six slider images.
   const imagePaths = [
-    '/images/aldrin-rachman-pradana-RNh_J2TEi_o-unsplash.jpg', // vegetables
-    '/images/marcos-paulo-prado-0py70yxumAk-unsplash.jpg',     // fruits
-    '/images/micheile-henderson-3TgIneA4xjM-unsplash.jpg',     // grains / pulses
-    '/images/sean-bernstein-BdrrunAzTjQ-unsplash.jpg',         // packaged / snacks
-    '/images/nathan-dumlao-bRdRUUtbxO0-unsplash.jpg',          // dairy
-    '/images/kimberly-fowler-_L0jF0tt2kE-unsplash.jpg',        // spices / herbs
-    '/images/scott-warman-NpNvI4ilT4A-unsplash.jpg',           // bakery
-    '/images/nrd-D6Tu_L3chLE-unsplash.jpg',                    // mixed fresh
-    '/images/sydney-rae-t4XYbj1q_Cc-unsplash.jpg'              // assorted produce
+    '/images/Slider1.jpg',
+    '/images/Slider2.jpg',
+    '/images/Slider5.jpg',
+    '/images/Slider6.jpg',
+    '/images/Silder3.jpg',
+    '/images/Silder4.jpg'
   ];
 
   let trackEl = null; let animationDuration = 60; // seconds for a full cycle (adjust for speed)

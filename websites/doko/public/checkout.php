@@ -568,10 +568,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('order-total').textContent = `Rs. ${total.toFixed(2)}`;
     }
     
-    // Form submission
+    // Form submission with validation
+    let checkoutSubmitting = false;
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
+        if (checkoutSubmitting) return;
+        checkoutSubmitting = true;
+
         // Collect form data
         const formData = new FormData(this);
         const orderData = {
@@ -595,20 +598,42 @@ document.addEventListener('DOMContentLoaded', function() {
             total: parseFloat(document.getElementById('order-total').textContent.replace('Rs. ', ''))
         };
         
-        // Simulate order processing
+        // Basic client-side checks
+        const required = [
+            { el: 'address', name: 'Address' },
+            { el: 'city', name: 'City' },
+            { el: 'area', name: 'Area' },
+            { el: 'delivery_date', name: 'Delivery Date' },
+            { el: 'delivery_time', name: 'Delivery Time' }
+        ];
+        for (const r of required) {
+            const v = (formData.get(r.el) || '').toString().trim();
+            if (!v) { alert(`${r.name} is required.`); checkoutSubmitting = false; return; }
+        }
+
+        // Validate delivery date is not in the past
+        const deliveryDate = formData.get('delivery_date');
+        if (deliveryDate) {
+            const sel = new Date(deliveryDate);
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (sel < today) { alert('Delivery date cannot be in the past.'); checkoutSubmitting = false; return; }
+        }
+
+        // Ensure payment method selected
+        if (!formData.get('payment_method')) { alert('Please select a payment method.'); checkoutSubmitting = false; return; }
+
         const submitBtn = document.querySelector('.place-order-btn');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         submitBtn.disabled = true;
-        
+
         setTimeout(() => {
             // Clear cart
             localStorage.removeItem('doko_cart');
-            
             // Redirect to order confirmation
             sessionStorage.setItem('order_data', JSON.stringify(orderData));
             window.location.href = 'order-confirmation.php';
-        }, 2000);
+        }, 900);
     });
     
     // Promo code functionality

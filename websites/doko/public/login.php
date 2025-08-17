@@ -466,6 +466,11 @@ function togglePassword() {
     }
 }
 
+// Minimal email validator used on this page
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email||'').toString());
+}
+
 // Google OAuth Functions
 function initGoogleLogin() {
     if (typeof google === 'undefined') {
@@ -695,6 +700,14 @@ function safeShowNotification(message, type) {
 
 // Form submission
 document.addEventListener('DOMContentLoaded', function() {
+    // Early redirect if user session exists locally (avoid running other init code twice)
+    try {
+        const existingUser = localStorage.getItem('doko_user') || sessionStorage.getItem('doko_user');
+        if (existingUser) {
+            window.location.href = 'index.php';
+            return; // stop further initialization
+        }
+    } catch (e) { /* ignore storage errors */ }
     document.getElementById('login-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -706,11 +719,22 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
         
-        // Get form data
+        // Basic client-side validation
         const formData = new FormData(this);
-        const email = formData.get('email');
-        const password = formData.get('password');
+        const email = (formData.get('email') || '').trim();
+        const password = formData.get('password') || '';
         const rememberMe = formData.get('remember_me');
+
+        if (!validateEmail(email)) {
+            safeShowNotification('Please enter a valid email address.', 'error');
+            submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;
+            return;
+        }
+        if (password.length < 6) {
+            safeShowNotification('Password must be at least 6 characters.', 'error');
+            submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;
+            return;
+        }
         
         try {
             // Send login request to API
@@ -725,8 +749,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
             
-            const result = await response.json();
-            
+            // Safely parse JSON only when appropriate
+            let result = { success: false, message: 'Invalid server response' };
+            try {
+                const ct = response.headers.get('content-type') || '';
+                if (response.ok && ct.includes('application/json')) {
+                    result = await response.json();
+                } else if (!response.ok) {
+                    // Try to parse JSON error body, otherwise show generic
+                    if (ct.includes('application/json')) result = await response.json();
+                    else result = { success: false, message: `Server returned ${response.status}` };
+                }
+            } catch (e) {
+                console.warn('Failed to parse login response', e);
+            }
+
             if (result.success) {
                 // Store user session data if remember me is checked
                 if (rememberMe) {
@@ -797,15 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
-// Check if user is already logged in - this can run immediately
-document.addEventListener('DOMContentLoaded', function() {
-    const userData = localStorage.getItem('doko_user') || sessionStorage.getItem('doko_user');
-    
-    if (userData) {
-        // User is already logged in, redirect to home
-        window.location.href = 'index.php';
-    }
-});
+// (moved login pre-check into main DOMContentLoaded handler to avoid duplicate handlers)
 </script>
 
 <?php

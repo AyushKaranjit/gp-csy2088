@@ -1,0 +1,722 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 528B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from PHP.Dockerfile
+#2 transferring dockerfile: 1.24kB 0.1s done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/php:8.2-fpm-alpine3.18
+#3 ...
+
+#4 [auth] library/composer:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#5 [auth] library/php:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [internal] load metadata for docker.io/library/composer:2
+#6 ...
+
+#3 [internal] load metadata for docker.io/library/php:8.2-fpm-alpine3.18
+#3 DONE 3.2s
+
+#6 [internal] load metadata for docker.io/library/composer:2
+#6 DONE 3.5s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 FROM docker.io/library/composer:2@sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6
+#8 resolve docker.io/library/composer:2@sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6
+#8 resolve docker.io/library/composer:2@sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6 0.1s done
+#8 CACHED
+
+#9 [stage-0  1/19] FROM docker.io/library/php:8.2-fpm-alpine3.18@sha256:05ba2adf6f6cfb7035c668b3081d98fa9e11c2c460243b9a2dd36620918daef4
+#9 resolve docker.io/library/php:8.2-fpm-alpine3.18@sha256:05ba2adf6f6cfb7035c668b3081d98fa9e11c2c460243b9a2dd36620918daef4 0.1s done
+#9 CACHED
+
+#10 [stage-0  2/19] COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+#10 DONE 0.2s
+
+#11 [stage-0  3/19] RUN apk add --no-cache autoconf 		dpkg-dev dpkg 		file 		g++ 		gcc 		libc-dev 		make 		pkgconf 		re2c
+#11 0.659 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#11 1.244 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#11 1.879 (1/27) Upgrading musl (1.2.4-r2 -> 1.2.4-r3)
+#11 2.079 (2/27) Installing m4 (1.4.19-r3)
+#11 2.152 (3/27) Installing libbz2 (1.0.8-r5)
+#11 2.220 (4/27) Installing perl (5.36.2-r1)
+#11 3.856 (5/27) Installing autoconf (2.71-r2)
+#11 4.033 (6/27) Installing libmd (1.0.4-r2)
+#11 4.090 (7/27) Installing dpkg (1.21.21-r1)
+#11 4.234 (8/27) Installing pkgconf (1.9.5-r0)
+#11 4.297 (9/27) Installing dpkg-dev (1.21.21-r1)
+#11 4.637 (10/27) Installing libmagic (5.45-r0)
+#11 4.770 (11/27) Installing file (5.45-r0)
+#11 4.833 (12/27) Installing libstdc++ (12.2.1_git20220924-r10)
+#11 4.959 (13/27) Installing libstdc++-dev (12.2.1_git20220924-r10)
+#11 6.848 (14/27) Installing zstd-libs (1.5.5-r4)
+#11 6.934 (15/27) Installing binutils (2.40-r8)
+#11 7.267 (16/27) Installing libgomp (12.2.1_git20220924-r10)
+#11 7.341 (17/27) Installing libatomic (12.2.1_git20220924-r10)
+#11 7.400 (18/27) Installing gmp (6.2.1-r3)
+#11 7.477 (19/27) Installing isl26 (0.26-r1)
+#11 7.605 (20/27) Installing mpfr4 (4.2.0_p12-r0)
+#11 7.682 (21/27) Installing mpc1 (1.3.1-r1)
+#11 7.741 (22/27) Installing gcc (12.2.1_git20220924-r10)
+#11 14.20 (23/27) Installing musl-dev (1.2.4-r3)
+#11 14.94 (24/27) Installing libc-dev (0.7.2-r5)
+#11 14.99 (25/27) Installing g++ (12.2.1_git20220924-r10)
+#11 17.73 (26/27) Installing make (4.4.1-r1)
+#11 17.80 (27/27) Installing re2c (3.0-r1)
+#11 17.96 Executing busybox-1.36.1-r5.trigger
+#11 17.99 OK: 298 MiB in 63 packages
+#11 DONE 18.8s
+
+#12 [stage-0  4/19] RUN apk add --no-cache linux-headers
+#12 0.470 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#12 0.998 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#12 1.596 (1/1) Installing linux-headers (6.3-r0)
+#12 1.988 OK: 306 MiB in 64 packages
+#12 DONE 2.1s
+
+#13 [stage-0  5/19] RUN pecl install xdebug
+#13 8.124 downloading xdebug-3.4.5.tgz ...
+#13 8.124 Starting to download xdebug-3.4.5.tgz (263,514 bytes)
+#13 8.124 ......................................................done: 263,514 bytes
+#13 8.837 102 source files, building
+#13 8.838 running: phpize
+#13 8.858 Configuring for:
+#13 8.858 PHP Api Version:         20220829
+#13 8.858 Zend Module Api No:      20220829
+#13 8.858 Zend Extension Api No:   420220829
+#13 10.55 building in /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5
+#13 10.55 running: /tmp/pear/temp/xdebug/configure --with-php-config=/usr/local/bin/php-config
+#13 10.76 checking for grep that handles long lines and -e... /bin/grep
+#13 10.76 checking for egrep... /bin/grep -E
+#13 10.77 checking for a sed that does not truncate output... /bin/sed
+#13 10.78 checking for pkg-config... /usr/bin/pkg-config
+#13 10.78 checking pkg-config is at least version 0.9.0... yes
+#13 10.78 checking for cc... cc
+#13 10.87 checking whether the C compiler works... yes
+#13 10.87 checking for C compiler default output file name... a.out
+#13 10.91 checking for suffix of executables...
+#13 10.97 checking whether we are cross compiling... no
+#13 11.01 checking for suffix of object files... o
+#13 11.05 checking whether the compiler supports GNU C... yes
+#13 11.08 checking whether cc accepts -g... yes
+#13 11.18 checking for cc option to enable C11 features... none needed
+#13 11.22 checking how to run the C preprocessor... cc -E
+#13 11.27 checking for icc... no
+#13 11.29 checking for suncc... no
+#13 11.29 checking for system library directory... lib
+#13 11.34 checking if compiler supports -Wl,-rpath,... yes
+#13 11.44 checking build system type... x86_64-pc-linux-musl
+#13 11.44 checking host system type... x86_64-pc-linux-musl
+#13 11.44 checking target system type... x86_64-pc-linux-musl
+#13 11.61 checking for PHP prefix... /usr/local
+#13 11.61 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#13 11.61 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#13 11.61 checking for PHP installed headers prefix... /usr/local/include/php
+#13 11.64 checking if debug is enabled... no
+#13 11.67 checking if zts is enabled... no
+#13 11.67 checking for gawk... no
+#13 11.67 checking for nawk... no
+#13 11.67 checking for awk... awk
+#13 11.67 checking if awk is broken... no
+#13 11.67 checking whether to enable Xdebug support... yes, shared
+#13 11.67 checking whether to enable Xdebug developer build flags... no
+#13 11.67 checking whether to compress profiler files (requires zlib)... yes
+#13 11.69 checking for supported PHP version... supported (8.2.19)
+#13 11.76 checking for clock_gettime... yes
+#13 11.83 checking for clock_gettime_nsec_np... no
+#13 11.88 checking for gettimeofday... yes
+#13 11.91 checking for stdio.h... yes
+#13 11.94 checking for stdlib.h... yes
+#13 11.98 checking for string.h... yes
+#13 12.01 checking for inttypes.h... yes
+#13 12.04 checking for stdint.h... yes
+#13 12.08 checking for strings.h... yes
+#13 12.12 checking for sys/stat.h... yes
+#13 12.16 checking for sys/types.h... yes
+#13 12.20 checking for unistd.h... yes
+#13 12.23 checking for netinet/in.h... yes
+#13 12.27 checking for poll.h... yes
+#13 12.31 checking for sys/poll.h... yes
+#13 12.35 checking for linux/rtnetlink.h... yes
+#13 12.41 checking for res_ninit... no
+#13 12.47 checking for __res_ninit... no
+#13 12.52 checking for res_ninit in -lresolv... no
+#13 12.58 checking for __res_ninit in -lresolv... no
+#13 12.65 checking for res_nclose... no
+#13 12.73 checking for __res_nclose... no
+#13 12.81 checking for res_nclose in -lresolv... no
+#13 12.88 checking for __res_nclose in -lresolv... no
+#13 12.95 checking for cos in -lm... yes
+#13 12.95 checking for zlib >= 1.2.9... no
+#13 13.05 checking for a sed that does not truncate output... /bin/sed
+#13 13.07 checking for ld used by cc... /usr/x86_64-alpine-linux-musl/bin/ld
+#13 13.08 checking if the linker (/usr/x86_64-alpine-linux-musl/bin/ld) is GNU ld... yes
+#13 13.08 checking for /usr/x86_64-alpine-linux-musl/bin/ld option to reload object files... -r
+#13 13.08 checking for BSD-compatible nm... /usr/bin/nm -B
+#13 13.08 checking whether ln -s works... yes
+#13 13.08 checking how to recognize dependent libraries... pass_all
+#13 13.15 checking for dlfcn.h... yes
+#13 13.16 checking the maximum length of command line arguments... 98304
+#13 13.27 checking command to parse /usr/bin/nm -B output from cc object... ok
+#13 13.28 checking for objdir... .libs
+#13 13.28 checking for ar... ar
+#13 13.28 checking for ranlib... ranlib
+#13 13.29 checking for strip... strip
+#13 13.41 checking if cc supports -fno-rtti -fno-exceptions... no
+#13 13.41 checking for cc option to produce PIC... -fPIC
+#13 13.44 checking if cc PIC flag -fPIC works... yes
+#13 13.49 checking if cc static flag -static works... yes
+#13 13.53 checking if cc supports -c -o file.o... yes
+#13 13.55 checking whether the cc linker (/usr/x86_64-alpine-linux-musl/bin/ld -m elf_x86_64) supports shared libraries... yes
+#13 13.59 checking whether -lc should be explicitly linked in... no
+#13 13.60 checking dynamic linker characteristics... GNU/Linux ld.so
+#13 13.60 checking how to hardcode library paths into programs... immediate
+#13 13.61 checking whether stripping libraries is possible... yes
+#13 13.61 checking if libtool supports shared libraries... yes
+#13 13.61 checking whether to build shared libraries... yes
+#13 13.61 checking whether to build static libraries... no
+#13 13.79 
+#13 13.79 creating libtool
+#13 13.89 appending configuration tag "CXX" to libtool
+#13 14.15 configure: patching config.h.in
+#13 14.16 configure: creating ./config.status
+#13 14.29 config.status: creating config.h
+#13 14.45 running: make
+#13 14.45 Makefile:245: warning: overriding recipe for target 'test'
+#13 14.45 Makefile:136: warning: ignoring old recipe for target 'test'
+#13 14.56 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/xdebug.c -o xdebug.lo  -MMD -MF xdebug.dep -MT xdebug.lo
+#13 14.84 mkdir .libs
+#13 14.84  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/xdebug.c -MMD -MF xdebug.dep -MT xdebug.lo  -fPIC -DPIC -o .libs/xdebug.o
+#13 17.20 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/base.c -o src/base/base.lo  -MMD -MF src/base/base.dep -MT src/base/base.lo
+#13 17.34 mkdir src/base/.libs
+#13 17.34  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/base.c -MMD -MF src/base/base.dep -MT src/base/base.lo  -fPIC -DPIC -o src/base/.libs/base.o
+#13 18.77 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/ctrl_socket.c -o src/base/ctrl_socket.lo  -MMD -MF src/base/ctrl_socket.dep -MT src/base/ctrl_socket.lo
+#13 18.87  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/ctrl_socket.c -MMD -MF src/base/ctrl_socket.dep -MT src/base/ctrl_socket.lo  -fPIC -DPIC -o src/base/.libs/ctrl_socket.o
+#13 19.34 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/filter.c -o src/base/filter.lo  -MMD -MF src/base/filter.dep -MT src/base/filter.lo
+#13 19.44  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/base/filter.c -MMD -MF src/base/filter.dep -MT src/base/filter.lo  -fPIC -DPIC -o src/base/.libs/filter.o
+#13 19.84 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/usefulstuff.c -o src/lib/usefulstuff.lo  -MMD -MF src/lib/usefulstuff.dep -MT src/lib/usefulstuff.lo
+#13 19.93 mkdir src/lib/.libs
+#13 19.94  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/usefulstuff.c -MMD -MF src/lib/usefulstuff.dep -MT src/lib/usefulstuff.lo  -fPIC -DPIC -o src/lib/.libs/usefulstuff.o
+#13 20.52 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/cmd_parser.c -o src/lib/cmd_parser.lo  -MMD -MF src/lib/cmd_parser.dep -MT src/lib/cmd_parser.lo
+#13 20.62  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/cmd_parser.c -MMD -MF src/lib/cmd_parser.dep -MT src/lib/cmd_parser.lo  -fPIC -DPIC -o src/lib/.libs/cmd_parser.o
+#13 20.96 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/compat.c -o src/lib/compat.lo  -MMD -MF src/lib/compat.dep -MT src/lib/compat.lo
+#13 21.06  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/compat.c -MMD -MF src/lib/compat.dep -MT src/lib/compat.lo  -fPIC -DPIC -o src/lib/.libs/compat.o
+#13 21.59 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/crc32.c -o src/lib/crc32.lo  -MMD -MF src/lib/crc32.dep -MT src/lib/crc32.lo
+#13 21.69  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/crc32.c -MMD -MF src/lib/crc32.dep -MT src/lib/crc32.lo  -fPIC -DPIC -o src/lib/.libs/crc32.o
+#13 21.73 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/file.c -o src/lib/file.lo  -MMD -MF src/lib/file.dep -MT src/lib/file.lo
+#13 21.85  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/file.c -MMD -MF src/lib/file.dep -MT src/lib/file.lo  -fPIC -DPIC -o src/lib/.libs/file.o
+#13 22.37 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/hash.c -o src/lib/hash.lo  -MMD -MF src/lib/hash.dep -MT src/lib/hash.lo
+#13 22.47  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/hash.c -MMD -MF src/lib/hash.dep -MT src/lib/hash.lo  -fPIC -DPIC -o src/lib/.libs/hash.o
+#13 22.71 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/headers.c -o src/lib/headers.lo  -MMD -MF src/lib/headers.dep -MT src/lib/headers.lo
+#13 22.80  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/headers.c -MMD -MF src/lib/headers.dep -MT src/lib/headers.lo  -fPIC -DPIC -o src/lib/.libs/headers.o
+#13 23.14 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/lib.c -o src/lib/lib.lo  -MMD -MF src/lib/lib.dep -MT src/lib/lib.lo
+#13 23.24  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/lib.c -MMD -MF src/lib/lib.dep -MT src/lib/lib.lo  -fPIC -DPIC -o src/lib/.libs/lib.o
+#13 24.07 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/llist.c -o src/lib/llist.lo  -MMD -MF src/lib/llist.dep -MT src/lib/llist.lo
+#13 24.18  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/llist.c -MMD -MF src/lib/llist.dep -MT src/lib/llist.lo  -fPIC -DPIC -o src/lib/.libs/llist.o
+#13 24.29 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/log.c -o src/lib/log.lo  -MMD -MF src/lib/log.dep -MT src/lib/log.lo
+#13 24.38  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/log.c -MMD -MF src/lib/log.dep -MT src/lib/log.lo  -fPIC -DPIC -o src/lib/.libs/log.o
+#13 25.52 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/set.c -o src/lib/set.lo  -MMD -MF src/lib/set.dep -MT src/lib/set.lo
+#13 25.65  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/set.c -MMD -MF src/lib/set.dep -MT src/lib/set.lo  -fPIC -DPIC -o src/lib/.libs/set.o
+#13 25.73 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/str.c -o src/lib/str.lo  -MMD -MF src/lib/str.dep -MT src/lib/str.lo
+#13 25.83  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/str.c -MMD -MF src/lib/str.dep -MT src/lib/str.lo  -fPIC -DPIC -o src/lib/.libs/str.o
+#13 26.25 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/timing.c -o src/lib/timing.lo  -MMD -MF src/lib/timing.dep -MT src/lib/timing.lo
+#13 26.35  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/timing.c -MMD -MF src/lib/timing.dep -MT src/lib/timing.lo  -fPIC -DPIC -o src/lib/.libs/timing.o
+#13 26.67 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var.c -o src/lib/var.lo  -MMD -MF src/lib/var.dep -MT src/lib/var.lo
+#13 26.76  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var.c -MMD -MF src/lib/var.dep -MT src/lib/var.lo  -fPIC -DPIC -o src/lib/.libs/var.o
+#13 27.95 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_html.c -o src/lib/var_export_html.lo  -MMD -MF src/lib/var_export_html.dep -MT src/lib/var_export_html.lo
+#13 28.04  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_html.c -MMD -MF src/lib/var_export_html.dep -MT src/lib/var_export_html.lo  -fPIC -DPIC -o src/lib/.libs/var_export_html.o
+#13 28.58 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_line.c -o src/lib/var_export_line.lo  -MMD -MF src/lib/var_export_line.dep -MT src/lib/var_export_line.lo
+#13 28.67  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_line.c -MMD -MF src/lib/var_export_line.dep -MT src/lib/var_export_line.lo  -fPIC -DPIC -o src/lib/.libs/var_export_line.o
+#13 29.13 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_text.c -o src/lib/var_export_text.lo  -MMD -MF src/lib/var_export_text.dep -MT src/lib/var_export_text.lo
+#13 29.22  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_text.c -MMD -MF src/lib/var_export_text.dep -MT src/lib/var_export_text.lo  -fPIC -DPIC -o src/lib/.libs/var_export_text.o
+#13 29.83 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_xml.c -o src/lib/var_export_xml.lo  -MMD -MF src/lib/var_export_xml.dep -MT src/lib/var_export_xml.lo
+#13 29.93  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/var_export_xml.c -MMD -MF src/lib/var_export_xml.dep -MT src/lib/var_export_xml.lo  -fPIC -DPIC -o src/lib/.libs/var_export_xml.o
+#13 30.80 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/xml.c -o src/lib/xml.lo  -MMD -MF src/lib/xml.dep -MT src/lib/xml.lo
+#13 30.89  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/lib/xml.c -MMD -MF src/lib/xml.dep -MT src/lib/xml.lo  -fPIC -DPIC -o src/lib/.libs/xml.o
+#13 31.24 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/coverage/branch_info.c -o src/coverage/branch_info.lo  -MMD -MF src/coverage/branch_info.dep -MT src/coverage/branch_info.lo
+#13 31.33 mkdir src/coverage/.libs
+#13 31.34  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/coverage/branch_info.c -MMD -MF src/coverage/branch_info.dep -MT src/coverage/branch_info.lo  -fPIC -DPIC -o src/coverage/.libs/branch_info.o
+#13 31.92 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/coverage/code_coverage.c -o src/coverage/code_coverage.lo  -MMD -MF src/coverage/code_coverage.dep -MT src/coverage/code_coverage.lo
+#13 32.01  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/coverage/code_coverage.c -MMD -MF src/coverage/code_coverage.dep -MT src/coverage/code_coverage.lo  -fPIC -DPIC -o src/coverage/.libs/code_coverage.o
+#13 32.97 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/com.c -o src/debugger/com.lo  -MMD -MF src/debugger/com.dep -MT src/debugger/com.lo
+#13 33.07 mkdir src/debugger/.libs
+#13 33.07  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/com.c -MMD -MF src/debugger/com.dep -MT src/debugger/com.lo  -fPIC -DPIC -o src/debugger/.libs/com.o
+#13 33.59 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/debugger.c -o src/debugger/debugger.lo  -MMD -MF src/debugger/debugger.dep -MT src/debugger/debugger.lo
+#13 33.69  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/debugger.c -MMD -MF src/debugger/debugger.dep -MT src/debugger/debugger.lo  -fPIC -DPIC -o src/debugger/.libs/debugger.o
+#13 34.47 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/handler_dbgp.c -o src/debugger/handler_dbgp.lo  -MMD -MF src/debugger/handler_dbgp.dep -MT src/debugger/handler_dbgp.lo
+#13 34.60  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/handler_dbgp.c -MMD -MF src/debugger/handler_dbgp.dep -MT src/debugger/handler_dbgp.lo  -fPIC -DPIC -o src/debugger/.libs/handler_dbgp.o
+#13 37.17 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/handlers.c -o src/debugger/handlers.lo  -MMD -MF src/debugger/handlers.dep -MT src/debugger/handlers.lo
+#13 37.27  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/handlers.c -MMD -MF src/debugger/handlers.dep -MT src/debugger/handlers.lo  -fPIC -DPIC -o src/debugger/.libs/handlers.o
+#13 37.63 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/ip_info.c -o src/debugger/ip_info.lo  -MMD -MF src/debugger/ip_info.dep -MT src/debugger/ip_info.lo
+#13 37.75  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/debugger/ip_info.c -MMD -MF src/debugger/ip_info.dep -MT src/debugger/ip_info.lo  -fPIC -DPIC -o src/debugger/.libs/ip_info.o
+#13 38.10 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/develop.c -o src/develop/develop.lo  -MMD -MF src/develop/develop.dep -MT src/develop/develop.lo
+#13 38.21 mkdir src/develop/.libs
+#13 38.22  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/develop.c -MMD -MF src/develop/develop.dep -MT src/develop/develop.lo  -fPIC -DPIC -o src/develop/.libs/develop.o
+#13 38.54 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/monitor.c -o src/develop/monitor.lo  -MMD -MF src/develop/monitor.dep -MT src/develop/monitor.lo
+#13 38.63  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/monitor.c -MMD -MF src/develop/monitor.dep -MT src/develop/monitor.lo  -fPIC -DPIC -o src/develop/.libs/monitor.o
+#13 38.98 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/php_functions.c -o src/develop/php_functions.lo  -MMD -MF src/develop/php_functions.dep -MT src/develop/php_functions.lo
+#13 39.08  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/php_functions.c -MMD -MF src/develop/php_functions.dep -MT src/develop/php_functions.lo  -fPIC -DPIC -o src/develop/.libs/php_functions.o
+#13 39.54 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/stack.c -o src/develop/stack.lo  -MMD -MF src/develop/stack.dep -MT src/develop/stack.lo
+#13 39.64  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/stack.c -MMD -MF src/develop/stack.dep -MT src/develop/stack.lo  -fPIC -DPIC -o src/develop/.libs/stack.o
+#13 40.98 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/superglobals.c -o src/develop/superglobals.lo  -MMD -MF src/develop/superglobals.dep -MT src/develop/superglobals.lo
+#13 41.12  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/develop/superglobals.c -MMD -MF src/develop/superglobals.dep -MT src/develop/superglobals.lo  -fPIC -DPIC -o src/develop/.libs/superglobals.o
+#13 41.80 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/gcstats/gc_stats.c -o src/gcstats/gc_stats.lo  -MMD -MF src/gcstats/gc_stats.dep -MT src/gcstats/gc_stats.lo
+#13 41.94 mkdir src/gcstats/.libs
+#13 41.94  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/gcstats/gc_stats.c -MMD -MF src/gcstats/gc_stats.dep -MT src/gcstats/gc_stats.lo  -fPIC -DPIC -o src/gcstats/.libs/gc_stats.o
+#13 42.68 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/profiler/profiler.c -o src/profiler/profiler.lo  -MMD -MF src/profiler/profiler.dep -MT src/profiler/profiler.lo
+#13 42.94 mkdir src/profiler/.libs
+#13 42.95  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/profiler/profiler.c -MMD -MF src/profiler/profiler.dep -MT src/profiler/profiler.lo  -fPIC -DPIC -o src/profiler/.libs/profiler.o
+#13 43.60 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_computerized.c -o src/tracing/trace_computerized.lo  -MMD -MF src/tracing/trace_computerized.dep -MT src/tracing/trace_computerized.lo
+#13 43.70 mkdir src/tracing/.libs
+#13 43.70  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_computerized.c -MMD -MF src/tracing/trace_computerized.dep -MT src/tracing/trace_computerized.lo  -fPIC -DPIC -o src/tracing/.libs/trace_computerized.o
+#13 44.08 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_flamegraph.c -o src/tracing/trace_flamegraph.lo  -MMD -MF src/tracing/trace_flamegraph.dep -MT src/tracing/trace_flamegraph.lo
+#13 44.18  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_flamegraph.c -MMD -MF src/tracing/trace_flamegraph.dep -MT src/tracing/trace_flamegraph.lo  -fPIC -DPIC -o src/tracing/.libs/trace_flamegraph.o
+#13 44.73 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_html.c -o src/tracing/trace_html.lo  -MMD -MF src/tracing/trace_html.dep -MT src/tracing/trace_html.lo
+#13 45.00  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_html.c -MMD -MF src/tracing/trace_html.dep -MT src/tracing/trace_html.lo  -fPIC -DPIC -o src/tracing/.libs/trace_html.o
+#13 45.45 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_textual.c -o src/tracing/trace_textual.lo  -MMD -MF src/tracing/trace_textual.dep -MT src/tracing/trace_textual.lo
+#13 45.55  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/trace_textual.c -MMD -MF src/tracing/trace_textual.dep -MT src/tracing/trace_textual.lo  -fPIC -DPIC -o src/tracing/.libs/trace_textual.o
+#13 45.99 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE     -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/tracing.c -o src/tracing/tracing.lo  -MMD -MF src/tracing/tracing.dep -MT src/tracing/tracing.lo
+#13 46.09  cc -I. -I/tmp/pear/temp/xdebug -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/xdebug/src/tracing/tracing.c -MMD -MF src/tracing/tracing.dep -MT src/tracing/tracing.lo  -fPIC -DPIC -o src/tracing/.libs/tracing.o
+#13 46.94 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=link cc -shared -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/include -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/main -I/tmp/pear/temp/xdebug -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/tmp/pear/temp/xdebug/src -I/tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/src  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE    -o xdebug.la -export-dynamic -avoid-version -prefer-pic -module -rpath /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules  xdebug.lo src/base/base.lo src/base/ctrl_socket.lo src/base/filter.lo src/lib/usefulstuff.lo src/lib/cmd_parser.lo src/lib/compat.lo src/lib/crc32.lo src/lib/file.lo src/lib/hash.lo src/lib/headers.lo src/lib/lib.lo src/lib/llist.lo src/lib/log.lo src/lib/set.lo src/lib/str.lo src/lib/timing.lo src/lib/var.lo
+#13 46.94 src/lib/var_export_html.lo src/lib/var_export_line.lo src/lib/var_export_text.lo src/lib/var_export_xml.lo src/lib/xml.lo src/coverage/branch_info.lo src/coverage/code_coverage.lo src/debugger/com.lo src/debugger/debugger.lo src/debugger/handler_dbgp.lo src/debugger/handlers.lo src/debugger/ip_info.lo src/develop/develop.lo src/develop/monitor.lo src/develop/php_functions.lo src/develop/stack.lo src/develop/superglobals.lo src/gcstats/gc_stats.lo src/profiler/profiler.lo src/tracing/trace_computerized.lo src/tracing/trace_flamegraph.lo src/tracing/trace_html.lo src/tracing/trace_textual.lo src/tracing/tracing.lo -lm
+#13 47.25 cc -shared  .libs/xdebug.o src/base/.libs/base.o src/base/.libs/ctrl_socket.o src/base/.libs/filter.o src/lib/.libs/usefulstuff.o src/lib/.libs/cmd_parser.o src/lib/.libs/compat.o src/lib/.libs/crc32.o src/lib/.libs/file.o src/lib/.libs/hash.o src/lib/.libs/headers.o src/lib/.libs/lib.o src/lib/.libs/llist.o src/lib/.libs/log.o src/lib/.libs/set.o src/lib/.libs/str.o src/lib/.libs/timing.o src/lib/.libs/var.o src/lib/.libs/var_export_html.o src/lib/.libs/var_export_line.o src/lib/.libs/var_export_text.o src/lib/.libs/var_export_xml.o src/lib/.libs/xml.o src/coverage/.libs/branch_info.o src/coverage/.libs/code_coverage.o src/debugger/.libs/com.o src/debugger/.libs/debugger.o src/debugger/.libs/handler_dbgp.o src/debugger/.libs/handlers.o src/debugger/.libs/ip_info.o src/develop/.libs/develop.o src/develop/.libs/monitor.o src/develop/.libs/php_functions.o src/develop/.libs/stack.o src/develop/.libs/superglobals.o src/gcstats/.libs/gc_stats.o src/profiler/.libs/profiler.o src/tracing/.libs/trace_computerized.o
+#13 47.25 src/tracing/.libs/trace_flamegraph.o src/tracing/.libs/trace_html.o src/tracing/.libs/trace_textual.o src/tracing/.libs/tracing.o  -lm  -Wl,-soname -Wl,xdebug.so -o .libs/xdebug.so
+#13 47.34 creating xdebug.la
+#13 47.35 (cd .libs && rm -f xdebug.la && ln -s ../xdebug.la xdebug.la)
+#13 47.36 /bin/sh /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/libtool --tag=CC --mode=install cp ./xdebug.la /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules
+#13 47.39 cp ./.libs/xdebug.so /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules/xdebug.so
+#13 47.40 cp ./.libs/xdebug.lai /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules/xdebug.la
+#13 47.42 PATH="$PATH:/sbin" ldconfig -n /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules
+#13 47.43 ----------------------------------------------------------------------
+#13 47.43 Libraries have been installed in:
+#13 47.43    /tmp/pear/temp/pear-build-defaultuserPojgnE/xdebug-3.4.5/modules
+#13 47.43 
+#13 47.43 If you ever happen to want to link against installed libraries
+#13 47.43 in a given directory, LIBDIR, you must either use libtool, and
+#13 47.43 specify the full pathname of the library, or use the `-LLIBDIR'
+#13 47.43 flag during linking and do at least one of the following:
+#13 47.43    - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+#13 47.43      during execution
+#13 47.43    - add LIBDIR to the `LD_RUN_PATH' environment variable
+#13 47.43      during linking
+#13 47.44    - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+#13 47.44 
+#13 47.44 See any operating system documentation about shared libraries for
+#13 47.44 more information, such as the ld(1) and ld.so(8) manual pages.
+#13 47.44 ----------------------------------------------------------------------
+#13 47.44 
+#13 47.44 Build complete.
+#13 47.44 Don't forget to run 'make test'.
+#13 47.45 
+#13 47.45 running: make INSTALL_ROOT="/tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5" install
+#13 47.45 Makefile:245: warning: overriding recipe for target 'test'
+#13 47.45 Makefile:136: warning: ignoring old recipe for target 'test'
+#13 47.54 Installing shared extensions:     /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib/php/extensions/no-debug-non-zts-20220829/
+#13 47.61 
+#13 47.67 shtool:echo:Warning: unable to determine terminal sequence for bold mode
+#13 47.70   +----------------------------------------------------------------------+
+#13 47.70   |                                                                      |
+#13 47.70   |   INSTALLATION INSTRUCTIONS                                          |
+#13 47.70   |   =========================                                          |
+#13 47.70   |                                                                      |
+#13 47.71   |   See https://xdebug.org/install.php#configure-php for instructions  |
+#13 47.71   |   on how to enable Xdebug for PHP.                                   |
+#13 47.71   |                                                                      |
+#13 47.71   |   Documentation is available online as well:                         |
+#13 47.71   |   - A list of all settings:  https://xdebug.org/docs-settings.php    |
+#13 47.72   |   - A list of all functions: https://xdebug.org/docs-functions.php   |
+#13 47.72   |   - Profiling instructions:  https://xdebug.org/docs-profiling2.php  |
+#13 47.72   |   - Remote debugging:        https://xdebug.org/docs-debugger.php    |
+#13 47.72   |                                                                      |
+#13 47.73   |                                                                      |
+#13 47.73   |   NOTE: Please disregard the message                                 |
+#13 47.73   |       You should add "extension=xdebug.so" to php.ini                |
+#13 47.73   |   that is emitted by the PECL installer. This does not work for      |
+#13 47.73   |   Xdebug.                                                            |
+#13 47.74   |                                                                      |
+#13 47.74   +----------------------------------------------------------------------+
+#13 47.80 shtool:echo:Warning: unable to determine terminal sequence for bold mode
+#13 47.82 
+#13 47.83 
+#13 47.83 running: find "/tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5" | xargs ls -dils
+#13 47.83   76592      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5
+#13 47.83   76753      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr
+#13 47.83   76754      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local
+#13 47.83   76755      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib
+#13 47.83   76756      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib/php
+#13 47.83   76757      4 drwxr-xr-x    3 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib/php/extensions
+#13 47.83   76758      4 drwxr-xr-x    2 root     root          4096 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#13 47.83   76752   1872 -rwxr-xr-x    1 root     root       1914528 Aug 17 08:54 /tmp/pear/temp/pear-build-defaultuserPojgnE/install-xdebug-3.4.5/usr/local/lib/php/extensions/no-debug-non-zts-20220829/xdebug.so
+#13 47.84 
+#13 47.84 Build process completed successfully
+#13 47.84 Installing '/usr/local/lib/php/extensions/no-debug-non-zts-20220829/xdebug.so'
+#13 47.89 install ok: channel://pecl.php.net/xdebug-3.4.5
+#13 47.89 configuration option "php_ini" is not set to php.ini location
+#13 47.89 You should add "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20220829/xdebug.so" to php.ini
+#13 DONE 48.0s
+
+#14 [stage-0  6/19] RUN docker-php-ext-enable xdebug
+#14 0.608 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#14 1.186 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#14 1.758 (1/1) Installing .docker-php-ext-enable-deps (20250817.085428)
+#14 1.764 OK: 306 MiB in 65 packages
+#14 1.894 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.18/main: No such file or directory
+#14 1.894 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.18/community: No such file or directory
+#14 1.895 (1/1) Purging .docker-php-ext-enable-deps (20250817.085428)
+#14 1.901 OK: 306 MiB in 64 packages
+#14 DONE 1.9s
+
+#15 [stage-0  7/19] RUN docker-php-ext-install pdo pdo_mysql
+#15 3.938 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#15 4.338 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#15 5.086 (1/1) Installing .phpize-deps (20250817.085434)
+#15 5.094 OK: 306 MiB in 65 packages
+#15 5.285 Configuring for:
+#15 5.285 PHP Api Version:         20220829
+#15 5.285 Zend Module Api No:      20220829
+#15 5.285 Zend Extension Api No:   420220829
+#15 6.849 checking for grep that handles long lines and -e... /bin/grep
+#15 6.938 checking for egrep... /bin/grep -E
+#15 6.940 checking for a sed that does not truncate output... /bin/sed
+#15 6.977 checking for pkg-config... /usr/bin/pkg-config
+#15 6.977 checking pkg-config is at least version 0.9.0... yes
+#15 6.980 checking for cc... cc
+#15 7.023 checking whether the C compiler works... yes
+#15 7.078 checking for C compiler default output file name... a.out
+#15 7.080 checking for suffix of executables... 
+#15 7.131 checking whether we are cross compiling... no
+#15 7.185 checking for suffix of object files... o
+#15 7.222 checking whether the compiler supports GNU C... yes
+#15 7.257 checking whether cc accepts -g... yes
+#15 7.293 checking for cc option to enable C11 features... none needed
+#15 7.375 checking how to run the C preprocessor... cc -E
+#15 7.460 checking for icc... no
+#15 7.480 checking for suncc... no
+#15 7.502 checking for system library directory... lib
+#15 7.502 checking if compiler supports -Wl,-rpath,... yes
+#15 7.565 checking build system type... x86_64-pc-linux-musl
+#15 7.572 checking host system type... x86_64-pc-linux-musl
+#15 7.572 checking target system type... x86_64-pc-linux-musl
+#15 7.661 checking for PHP prefix... /usr/local
+#15 7.661 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#15 7.661 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#15 7.662 checking for PHP installed headers prefix... /usr/local/include/php
+#15 7.662 checking if debug is enabled... no
+#15 7.686 checking if zts is enabled... no
+#15 7.709 checking for gawk... no
+#15 7.709 checking for nawk... no
+#15 7.709 checking for awk... awk
+#15 7.710 checking if awk is broken... no
+#15 7.712 checking whether to enable PDO support... yes, shared
+#15 7.734 checking for a sed that does not truncate output... /bin/sed
+#15 7.739 checking for ld used by cc... /usr/x86_64-alpine-linux-musl/bin/ld
+#15 7.761 checking if the linker (/usr/x86_64-alpine-linux-musl/bin/ld) is GNU ld... yes
+#15 7.764 checking for /usr/x86_64-alpine-linux-musl/bin/ld option to reload object files... -r
+#15 7.765 checking for BSD-compatible nm... /usr/bin/nm -B
+#15 7.769 checking whether ln -s works... yes
+#15 7.769 checking how to recognize dependent libraries... pass_all
+#15 7.796 checking for stdio.h... yes
+#15 7.826 checking for stdlib.h... yes
+#15 7.858 checking for string.h... yes
+#15 7.898 checking for inttypes.h... yes
+#15 7.936 checking for stdint.h... yes
+#15 7.981 checking for strings.h... yes
+#15 8.023 checking for sys/stat.h... yes
+#15 8.059 checking for sys/types.h... yes
+#15 8.096 checking for unistd.h... yes
+#15 8.130 checking for dlfcn.h... yes
+#15 8.166 checking the maximum length of command line arguments... 98304
+#15 8.171 checking command to parse /usr/bin/nm -B output from cc object... ok
+#15 8.266 checking for objdir... .libs
+#15 8.272 checking for ar... ar
+#15 8.272 checking for ranlib... ranlib
+#15 8.273 checking for strip... strip
+#15 8.344 checking if cc supports -fno-rtti -fno-exceptions... no
+#15 8.376 checking for cc option to produce PIC... -fPIC
+#15 8.376 checking if cc PIC flag -fPIC works... yes
+#15 8.409 checking if cc static flag -static works... yes
+#15 8.456 checking if cc supports -c -o file.o... yes
+#15 8.499 checking whether the cc linker (/usr/x86_64-alpine-linux-musl/bin/ld -m elf_x86_64) supports shared libraries... yes
+#15 8.521 checking whether -lc should be explicitly linked in... no
+#15 8.560 checking dynamic linker characteristics... GNU/Linux ld.so
+#15 8.576 checking how to hardcode library paths into programs... immediate
+#15 8.576 checking whether stripping libraries is possible... yes
+#15 8.580 checking if libtool supports shared libraries... yes
+#15 8.581 checking whether to build shared libraries... yes
+#15 8.581 checking whether to build static libraries... no
+#15 8.747 
+#15 8.747 creating libtool
+#15 8.818 appending configuration tag "CXX" to libtool
+#15 8.938 configure: patching config.h.in
+#15 8.943 configure: creating ./config.status
+#15 9.013 config.status: creating config.h
+#15 9.071 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo.c -o pdo.lo  -MMD -MF pdo.dep -MT pdo.lo
+#15 9.194 mkdir .libs
+#15 9.199  cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo.c -MMD -MF pdo.dep -MT pdo.lo  -fPIC -DPIC -o .libs/pdo.o
+#15 9.806 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_dbh.c -o pdo_dbh.lo  -MMD -MF pdo_dbh.dep -MT pdo_dbh.lo
+#15 9.943  cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_dbh.c -MMD -MF pdo_dbh.dep -MT pdo_dbh.lo  -fPIC -DPIC -o .libs/pdo_dbh.o
+#15 12.09 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_stmt.c -o pdo_stmt.lo  -MMD -MF pdo_stmt.dep -MT pdo_stmt.lo
+#15 12.21  cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_stmt.c -MMD -MF pdo_stmt.dep -MT pdo_stmt.lo  -fPIC -DPIC -o .libs/pdo_stmt.o
+#15 13.87 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_sql_parser.c -o pdo_sql_parser.lo  -MMD -MF pdo_sql_parser.dep -MT pdo_sql_parser.lo
+#15 13.99  cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_sql_parser.c -MMD -MF pdo_sql_parser.dep -MT pdo_sql_parser.lo  -fPIC -DPIC -o .libs/pdo_sql_parser.o
+#15 14.49 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE    -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_sqlstate.c -o pdo_sqlstate.lo  -MMD -MF pdo_sqlstate.dep -MT pdo_sqlstate.lo
+#15 14.64  cc -I. -I/usr/src/php/ext/pdo -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo/pdo_sqlstate.c -MMD -MF pdo_sqlstate.dep -MT pdo_sqlstate.lo  -fPIC -DPIC -o .libs/pdo_sqlstate.o
+#15 15.17 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=link cc -shared -I/usr/src/php/ext/pdo/include -I/usr/src/php/ext/pdo/main -I/usr/src/php/ext/pdo -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE  -Wl,-O1 -pie  -o pdo.la -export-dynamic -avoid-version -prefer-pic -module -rpath /usr/src/php/ext/pdo/modules  pdo.lo pdo_dbh.lo pdo_stmt.lo pdo_sql_parser.lo pdo_sqlstate.lo 
+#15 15.29 cc -shared  .libs/pdo.o .libs/pdo_dbh.o .libs/pdo_stmt.o .libs/pdo_sql_parser.o .libs/pdo_sqlstate.o   -Wl,-O1 -Wl,-soname -Wl,pdo.so -o .libs/pdo.so
+#15 15.32 creating pdo.la
+#15 15.33 (cd .libs && rm -f pdo.la && ln -s ../pdo.la pdo.la)
+#15 15.33 /bin/sh /usr/src/php/ext/pdo/libtool --tag=CC --mode=install cp ./pdo.la /usr/src/php/ext/pdo/modules
+#15 15.37 cp ./.libs/pdo.so /usr/src/php/ext/pdo/modules/pdo.so
+#15 15.37 cp ./.libs/pdo.lai /usr/src/php/ext/pdo/modules/pdo.la
+#15 15.39 PATH="$PATH:/sbin" ldconfig -n /usr/src/php/ext/pdo/modules
+#15 15.40 ----------------------------------------------------------------------
+#15 15.40 Libraries have been installed in:
+#15 15.40    /usr/src/php/ext/pdo/modules
+#15 15.40 
+#15 15.40 If you ever happen to want to link against installed libraries
+#15 15.40 in a given directory, LIBDIR, you must either use libtool, and
+#15 15.40 specify the full pathname of the library, or use the `-LLIBDIR'
+#15 15.40 flag during linking and do at least one of the following:
+#15 15.40    - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+#15 15.40      during execution
+#15 15.40    - add LIBDIR to the `LD_RUN_PATH' environment variable
+#15 15.40      during linking
+#15 15.40    - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+#15 15.40 
+#15 15.40 See any operating system documentation about shared libraries for
+#15 15.40 more information, such as the ld(1) and ld.so(8) manual pages.
+#15 15.40 ----------------------------------------------------------------------
+#15 15.40 
+#15 15.40 Build complete.
+#15 15.41 Don't forget to run 'make test'.
+#15 15.41 
+#15 15.44 + strip --strip-all modules/pdo.so
+#15 15.49 Installing shared extensions:     /usr/local/lib/php/extensions/no-debug-non-zts-20220829/
+#15 15.71 Installing header files:          /usr/local/include/php/
+#15 15.86 Installing PDO headers:           /usr/local/include/php/ext/pdo/
+#15 16.11 
+#15 16.11 warning: pdo (pdo.so) is already loaded!
+#15 16.11 
+#15 16.11 find . -name \*.gcno -o -name \*.gcda | xargs rm -f
+#15 16.12 find . -name \*.lo -o -name \*.o -o -name \*.dep | xargs rm -f
+#15 16.13 find . -name \*.la -o -name \*.a | xargs rm -f
+#15 16.13 find . -name \*.so | xargs rm -f
+#15 16.14 find . -name .libs -a -type d|xargs rm -rf
+#15 16.14 rm -f libphp.la      modules/* libs/*
+#15 16.15 rm -f ext/opcache/jit/zend_jit_x86.c
+#15 16.15 rm -f ext/opcache/jit/zend_jit_arm64.c
+#15 16.15 rm -f ext/opcache/minilua
+#15 16.22 Configuring for:
+#15 16.22 PHP Api Version:         20220829
+#15 16.22 Zend Module Api No:      20220829
+#15 16.22 Zend Extension Api No:   420220829
+#15 17.73 checking for grep that handles long lines and -e... /bin/grep
+#15 17.82 checking for egrep... /bin/grep -E
+#15 17.83 checking for a sed that does not truncate output... /bin/sed
+#15 17.86 checking for pkg-config... /usr/bin/pkg-config
+#15 17.86 checking pkg-config is at least version 0.9.0... yes
+#15 17.87 checking for cc... cc
+#15 17.91 checking whether the C compiler works... yes
+#15 17.96 checking for C compiler default output file name... a.out
+#15 17.96 checking for suffix of executables... 
+#15 18.01 checking whether we are cross compiling... no
+#15 18.07 checking for suffix of object files... o
+#15 18.11 checking whether the compiler supports GNU C... yes
+#15 18.14 checking whether cc accepts -g... yes
+#15 18.18 checking for cc option to enable C11 features... none needed
+#15 18.26 checking how to run the C preprocessor... cc -E
+#15 18.35 checking for icc... no
+#15 18.37 checking for suncc... no
+#15 18.38 checking for system library directory... lib
+#15 18.38 checking if compiler supports -Wl,-rpath,... yes
+#15 18.44 checking build system type... x86_64-pc-linux-musl
+#15 18.45 checking host system type... x86_64-pc-linux-musl
+#15 18.45 checking target system type... x86_64-pc-linux-musl
+#15 18.54 checking for PHP prefix... /usr/local
+#15 18.54 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#15 18.54 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#15 18.54 checking for PHP installed headers prefix... /usr/local/include/php
+#15 18.54 checking if debug is enabled... no
+#15 18.56 checking if zts is enabled... no
+#15 18.59 checking for gawk... no
+#15 18.59 checking for nawk... no
+#15 18.59 checking for awk... awk
+#15 18.59 checking if awk is broken... no
+#15 18.59 checking for MySQL support for PDO... yes, shared
+#15 18.59 checking for the location of libz... no
+#15 18.59 checking for MySQL UNIX socket location... 
+#15 18.59 checking for PDO includes... /usr/local/include/php/ext
+#15 18.61 checking for a sed that does not truncate output... /bin/sed
+#15 18.61 checking for ld used by cc... /usr/x86_64-alpine-linux-musl/bin/ld
+#15 18.63 checking if the linker (/usr/x86_64-alpine-linux-musl/bin/ld) is GNU ld... yes
+#15 18.64 checking for /usr/x86_64-alpine-linux-musl/bin/ld option to reload object files... -r
+#15 18.64 checking for BSD-compatible nm... /usr/bin/nm -B
+#15 18.64 checking whether ln -s works... yes
+#15 18.64 checking how to recognize dependent libraries... pass_all
+#15 18.67 checking for stdio.h... yes
+#15 18.70 checking for stdlib.h... yes
+#15 18.73 checking for string.h... yes
+#15 18.76 checking for inttypes.h... yes
+#15 18.80 checking for stdint.h... yes
+#15 18.84 checking for strings.h... yes
+#15 18.88 checking for sys/stat.h... yes
+#15 18.92 checking for sys/types.h... yes
+#15 18.96 checking for unistd.h... yes
+#15 19.00 checking for dlfcn.h... yes
+#15 19.03 checking the maximum length of command line arguments... 98304
+#15 19.04 checking command to parse /usr/bin/nm -B output from cc object... ok
+#15 19.14 checking for objdir... .libs
+#15 19.14 checking for ar... ar
+#15 19.14 checking for ranlib... ranlib
+#15 19.14 checking for strip... strip
+#15 19.22 checking if cc supports -fno-rtti -fno-exceptions... no
+#15 19.25 checking for cc option to produce PIC... -fPIC
+#15 19.25 checking if cc PIC flag -fPIC works... yes
+#15 19.28 checking if cc static flag -static works... yes
+#15 19.32 checking if cc supports -c -o file.o... yes
+#15 19.37 checking whether the cc linker (/usr/x86_64-alpine-linux-musl/bin/ld -m elf_x86_64) supports shared libraries... yes
+#15 19.39 checking whether -lc should be explicitly linked in... no
+#15 19.43 checking dynamic linker characteristics... GNU/Linux ld.so
+#15 19.45 checking how to hardcode library paths into programs... immediate
+#15 19.45 checking whether stripping libraries is possible... yes
+#15 19.45 checking if libtool supports shared libraries... yes
+#15 19.45 checking whether to build shared libraries... yes
+#15 19.45 checking whether to build static libraries... no
+#15 19.62 
+#15 19.62 creating libtool
+#15 19.69 appending configuration tag "CXX" to libtool
+#15 19.82 configure: patching config.h.in
+#15 19.82 configure: creating ./config.status
+#15 19.89 config.status: creating config.h
+#15 19.95 /bin/sh /usr/src/php/ext/pdo_mysql/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE   -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/pdo_mysql.c -o pdo_mysql.lo  -MMD -MF pdo_mysql.dep -MT pdo_mysql.lo
+#15 20.07 mkdir .libs
+#15 20.08  cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/pdo_mysql.c -MMD -MF pdo_mysql.dep -MT pdo_mysql.lo  -fPIC -DPIC -o .libs/pdo_mysql.o
+#15 20.37 /bin/sh /usr/src/php/ext/pdo_mysql/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE   -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/mysql_driver.c -o mysql_driver.lo  -MMD -MF mysql_driver.dep -MT mysql_driver.lo
+#15 20.48  cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/mysql_driver.c -MMD -MF mysql_driver.dep -MT mysql_driver.lo  -fPIC -DPIC -o .libs/mysql_driver.o
+#15 21.23 /bin/sh /usr/src/php/ext/pdo_mysql/libtool --tag=CC --mode=compile cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE   -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/mysql_statement.c -o mysql_statement.lo  -MMD -MF mysql_statement.dep -MT mysql_statement.lo
+#15 21.35  cc -I. -I/usr/src/php/ext/pdo_mysql -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I/usr/local/include/php/ext -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DZEND_COMPILE_DL_EXT=1 -c /usr/src/php/ext/pdo_mysql/mysql_statement.c -MMD -MF mysql_statement.dep -MT mysql_statement.lo  -fPIC -DPIC -o .libs/mysql_statement.o
+#15 21.81 /bin/sh /usr/src/php/ext/pdo_mysql/libtool --tag=CC --mode=link cc -shared -I/usr/src/php/ext/pdo_mysql/include -I/usr/src/php/ext/pdo_mysql/main -I/usr/src/php/ext/pdo_mysql -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE  -Wl,-O1 -pie  -o pdo_mysql.la -export-dynamic -avoid-version -prefer-pic -module -rpath /usr/src/php/ext/pdo_mysql/modules  pdo_mysql.lo mysql_driver.lo mysql_statement.lo 
+#15 21.92 cc -shared  .libs/pdo_mysql.o .libs/mysql_driver.o .libs/mysql_statement.o   -Wl,-O1 -Wl,-soname -Wl,pdo_mysql.so -o .libs/pdo_mysql.so
+#15 21.94 creating pdo_mysql.la
+#15 21.95 (cd .libs && rm -f pdo_mysql.la && ln -s ../pdo_mysql.la pdo_mysql.la)
+#15 21.95 /bin/sh /usr/src/php/ext/pdo_mysql/libtool --tag=CC --mode=install cp ./pdo_mysql.la /usr/src/php/ext/pdo_mysql/modules
+#15 21.99 cp ./.libs/pdo_mysql.so /usr/src/php/ext/pdo_mysql/modules/pdo_mysql.so
+#15 21.99 cp ./.libs/pdo_mysql.lai /usr/src/php/ext/pdo_mysql/modules/pdo_mysql.la
+#15 22.02 PATH="$PATH:/sbin" ldconfig -n /usr/src/php/ext/pdo_mysql/modules
+#15 22.02 ----------------------------------------------------------------------
+#15 22.02 Libraries have been installed in:
+#15 22.02    /usr/src/php/ext/pdo_mysql/modules
+#15 22.02 
+#15 22.02 If you ever happen to want to link against installed libraries
+#15 22.02 in a given directory, LIBDIR, you must either use libtool, and
+#15 22.02 specify the full pathname of the library, or use the `-LLIBDIR'
+#15 22.02 flag during linking and do at least one of the following:
+#15 22.02    - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+#15 22.02      during execution
+#15 22.02    - add LIBDIR to the `LD_RUN_PATH' environment variable
+#15 22.02      during linking
+#15 22.02    - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+#15 22.02 
+#15 22.02 See any operating system documentation about shared libraries for
+#15 22.02 more information, such as the ld(1) and ld.so(8) manual pages.
+#15 22.03 ----------------------------------------------------------------------
+#15 22.03 
+#15 22.03 Build complete.
+#15 22.03 Don't forget to run 'make test'.
+#15 22.03 
+#15 22.06 + strip --strip-all modules/pdo_mysql.so
+#15 22.11 Installing shared extensions:     /usr/local/lib/php/extensions/no-debug-non-zts-20220829/
+#15 22.23 find . -name \*.gcno -o -name \*.gcda | xargs rm -f
+#15 22.23 find . -name \*.lo -o -name \*.o -o -name \*.dep | xargs rm -f
+#15 22.24 find . -name \*.la -o -name \*.a | xargs rm -f
+#15 22.25 find . -name \*.so | xargs rm -f
+#15 22.25 find . -name .libs -a -type d|xargs rm -rf
+#15 22.26 rm -f libphp.la      modules/* libs/*
+#15 22.26 rm -f ext/opcache/jit/zend_jit_x86.c
+#15 22.26 rm -f ext/opcache/jit/zend_jit_arm64.c
+#15 22.27 rm -f ext/opcache/minilua
+#15 22.28 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.18/main: No such file or directory
+#15 22.28 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.18/community: No such file or directory
+#15 22.28 (1/1) Purging .phpize-deps (20250817.085434)
+#15 22.28 OK: 306 MiB in 64 packages
+#15 DONE 23.3s
+
+#16 [stage-0  8/19] WORKDIR /websites/doko
+#16 DONE 0.1s
+
+#17 [stage-0  9/19] RUN apk update
+#17 0.585 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#17 1.145 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#17 2.211 v3.18.12-136-gf28e1c9c9f8 [https://dl-cdn.alpinelinux.org/alpine/v3.18/main]
+#17 2.211 v3.18.12-132-ge2ea6f61358 [https://dl-cdn.alpinelinux.org/alpine/v3.18/community]
+#17 2.211 OK: 20085 distinct packages available
+#17 DONE 2.4s
+
+#18 [stage-0 10/19] RUN apk add ssmtp
+#18 1.080 (1/1) Installing ssmtp (2.64-r20)
+#18 1.429 Executing busybox-1.36.1-r5.trigger
+#18 1.444 OK: 306 MiB in 65 packages
+#18 DONE 1.6s
+
+#19 [stage-0 11/19] RUN echo "hostname=v.je" > /etc/ssmtp/ssmtp.conf
+#19 DONE 0.5s
+
+#20 [stage-0 12/19] RUN echo "root=mailer@v.je>" >> /etc/ssmtp/ssmtp.conf
+#20 DONE 0.8s
+
+#21 [stage-0 13/19] RUN echo "mailhub=maildev:1025" >> /etc/ssmtp/ssmtp.conf
+#21 DONE 0.6s
+
+#22 [stage-0 14/19] RUN echo "sendmail_path=sendmail -i -t" >> /usr/local/etc/php/conf.d/php-sendmail.ini
+#22 DONE 0.7s
+
+#23 [stage-0 15/19] RUN sed -i '/#!\/bin\/sh/aecho "$(hostname -i)\t$(hostname) $(hostname).localhost" >> /etc/hosts' /usr/local/bin/docker-php-entrypoint
+#23 DONE 0.6s
+
+#24 [stage-0 16/19] RUN echo "post_max_size=5000M" > /usr/local/etc/php/conf.d/php-uploadsize.ini
+#24 DONE 0.6s
+
+#25 [stage-0 17/19] RUN echo "upload_max_filesize=5000M" >> /usr/local/etc/php/conf.d/php-uploadsize.ini
+#25 DONE 0.6s
+
+#26 [stage-0 18/19] RUN echo "short_open_tag=off" >> /usr/local/etc/php/conf.d/opentags.ini
+#26 DONE 0.8s
+
+#27 [stage-0 19/19] RUN apk add --no-cache bash curl git
+#27 0.747 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+#27 1.115 fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+#27 1.748 (1/7) Installing bash (5.2.15-r5)
+#27 1.850 Executing bash-5.2.15-r5.post-install
+#27 1.866 (2/7) Installing libexpat (2.7.0-r0)
+#27 1.922 (3/7) Installing pcre2 (10.42-r1)
+#27 2.007 (4/7) Installing git (2.40.4-r0)
+#27 2.863 (5/7) Installing perl-error (0.17029-r1)
+#27 2.920 (6/7) Installing perl-git (2.40.4-r0)
+#27 2.980 (7/7) Installing git-perl (2.40.4-r0)
+#27 3.031 Executing busybox-1.36.1-r5.trigger
+#27 3.049 OK: 315 MiB in 72 packages
+#27 DONE 3.4s
+
+#28 exporting to image
+#28 exporting layers
+#28 exporting layers 22.8s done
+#28 exporting manifest sha256:b0baf981982e56c2a6f2888de6d09783df128c58feaf6c496a523e6f31bee3d1 0.0s done
+#28 exporting config sha256:85e1275c3b8429ec94ae60eb21e3768ac771ffc050dfdf329af3db931faa8452 0.0s done
+#28 exporting attestation manifest sha256:82ae1a5614b6bf413522abc0e02ff734ad9f3dc876b4f3799df8ec0f0df0d4b5 0.0s done
+#28 exporting manifest list sha256:8b53ebabaadc43c82d88db621f09dbd06825f2bfc271084723bb18e219770f83
+#28 exporting manifest list sha256:8b53ebabaadc43c82d88db621f09dbd06825f2bfc271084723bb18e219770f83 0.0s done
+#28 naming to docker.io/library/doko-php:latest done
+#28 unpacking to docker.io/library/doko-php:latest
+#28 unpacking to docker.io/library/doko-php:latest 5.8s done
+#28 DONE 28.9s
+
+#29 resolving provenance for metadata file
+#29 DONE 0.1s
+

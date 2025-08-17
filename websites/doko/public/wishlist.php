@@ -180,9 +180,7 @@ document.addEventListener('DOMContentLoaded', function() { loadUnifiedWishlist()
 async function loadUnifiedWishlist(){
     const container = document.getElementById('wishlist-items-container');
     const emptyState = document.getElementById('empty-wishlist');
-        if(!skipLoading){
-            container.innerHTML = '<div class="loading">Loading wishlist items...</div>';
-        }
+        // Do not show a loading placeholder here to avoid flicker — render results or empty state directly
     let serverIds = [];
     let isLoggedIn = false;
     try {
@@ -199,7 +197,9 @@ async function loadUnifiedWishlist(){
     const allIds = Array.from(allIdsSet);
     if (allIds.length === 0){
         emptyState.style.display='block';
-        container.innerHTML = emptyState.outerHTML;
+        // Avoid duplicating the same element id in DOM by appending a clone
+        container.innerHTML = '';
+        container.appendChild(emptyState.cloneNode(true));
         return;
     }
     emptyState.style.display='none';
@@ -283,6 +283,10 @@ function displayWishlistItems(products, isLoggedIn) {
                 } catch(e){}
             }
             removeFromWishlist(productId);
+            // Ensure header/count is refreshed after deletion
+            if (typeof updateWishlistCount === 'function') {
+                try { updateWishlistCount(); } catch(e){}
+            }
         });
     });
 }

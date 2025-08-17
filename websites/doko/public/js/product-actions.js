@@ -50,9 +50,28 @@ const ProductManager = {
                 product_id: productId
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+        .then(response => {
+            const status = response.status;
+            return response.json().then(data => ({ status, data }));
+        })
+        .then(({ status, data }) => {
+            // Helper to update localStorage fallback list
+            function updateLocalWishlist(id, add) {
+                try {
+                    let wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
+                    // Normalize to array of objects { product_id }
+                    wl = Array.isArray(wl) ? wl : [];
+                    const exists = wl.some(e => parseInt(e.product_id) === parseInt(id));
+                    if (add && !exists) wl.push({ product_id: parseInt(id) });
+                    if (!add && exists) wl = wl.filter(e => parseInt(e.product_id) !== parseInt(id));
+                    localStorage.setItem('doko_wishlist', JSON.stringify(wl));
+                    // update header badge if present
+                    const badge = document.getElementById('wishlist-count');
+                    if (badge) badge.textContent = wl.length.toString();
+                } catch (e) { /* ignore storage errors */ }
+            }
+
+            if (data && data.success) {
                 this.showNotification(data.message, 'success');
                 // Update wishlist icon
                 let wishlistBtn = null;
@@ -78,14 +97,45 @@ const ProductManager = {
                 if (typeof updateWishlistCount === 'function') {
                     updateWishlistCount();
                 }
+                // Keep a local copy for guest users as well (helps wishlist.php merge)
+                updateLocalWishlist(productId, !!data.in_wishlist);
             } else {
-                if (data.message && data.message.includes('log in')) {
-                    this.showNotification('Please login to use wishlist', 'warning');
-                    setTimeout(() => {
-                        window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
-                    }, 1500);
+                // If server rejected due to authentication, fall back to localStorage toggle
+                if (status === 401 || (data && data.message && /auth|login|authentication/i.test(data.message))) {
+                    // Toggle locally
+                    // Check if currently present in local list
+                    try {
+                        let wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]');
+                        wl = Array.isArray(wl) ? wl : [];
+                        const exists = wl.some(e => parseInt(e.product_id) === parseInt(productId));
+                        if (exists) {
+                            wl = wl.filter(e => parseInt(e.product_id) !== parseInt(productId));
+                            this.showNotification('Removed from local wishlist (login to sync)', 'warning');
+                        } else {
+                            wl.push({ product_id: parseInt(productId) });
+                            this.showNotification('Saved to wishlist locally (login to sync)', 'success');
+                        }
+                        localStorage.setItem('doko_wishlist', JSON.stringify(wl));
+                        const badge = document.getElementById('wishlist-count');
+                        if (badge) badge.textContent = wl.length.toString();
+                        // Update icon UI optimistically
+                        let wishlistBtn = null;
+                        if (eventRef && eventRef.target) wishlistBtn = eventRef.target.closest('button');
+                        if (wishlistBtn) {
+                            const icon = wishlistBtn.querySelector('i');
+                            if (icon) {
+                                if (!exists) { icon.classList.remove('far'); icon.classList.add('fas'); }
+                                else { icon.classList.remove('fas'); icon.classList.add('far'); }
+                            }
+                        }
+                    } catch (e) {
+                        this.showNotification('Please login to use wishlist', 'warning');
+                        setTimeout(() => {
+                            window.location.href = '/login.php?redirect=' + encodeURIComponent(window.location.pathname);
+                        }, 1200);
+                    }
                 } else {
-                    this.showNotification(data.message || 'Failed to update wishlist', 'error');
+                    this.showNotification((data && data.message) || 'Failed to update wishlist', 'error');
                 }
             }
         })
@@ -196,6 +246,45 @@ document.head.appendChild(style);
 
 // Export for global use
 window.ProductManager = ProductManager;
+
+// Update wishlist count badge: try server, fall back to localStorage
+function updateWishlistCount() {
+    const badge = document.getElementById('wishlist-count');
+    if (!badge) return;
+
+    // Try to get server-side count
+    fetch('/api/wishlist/wishlist.php', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(resp => {
+            if (resp.status === 200) return resp.json().catch(() => null);
+            // if unauthorized, fall back to local
+            if (resp.status === 401) throw new Error('unauth');
+            return null;
+        })
+        .then(data => {
+            if (data && data.success && typeof data.count !== 'undefined') {
+                badge.textContent = String(data.count);
+            } else {
+                // fallback to localStorage
+                let wl = [];
+                try { wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]'); } catch (e) { wl = []; }
+                badge.textContent = String(Array.isArray(wl) ? wl.length : 0);
+            }
+        })
+        .catch(() => {
+            let wl = [];
+            try { wl = JSON.parse(localStorage.getItem('doko_wishlist') || '[]'); } catch (e) { wl = []; }
+            badge.textContent = String(Array.isArray(wl) ? wl.length : 0);
+        });
+}
+
+// Expose globally so other modules can call it
+window.updateWishlistCount = updateWishlistCount;
+
+// Initialize badge on page load
+(function initWishlistBadge(){
+    const run = () => { try { updateWishlistCount(); } catch (e) { /* ignore */ } };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
 
 // --- Global convenience wrappers expected by inline HTML onclick attributes ---
 // Safely define only if not already present to avoid clobbering any advanced implementation.

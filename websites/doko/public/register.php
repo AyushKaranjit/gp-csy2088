@@ -139,10 +139,6 @@ include_header($page_title, $page_description, $current_page);
                             <i class="fab fa-google"></i>
                             Sign up with Google
                         </button>
-                        <button class="btn btn-social facebook-btn">
-                            <i class="fab fa-facebook-f"></i>
-                            Sign up with Facebook
-                        </button>
                     </div>
 
                     <div class="auth-footer">
@@ -719,50 +715,78 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Form submission
+    // Form submission with final validations
+    let registerSubmitting = false;
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+        if (registerSubmitting) return;
+        registerSubmitting = true;
+
         const submitBtn = document.querySelector('.auth-submit');
         const originalContent = submitBtn.innerHTML;
-        
-        // Show loading state
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
         submitBtn.disabled = true;
-        
-        // Get form data
+
         const formData = new FormData(this);
-        const userData = {
-            first_name: formData.get('first_name'),
-            last_name: formData.get('last_name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            city: formData.get('city'),
-            newsletter: formData.get('newsletter') ? true : false,
-            registrationDate: new Date().toISOString()
-        };
-        
+        const email = (formData.get('email') || '').trim();
+        const password = formData.get('password') || '';
+        const confirm = formData.get('confirm_password') || '';
+        const phone = (formData.get('phone') || '').trim();
+
+        if (!validateEmail(email)) {
+            alert('Please enter a valid email address.');
+            submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
+        }
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long.');
+            submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
+        }
+        if (password !== confirm) {
+            alert('Passwords do not match.');
+            submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
+        }
+        if (phone && !/^[0-9]{7,15}$/.test(phone)) {
+            alert('Please enter a valid phone number (digits only).');
+            submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
+        }
+
         // Simulate registration process
         setTimeout(() => {
-            // Store user data (in real app, this would be server-side)
+            const userData = {
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                email: email,
+                phone: phone,
+                city: formData.get('city'),
+                newsletter: formData.get('newsletter') ? true : false,
+                registrationDate: new Date().toISOString()
+            };
             sessionStorage.setItem('doko_user', JSON.stringify(userData));
-            
-            // Show success message
             alert('Account created successfully! Welcome to DOKO family.');
-            
-            // Redirect to welcome page or login
             window.location.href = 'login.php?registered=true';
-        }, 2000);
+        }, 900);
     });
     
     // Social login handlers
-    document.querySelector('.google-btn').addEventListener('click', function() {
-        alert('Google registration integration would be implemented here');
-    });
-    
-    document.querySelector('.facebook-btn').addEventListener('click', function() {
-        alert('Facebook registration integration would be implemented here');
-    });
+        // Reuse Google OAuth handlers from login page
+        (function(){
+            const googleBtn = document.querySelector('.google-btn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function(evt){
+                    // If login page functions are available, delegate to them
+                    if (typeof handleGoogleButtonClick === 'function') {
+                        handleGoogleButtonClick(evt);
+                        return;
+                    }
+                    // Fallback: initialize Google login from this page
+                    if (typeof initGoogleLogin === 'function') { initGoogleLogin(); handleGoogleButtonClick(evt); return; }
+                    alert('Google signup is not available. Please use the login page to sign up with Google.');
+                });
+            }
+        })();
+
+        // Try to initialize Google OAuth if the login.js functions are available on this page
+        try { if (typeof initGoogleLogin === 'function') { initGoogleLogin(); } } catch(e) {}
 });
 </script>
 

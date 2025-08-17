@@ -77,12 +77,29 @@ try {
             $hash = substr(sha1_file($file['tmp_name']).uniqid('', true),0,32);
             $filename = $hash.'.'.$ext;
             // Ensure files are saved inside the public directory so they are web-accessible
-            $publicBase = realpath(__DIR__.'/../../'); // points to /public
-            if(!$publicBase) { $publicBase = __DIR__.'/../../'; }
-            $profileDir = $publicBase.'/uploads/profiles';
-            if (!is_dir($profileDir)) { @mkdir($profileDir, 0775, true); }
-            $dest = $profileDir.'/'.$filename;
-            if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            // Try to resolve public directory robustly
+            $publicBase = realpath(__DIR__ . '/../../'); // typically repository/.../public
+            if (!$publicBase) {
+                // Fallback: try __DIR__ one level up
+                $possible = realpath(__DIR__ . '/..');
+                $publicBase = $possible ?: (__DIR__ . '/../../');
+            }
+            // Normalize and ensure uploads directory exists
+            $profileDir = rtrim($publicBase, "\/\\") . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'profiles';
+            if (!is_dir($profileDir)) { if (!@mkdir($profileDir, 0775, true)) { ApiResponse::error('Unable to create upload directory', 500); } }
+            $dest = $profileDir . DIRECTORY_SEPARATOR . $filename;
+            // Try move_uploaded_file, but as a fallback use copy + unlink
+            $moved = false;
+            if (is_uploaded_file($file['tmp_name'])) {
+                $moved = @move_uploaded_file($file['tmp_name'], $dest);
+            }
+            if (!$moved) {
+                // fallback copy
+                if (@copy($file['tmp_name'], $dest)) {
+                    $moved = true; @unlink($file['tmp_name']);
+                }
+            }
+            if (!$moved) {
                 ApiResponse::error('Failed to store profile image', 500);
             }
             // Remove previous file (best effort)

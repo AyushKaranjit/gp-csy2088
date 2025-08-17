@@ -20,7 +20,20 @@ try {
         ApiResponse::success(['addresses' => $rows, 'count' => count($rows)]);
     }
     elseif ($method === 'POST') {
+        // Accept JSON or form-encoded/FormData submissions
         $data = json_input();
+        if (empty($data) && !empty($_POST)) {
+            // normalize $_POST into array
+            foreach ($_POST as $k => $v) { $data[$k] = is_string($v) ? trim($v) : $v; }
+        }
+        // If still empty, try parsing raw input (fallback)
+        if (empty($data)) {
+            $raw = file_get_contents('php://input');
+            if ($raw) {
+                $decoded = @json_decode($raw, true);
+                if (is_array($decoded)) $data = $decoded;
+            }
+        }
         foreach (['street_address','city','state','postal_code'] as $f) { if (empty($data[$f])) { ApiResponse::error("Missing field: $f", 422); } }
         $isDefault = !empty($data['is_default']) ? 1 : 0;
         if ($isDefault) { $conn->prepare("UPDATE user_addresses SET is_default=0 WHERE user_id=?")->execute([$userId]); }

@@ -732,23 +732,37 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form validation
     const form = document.querySelector('.contact-form');
-    if (form) {
+        if (form) {
         form.addEventListener('submit', function(e) {
             const requiredFields = this.querySelectorAll('[required]');
             let isValid = true;
-            
             requiredFields.forEach(field => {
-                if (!field.value.trim()) {
+                field.value = (field.value || '').toString().trim();
+                if (!field.value) {
                     field.style.borderColor = '#dc3545';
                     isValid = false;
                 } else {
                     field.style.borderColor = '#ddd';
                 }
             });
-            
+
+            // Email check
+            const emailField = this.querySelector('input[type="email"]');
+            if (emailField && emailField.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value)) {
+                emailField.style.borderColor = '#dc3545';
+                isValid = false;
+            }
+
+            // Phone optional but must be digits if provided
+            const phoneField = this.querySelector('input[name="phone"]');
+            if (phoneField && phoneField.value && !/^[0-9\s\-\+]{7,20}$/.test(phoneField.value)) {
+                phoneField.style.borderColor = '#dc3545';
+                isValid = false;
+            }
+
             if (!isValid) {
                 e.preventDefault();
-                alert('Please fill in all required fields.');
+                alert('Please correct the highlighted fields before submitting.');
             }
         });
     }

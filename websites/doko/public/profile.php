@@ -16,6 +16,30 @@ if (!$auth->isLoggedIn()) {
 $currentUser = $auth->getCurrentUser();
 $userRole = $auth->getUserRole();
 
+// Always attempt to read the latest user record from the database so UI shows persisted values
+try {
+    require_once __DIR__ . '/../config/database.php';
+    $database = Database::getInstance();
+    $pdo = $database->getConnection();
+    if (!empty($currentUser['user_id'])) {
+        $stmtUser = $pdo->prepare('SELECT user_id, username, email, first_name, last_name, phone, address, profile_image, role FROM users WHERE user_id = ? LIMIT 1');
+        $stmtUser->execute([$currentUser['user_id']]);
+        $fresh = $stmtUser->fetch(PDO::FETCH_ASSOC);
+        if ($fresh) {
+            // Merge fresh DB values into $currentUser and session
+            foreach (['user_id','username','email','first_name','last_name','phone','address','profile_image','role'] as $k) {
+                if (array_key_exists($k, $fresh) && $fresh[$k] !== null) {
+                    $currentUser[$k] = $fresh[$k];
+                    $_SESSION[$k] = $fresh[$k];
+                }
+            }
+            $userRole = $currentUser['role'] ?? $userRole;
+        }
+    }
+} catch (Throwable $e) {
+    // Non-fatal; continue with session values
+}
+
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -54,6 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         
         if ($result) {
+            // Update session so header and later requests reflect new values
+            foreach (['first_name','last_name','email','phone','address'] as $k) {
+                if (isset($updateData[$k])) { $_SESSION[$k] = $updateData[$k]; }
+            }
             echo json_encode(['success' => true, 'message' => 'Profile updated successfully']);
         } else {
             throw new Exception('Failed to update profile');
@@ -166,7 +194,8 @@ include __DIR__ . '/../template/breadcrumb.php';
                                 </div>
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" id="phone" name="phone" class="form-control" autocomplete="tel" inputmode="tel" value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>" placeholder="+977-9851234567">
+                                    <input type="tel" id="phone" name="phone" class="form-control" autocomplete="tel" inputmode="numeric" pattern="^[0-9]+$" value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>" placeholder="9851234567">
+                                    <small class="form-text">Digits only, e.g. 9851234567</small>
                                 </div>
                             </div>
                             
@@ -221,15 +250,39 @@ include __DIR__ . '/../template/breadcrumb.php';
                                         function showLoading(){ container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>'; }
                                         showLoading();
                                         fetch('api/users/customer-orders.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'})
-                                            .then(r=>r.json()).then(j=>{ if(j.success && j.orders){ renderOrders(j.orders); } else { renderOrders([]); } })
-                                            .catch(e=>{ console.warn('Order history load failed',e); renderOrders([]); });
+                                            .then(async (r) => {
+                                                if (!r.ok) {
+                                                    if (r.status === 401) {
+                                                        // Not authenticated
+                                                        renderOrders([]);
+                                                        console.warn('Order history: not authenticated (401)');
+                                                        return;
+                                                    }
+                                                    const ct = r.headers.get('content-type') || '';
+                                                    const text = await r.text().catch(()=>null);
+                                                    console.error('Order history load failed', r.status, text);
+                                                    renderOrders([]);
+                                                    return;
+                                                }
+                                                const ct = r.headers.get('content-type') || '';
+                                                if (!ct.includes('application/json')) {
+                                                    const text = await r.text().catch(()=>null);
+                                                    console.error('Order history unexpected response', text);
+                                                    renderOrders([]);
+                                                    return;
+                                                }
+                                                const j = await r.json().catch(e=>{ console.error('Order history parse error', e); return null; });
+                                                if (j && j.success && j.orders) { renderOrders(j.orders); } else { renderOrders([]); }
+                                            }).catch(e=>{ console.warn('Order history load failed',e); renderOrders([]); });
                                     })();
                                     </script>
                 
                                     <style>
                                     .orders-list { display:flex; flex-direction:column; gap:.75rem; }
-                                    .order-row { display:grid; grid-template-columns: 100px 140px 140px 120px 80px; gap:.5rem; align-items:center; background:#fff; padding:.75rem 1rem; border:1px solid var(--border-color); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-                                    .order-col.id { font-weight:600; }
+                                    /* Make grid items able to shrink; allow long text to wrap safely */
+                                    .order-row { display:grid; grid-template-columns: 120px 1fr 120px 120px 100px; gap:.5rem; align-items:center; background:#fff; padding:.75rem 1rem; border:1px solid var(--border-color); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.06); min-width:0; }
+                                    .order-col { min-width:0; }
+                                    .order-col.id { font-weight:600; word-break:break-word; overflow-wrap:anywhere; max-width:100%; }
                                     .order-col.total { font-weight:600; color:var(--primary-color); }
                                     .order-col.status { text-transform:capitalize; font-size:.85rem; font-weight:600; padding:.35rem .6rem; border-radius:999px; justify-self:start; background:#eef; }
                                     .order-col.status.pending { background:#fff3cd; color:#946200; }
@@ -239,6 +292,8 @@ include __DIR__ . '/../template/breadcrumb.php';
                                     @media (max-width:700px){
                                         .order-row { grid-template-columns: 1fr 1fr; grid-template-areas:"id status" "date total" "action action"; }
                                         .order-col.id{grid-area:id;} .order-col.status{grid-area:status;} .order-col.date{grid-area:date;} .order-col.total{grid-area:total;} .order-col.action{grid-area:action;}
+                                        .order-col.action { justify-self:end; }
+                                        .order-col.action .btn { white-space: nowrap; }
                                     }
                                     </style>
 
@@ -386,8 +441,24 @@ include __DIR__ . '/../template/breadcrumb.php';
             list.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading addresses...</div>';
             try {
                 const resp = await fetch('/api/users/addresses.php', { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
-                const data = await resp.json();
-                if (!data.success) throw new Error(data.message || 'Failed to load');
+                    if (!resp.ok) {
+                        if (resp.status === 401) {
+                            console.warn('Addresses: not authenticated (401)');
+                            list.innerHTML = '<div class="empty-state"><i class="fas fa-map-marker-alt"></i><h3>No addresses found</h3><p>Please log in to manage addresses.</p></div>';
+                            return;
+                        }
+                        const txt = await resp.text().catch(()=>null);
+                        console.error('Addresses fetch failed', resp.status, txt);
+                        throw new Error('Failed to load');
+                    }
+                    const ct = resp.headers.get('content-type') || '';
+                    if (!ct.includes('application/json')) {
+                        const text = await resp.text().catch(()=>null);
+                        console.error('Addresses unexpected response', text);
+                        throw new Error('Failed to load');
+                    }
+                    const data = await resp.json();
+                    if (!data.success) throw new Error(data.message || 'Failed to load');
                 window.__addressesCache = Array.isArray(data.addresses) ? data.addresses : [];
                 if (!data.addresses || data.addresses.length === 0) {
                     list.innerHTML = '<div class="empty-state"><i class="fas fa-map-marker-alt"></i><h3>No addresses found</h3><p>Add your first delivery address to get started</p></div>';
@@ -751,13 +822,66 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!form) return;
     form.addEventListener('submit', async function(e){
         e.preventDefault();
+
+        // Client-side file size validation (match preview limit)
+        const fileInput = document.getElementById('profile_image');
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            const f = fileInput.files[0];
+            const MAX_BYTES = 2 * 1024 * 1024; // 2MB
+            if (f.size > MAX_BYTES) {
+                showNotification('Selected image exceeds 2 MB limit. Please choose a smaller file.', 'error');
+                return;
+            }
+        }
+
         const fd = new FormData(form);
         const btn = form.querySelector('button[type="submit"]');
         const orig = btn.innerHTML; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';
         try {
             const resp = await fetch('api/users/profile-update.php', { method:'POST', body: fd, credentials:'same-origin' });
-            const data = await resp.json();
-            if(!data.success){ throw new Error(data.message||'Update failed'); }
+
+            // Handle non-JSON responses and HTTP errors
+            if (!resp.ok) {
+                if (resp.status === 401) {
+                    showNotification('You are not authenticated. Please log in and try again.', 'error');
+                    btn.disabled = false; btn.innerHTML = orig;
+                    return;
+                }
+                if (resp.status === 413) {
+                    showNotification('Upload failed: file too large. Please reduce the file size and try again.', 'error');
+                    btn.disabled = false; btn.innerHTML = orig;
+                    return;
+                }
+                // Try to read JSON error message if returned
+                const ct = resp.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    const errJson = await resp.json().catch(()=>null);
+                    const msg = errJson && errJson.message ? errJson.message : 'Server error during profile update.';
+                    showNotification(msg, 'error');
+                } else {
+                    const text = await resp.text().catch(()=>null);
+                    console.error('Non-JSON error response from profile-update:', text);
+                    showNotification('Server error. Please try again or check the console for details.', 'error');
+                }
+                btn.disabled = false; btn.innerHTML = orig;
+                return;
+            }
+
+            const ct = resp.headers.get('content-type') || '';
+            let data = null;
+            if (ct.includes('application/json')) {
+                data = await resp.json().catch(err => { console.error('Invalid JSON from profile-update:', err); return null; });
+            } else {
+                const text = await resp.text().catch(()=>null);
+                console.error('Expected JSON but received:', text);
+                showNotification('Unexpected server response. See console for details.', 'error');
+                return;
+            }
+
+            if (!data || !data.success) {
+                throw new Error((data && data.message) ? data.message : 'Update failed');
+            }
+
             showNotification('Profile updated', 'success');
             if(data.user && data.user.profile_image){
                 // Update preview
@@ -768,7 +892,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(headerImg){ headerImg.src = data.user.profile_image; }
             }
         } catch(err){
-            console.error(err); showNotification(err.message,'error');
+            console.error(err); showNotification(err.message || 'Profile update failed','error');
         } finally { btn.disabled=false; btn.innerHTML=orig; }
     });
 });
@@ -889,3 +1013,77 @@ if (isset($_GET['logout'])) {
 // Include footer
 include_footer();
 ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    // Password change validation
+    const pwdForm = document.getElementById('password-form');
+    if (pwdForm) {
+        let pwdSubmitting = false;
+        pwdForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            if (pwdSubmitting) return;
+            const current = (this.querySelector('#current_password') || {}).value || '';
+            const nw = (this.querySelector('#new_password') || {}).value || '';
+            const cf = (this.querySelector('#confirm_password') || {}).value || '';
+            if (!current || !nw || !cf) { alert('Please fill all password fields.'); return; }
+            if (nw.length < 8) { alert('New password must be at least 8 characters.'); return; }
+            if (nw !== cf) { alert('New password and confirmation do not match.'); return; }
+            pwdSubmitting = true;
+            const btn = this.querySelector('button[type="submit"]');
+            const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...'; btn.disabled = true;
+            // Post to server (example) - replace with real endpoint when available
+            fetch('/api/users/change-password.php', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ current_password: current, new_password: nw }), credentials: 'same-origin' })
+            .then(async r => {
+                const ct = r.headers.get('content-type') || '';
+                let j = {};
+                try { if (ct.includes('application/json')) j = await r.json(); }
+                catch(e){ console.warn('password change response parse failed', e); }
+                if (r.ok && j.success) { alert('Password updated successfully.'); window.location.reload(); }
+                else { alert(j.message || 'Failed to update password.'); }
+            })
+            .catch(err => { console.error(err); alert('Network error.'); })
+            .finally(()=>{ pwdSubmitting = false; btn.innerHTML = orig; btn.disabled = false; });
+        });
+    }
+
+    // Add/Edit address validation
+    const addrForm = document.getElementById('add-address-form');
+    if (addrForm) {
+        let addrSubmitting = false;
+        addrForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            if (addrSubmitting) return;
+            const street = (this.querySelector('input[name="street_address"]') || {}).value || '';
+            const city = (this.querySelector('input[name="city"]') || {}).value || '';
+            const state = (this.querySelector('input[name="state"]') || {}).value || '';
+            const postal = (this.querySelector('input[name="postal_code"]') || {}).value || '';
+            if (street.trim().length < 3) { alert('Please provide a valid street address.'); return; }
+            if (city.trim().length < 2) { alert('Please provide a valid city.'); return; }
+            if (state.trim().length < 2) { alert('Please provide a valid state.'); return; }
+            if (!/^[A-Za-z0-9\-\s]{3,10}$/.test(postal)) { alert('Please provide a valid postal code.'); return; }
+            addrSubmitting = true;
+            const btn = this.querySelector('button[type="submit"]');
+            const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; btn.disabled = true;
+            // Submit via fetch to addresses API
+            const fd = new FormData(this);
+            fetch('/api/users/addresses.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+            .then(async r => {
+                const ct = r.headers.get('content-type') || '';
+                let j = {};
+                try { if (ct.includes('application/json')) j = await r.json(); }
+                catch(e){ console.warn('address save parse failed', e); }
+                if (r.ok && j.success) {
+                    alert('Address saved');
+                    if (typeof closeModal === 'function') closeModal('add-address-modal'); else document.getElementById('add-address-modal').style.display='none';
+                    loadAddresses();
+                } else {
+                    alert(j.message || 'Failed to save address');
+                }
+            })
+            .catch(err => { console.error(err); alert('Network error while saving address'); })
+            .finally(()=>{ addrSubmitting = false; btn.innerHTML = orig; btn.disabled = false; });
+        });
+    }
+});
+</script>
