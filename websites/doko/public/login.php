@@ -17,6 +17,21 @@ $breadcrumb_items = [
 
 // Include header
 include_header($page_title, $page_description, $current_page);
+
+// Server-side: if user already authenticated, redirect them to their dashboard
+if (!empty($_SESSION['logged_in'])) {
+    $role = $_SESSION['role'] ?? 'customer';
+    if ($role === 'admin') {
+        header('Location: admin/index.php');
+        exit;
+    } elseif ($role === 'manager') {
+        header('Location: manager/index.php');
+        exit;
+    } else {
+        header('Location: profile.php');
+        exit;
+    }
+}
 ?>
 
 <!-- OAuth SDK Scripts -->
@@ -666,14 +681,19 @@ function handleGoogleCallback(response) {
         })
         .then(result => {
             console.log('API response data:', result.data);
-            
+
             if (result.status === 200 && result.data.success) {
-                safeShowNotification('Google login successful! Welcome to DOKO.', 'success');
+                // Different messages depending on whether user existed
+                if (result.data.existing_user) {
+                    safeShowNotification('Welcome back! You have been logged in with Google.', 'success');
+                } else {
+                    safeShowNotification('Account created via Google. Welcome to DOKO!', 'success');
+                }
+
                 setTimeout(() => {
-                    window.location.href = result.data.redirect_url || 'index.php';
+                    window.location.href = result.data.redirect || result.data.redirect_url || 'index.php';
                 }, 1000);
             } else {
-                // Show the actual error message from the API
                 const errorMessage = result.data.error || result.data.message || 'Google login failed.';
                 console.error('API Error:', errorMessage);
                 safeShowNotification('Login failed: ' + errorMessage, 'error');

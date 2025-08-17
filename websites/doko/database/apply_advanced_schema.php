@@ -9,6 +9,15 @@ ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
 echo "🚧 Applying advanced DOKO schema...\n";
+// Safety: require explicit confirmation when running from CLI
+if (php_sapi_name() === 'cli') {
+    $args = $argv; array_shift($args);
+    if (!in_array('--confirm', $args, true)) {
+        fwrite(STDOUT, "This script will modify or create the 'doko_ecommerce' database and may be destructive.\n");
+        fwrite(STDOUT, "To proceed, re-run with the --confirm flag: php apply_advanced_schema.php --confirm\n");
+        exit(2);
+    }
+}
 
 // Connect to MySQL server (no DB selected) so DROP/CREATE/USE work
 $dsn = "mysql:host=mysql;charset=utf8mb4";

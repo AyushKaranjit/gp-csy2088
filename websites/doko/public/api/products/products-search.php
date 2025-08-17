@@ -1,6 +1,7 @@
 <?php
 /** Product Search API (refactored) */
 require_once __DIR__ . '/../_bootstrap.php';
+require_once __DIR__ . '/../../src/Services/SearchTracker.php';
 use Doko\Http\ApiResponse;
 require_method('GET');
 
@@ -8,6 +9,9 @@ try {
     $database = Database::getInstance();
     $conn = $database->getConnection();
     $productsPk = schema_products_pk();
+    
+    // Initialize search tracker
+    $searchTracker = new SearchTracker();
     
     // Get search parameters
     $query = isset($_GET['q']) ? trim($_GET['q']) : '';
@@ -182,9 +186,13 @@ try {
     
     $totalPages = ceil($totalProducts / $limit);
     
+    // Track the search query and result count
+    $searchTracker->trackSearch($query, $totalProducts);
+    
     if (getenv('TEST_MODE')) {
         error_log('Search debug terms="'.$query.'" results='.count($products).' names='.implode('|', array_column($products,'name')));
     }
+    
     ApiResponse::success([
         'data' => $products,
         'products' => $products,

@@ -1,7 +1,7 @@
 <?php
 // Simple image proxy to mitigate CORB and unify caching
 // Usage: /api/image-proxy.php?url=<encoded_external_url>
-// Security: allow only whitelisted hosts (Unsplash & source.unsplash.com) and only image content types.
+// Security: allow only whitelisted hosts and only image content types.
 
 require_once __DIR__ . '/../../template/config.php';
 
@@ -18,9 +18,17 @@ if(stripos($url,'https://') !== 0){ http_response_code(400); echo 'Only https al
 
 $parsed = parse_url($url);
 $host = $parsed['host'] ?? '';
-$allowedHosts = ['images.unsplash.com','source.unsplash.com'];
-if(!in_array($host,$allowedHosts,true)){
+$allowedHosts = [];
+// By default we do not proxy external hosts. If you need to allow specific domains,
+// set the environment variable IMAGE_PROXY_ALLOWLIST with a comma separated list,
+// or update this array to include domains you trust (e.g., 'cdn.example.com').
+// Leaving the allowlist empty disables external proxying entirely.
+if($allowedHosts && !in_array($host,$allowedHosts,true)){
   http_response_code(403); echo 'Host not allowed'; exit; }
+if(!$allowedHosts){
+  // External proxying disabled
+  http_response_code(403); echo 'External image proxying is disabled on this server'; exit;
+}
 
 // Basic cache headers (30 min)
 header('Cache-Control: public, max-age=1800');

@@ -16,6 +16,21 @@ $breadcrumb_items = [
 
 // Include header
 include_header($page_title, $page_description, $current_page);
+
+// Server-side: if user already authenticated, redirect them to their dashboard
+if (!empty($_SESSION['logged_in'])) {
+    $role = $_SESSION['role'] ?? 'customer';
+    if ($role === 'admin') {
+        header('Location: admin/index.php');
+        exit;
+    } elseif ($role === 'manager') {
+        header('Location: manager/index.php');
+        exit;
+    } else {
+        header('Location: profile.php');
+        exit;
+    }
+}
 ?>
 
 <!-- Breadcrumb -->

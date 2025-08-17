@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php 
+        // Generate CSRF token if session is active and function exists
+        if (isset($_SESSION) && function_exists('generate_csrf_token')) {
+            echo generate_csrf_token();
+        } elseif (isset($_SESSION)) {
+            // Fallback CSRF token generation
+            if (!isset($_SESSION['csrf_token'])) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            }
+            echo $_SESSION['csrf_token'];
+        }
+    ?>">
     <title><?php echo isset($page_title) ? $page_title : 'DOKO | Nepal\'s Premier Online Grocery Store'; ?></title>
     <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service.'; ?>">
     
@@ -198,6 +210,20 @@
                                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                                 </div>
                                 <div class="user-dropdown-menu">
+                                    <div class="dropdown-user-info">
+                                        <?php if (!empty($currentUser['profile_image'])): ?>
+                                            <img src="<?php echo htmlspecialchars($currentUser['profile_image']); ?>" alt="Profile" class="dropdown-avatar" onerror="this.onerror=null;this.src='/images/default-avatar.png'"> 
+                                        <?php else: ?>
+                                            <div class="dropdown-avatar-placeholder">
+                                                <i class="fas fa-user-circle"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="dropdown-user-details">
+                                            <span class="dropdown-user-name"><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . ($currentUser['last_name'] ?? '')); ?></span>
+                                            <span class="dropdown-user-email"><?php echo htmlspecialchars($currentUser['email'] ?? ''); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
                                     <a href="profile.php" class="dropdown-item">
                                         <i class="fas fa-user-edit"></i> My Profile
                                     </a>
@@ -293,8 +319,6 @@
     </header>
     <?php endif; ?>
     
-    <!-- Mobile Navigation Script -->
-    <script src="js/mobile-nav.js"></script>
     <script>
     // Profile dropdown toggle
     document.addEventListener('DOMContentLoaded', function() {

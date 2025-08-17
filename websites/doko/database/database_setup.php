@@ -7,6 +7,15 @@
 echo "🐳 DOKO Database Setup (Docker Version)\n";
 echo "=====================================\n";
 
+// Safety: require explicit confirmation when running from CLI
+if (php_sapi_name() === 'cli') {
+    $args = $argv; array_shift($args);
+    if (!in_array('--confirm', $args, true)) {
+        fwrite(STDOUT, "This script will DROP and CREATE the 'doko_ecommerce' database.\n");
+        fwrite(STDOUT, "To proceed, re-run with the --confirm flag: php database_setup.php --confirm\n");
+        exit(2);
+    }
+}
 try {
     // Connect to MySQL server (without database)
     $pdo = new PDO("mysql:host=mysql;charset=utf8mb4", 'student', 'student', [

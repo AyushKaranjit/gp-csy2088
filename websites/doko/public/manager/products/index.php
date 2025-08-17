@@ -1,7 +1,7 @@
 <?php
 /**
- * Manager Products - View and Manage Products
- * DOKO Grocery E-commerce Manager Panel
+ * Manager Products Management API
+ * Handles all product-related manager operations
  */
 
 require_once '../../../config/database.php';
@@ -10,454 +10,669 @@ require_once '../../../src/Controllers/AuthController.php';
 // Check authentication
 $auth = new AuthController();
 if (!$auth->hasManagerAccess()) {
-    header('Location: ../../login.php?error=unauthorized');
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['api'])) {
+        // Redirect to login for web requests
+        header('Location: ../../login.php');
+        exit;
+    } else {
+        // Return JSON error for API requests
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode(['error' => 'Unauthorized access']);
+        exit;
+    }
+}
+
+// Handle API requests
+if (isset($_GET['api']) || $_SERVER['REQUEST_METHOD'] !== 'GET') {
+    handleApiRequest();
     exit;
 }
 
+// Handle web page request
 $currentUser = $auth->getCurrentUser();
-$page_title = 'Manage Products | DOKO Manager';
+$page_title = 'Product Management | Manager';
 $current_page = 'products';
-$show_breadcrumb = true;
-$breadcrumb_items = [
-    ['title' => 'Products']
-];
 
-// Handle filters
-$category_filter = isset($_GET['category']) ? $_GET['category'] : '';
-$status_filter = isset($_GET['status']) ? $_GET['status'] : '';
-$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
-$stock_filter = isset($_GET['stock']) ? $_GET['stock'] : '';
-
-// Handle product actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $database = Database::getInstance();
-    $db = $database->getConnection();
-    
-    if ($_POST['action'] === 'update_status' && isset($_POST['product_id']) && isset($_POST['new_status'])) {
-        try {
-            $product_id = (int)$_POST['product_id'];
-            $new_status = $_POST['new_status'];
-            
-            // Validate status
-            $valid_statuses = ['active', 'inactive', 'out_of_stock'];
-            if (in_array($new_status, $valid_statuses)) {
-                $updateQuery = "UPDATE products SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE product_id = :product_id";
-                $stmt = $db->prepare($updateQuery);
-                $stmt->bindParam(':status', $new_status);
-                $stmt->bindParam(':product_id', $product_id);
-                
-                if ($stmt->execute()) {
-                    $success_message = "Product status updated successfully";
-                } else {
-                    $error_message = "Failed to update product status";
-                }
-            } else {
-                $error_message = "Invalid product status";
-            }
-        } catch (Exception $e) {
-            $error_message = "Error updating product: " . $e->getMessage();
-        }
-    }
-    
-    // Handle product update
-    if ($_POST['action'] === 'update_product' && isset($_POST['product_id'])) {
-        header('Content-Type: application/json');
-        
-        try {
-            $product_id = (int)$_POST['product_id'];
-            $name = trim($_POST['name']);
-            $category_id = (int)$_POST['category_id'];
-            $description = trim($_POST['description']);
-            $price = floatval($_POST['price']);
-            $stock_quantity = (int)$_POST['stock_quantity'];
-            $sku = trim($_POST['sku']);
-            $status = $_POST['status'];
-            
-            // Validate inputs
-            if (empty($name) || empty($sku) || $price <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Please fill all required fields with valid values']);
-                exit;
-            }
-            
-            // Validate status
-            $valid_statuses = ['active', 'inactive', 'out_of_stock'];
-            if (!in_array($status, $valid_statuses)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid product status']);
-                exit;
-            }
-            
-            // Check if SKU exists for other products
-            $checkSkuQuery = "SELECT product_id FROM products WHERE sku = :sku AND product_id != :product_id";
-            $checkStmt = $db->prepare($checkSkuQuery);
-            $checkStmt->bindParam(':sku', $sku);
-            $checkStmt->bindParam(':product_id', $product_id);
-            $checkStmt->execute();
-            
-            if ($checkStmt->rowCount() > 0) {
-                echo json_encode(['success' => false, 'message' => 'SKU already exists for another product']);
-                exit;
-            }
-            
-            // Update product
-            $updateQuery = "UPDATE products SET 
-                           name = :name, 
-                           category_id = :category_id, 
-                           description = :description, 
-                           price = :price, 
-                           stock_quantity = :stock_quantity, 
-                           sku = :sku, 
-                           status = :status, 
-                           updated_at = CURRENT_TIMESTAMP 
-                           WHERE product_id = :product_id";
-            
-            $stmt = $db->prepare($updateQuery);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':category_id', $category_id);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':price', $price);
-            $stmt->bindParam(':stock_quantity', $stock_quantity);
-            $stmt->bindParam(':sku', $sku);
-            $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':product_id', $product_id);
-            
-            if ($stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to update product']);
-            }
-            exit;
-            
-        } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error updating product: ' . $e->getMessage()]);
-            exit;
-        }
-    }
-}
-
-// Get products data
 try {
     $database = Database::getInstance();
     $db = $database->getConnection();
-
-    // Build query with filters
-    $whereConditions = [];
-    $params = [];
     
-    if (!empty($category_filter)) {
-        $whereConditions[] = "p.category_id = :category";
-        $params[':category'] = $category_filter;
-    }
-    
-    if (!empty($status_filter)) {
-        $whereConditions[] = "p.status = :status";
-        $params[':status'] = $status_filter;
-    }
-    
-    if (!empty($search_query)) {
-        $whereConditions[] = "(p.name LIKE :search OR p.sku LIKE :search OR p.description LIKE :search)";
-        $params[':search'] = "%$search_query%";
-    }
-    
-    if (!empty($stock_filter)) {
-        switch ($stock_filter) {
-            case 'low':
-                $whereConditions[] = "p.stock_quantity < 10";
-                break;
-            case 'out':
-                $whereConditions[] = "p.stock_quantity = 0";
-                break;
-            case 'in_stock':
-                $whereConditions[] = "p.stock_quantity > 0";
-                break;
-        }
-    }
-    
-    $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
-    
-    // Get products with pagination
-    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $per_page = 20;
-    $offset = ($page - 1) * $per_page;
-    
-    $productsQuery = "SELECT p.*, c.name as category_name,
-                             COALESCE(pi.image_url, '/images/default-product.jpg') AS primary_image,
-                             COALESCE(SUM(oi.quantity), 0) as total_sold
-                      FROM products p 
-                      LEFT JOIN categories c ON p.category_id = c.category_id 
-                      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
-                      LEFT JOIN order_items oi ON p.product_id = oi.product_id
-                      LEFT JOIN orders o ON oi.order_id = o.order_id AND o.status IN ('completed', 'delivered')
-                      $whereClause
-                      GROUP BY p.product_id
-                      ORDER BY p.created_at DESC 
-                      LIMIT $per_page OFFSET $offset";
-    
-    $stmt = $db->prepare($productsQuery);
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-    $stmt->execute();
+    // Get products with category information
+    $query = "
+        SELECT p.*, c.name as category_name,
+               COALESCE(pi.image_url, '/images/default-product.jpg') AS primary_image
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.category_id
+        LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
+        ORDER BY p.created_at DESC
+    ";
+    $stmt = $db->query($query);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Get total count for pagination
-    $countQuery = "SELECT COUNT(DISTINCT p.product_id) as total
-                   FROM products p 
-                   LEFT JOIN categories c ON p.category_id = c.category_id 
-                   $whereClause";
     
-    $stmt = $db->prepare($countQuery);
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-    $stmt->execute();
-    $total_products = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-    $total_pages = ceil($total_products / $per_page);
-
-    // Get categories for filter
-    $categoriesQuery = "SELECT category_id, name as category_name FROM categories ORDER BY name";
-    $stmt = $db->query($categoriesQuery);
+    // Get categories for dropdown
+    $categoryQuery = "SELECT * FROM categories WHERE is_active = 1 ORDER BY name";
+    $stmt = $db->query($categoryQuery);
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Get product statistics
-    $statsQuery = "SELECT 
-                       COUNT(*) as total_products,
-                       SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_products,
-                       SUM(CASE WHEN stock_quantity < 10 THEN 1 ELSE 0 END) as low_stock,
-                       SUM(CASE WHEN stock_quantity = 0 THEN 1 ELSE 0 END) as out_of_stock
-                   FROM products";
-    $stmt = $db->query($statsQuery);
-    $product_stats = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
 } catch (Exception $e) {
-    error_log("Products Error: " . $e->getMessage());
+    $error = "Error loading products: " . $e->getMessage();
     $products = [];
     $categories = [];
-    $product_stats = [];
-    $total_products = 0;
-    $total_pages = 1;
 }
 
-include_once '../shared/header.php';
+// Unified theme: storefront header + manager navigation
+$ADMIN_UI = true; // suppress storefront header
+$additional_css = $additional_css ?? [];
+$additional_css[] = '/css/admin.css';
+include '../../../template/header.php';
+include '../../../template/manager-nav.php';
 ?>
+<script>
+// Product Image Management Helpers
+async function dokoListImages(pid){
+    const res = await fetch('../../../api/products/product-images-list.php?product_id='+pid,{credentials:'same-origin'}); const d=await res.json(); if(!d.success){alert(d.message||'Failed');return;} console.log('Images',d.images); alert('Images: '+d.images.map(i=>i.image_url+(i.is_primary?' [primary]':'' )).join('\n')); }
+async function dokoFetchRemote(pid){
+    const url=prompt('Remote image URL:'); if(!url)return; const primary = confirm('Force as primary?');
+    const res = await fetch('../../../api/products/product-image-fetch.php',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({product_id:pid,url,force_primary:primary})}); const d=await res.json(); alert(d.message|| (d.success?'Done':'Failed')); if(d.success) location.reload(); }
+async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id)return; if(!confirm('Delete image '+id+'?'))return; const res=await fetch('../../../api/products/product-image-delete.php?image_id='+id,{method:'DELETE',credentials:'same-origin'}); const d=await res.json(); alert(d.message); if(d.success) location.reload(); }
+</script>
+
+<!-- Remove duplicate early visibility script to prevent image flicker -->
+
+<style>
+/* Simplified: always visible (previous admin-ready toggle caused image blink) */
+.products-container { opacity:1; }
+
+/* Product Management Specific Styles */
+.products-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.products-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.products-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.products-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.btn-add-product {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 1rem 2rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-add-product:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.products-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-box input:focus {
+    border-color: #16a34a;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.filter-select {
+    padding: 0.875rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filter-select:focus {
+    border-color: #16a34a;
+    outline: none;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #f1f5f9;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: #f8fafc;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.product-category {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.product-price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #16a34a;
+    margin-bottom: 1rem;
+}
+
+.product-stock {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.stock-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.stock-in-stock { 
+    background: #d1fae5; 
+    color: #065f46; 
+    border: 1px solid #34d399;
+}
+.stock-low-stock { 
+    background: #fef3c7; 
+    color: #92400e; 
+    border: 1px solid #fcd34d;
+}
+.stock-out-of-stock { 
+    background: #fee2e2; 
+    color: #991b1b; 
+    border: 1px solid #fca5a5;
+}
+
+.product-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-edit {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.btn-toggle-status {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-toggle-status:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #16a34a;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 2px solid #f1f5f9;
+}
+
+.btn-cancel, .btn-save {
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.btn-cancel:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.btn-save {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-save:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+}
+
+/* Alert Styles */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #34d399;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .products-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+        padding: 2rem 1.5rem;
+    }
+    
+    .products-header h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .products-actions {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        max-width: none;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-actions {
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-container {
+        padding: 1rem 0.5rem;
+    }
+    
+    .modal-content {
+        padding: 1.5rem;
+        width: 95%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-cancel, .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+<script>
+// Ensure lazy loader shared with product-card is available on admin page (idempotent)
+(function(){
+    if(window.__DOKO_LAZY_INIT) return; window.__DOKO_LAZY_INIT = true;
+    const supportsObserver = 'IntersectionObserver' in window;
+    function setup(){
+        const imgs = document.querySelectorAll('img.lazy-blur[data-src]:not([data-lazy-bound])');
+        if(!supportsObserver){ imgs.forEach(loadImage); return; }
+        const io = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ loadImage(e.target); io.unobserve(e.target);} }); }, {rootMargin:'200px 0px'});
+        imgs.forEach(img=>{ img.dataset.lazyBound=1; io.observe(img); });
+    }
+    function loadImage(img){ const src=img.getAttribute('data-src'); if(!src) return; const hi=new Image(); hi.onload=()=>{img.src=src; img.classList.add('loaded');}; hi.onerror=()=>{img.dispatchEvent(new Event('error'));}; hi.src=src; }
+    if(document.readyState==='complete' || document.readyState==='interactive') setTimeout(setup,200); else document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,200));
+})();
+</script>
 
 <div class="products-container">
-    <?php if (isset($success_message)): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <?php echo htmlspecialchars($success_message); ?>
+    <!-- Products Header -->
+    <div class="products-header">
+        <div>
+            <h1><i class="fas fa-box"></i> Product Management</h1>
+            <p>Manage your product catalog</p>
+        </div>
+        <a href="#" class="btn-add-product" onclick="openAddProductModal()">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+    </div>
+
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($error_message)): ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <?php echo htmlspecialchars($error_message); ?>
+    <!-- Products Actions -->
+    <div class="products-actions">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search products..." onkeyup="filterProducts()">
         </div>
-    <?php endif; ?>
-
-    <!-- Product Statistics -->
-    <div class="product-stats">
-        <h2>Product Overview</h2>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-content">
-                    <h3><?php echo number_format($product_stats['total_products'] ?? 0); ?></h3>
-                    <p>Total Products</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <h3><?php echo number_format($product_stats['active_products'] ?? 0); ?></h3>
-                    <p>Active Products</p>
-                </div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-content">
-                    <h3><?php echo number_format($product_stats['low_stock'] ?? 0); ?></h3>
-                    <p>Low Stock Items</p>
-                </div>
-            </div>
-            <div class="stat-card error">
-                <div class="stat-content">
-                    <h3><?php echo number_format($product_stats['out_of_stock'] ?? 0); ?></h3>
-                    <p>Out of Stock</p>
-                </div>
-            </div>
-        </div>
+        <select class="filter-select" id="categoryFilter" onchange="filterProducts()">
+            <option value="">All Categories</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?php echo htmlspecialchars($category['category_id']); ?>">
+                    <?php echo htmlspecialchars($category['name']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="filterProducts()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
     </div>
 
-    <!-- Filters and Search -->
-    <div class="filters-section">
-        <form method="GET" class="filter-form">
-            <div class="filter-group">
-                <label for="category">Category:</label>
-                <select name="category" id="category">
-                    <option value="">All Categories</option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?php echo $category['category_id']; ?>" 
-                                <?php echo $category_filter == $category['category_id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($category['category_name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="status">Status:</label>
-                <select name="status" id="status">
-                    <option value="">All Statuses</option>
-                    <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                    <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                    <option value="out_of_stock" <?php echo $status_filter === 'out_of_stock' ? 'selected' : ''; ?>>Out of Stock</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="stock">Stock Level:</label>
-                <select name="stock" id="stock">
-                    <option value="">All Stock Levels</option>
-                    <option value="in_stock" <?php echo $stock_filter === 'in_stock' ? 'selected' : ''; ?>>In Stock</option>
-                    <option value="low" <?php echo $stock_filter === 'low' ? 'selected' : ''; ?>>Low Stock (&lt; 10)</option>
-                    <option value="out" <?php echo $stock_filter === 'out' ? 'selected' : ''; ?>>Out of Stock</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="search">Search Products:</label>
-                <input type="text" name="search" id="search" placeholder="Product name, SKU, description..." value="<?php echo htmlspecialchars($search_query); ?>">
-            </div>
-            
-            <div class="filter-group">
-                <button type="submit" class="btn-filter">
-                    <i class="fas fa-filter"></i>
-                    Apply Filters
-                </button>
-                <a href="?" class="btn-clear">
-                    <i class="fas fa-times"></i>
-                    Clear
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Products Section -->
-    <div class="products-section">
-        <div class="section-header">
-            <h2>Products Management</h2>
-            <div class="header-actions">
-                <div class="results-info">
-                    Showing <?php echo count($products); ?> of <?php echo number_format($total_products); ?> products
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+        <?php if (!empty($products)): ?>
+            <?php foreach ($products as $product): ?>
+                <div class="product-card" data-category="<?php echo $product['category_id']; ?>" data-status="<?php echo $product['status']; ?>">
+                    <?php
+                        $imgFile = $product['primary_image'] ?? $product['image_url'] ?? '';
+                        $imgFile = trim((string)$imgFile);
+                        $isExternal = preg_match('#^https?://#i', $imgFile);
+                        if($imgFile === '' || $imgFile === 'uploads/products/default.svg') {
+                            $highRes = '/images/default-product.jpg';
+                        } elseif ($isExternal) {
+                            $highRes = $imgFile; // direct external link
+                        } else {
+                            // stored relative path already? Normalize
+                            if(strpos($imgFile, '/uploads/') === 0) { $highRes = $imgFile; }
+                            elseif(strpos($imgFile,'uploads/') === 0) { $highRes = '/' . $imgFile; }
+                            else { $highRes = '/uploads/' . ltrim($imgFile,'/'); }
+                        }
+                        $lqip = '/images/default-product.jpg';
+                    ?>
+                    <div class="product-image ratio-4x3">
+                        <img src="<?php echo htmlspecialchars($lqip); ?>"
+                             data-src="<?php echo htmlspecialchars($highRes); ?>"
+                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                             class="product-img lazy-blur"
+                             loading="lazy"
+                             data-fallback="/images/default-product.jpg"
+                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/images/default-product.jpg';}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
+                        <div class="product-category"><?php echo htmlspecialchars($product['category_name'] ?? 'Uncategorized'); ?></div>
+                        <div class="product-price">NPR <?php echo number_format($product['price'], 0); ?></div>
+                        
+                        <div class="product-stock">
+                            <span class="stock-badge <?php 
+                                if ($product['stock_quantity'] <= 0) echo 'stock-out-of-stock';
+                                elseif ($product['stock_quantity'] <= 10) echo 'stock-low-stock';
+                                else echo 'stock-in-stock';
+                            ?>">
+                                <?php 
+                                    if ($product['stock_quantity'] <= 0) echo 'Out of Stock';
+                                    elseif ($product['stock_quantity'] <= 10) echo 'Low Stock (' . $product['stock_quantity'] . ')';
+                                    else echo 'In Stock (' . $product['stock_quantity'] . ')';
+                                ?>
+                            </span>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="btn-action btn-edit" onclick="editProduct(<?php echo $product['product_id']; ?>)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-action btn-toggle-status" onclick="toggleProductStatus(<?php echo $product['product_id']; ?>, '<?php echo $product['status']; ?>')">
+                                <i class="fas fa-toggle-<?php echo $product['status'] === 'active' ? 'on' : 'off'; ?>"></i>
+                                <?php echo $product['status'] === 'active' ? 'Active' : 'Inactive'; ?>
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteProduct(<?php echo $product['product_id']; ?>, '<?php echo htmlspecialchars($product['name']); ?>')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <a href="add.php" class="btn-add-product">
-                    <i class="fas fa-plus"></i>
-                    Add New Product
-                </a>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="products-table">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Product</th>
-                        <th>SKU</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Total Sold</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($products)): ?>
-                        <?php foreach ($products as $product): ?>
-                            <tr>
-                                <td class="product-image">
-                                    <img src="<?php echo htmlspecialchars($product['primary_image']); ?>" 
-                                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
-                                         class="product-thumbnail"
-                                         onerror="this.src='/images/default-product.jpg'">
-                                </td>
-                                <td class="product-info">
-                                    <div class="product-details">
-                                        <h4><?php echo htmlspecialchars($product['name']); ?></h4>
-                                        <p><?php echo htmlspecialchars(substr($product['description'] ?? '', 0, 60)) . '...'; ?></p>
-                                    </div>
-                                </td>
-                                <td><?php echo htmlspecialchars($product['sku'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($product['category_name'] ?? 'Uncategorized'); ?></td>
-                                <td class="price">Rs. <?php echo number_format($product['price'], 2); ?></td>
-                                <td class="stock <?php echo $product['stock_quantity'] < 10 ? 'low-stock' : ''; ?>">
-                                    <?php echo $product['stock_quantity']; ?>
-                                    <?php if ($product['stock_quantity'] < 10): ?>
-                                        <i class="fas fa-exclamation-triangle" title="Low Stock"></i>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo number_format($product['total_sold']); ?></td>
-                                <td>
-                                    <form method="POST" class="status-form" style="display: inline;">
-                                        <input type="hidden" name="action" value="update_status">
-                                        <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                                        <select name="new_status" class="status-select" onchange="this.form.submit()">
-                                            <option value="active" <?php echo $product['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
-                                            <option value="inactive" <?php echo $product['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                                            <option value="out_of_stock" <?php echo $product['status'] === 'out_of_stock' ? 'selected' : ''; ?>>Out of Stock</option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td class="actions">
-                                    <button type="button" class="btn-edit" title="Edit Product" onclick="editProduct(<?php echo $product['product_id']; ?>)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <a href="../../product-detail.php?id=<?php echo $product['product_id']; ?>" class="btn-view" title="View Product" target="_blank">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <button type="button" class="btn-delete" title="Delete Product" onclick="deleteProduct(<?php echo $product['product_id']; ?>)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="9" class="no-data">
-                                <?php if (!empty($search_query) || !empty($category_filter) || !empty($status_filter) || !empty($stock_filter)): ?>
-                                    No products found matching your criteria.
-                                <?php else: ?>
-                                    No products found. <a href="add.php">Add your first product</a>.
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <?php if ($page > 1): ?>
-                    <a href="?page=<?php echo $page - 1; ?><?php echo !empty($category_filter) ? '&category=' . $category_filter : ''; ?><?php echo !empty($status_filter) ? '&status=' . $status_filter : ''; ?><?php echo !empty($search_query) ? '&search=' . urlencode($search_query) : ''; ?><?php echo !empty($stock_filter) ? '&stock=' . $stock_filter : ''; ?>" class="page-btn">
-                        <i class="fas fa-chevron-left"></i>
-                        Previous
-                    </a>
-                <?php endif; ?>
-                
-                <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                    <a href="?page=<?php echo $i; ?><?php echo !empty($category_filter) ? '&category=' . $category_filter : ''; ?><?php echo !empty($status_filter) ? '&status=' . $status_filter : ''; ?><?php echo !empty($search_query) ? '&search=' . urlencode($search_query) : ''; ?><?php echo !empty($stock_filter) ? '&stock=' . $stock_filter : ''; ?>" 
-                       class="page-btn <?php echo $i === $page ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-                
-                <?php if ($page < $total_pages): ?>
-                    <a href="?page=<?php echo $page + 1; ?><?php echo !empty($category_filter) ? '&category=' . $category_filter : ''; ?><?php echo !empty($status_filter) ? '&status=' . $status_filter : ''; ?><?php echo !empty($search_query) ? '&search=' . urlencode($search_query) : ''; ?><?php echo !empty($stock_filter) ? '&stock=' . $stock_filter : ''; ?>" class="page-btn">
-                        Next
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="no-products">
+                <i class="fas fa-box-open"></i>
+                <h3>No Products Found</h3>
+                <p>Start by adding your first product to the catalog.</p>
             </div>
         <?php endif; ?>
     </div>
@@ -467,7 +682,7 @@ include_once '../shared/header.php';
 <div class="modal" id="productModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">Edit Product</h3>
+            <h3 id="modalTitle">Add Product</h3>
             <button class="modal-close" onclick="closeProductModal()">&times;</button>
         </div>
         
@@ -485,7 +700,7 @@ include_once '../shared/header.php';
                     <option value="">Select Category</option>
                     <?php foreach ($categories as $category): ?>
                         <option value="<?php echo $category['category_id']; ?>">
-                            <?php echo htmlspecialchars($category['category_name']); ?>
+                            <?php echo htmlspecialchars($category['name']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -497,7 +712,7 @@ include_once '../shared/header.php';
             </div>
             
             <div class="form-group">
-                <label for="productPrice">Price (Rs.) *</label>
+                <label for="productPrice">Price (NPR) *</label>
                 <input type="number" id="productPrice" name="price" step="0.01" min="0" required>
             </div>
             
@@ -507,17 +722,8 @@ include_once '../shared/header.php';
             </div>
             
             <div class="form-group">
-                <label for="productSku">SKU</label>
-                <input type="text" id="productSku" name="sku">
-            </div>
-            
-            <div class="form-group">
-                <label for="productStatus">Status</label>
-                <select id="productStatus" name="status">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="out_of_stock">Out of Stock</option>
-                </select>
+                <label for="productImage">Product Image</label>
+                <input type="file" id="productImage" name="image" accept="image/*">
             </div>
             
             <div class="form-actions">
@@ -528,626 +734,56 @@ include_once '../shared/header.php';
     </div>
 </div>
 
-<style>
-.products-container {
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-}
-
-.alert i {
-    margin-right: 10px;
-    font-size: 1.2rem;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.product-stats {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
-
-.product-stats h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border-left: 4px solid #4CAF50;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.stat-card.warning {
-    border-left-color: #FF9800;
-}
-
-.stat-card.error {
-    border-left-color: #f44336;
-}
-
-.stat-content h3 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333;
-}
-
-.stat-content p {
-    margin: 5px 0 0 0;
-    color: #666;
-    font-weight: 500;
-}
-
-.filters-section {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
-
-.filter-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    align-items: end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-group label {
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #333;
-}
-
-.filter-group select,
-.filter-group input {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.filter-group select:focus,
-.filter-group input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-}
-
-.btn-filter,
-.btn-clear {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    display: inline-flex;
-    align-items: center;
-    margin-right: 10px;
-}
-
-.btn-filter {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-filter:hover {
-    background-color: #0056b3;
-}
-
-.btn-clear {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-clear:hover {
-    background-color: #545b62;
-    text-decoration: none;
-    color: white;
-}
-
-.btn-filter i,
-.btn-clear i {
-    margin-right: 8px;
-}
-
-.products-section {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.section-header h2 {
-    margin: 0;
-    color: #333;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.results-info {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.btn-add-product {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    transition: background-color 0.3s;
-}
-
-.btn-add-product:hover {
-    background-color: #1e7e34;
-    text-decoration: none;
-    color: white;
-}
-
-.btn-add-product i {
-    margin-right: 8px;
-}
-
-.table-container {
-    overflow-x: auto;
-    margin-bottom: 20px;
-}
-
-.products-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.products-table th,
-.products-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.products-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #333;
-    position: sticky;
-    top: 0;
-}
-
-.products-table tr:hover {
-    background-color: #f8f9fa;
-}
-
-.product-info {
-    display: flex;
-    align-items: center;
-    min-width: 300px;
-}
-
-.product-image {
-    width: 80px;
-    text-align: center;
-}
-
-.product-thumbnail {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-.product-image {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-right: 15px;
-}
-
-.no-image {
-    width: 60px;
-    height: 60px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    color: #ccc;
-    font-size: 1.5rem;
-}
-
-.product-details h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-    font-size: 1rem;
-}
-
-.product-details p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.price {
-    font-weight: 600;
-    color: #28a745;
-    font-size: 1.1rem;
-}
-
-.stock {
-    font-weight: 600;
-    color: #333;
-}
-
-.stock.low-stock {
-    color: #dc3545;
-}
-
-.stock i {
-    margin-left: 5px;
-    color: #dc3545;
-}
-
-.status-select {
-    padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.status-select:focus {
-    outline: none;
-    border-color: #007bff;
-}
-
-.actions {
-    display: flex;
-    gap: 5px;
-}
-
-.btn-edit,
-.btn-view,
-.btn-delete {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    text-decoration: none;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-edit {
-    background-color: #007bff;
-}
-
-.btn-view {
-    background-color: #28a745;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-}
-
-.btn-edit:hover,
-.btn-view:hover,
-.btn-delete:hover {
-    opacity: 0.8;
-    text-decoration: none;
-    color: white;
-}
-
-.no-data {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 40px;
-}
-
-.no-data a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.no-data a:hover {
-    text-decoration: underline;
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.page-btn {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-}
-
-.page-btn:hover {
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-}
-
-.page-btn.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.page-btn i {
-    font-size: 0.8rem;
-}
-
-@media (max-width: 768px) {
-    .products-container {
-        padding: 10px;
-    }
-    
-    .filter-form {
-        grid-template-columns: 1fr;
-    }
-    
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .header-actions {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        width: 100%;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .products-table {
-        font-size: 0.9rem;
-    }
-    
-    .products-table th,
-    .products-table td {
-        padding: 8px;
-    }
-    
-    .product-info {
-        min-width: 250px;
-    }
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    padding: 0;
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    transform: scale(0.7);
-    transition: transform 0.3s ease;
-}
-
-.modal.active .modal-content {
-    transform: scale(1);
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    padding: 1.5rem 2rem;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.modal-close:hover {
-    background-color: rgba(255,255,255,0.1);
-}
-
-.modal form {
-    padding: 2rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #374151;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.btn-cancel,
-.btn-save {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-}
-
-.btn-cancel {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-.btn-cancel:hover {
-    background: #e5e7eb;
-}
-
-.btn-save {
-    background: #3b82f6;
-    color: white;
-}
-
-.btn-save:hover {
-    background: #2563eb;
-}
-</style>
-
 <script>
 let allProducts = <?php echo json_encode($products); ?>;
 
+console.log('All products loaded:', allProducts);
+
+function filterProducts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    
+    console.log('Filtering products:', { searchTerm, categoryFilter, statusFilter });
+    
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        const productName = card.querySelector('.product-name').textContent.toLowerCase();
+        const productCategory = card.dataset.category;
+        const productStatus = card.dataset.status;
+        
+        const matchesSearch = productName.includes(searchTerm);
+        const matchesCategory = !categoryFilter || productCategory === categoryFilter;
+        const matchesStatus = !statusFilter || productStatus === statusFilter;
+        
+        if (matchesSearch && matchesCategory && matchesStatus) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function openAddProductModal() {
+    document.getElementById('modalTitle').textContent = 'Add Product';
+    document.getElementById('productForm').reset();
+    document.getElementById('productId').value = '';
+    document.getElementById('productModal').classList.add('active');
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('active');
+}
+
 function editProduct(productId) {
     console.log('Editing product with ID:', productId);
+    console.log('Available products:', allProducts);
     
     const product = allProducts.find(p => p.product_id == productId);
     if (!product) {
         console.error('Product not found with ID:', productId);
-        alert('Product not found!');
+        alert('Product not found! Available products: ' + allProducts.length);
         return;
     }
     
@@ -1157,19 +793,34 @@ function editProduct(productId) {
         // Set modal title
         document.getElementById('modalTitle').textContent = 'Edit Product';
         
-        // Populate form fields
-        document.getElementById('productId').value = product.product_id || '';
-        document.getElementById('productName').value = product.name || '';
-        document.getElementById('productCategory').value = product.category_id || '';
-        document.getElementById('productDescription').value = product.description || '';
-        document.getElementById('productPrice').value = product.price || '';
-        document.getElementById('productStock').value = product.stock_quantity || '';
-        document.getElementById('productSku').value = product.sku || '';
-        document.getElementById('productStatus').value = product.status || 'active';
+        // Populate form fields with error checking
+        const elements = {
+            'productId': product.product_id,
+            'productName': product.name || '',
+            'productCategory': product.category_id || '',
+            'productDescription': product.description || '',
+            'productPrice': product.price || '',
+            'productStock': product.stock_quantity || ''
+        };
+        
+        for (const [elementId, value] of Object.entries(elements)) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = value;
+                console.log(`Set ${elementId} to:`, value);
+            } else {
+                console.error(`Element ${elementId} not found`);
+            }
+        }
         
         // Show modal
         const modal = document.getElementById('productModal');
-        modal.classList.add('active');
+        if (modal) {
+            modal.classList.add('active');
+            console.log('Modal should now be visible');
+        } else {
+            console.error('Modal element not found');
+        }
         
     } catch (error) {
         console.error('Error in editProduct:', error);
@@ -1177,48 +828,293 @@ function editProduct(productId) {
     }
 }
 
-function closeProductModal() {
-    document.getElementById('productModal').classList.remove('active');
-}
-
 function saveProduct(event) {
     event.preventDefault();
     
     const formData = new FormData(document.getElementById('productForm'));
-    formData.append('action', 'update_product');
+    formData.append('action', document.getElementById('productId').value ? 'update' : 'add');
+    formData.append('api', '1');
     
-    fetch('', {
+    fetch('index.php', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Product updated successfully!');
+            alert('Product saved successfully!');
             location.reload();
         } else {
-            alert('Error: ' + (data.message || 'Failed to update product'));
+            alert('Error: ' + data.message);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating product: ' + error.message);
+        alert('Error saving product: ' + error.message);
     });
 }
 
-function deleteProduct(productId) {
-    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-        // Create a form to submit the delete action
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = `
-            <input type="hidden" name="action" value="delete_product">
-            <input type="hidden" name="product_id" value="${productId}">
-        `;
-        document.body.appendChild(form);
-        form.submit();
+function toggleProductStatus(productId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    if (!confirm(`Are you sure you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this product?`)) {
+        return;
     }
+    
+    const formData = new FormData();
+    formData.append('action', 'toggle_status');
+    formData.append('product_id', productId);
+    formData.append('status', newStatus);
+    formData.append('api', '1');
+    
+    fetch('index.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
 }
+
+function deleteProduct(productId, productName) {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('product_id', productId);
+    formData.append('api', '1');
+    
+    fetch('index.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+}
+
+// Close modal when clicking outside
+document.getElementById('productModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeProductModal();
+    }
+});
+
+// Lazy Loading for Product Images
+document.addEventListener('DOMContentLoaded', function() {
+    const lazyImages = document.querySelectorAll('img.lazy-blur');
+    
+    // Immediately load images that are in viewport on page load
+    const loadImageImmediately = (img) => {
+        const src = img.getAttribute('data-src');
+        if (src && src !== img.src) {
+            const newImg = new Image();
+            newImg.onload = function() {
+                img.src = src;
+                img.classList.remove('lazy-blur');
+                img.classList.add('loaded');
+            };
+            newImg.onerror = function() {
+                // On error, just remove the blur without changing src
+                img.classList.remove('lazy-blur');
+                img.classList.add('loaded');
+            };
+            newImg.src = src;
+        } else {
+            // Image already loaded or no data-src
+            img.classList.remove('lazy-blur');
+            img.classList.add('loaded');
+        }
+    };
+    
+    // Check if Intersection Observer is supported
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    loadImageImmediately(img);
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '50px' // Start loading images 50px before they enter viewport
+        });
+        
+        lazyImages.forEach(img => {
+            imageObserver.observe(img);
+        });
+    } else {
+        // Fallback for browsers without Intersection Observer
+        lazyImages.forEach(loadImageImmediately);
+    }
+});
 </script>
 
-<?php include_once '../shared/footer.php'; ?>
+<?php
+function handleApiRequest() {
+    header('Content-Type: application/json');
+    
+    try {
+        $database = Database::getInstance();
+        $db = $database->getConnection();
+        
+        $action = $_POST['action'] ?? $_GET['action'] ?? '';
+        
+        switch ($action) {
+            case 'add':
+                handleAddProduct($db);
+                break;
+                
+            case 'update':
+                handleUpdateProduct($db);
+                break;
+                
+            case 'delete':
+                handleDeleteProduct($db);
+                break;
+                
+            case 'toggle_status':
+                handleToggleStatus($db);
+                break;
+                
+            default:
+                throw new Exception('Invalid action');
+        }
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+function handleAddProduct($db) {
+    $name = $_POST['name'] ?? '';
+    $category_id = $_POST['category_id'] ?? null;
+    $description = $_POST['description'] ?? '';
+    $price = $_POST['price'] ?? 0;
+    $stock_quantity = $_POST['stock_quantity'] ?? 0;
+
+    if (empty($name) || $price <= 0) {
+        throw new Exception('Name and valid price are required');
+    }
+
+    // Basic required fields for enhanced schema (provide placeholders where necessary)
+    $sku = 'SKU-' . strtoupper(uniqid());
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($name))) . '-' . substr(md5(uniqid()), 0, 6);
+
+    // Insert into products WITHOUT legacy image_url column (not present in current schema)
+    $query = "INSERT INTO products (sku, name, slug, description, price, category_id, stock_quantity, status, created_at) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())";
+    $stmt = $db->prepare($query);
+    $stmt->execute([$sku, $name, $slug, $description, $price, $category_id ?: null, $stock_quantity]);
+    $product_id = $db->lastInsertId();
+
+    // Handle primary image upload into product_images table if provided
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $image_filename = handleImageUpload($_FILES['image']);
+        $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES (?, ?, 1, 0)");
+        $imgStmt->execute([$product_id, $image_filename]);
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Product added successfully', 'product_id' => $product_id]);
+}
+
+function handleUpdateProduct($db) {
+    $product_id = $_POST['product_id'] ?? 0;
+    $name = $_POST['name'] ?? '';
+    $category_id = $_POST['category_id'] ?? null;
+    $description = $_POST['description'] ?? '';
+    $price = $_POST['price'] ?? 0;
+    $stock_quantity = $_POST['stock_quantity'] ?? 0;
+
+    if (!$product_id || empty($name) || $price <= 0) {
+        throw new Exception('Product ID, name and valid price are required');
+    }
+
+    $query = "UPDATE products SET name=?, category_id=?, description=?, price=?, stock_quantity=?, updated_at=NOW() WHERE product_id=?";
+    $params = [$name, $category_id ?: null, $description, $price, $stock_quantity, $product_id];
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+
+    // If a new image uploaded, insert into product_images and set it primary, demote previous primary
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $image_filename = handleImageUpload($_FILES['image']);
+        // Demote existing primary
+        $db->prepare("UPDATE product_images SET is_primary = 0 WHERE product_id = ? AND is_primary = 1")->execute([$product_id]);
+        // Insert new
+        $db->prepare("INSERT INTO product_images (product_id, image_url, is_primary, sort_order) VALUES (?, ?, 1, 0)")
+           ->execute([$product_id, $image_filename]);
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
+}
+
+function handleDeleteProduct($db) {
+    $product_id = $_POST['product_id'] ?? 0;
+    
+    if (!$product_id) {
+        throw new Exception('Product ID is required');
+    }
+    
+    $query = "DELETE FROM products WHERE product_id = ?";
+    $stmt = $db->prepare($query);
+    $stmt->execute([$product_id]);
+    
+    echo json_encode(['success' => true, 'message' => 'Product deleted successfully']);
+}
+
+function handleToggleStatus($db) {
+    $product_id = $_POST['product_id'] ?? 0;
+    $status = $_POST['status'] ?? '';
+    
+    if (!$product_id || !in_array($status, ['active', 'inactive'])) {
+        throw new Exception('Valid product ID and status are required');
+    }
+    
+    $query = "UPDATE products SET status = ?, updated_at = NOW() WHERE product_id = ?";
+    $stmt = $db->prepare($query);
+    $stmt->execute([$status, $product_id]);
+    
+    echo json_encode(['success' => true, 'message' => 'Product status updated successfully']);
+}
+
+function handleImageUpload($file) {
+    $uploadDir = '../../uploads/';
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    $maxSize = 5 * 1024 * 1024; // 5MB
+    
+    if (!in_array($file['type'], $allowedTypes)) {
+        throw new Exception('Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed.');
+    }
+    
+    if ($file['size'] > $maxSize) {
+        throw new Exception('Image size too large. Maximum 5MB allowed.');
+    }
+    
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'product_' . uniqid() . '.' . $extension;
+    $filepath = $uploadDir . $filename;
+    
+    if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+        throw new Exception('Failed to upload image');
+    }
+    
+    return $filename;
+}
+
+// Removed duplicate flicker suppression; header already loads icons if needed.
+
+?>
+<?php include '../../../template/footer.php'; ?>

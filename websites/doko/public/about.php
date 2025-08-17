@@ -57,7 +57,7 @@ include_header($page_title, $page_description, $current_page);
                 </div>
                 
                 <div class="story-image">
-                    <img src="public/images/about/our-story.jpg" alt="DOKO Story" loading="lazy">
+                    <img src="/images/Fresh-vegetables.jpg" alt="DOKO Story" loading="lazy">
                 </div>
             </div>
         </div>
@@ -350,7 +350,7 @@ include_header($page_title, $page_description, $current_page);
                 </div>
                 
                 <div class="sustainability-image">
-                    <img src="public/images/about/sustainability.jpg" alt="Sustainability" loading="lazy">
+                    <img src="/images/Fresh-fruits.jpg" alt="Sustainability" loading="lazy">
                 </div>
             </div>
         </div>

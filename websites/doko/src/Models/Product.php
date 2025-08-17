@@ -17,7 +17,7 @@ class Product {
     public $price;
     public $original_price;
     public $category_id;
-    public $stock;
+    public $stock_quantity;
     public $unit;
     public $weight;
     public $image_url;
@@ -33,12 +33,12 @@ class Product {
 
     // Get all products with pagination and filters
     public function getAllProducts($category_id = null, $search = null, $featured = null, $limit = 20, $offset = 0) {
-        $query = "SELECT p.*, c.name as category_name, 
-                        (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as avg_rating,
-                        (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as review_count
-                 FROM " . $this->table_name . " p 
-                 LEFT JOIN categories c ON p.category_id = c.category_id 
-                 WHERE p.is_active = 1";
+    $query = "SELECT p.*, c.name as category_name, 
+            (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND status = 'approved') as avg_rating,
+            (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND status = 'approved') as review_count
+         FROM " . $this->table_name . " p 
+         LEFT JOIN categories c ON p.category_id = c.category_id 
+         WHERE p.status = 'active'";
 
         $params = [];
 
@@ -74,13 +74,13 @@ class Product {
 
     // Get product by ID
     public function getProductById($id) {
-        $query = "SELECT p.*, c.name as category_name,
-                        (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as avg_rating,
-                        (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND is_approved = 1) as review_count
-                 FROM " . $this->table_name . " p 
-                 LEFT JOIN categories c ON p.category_id = c.category_id 
-                 WHERE p.product_id = :product_id AND p.is_active = 1 
-                 LIMIT 1";
+    $query = "SELECT p.*, c.name as category_name,
+            (SELECT AVG(rating) FROM product_reviews WHERE product_id = p.product_id AND status = 'approved') as avg_rating,
+            (SELECT COUNT(*) FROM product_reviews WHERE product_id = p.product_id AND status = 'approved') as review_count
+         FROM " . $this->table_name . " p 
+         LEFT JOIN categories c ON p.category_id = c.category_id 
+         WHERE p.product_id = :product_id AND p.status = 'active' 
+         LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":product_id", $id);
@@ -109,10 +109,11 @@ class Product {
 
     // Add new product (admin only)
     public function addProduct() {
+        // Use schema column names: stock_quantity and short_description exists in schema
         $query = "INSERT INTO " . $this->table_name . " 
-                 SET name=:name, description=:description, price=:price, original_price=:original_price,
-                     category_id=:category_id, stock=:stock, unit=:unit, weight=:weight,
-                     image_url=:image_url, featured=:featured, nutritional_info=:nutritional_info";
+                 SET name=:name, short_description=:short_description, description=:description, price=:price, original_price=:original_price,
+                     category_id=:category_id, stock_quantity=:stock_quantity, unit=:unit, weight=:weight,
+                     image_url=:image_url, featured=:featured, nutritional_info=:nutritional_info, status='active'";
 
         $stmt = $this->conn->prepare($query);
 
@@ -120,8 +121,10 @@ class Product {
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":price", $this->price);
         $stmt->bindParam(":original_price", $this->original_price);
-        $stmt->bindParam(":category_id", $this->category_id);
-        $stmt->bindParam(":stock", $this->stock);
+    $stmt->bindParam(":category_id", $this->category_id);
+    // Support both legacy $this->stock and new $this->stock_quantity
+    $stockVal = $this->stock_quantity ?? $this->stock ?? 0;
+    $stmt->bindParam(":stock_quantity", $stockVal);
         $stmt->bindParam(":unit", $this->unit);
         $stmt->bindParam(":weight", $this->weight);
         $stmt->bindParam(":image_url", $this->image_url);
@@ -138,8 +141,8 @@ class Product {
     // Update product (admin only)
     public function updateProduct() {
         $query = "UPDATE " . $this->table_name . " 
-                 SET name=:name, description=:description, price=:price, original_price=:original_price,
-                     category_id=:category_id, stock=:stock, unit=:unit, weight=:weight,
+                 SET name=:name, short_description=:short_description, description=:description, price=:price, original_price=:original_price,
+                     category_id=:category_id, stock_quantity=:stock_quantity, unit=:unit, weight=:weight,
                      image_url=:image_url, featured=:featured, nutritional_info=:nutritional_info
                  WHERE product_id=:product_id";
 
@@ -149,8 +152,9 @@ class Product {
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":price", $this->price);
         $stmt->bindParam(":original_price", $this->original_price);
-        $stmt->bindParam(":category_id", $this->category_id);
-        $stmt->bindParam(":stock", $this->stock);
+    $stmt->bindParam(":category_id", $this->category_id);
+    $stockVal2 = $this->stock_quantity ?? $this->stock ?? 0;
+    $stmt->bindParam(":stock_quantity", $stockVal2);
         $stmt->bindParam(":unit", $this->unit);
         $stmt->bindParam(":weight", $this->weight);
         $stmt->bindParam(":image_url", $this->image_url);
@@ -163,7 +167,8 @@ class Product {
 
     // Delete product (admin only)
     public function deleteProduct($product_id) {
-        $query = "UPDATE " . $this->table_name . " SET is_active = 0 WHERE product_id = :product_id";
+    // Mark as inactive using status enum
+    $query = "UPDATE " . $this->table_name . " SET status = 'inactive' WHERE product_id = :product_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":product_id", $product_id);
         
@@ -172,9 +177,9 @@ class Product {
 
     // Update stock
     public function updateStock($product_id, $quantity) {
-        $query = "UPDATE " . $this->table_name . " 
-                 SET stock = stock - :quantity 
-                 WHERE product_id = :product_id AND stock >= :quantity";
+    $query = "UPDATE " . $this->table_name . " 
+         SET stock_quantity = stock_quantity - :quantity 
+         WHERE product_id = :product_id AND stock_quantity >= :quantity";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":product_id", $product_id);
@@ -185,9 +190,9 @@ class Product {
 
     // Get low stock products (admin only)
     public function getLowStockProducts($threshold = 10) {
-        $query = "SELECT * FROM " . $this->table_name . " 
-                 WHERE stock <= :threshold AND is_active = 1 
-                 ORDER BY stock ASC";
+    $query = "SELECT * FROM " . $this->table_name . " 
+         WHERE stock_quantity <= :threshold AND status = 'active' 
+         ORDER BY stock_quantity ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":threshold", $threshold);
@@ -198,7 +203,7 @@ class Product {
 
     // Get product count for pagination
     public function getProductCount($category_id = null, $search = null) {
-        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE is_active = 1";
+    $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE status = 'active'";
         $params = [];
 
         if ($category_id) {

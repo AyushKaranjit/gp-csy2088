@@ -125,7 +125,12 @@ try {
         }
     }
 
-    $params[] = $_SESSION['user_id'];
+    $userId = $_SESSION['user_id'] ?? null;
+    if (!$userId) {
+        ApiResponse::error('User ID not found in session', 401);
+    }
+    
+    $params[] = $userId;
     // Choose primary key column name
     $pk = in_array('user_id',$columns) ? 'user_id' : (in_array('id',$columns)?'id':'user_id');
     $setClause = implode(', ', $updates);
@@ -141,7 +146,7 @@ try {
     $selectCols = [];
     foreach(['user_id','id','username','email','first_name','last_name','phone','address','date_of_birth','gender','profile_image','role'] as $c){ if(in_array($c,$columns)) $selectCols[]=$c; }
     $sel = $pdo->prepare('SELECT '.implode(',', $selectCols).' FROM users WHERE '.$pk.' = ?');
-    $sel->execute([$_SESSION['user_id']]);
+    $sel->execute([$userId]);
     $user = $sel->fetch(PDO::FETCH_ASSOC);
     if ($user) {
         // Update session values (only those we allow to change / expose)

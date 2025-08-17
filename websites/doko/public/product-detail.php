@@ -11,6 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../template/config.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../template/image-service.php';
+require_once __DIR__ . '/../src/Services/ProductViewTracker.php';
 
 // Get product ID from URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -19,6 +21,9 @@ if (!$product_id) {
     header('Location: products.php');
     exit;
 }
+
+// Initialize view tracker
+$viewTracker = new ProductViewTracker();
 
 // Get product details from database
 try {
@@ -42,6 +47,10 @@ try {
         exit;
     }
     
+    // Track product view
+    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+    $viewTracker->trackView($product_id, $userId);
+    
     // Set default values for missing fields
     $product['category_slug'] = $product['category_slug'] ?? 'general';
     $product['brand_name'] = $product['brand_name'] ?? 'Generic';
@@ -57,6 +66,28 @@ try {
     $related_stmt = $db->execute($related_query, [$product['category_id'], $product_id]);
     $related_products = $related_stmt->fetchAll();
     
+    // Fetch product reviews (approved). Also allow the logged-in user to see their own pending reviews
+    require_once __DIR__ . '/../src/Controllers/AuthController.php';
+    // Instantiate the AuthController class (there is no global helper function in this repo)
+    $auth = new AuthController();
+    $currentUserId = $auth->isLoggedIn() ? ($_SESSION['user_id'] ?? null) : null;
+
+    $reviewsQuery = "SELECT r.*, u.username, u.profile_image FROM product_reviews r LEFT JOIN users u ON r.user_id = u.user_id
+                     WHERE r.product_id = ? AND (r.status = 'approved'";
+    $params = [$product_id];
+    if ($currentUserId) {
+        $reviewsQuery .= " OR r.user_id = ?";
+        $params[] = $currentUserId;
+    }
+    $reviewsQuery .= ") ORDER BY r.created_at DESC";
+    $reviewsStmt = $db->execute($reviewsQuery, $params);
+    $product_reviews = $reviewsStmt->fetchAll();
+
+    // Calculate average rating and count from reviews table (approved only)
+    $agg = $db->fetchRow("SELECT AVG(rating) as avg_rating, COUNT(*) as cnt FROM product_reviews WHERE product_id = ? AND status = 'approved'", [$product_id]);
+    $average_rating = $agg['avg_rating'] ? round((float)$agg['avg_rating'], 1) : 0.0;
+    $review_count = (int)($agg['cnt'] ?? 0);
+    
 } catch (Exception $e) {
     error_log("Product detail error: " . $e->getMessage());
     header('Location: products.php');
@@ -71,6 +102,7 @@ $current_page = 'products';
 // Include header only once
 require_once __DIR__ . '/../template/header.php';
 ?>
+<meta name="product-id" content="<?php echo (int)$product['product_id']; ?>">
 
 <main class="main-content">
     <!-- Breadcrumb -->
@@ -100,21 +132,25 @@ require_once __DIR__ . '/../template/header.php';
                 <div class="product-images">
                     <div class="main-image">
                         <?php 
-                        $main_image = !empty($product_images) ? $product_images[0]['image_url'] : 'images/placeholder-product.jpg';
+                        // Use the image service to get the proper product image
+                        $main_image = !empty($product_images) ? $product_images[0]['image_url'] : null;
+                        $resolved_image = resolve_display_product_image($main_image, $product['name']);
                         ?>
                         <img id="main-product-image" 
-                             src="<?php echo htmlspecialchars($main_image); ?>" 
-                             alt="<?php echo htmlspecialchars($product['name']); ?>">
+                             src="<?php echo htmlspecialchars($resolved_image); ?>" 
+                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src='/uploads/default-product.jpg';}else{this.src='/images/Fresh-vegetables.jpg';}"
+                             loading="lazy">
                     </div>
                     
                     <?php if (count($product_images) > 1): ?>
                     <div class="thumbnail-images">
-                        <?php foreach ($product_images as $index => $image): ?>
-                        <img class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" 
-                             src="<?php echo htmlspecialchars($image['image_url']); ?>"
-                             alt="<?php echo htmlspecialchars($product['name']); ?>"
-                             onclick="changeMainImage('<?php echo htmlspecialchars($image['image_url']); ?>')">
-                        <?php endforeach; ?>
+                    <?php foreach ($product_images as $index => $image): ?>
+                    <img class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" 
+                        src="<?php echo htmlspecialchars($image['image_url']); ?>"
+                        alt="<?php echo htmlspecialchars($product['name']); ?>"
+                        onclick="changeMainImage(this, '<?php echo htmlspecialchars($image['image_url'], ENT_QUOTES); ?>')">
+                    <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -185,7 +221,7 @@ require_once __DIR__ . '/../template/header.php';
                     <?php if ($product['stock_quantity'] > 0): ?>
                     <div class="add-to-cart-form">
                         <div class="quantity-selector">
-                            <label for="quantity">Quantity:</label>
+                            <label for="qty-<?php echo $product['product_id']; ?>">Quantity:</label>
                             <div class="quantity-input">
                                 <button type="button" class="qty-btn minus" onclick="changeQuantity(<?php echo $product['product_id']; ?>, -1)">-</button>
                                 <input type="number" id="qty-<?php echo $product['product_id']; ?>" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" autocomplete="off">
@@ -243,12 +279,12 @@ require_once __DIR__ . '/../template/header.php';
             <!-- Additional Information -->
             <div class="product-tabs">
                 <div class="tab-buttons">
-                    <button class="tab-btn active" onclick="showTab('info')">Product Information</button>
+                    <button class="tab-btn active" onclick="showTab('info', this)">Product Information</button>
                     <?php if ($product['ingredients']): ?>
-                    <button class="tab-btn" onclick="showTab('ingredients')">Ingredients</button>
+                    <button class="tab-btn" onclick="showTab('ingredients', this)">Ingredients</button>
                     <?php endif; ?>
                     <?php if ($product['nutritional_info']): ?>
-                    <button class="tab-btn" onclick="showTab('nutrition')">Nutrition Facts</button>
+                    <button class="tab-btn" onclick="showTab('nutrition', this)">Nutrition Facts</button>
                     <?php endif; ?>
                 </div>
 
@@ -303,6 +339,79 @@ require_once __DIR__ . '/../template/header.php';
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- Reviews Section (moved above Related Products) -->
+            <section class="product-reviews-section">
+                <div class="product-reviews container">
+                    <h3>Customer Reviews (<?php echo $review_count; ?>)</h3>
+                    <div id="reviews-list">
+                        <?php if (!empty($product_reviews)): ?>
+                            <?php foreach ($product_reviews as $rev): ?>
+                                <div class="review" data-review-id="<?php echo $rev['review_id']; ?>">
+                                    <div class="review-header">
+                                        <strong><?php echo htmlspecialchars($rev['username'] ?? 'Guest'); ?></strong>
+                                        <span class="review-rating">
+                                            <?php for ($i=1;$i<=5;$i++): ?>
+                                                <?php if ($i <= $rev['rating']): ?>
+                                                    <i class="fas fa-star"></i>
+                                                <?php else: ?>
+                                                    <i class="far fa-star"></i>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
+                                        </span>
+                                        <span class="review-date"><?php echo date('M d, Y', strtotime($rev['created_at'])); ?></span>
+                                    </div>
+                                    <?php if ($rev['title']): ?><h4><?php echo htmlspecialchars($rev['title']); ?></h4><?php endif; ?>
+                                    <p><?php echo nl2br(htmlspecialchars($rev['review'])); ?></p>
+                                    <div class="review-actions">
+                                        <?php if (is_object($auth) && $auth->isAdmin()): ?>
+                                            <button class="btn btn-danger btn-sm review-delete" data-id="<?php echo $rev['review_id']; ?>">Delete</button>
+                                            <button class="btn btn-outline btn-sm review-edit" data-id="<?php echo $rev['review_id']; ?>">Edit</button>
+                                        <?php elseif (is_object($auth) && $auth->isLoggedIn() && $currentUserId && $currentUserId == $rev['user_id']): ?>
+                                            <button class="btn btn-outline btn-sm review-edit" data-id="<?php echo $rev['review_id']; ?>">Edit</button>
+                                            <button class="btn btn-danger btn-sm review-delete" data-id="<?php echo $rev['review_id']; ?>">Delete</button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p>No reviews yet. Be the first to review this product.</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (is_object($auth) && $auth->isLoggedIn() && $auth->isCustomer()): ?>
+                    <div class="review-form">
+                        <h4>Add Your Review</h4>
+                        <input type="hidden" id="review-id" value="">
+                        <div class="review-star-input">
+                            <label for="review-rating">Rating</label>
+                            <div id="review-star-widget" class="star-widget">
+                                <?php for ($s=1;$s<=5;$s++): ?>
+                                    <i class="far fa-star star-input" data-value="<?php echo $s; ?>" style="cursor:pointer;font-size:1.3rem;margin-right:4px;color:#ccc"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <select id="review-rating" style="display:none">
+                                <?php for ($r=5;$r>=1;$r--): ?><option value="<?php echo $r; ?>"><?php echo $r; ?> star<?php echo $r>1?'s':''; ?></option><?php endfor; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="review-title">Title</label>
+                            <input id="review-title" type="text">
+                        </div>
+                        <div>
+                            <label for="review-text">Review</label>
+                            <textarea id="review-text" rows="4"></textarea>
+                        </div>
+                        <div>
+                            <button id="submit-review" class="btn btn-primary">Submit Review</button>
+                            <button id="cancel-edit" class="btn btn-outline">Cancel</button>
+                        </div>
+                    </div>
+                    <?php elseif (!(is_object($auth) && $auth->isLoggedIn())): ?>
+                        <p><a href="login.php">Log in</a> to submit a review.</p>
+                    <?php endif; ?>
+                </div>
+            </section>
 
             <!-- Related Products -->
             <?php if (!empty($related_products)): ?>
@@ -546,6 +655,53 @@ require_once __DIR__ . '/../template/header.php';
     text-align: center;
 }
 
+/* Reviews (Google-like) */
+.google-reviews-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:1rem 0.5rem;
+    border-bottom:1px solid var(--light-gray);
+    gap:1rem;
+}
+.reviews-summary { display:flex; align-items:center; gap:1rem; }
+.avg-rating { font-size:2rem; font-weight:700; color:var(--dark); }
+.avg-stars i { color:#f6c34d; margin-right:3px; }
+.count { color:var(--gray); font-size:0.95rem; }
+.write-action button { padding:0.5rem 0.9rem; border-radius:6px; }
+
+.google-review-card {
+    display:flex;
+    gap:1rem;
+    padding:0.9rem;
+    border-radius:10px;
+    background:#fff;
+    box-shadow:0 1px 4px rgba(0,0,0,0.04);
+    border:1px solid rgba(0,0,0,0.04);
+    margin-bottom:0.9rem;
+}
+.gr-left { flex:0 0 56px; }
+.gr-avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--light-gray); }
+.gr-right { flex:1 1 auto; }
+.gr-head { display:flex; align-items:center; gap:0.75rem; margin-bottom:6px; flex-wrap:wrap; }
+.gr-name { font-weight:700; color:var(--dark); }
+.gr-rating i { color:#f6c34d; margin-right:2px; }
+.gr-date { color:var(--gray); font-size:0.9rem; margin-left:auto; }
+.review-badge { background:#f59e0b; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.75rem; margin-left:8px; }
+.gr-title { font-weight:600; margin-bottom:6px; }
+.gr-text { color:var(--gray); line-height:1.5; }
+.gr-actions { margin-top:8px; display:flex; gap:0.5rem; }
+
+/* Star widget colors and pointer */
+.star-widget .star-input { color:#ccc; cursor:pointer; font-size:1.25rem; transition:color 0.12s ease; }
+.star-widget .star-input.fas { color:#f6c34d; }
+.star-widget .star-input:hover { color:#f6c34d; }
+
+@media (max-width: 768px) {
+    .google-reviews-header { flex-direction:column; align-items:flex-start; gap:0.5rem; }
+    .gr-head { gap:0.5rem; }
+}
+
 @media (max-width: 768px) {
     .product-detail-grid {
         grid-template-columns: 1fr;
@@ -563,55 +719,68 @@ require_once __DIR__ . '/../template/header.php';
 </style>
 
 <script>
-function changeMainImage(src) {
-    document.getElementById('main-product-image').src = src;
-    
+function changeMainImage(elem, src) {
+    const main = document.getElementById('main-product-image');
+    if (main) main.src = src;
+
     // Update active thumbnail
     document.querySelectorAll('.thumbnail').forEach(thumb => {
         thumb.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (elem && elem.classList) elem.classList.add('active');
 }
 
-function changeQuantity(delta) {
-    const input = document.getElementById('quantity');
-    const currentValue = parseInt(input.value);
+function changeQuantity(productId, delta) {
+    const input = document.getElementById('qty-' + productId);
+    if (!input) return;
+    const currentValue = parseInt(input.value) || 0;
     const newValue = currentValue + delta;
-    const min = parseInt(input.min);
-    const max = parseInt(input.max);
-    
+    const min = parseInt(input.min) || 1;
+    const max = parseInt(input.max) || Infinity;
+
     if (newValue >= min && newValue <= max) {
         input.value = newValue;
     }
 }
 
-function showTab(tabName) {
+function showTab(tabName, btn) {
     // Hide all tabs
     document.querySelectorAll('.tab-pane').forEach(pane => {
         pane.classList.remove('active');
     });
     
     // Remove active class from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
     });
     
     // Show selected tab
-    document.getElementById(tabName + '-tab').classList.add('active');
-    event.target.classList.add('active');
+    const tab = document.getElementById(tabName + '-tab');
+    if (tab) tab.classList.add('active');
+    if (btn && btn.classList) btn.classList.add('active');
 }
 
-function addProductToCart(productId) {
-    const quantity = parseInt(document.getElementById('quantity').value);
-    ProductManager.addToCartWithQuantity(productId, quantity);
+function addToCartWithQuantity(productId, productName) {
+    // Read the quantity input for this product
+    const input = document.getElementById('qty-' + productId);
+    const qty = input ? parseInt(input.value) || 1 : 1;
+    if (typeof ProductManager !== 'undefined' && ProductManager.addToCartWithQuantity) {
+        ProductManager.addToCartWithQuantity(productId, qty);
+    } else {
+        console.warn('ProductManager not available, cannot add to cart for', productId);
+    }
 }
 
 function toggleWishlist(productId) {
-    ProductManager.toggleWishlist(productId);
+    if (typeof ProductManager !== 'undefined' && ProductManager.toggleWishlist) {
+        ProductManager.toggleWishlist(productId);
+    } else {
+        console.warn('ProductManager not available, cannot toggle wishlist for', productId);
+    }
 }
 </script>
 
-<script src="js/product-actions.js?v=<?php echo time(); ?>"></script>
 <script src="js/main.js?v=<?php echo time(); ?>"></script>
+<script src="js/reviews.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once __DIR__ . '/../template/footer.php'; ?>

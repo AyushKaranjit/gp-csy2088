@@ -95,7 +95,7 @@ class AuthController {
                     $redirect_url = 'manager.php';
                     break;
                 case 'customer':
-                    $redirect_url = 'customer.php';
+                    $redirect_url = 'profile.php';
                     break;
                 default:
                     $redirect_url = 'index.php';

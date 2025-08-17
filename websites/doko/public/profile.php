@@ -12,6 +12,13 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
+// Handle logout
+if (isset($_GET['logout'])) {
+    $auth->logout();
+    header('Location: index.php');
+    exit;
+}
+
 // Get current user info
 $currentUser = $auth->getCurrentUser();
 $userRole = $auth->getUserRole();
@@ -40,60 +47,6 @@ try {
     // Non-fatal; continue with session values
 }
 
-// Handle profile update
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
-    
-    try {
-        $updateData = [
-            'first_name' => trim($_POST['first_name'] ?? ''),
-            'last_name' => trim($_POST['last_name'] ?? ''),
-            'email' => trim($_POST['email'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? ''),
-            'address' => trim($_POST['address'] ?? '')
-        ];
-        
-        // Basic validation
-        if (empty($updateData['first_name']) || empty($updateData['last_name']) || empty($updateData['email'])) {
-            throw new Exception('Please fill all required fields');
-        }
-        
-        if (!filter_var($updateData['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Please enter a valid email address');
-        }
-        
-        // Update profile in database
-    require_once __DIR__ . '/../config/database.php';
-        $database = Database::getInstance();
-        $pdo = $database->getConnection();
-        
-        $stmt = $pdo->prepare('UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ?, address = ?, updated_at = NOW() WHERE user_id = ?');
-        $result = $stmt->execute([
-            $updateData['first_name'],
-            $updateData['last_name'], 
-            $updateData['email'],
-            $updateData['phone'],
-            $updateData['address'],
-            $currentUser['user_id']
-        ]);
-        
-        if ($result) {
-            // Update session so header and later requests reflect new values
-            foreach (['first_name','last_name','email','phone','address'] as $k) {
-                if (isset($updateData[$k])) { $_SESSION[$k] = $updateData[$k]; }
-            }
-            echo json_encode(['success' => true, 'message' => 'Profile updated successfully']);
-        } else {
-            throw new Exception('Failed to update profile');
-        }
-        
-    } catch (Exception $e) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-    exit;
-}
-
 // Page-specific variables
 $page_title = page_title('My Profile');
 $page_description = 'Manage your DOKO account profile, personal information and preferences.';
@@ -120,7 +73,11 @@ include __DIR__ . '/../template/breadcrumb.php';
             <aside class="profile-sidebar">
                 <div class="profile-card">
                     <div class="profile-avatar">
-                        <i class="fas fa-user-circle"></i>
+                        <?php if (!empty($currentUser['profile_image'])): ?>
+                            <img src="<?php echo htmlspecialchars($currentUser['profile_image']); ?>" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                        <?php else: ?>
+                            <i class="fas fa-user-circle"></i>
+                        <?php endif; ?>
                     </div>
                     <h3><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></h3>
                     <p class="profile-role"><?php echo ucfirst($userRole); ?></p>
@@ -248,6 +205,13 @@ include __DIR__ . '/../template/breadcrumb.php';
                                             container.innerHTML = `<div class="orders-list">${rows}</div>`;
                                         }
                                         function showLoading(){ container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>'; }
+                                        
+                                        // Check if logout is in progress
+                                        if (window.location.search.includes('logout=1')) {
+                                            container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><h3>Logging out...</h3><p>Please wait...</p></div>';
+                                            return;
+                                        }
+                                        
                                         showLoading();
                                         fetch('api/users/customer-orders.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'})
                                             .then(async (r) => {
@@ -604,11 +568,23 @@ include __DIR__ . '/../template/breadcrumb.php';
 .profile-avatar {
     text-align: center;
     margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile-avatar i {
     font-size: 4rem;
     color: var(--primary-color);
+}
+
+.profile-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .profile-card h3 {
@@ -887,9 +863,17 @@ document.addEventListener('DOMContentLoaded', function(){
                 // Update preview
                 const prev = document.getElementById('profile-image-preview');
                 if(prev){ prev.innerHTML = '<img src="'+data.user.profile_image+'" style="width:100%;height:100%;object-fit:cover;" />'; }
+                // Update sidebar avatar
+                const sidebarAvatar = document.querySelector('.profile-avatar');
+                if(sidebarAvatar){ 
+                    sidebarAvatar.innerHTML = '<img src="'+data.user.profile_image+'" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">'; 
+                }
                 // Update header avatar if present
                 const headerImg = document.querySelector('.user-info img');
                 if(headerImg){ headerImg.src = data.user.profile_image; }
+                // Update dropdown avatar if present
+                const dropdownAvatar = document.querySelector('.dropdown-avatar');
+                if(dropdownAvatar){ dropdownAvatar.src = data.user.profile_image; }
             }
         } catch(err){
             console.error(err); showNotification(err.message || 'Profile update failed','error');
@@ -1001,14 +985,6 @@ function showNotification(message, type = 'info') {
     margin-left: auto;
 }
 </style>
-
-<?php
-// Handle logout
-if (isset($_GET['logout'])) {
-    $auth->logout();
-    header('Location: index.php');
-    exit;
-}
 
 // Include footer
 include_footer();

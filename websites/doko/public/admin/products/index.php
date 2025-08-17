@@ -910,6 +910,56 @@ document.getElementById('productModal').addEventListener('click', function(event
         closeProductModal();
     }
 });
+
+// Lazy Loading for Product Images
+document.addEventListener('DOMContentLoaded', function() {
+    const lazyImages = document.querySelectorAll('img.lazy-blur');
+    
+    // Immediately load images that are in viewport on page load
+    const loadImageImmediately = (img) => {
+        const src = img.getAttribute('data-src');
+        if (src && src !== img.src) {
+            const newImg = new Image();
+            newImg.onload = function() {
+                img.src = src;
+                img.classList.remove('lazy-blur');
+                img.classList.add('loaded');
+            };
+            newImg.onerror = function() {
+                // On error, just remove the blur without changing src
+                img.classList.remove('lazy-blur');
+                img.classList.add('loaded');
+            };
+            newImg.src = src;
+        } else {
+            // Image already loaded or no data-src
+            img.classList.remove('lazy-blur');
+            img.classList.add('loaded');
+        }
+    };
+    
+    // Check if Intersection Observer is supported
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    loadImageImmediately(img);
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '50px' // Start loading images 50px before they enter viewport
+        });
+        
+        lazyImages.forEach(img => {
+            imageObserver.observe(img);
+        });
+    } else {
+        // Fallback for browsers without Intersection Observer
+        lazyImages.forEach(loadImageImmediately);
+    }
+});
 </script>
 
 <?php

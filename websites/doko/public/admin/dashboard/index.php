@@ -609,7 +609,7 @@ include '../../../template/admin-nav.php';
                                 <p>Process and track orders</p>
                             </div>
                         </a>
-                        <a href="/api/admin/metrics/summary.php" class="quick-action-btn" target="_blank">
+                        <a href="/admin/analytics.php" class="quick-action-btn">
                             <div class="quick-action-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>

@@ -28,15 +28,15 @@ class ApiResponse {
         http_response_code($status);
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
         if (in_array($origin, self::$allowedOrigins, true)) {
-            header('Access-Control-Allow-Origin: ' . $origin);
+            if (!headers_sent()) header('Access-Control-Allow-Origin: ' . $origin);
         }
-        header('Vary: Origin');
-        header('Access-Control-Allow-Credentials: true');
+        if (!headers_sent()) header('Vary: Origin');
+        if (!headers_sent()) header('Access-Control-Allow-Credentials: true');
         foreach (self::$defaultHeaders as $k => $v) {
             if (!headers_sent()) header($k . ': ' . $v, true);
         }
         foreach ($headers as $k => $v) {
-            header($k . ': ' . $v, true);
+            if (!headers_sent()) header($k . ': ' . $v, true);
         }
     echo json_encode(self::augment($payload), JSON_UNESCAPED_UNICODE);
     }

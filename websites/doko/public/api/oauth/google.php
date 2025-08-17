@@ -100,12 +100,14 @@ try {
         exit;
     }
     
-    // Check if user exists with this Google ID
+    // Check if user exists with this Google ID or email
     $stmt = $db->prepare("SELECT * FROM users WHERE google_id = ? OR email = ?");
     $stmt->execute([$google_id, $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+    $wasExisting = false;
+
     if ($user) {
+        $wasExisting = true;
         // User exists, update Google ID and profile info if not set
         $updateFields = [];
         $updateValues = [];
@@ -165,7 +167,7 @@ try {
         
         $user_id = $db->lastInsertId();
         
-        // Get the new user data
+    // Get the new user data
         $stmt = $db->prepare("SELECT * FROM users WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -189,6 +191,8 @@ try {
     
     echo json_encode([
         'success' => true,
+        'existing_user' => !empty($wasExisting),
+        'action' => !empty($wasExisting) ? 'login' : 'created',
         'user' => [
             'id' => $user['user_id'],
             'email' => $user['email'],
@@ -196,7 +200,7 @@ try {
             'last_name' => $user['last_name'],
             'role' => $user['role']
         ],
-        'redirect' => '/customer-dashboard.php'
+        'redirect' => '/profile.php'
     ]);
     
 } catch (Exception $e) {

@@ -210,8 +210,18 @@ include_header($page_title, $page_description, $current_page);
 
                     // Sorting already handled in SQL; optional fallback removed.
 
+                    // Simple server-side pagination (slice the in-memory results)
+                    $perPage = 12;
+                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    if ($page < 1) $page = 1;
+                    $totalProducts = count($filtered_products);
+                    $totalPages = $totalProducts > 0 ? (int)ceil($totalProducts / $perPage) : 1;
+                    if ($page > $totalPages) $page = $totalPages;
+                    $offset = ($page - 1) * $perPage;
+                    $paged_products = array_slice(array_values($filtered_products), $offset, $perPage);
+
                     // Display products
-                    if (empty($filtered_products)): ?>
+                    if (empty($paged_products)): ?>
                         <div class="no-products">
                             <div class="no-products-content">
                                 <i class="fas fa-search"></i>
@@ -221,25 +231,52 @@ include_header($page_title, $page_description, $current_page);
                             </div>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($filtered_products as $product): ?>
+                        <?php foreach ($paged_products as $product): ?>
                             <?php include __DIR__ . '/../template/product-card.php'; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
                 <!-- Pagination -->
-                <?php if (!empty($filtered_products) && count($filtered_products) > 12): ?>
+                <?php if ($totalProducts > $perPage): ?>
                 <div class="pagination-wrapper">
-                    <nav class="pagination">
-                        <button class="pagination-btn" disabled>
+                    <nav class="pagination" aria-label="Products pagination">
+                        <?php
+                        // Build base query preserving filters
+                        $baseQuery = $_GET;
+                        // Previous button
+                        $prevDisabled = $page <= 1;
+                        $baseQuery['page'] = max(1, $page - 1);
+                        $prevUrl = htmlspecialchars('products.php?' . http_build_query($baseQuery));
+                        ?>
+                        <a class="pagination-btn<?php echo $prevDisabled ? ' disabled' : ''; ?>" href="<?php echo $prevDisabled ? '#' : $prevUrl; ?>" aria-label="Previous page">
                             <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="pagination-btn active">1</button>
-                        <button class="pagination-btn">2</button>
-                        <button class="pagination-btn">3</button>
-                        <button class="pagination-btn">
+                        </a>
+
+                        <?php
+                        // Render page links (limit to reasonable window)
+                        $window = 5;
+                        $startPage = max(1, $page - floor($window / 2));
+                        $endPage = min($totalPages, $startPage + $window - 1);
+                        if ($endPage - $startPage + 1 < $window) {
+                            $startPage = max(1, $endPage - $window + 1);
+                        }
+                        for ($i = $startPage; $i <= $endPage; $i++):
+                            $baseQuery['page'] = $i;
+                            $url = htmlspecialchars('products.php?' . http_build_query($baseQuery));
+                        ?>
+                            <a class="pagination-btn<?php echo $i === $page ? ' active' : ''; ?>" href="<?php echo $url; ?>"><?php echo $i; ?></a>
+                        <?php endfor; ?>
+
+                        <?php
+                        // Next button
+                        $nextDisabled = $page >= $totalPages;
+                        $baseQuery['page'] = min($totalPages, $page + 1);
+                        $nextUrl = htmlspecialchars('products.php?' . http_build_query($baseQuery));
+                        ?>
+                        <a class="pagination-btn<?php echo $nextDisabled ? ' disabled' : ''; ?>" href="<?php echo $nextDisabled ? '#' : $nextUrl; ?>" aria-label="Next page">
                             <i class="fas fa-chevron-right"></i>
-                        </button>
+                        </a>
                     </nav>
                 </div>
                 <?php endif; ?>
@@ -292,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <!-- Core product actions (wishlist, add to cart) -->
-<script src="js/product-actions.js?v=<?php echo time(); ?>"></script>
 <!-- Main global helpers -->
 <script src="js/main.js?v=<?php echo time(); ?>"></script>
 

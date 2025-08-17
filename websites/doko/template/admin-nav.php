@@ -17,6 +17,7 @@ function doko_admin_active(string $section, string $script): string {
             <li><a class="<?php echo doko_admin_active('products', $script); ?>" href="/admin/products/">Products <span id="admin-products-count" class="badge-pill" style="display:none;">0</span></a></li>
             <li><a class="<?php echo doko_admin_active('users', $script); ?>" href="/admin/users/">Users</a></li>
             <li><a class="<?php echo doko_admin_active('orders', $script); ?>" href="/admin/orders/">Orders</a></li>
+            <li><a class="<?php echo strpos($script, '/admin/analytics.php') !== false ? 'active' : ''; ?>" href="/admin/analytics.php">Analytics</a></li>
             <li class="admin-subnav-spacer"></li>
             <li class="admin-subnav-right"><a href="/" class="return-site">← Storefront</a></li>
             <li class="admin-subnav-right"><a href="/logout.php" class="logout-link" onclick="return confirm('Logout from admin?');">Logout</a></li>

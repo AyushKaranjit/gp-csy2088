@@ -33,7 +33,8 @@ try {
 
     // Basic domain allowlist (expand or configure via env IMAGE_DOMAIN_ALLOWLIST comma separated)
     $envList = getenv('IMAGE_DOMAIN_ALLOWLIST');
-    $allowedDomains = $envList ? array_filter(array_map('trim', explode(',', $envList))) : ['images.unsplash.com','via.placeholder.com','cdn.pixabay.com','picsum.photos'];
+    // By default do not allow external hosts. To enable, set IMAGE_DOMAIN_ALLOWLIST to a comma separated list.
+    $allowedDomains = $envList ? array_filter(array_map('trim', explode(',', $envList))) : [];
     $host = parse_url($remoteUrl, PHP_URL_HOST) ?: '';
     if ($allowedDomains && !in_array($host, $allowedDomains, true)) {
         throw new Exception('Domain not allowed: ' . $host);

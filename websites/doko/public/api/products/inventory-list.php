@@ -87,7 +87,7 @@ try {
             p.price,
             p.stock_quantity,
             p.low_stock_threshold,
-            p.is_active,
+            p.status,
             p.created_at,
             p.updated_at,
             c.name as category_name,
@@ -126,7 +126,7 @@ try {
             SUM(stock_quantity) as total_stock,
             SUM(CASE WHEN stock_quantity <= 0 THEN 1 ELSE 0 END) as out_of_stock,
             SUM(CASE WHEN stock_quantity <= low_stock_threshold AND stock_quantity > 0 THEN 1 ELSE 0 END) as low_stock,
-            SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive_products,
+            SUM(CASE WHEN status != 'active' THEN 1 ELSE 0 END) as inactive_products,
             AVG(stock_quantity) as avg_stock_level,
             SUM(price * stock_quantity) as total_inventory_value
         FROM products
@@ -153,7 +153,7 @@ try {
             SUM(CASE WHEN p.stock_quantity <= p.low_stock_threshold AND p.stock_quantity > 0 THEN 1 ELSE 0 END) as low_stock_count
         FROM categories c
         LEFT JOIN products p ON c.category_id = p.category_id
-        WHERE c.is_active = 1
+    WHERE c.is_active = 1
         GROUP BY c.category_id, c.name
         ORDER BY c.name ASC
     ";

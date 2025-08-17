@@ -4,12 +4,10 @@
  * Generates placeholder images with proper names
  */
 
-// Generate an external image URL (Unsplash static query as last resort)
+// Generate a local image URL (use local default when no specific image found)
 function getImageUrl($category, $name, $width = 600, $height = 600) {
-    $clean = strtolower(trim(preg_replace('/[^a-z0-9\s-]/i','', $name)));
-    $clean = preg_replace('/\s+/','+', $clean);
-    // Unsplash source (random per request) fallback
-    return "https://source.unsplash.com/{$width}x{$height}/?grocery,$category,$clean";
+    // We no longer rely on external image services. Return the local default product image.
+    return '/uploads/default-product.jpg';
 }
 
 // Function to get product image with multiple fallbacks
@@ -34,7 +32,7 @@ function getProductImagePath($productName, $productId = null) {
         $abs = __DIR__.'/../public/'.ltrim($rel,'/');
         if(is_file($abs)) return '/'.$rel; // serve existing local file
     }
-    // fallback to dynamic unsplash query for product name
+    // fallback to a dynamic external image query for product name (disabled by default)
     return getImageUrl('product',$productName,800,800);
 }
 
@@ -58,57 +56,161 @@ function getCategoryImagePath($categoryName, $categoryId = null) {
 }
 
 // Product image mappings for consistent images
-// Curated stable Unsplash image IDs (static photos) for common products
+// Curated stable image mappings for common products (prefer local files)
 $productImages = [
-    'tomatoes'      => 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=70',
-    'banana'        => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=800&q=70',
-    'bananas'       => 'https://images.unsplash.com/photo-1574226516831-e1dff420e37d?auto=format&fit=crop&w=800&q=70',
-    'milk'          => 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=800&q=70',
-    'rice'          => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=70',
-    'apples'        => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
-    'apple'         => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
-    'spinach'       => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
-    'palungo'       => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
-    'garam-masala'  => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=800&q=70',
-    'masala'        => 'https://images.unsplash.com/photo-1608111283392-83e50946e9a4?auto=format&fit=crop&w=800&q=70',
-    'yogurt'        => 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70',
-    'jujudhau'      => 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70',
-    'onions'        => 'https://images.unsplash.com/photo-1603031599551-eea48f937111?auto=format&fit=crop&w=800&q=70',
-    'onion'         => 'https://images.unsplash.com/photo-1603031599551-eea48f937111?auto=format&fit=crop&w=800&q=70',
-    'orange-juice'  => 'https://images.unsplash.com/photo-1586201375761-83865001e31b?auto=format&fit=crop&w=800&q=70',
-    'juice'         => 'https://images.unsplash.com/photo-1586201375761-83865001e31b?auto=format&fit=crop&w=800&q=70',
-    'bread'         => 'https://images.unsplash.com/photo-1608198093002-ad4e005484b2?auto=format&fit=crop&w=800&q=70',
-    'honey'         => 'https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=800&q=70',
-    // Newly added extended curated mappings
-    'red-apples'    => 'https://images.unsplash.com/photo-1567303316750-b7a0c0f7b411?auto=format&fit=crop&w=800&q=70',
-    'instant-coffee'=> 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=70',
-    'coffee'        => 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=70',
-    'chicken'       => 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=800&q=70',
-    'rohu-fish'     => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=70',
-    'fish'          => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=70',
-    'basmati-rice'  => 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=70',
-    'red-lentils'   => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
-    'lentils'       => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
-    'masoor'        => 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70',
-    'chickpeas'     => 'https://images.unsplash.com/photo-1584270354949-c26b0d5b2d41?auto=format&fit=crop&w=800&q=70',
-    'turmeric-powder'=>'https://images.unsplash.com/photo-1627308597744-1046f9e2d135?auto=format&fit=crop&w=800&q=70',
-    'turmeric'      => 'https://images.unsplash.com/photo-1627308597744-1046f9e2d135?auto=format&fit=crop&w=800&q=70',
+    // Exact database product names first
+    'fresh red apples' => '/images/Fresh Red Apples.jpg',
+    'bananas (ripe)' => '/images/Banana.jpg',
+    'bananas-ripe' => '/images/Banana.jpg',
+    'tomatoes (local)' => '/images/Tomatoes (Local).jpg',
+    'tomatoes-local' => '/images/Tomatoes (Local).jpg',
+    'potatoes (washed)' => '/images/Potatoes (Washed).jpg',
+    'potatoes-washed' => '/images/Potatoes (Washed).jpg',
+    'spinach bundle' => '/images/Spinach Bundle.jpg',
+    'organic milk 1l' => '/images/Organic Milk 1L.jpg',
+    'plain yogurt 500g' => '/images/Plain Yogurt 500g.jpg',
+    'cheddar cheese 250g' => '/images/CheddarCheese.jpg',
+    'whole wheat bread' => '/images/Whole Wheat Bread.jpg',
+    'brown bread loaf' => '/images/BrownBreadLoaf.jpg',
+    'classic burger buns 6pc' => '/images/Classic Burger Buns 6pc.jpg',
+    'orange juice 1l' => '/images/Orange Juice 1L.jpg',
+    'green tea box' => '/images/Green Tea Box.jpg',
+    'instant coffee 100g' => '/images/Instant Coffee 100g.jpg',
+    'fresh chicken 1kg' => '/images/Fresh Chicken 1kg.jpg',
+    'rohu fish 1kg' => '/images/Rohu Fish 1kg.jpg',
+    'basmati rice 5kg' => '/images/BasmatiRice.jpg',
+    'red lentils (masoor) 1kg' => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'red lentils-masoor-1kg' => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'chickpeas 1kg' => '/images/Chickpeas 1kg.jpg',
+    'turmeric powder 200g' => '/images/Turmeric Powder 200g.jpg',
+    'cumin seeds 200g' => '/images/Cumin Seeds 200g.jpg',
+    'coriander powder 200g' => '/images/Coriander Powder 200g.jpg',
+    'salted roasted peanuts 200g' => '/images/Salted Roasted Peanuts 200g.jpg',
+    'masala chips family pack' => '/images/Masala Chips Family Pack.jpg',
+    
+    // Fruits
+    'banana'        => '/images/Banana.jpg',
+    'bananas'       => '/images/Banana.jpg',
+    'apple'         => '/images/Fresh Red Apples.jpg',
+    'apples'        => '/images/Fresh Red Apples.jpg',
+    'red-apples'    => '/images/Fresh Red Apples.jpg',
+    'fresh-apples'  => '/images/Fresh Red Apples.jpg',
+    'fruits'        => '/images/Fresh-fruits.jpg',
+    'fresh-fruits'  => '/images/Fresh-fruits.jpg',
+    
+    // Vegetables
+    'tomatoes'      => '/images/Tomatoes (Local).jpg',
+    'tomato'        => '/images/Tomatoes (Local).jpg',
+    'local-tomatoes'=> '/images/Tomatoes (Local).jpg',
+    'potatoes'      => '/images/Potatoes (Washed).jpg',
+    'potato'        => '/images/Potatoes (Washed).jpg',
+    'washed-potatoes'=> '/images/Potatoes (Washed).jpg',
+    'spinach'       => '/images/Spinach Bundle.jpg',
+    'palungo'       => '/images/Spinach Bundle.jpg',
+    'spinach-bundle'=> '/images/Spinach Bundle.jpg',
+    'vegetables'    => '/images/Fresh-vegetables.jpg',
+    'fresh-vegetables' => '/images/Fresh-vegetables.jpg',
+    
+    // Dairy Products
+    'milk'          => '/images/Organic Milk 1L.jpg',
+    'fresh-milk'    => '/images/Organic Milk 1L.jpg',
+    'organic-milk'  => '/images/Organic Milk 1L.jpg',
+    'yogurt'        => '/images/Plain Yogurt 500g.jpg',
+    'jujudhau'      => '/images/Plain Yogurt 500g.jpg',
+    'plain-yogurt'  => '/images/Plain Yogurt 500g.jpg',
+    'cheese'        => '/images/CheddarCheese.jpg',
+    'cheddar-cheese'=> '/images/CheddarCheese.jpg',
+    'dairy'         => '/images/FreshDairyproduct.jpg',
+    'dairy-products'=> '/images/FreshDairyproduct.jpg',
+    'fresh-dairy'   => '/images/FreshDairyproduct.jpg',
+    
+    // Grains & Pulses
+    'rice'          => '/images/BasmatiRice.jpg',
+    'basmati-rice'  => '/images/BasmatiRice.jpg',
+    'basmati'       => '/images/BasmatiRice.jpg',
+    'red-lentils'   => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'lentils'       => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'masoor'        => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'masoor-dal'    => '/images/Red Lentils (Masoor) 1kg.jpg',
+    'chickpeas'     => '/images/Chickpeas 1kg.jpg',
+    'grains'        => '/images/Grains & Pulses.jpg',
+    'pulses'        => '/images/Grains & Pulses.jpg',
+    'grains-pulses' => '/images/Grains & Pulses.jpg',
+    
+    // Spices & Herbs
+    'turmeric'      => '/images/Turmeric Powder 200g.jpg',
+    'turmeric-powder'=> '/images/Turmeric Powder 200g.jpg',
+    'cumin'         => '/images/Cumin Seeds 200g.jpg',
+    'cumin-seeds'   => '/images/Cumin Seeds 200g.jpg',
+    'coriander'     => '/images/Coriander Powder 200g.jpg',
+    'coriander-powder'=> '/images/Coriander Powder 200g.jpg',
+    'spices'        => '/images/Spices&Herbs.jpg',
+    'herbs'         => '/images/Spices&Herbs.jpg',
+    'spices-herbs'  => '/images/Spices&Herbs.jpg',
+    'masala'        => '/images/Spices&Herbs.jpg',
+    'garam-masala'  => '/images/Spices&Herbs.jpg',
+    
+    // Meat & Seafood
+    'chicken'       => '/images/Fresh Chicken 1kg.jpg',
+    'fresh-chicken' => '/images/Fresh Chicken 1kg.jpg',
+    'fish'          => '/images/Rohu Fish 1kg.jpg',
+    'rohu-fish'     => '/images/Rohu Fish 1kg.jpg',
+    'rohu'          => '/images/Rohu Fish 1kg.jpg',
+    'seafood'       => '/images/Rohu Fish 1kg.jpg',
+    'meat'          => '/images/Fresh Chicken 1kg.jpg',
+    
+    // Bakery Items
+    'bread'         => '/images/BrownBreadLoaf.jpg',
+    'brown-bread'   => '/images/BrownBreadLoaf.jpg',
+    'bread-loaf'    => '/images/BrownBreadLoaf.jpg',
+    'whole-wheat-bread' => '/images/Whole Wheat Bread.jpg',
+    'wheat-bread'   => '/images/Whole Wheat Bread.jpg',
+    'burger-buns'   => '/images/Classic Burger Buns 6pc.jpg',
+    'buns'          => '/images/Classic Burger Buns 6pc.jpg',
+    'classic-buns'  => '/images/Classic Burger Buns 6pc.jpg',
+    'bakery'        => '/images/BrownBreadLoaf.jpg',
+    
+    // Beverages
+    'orange-juice'  => '/images/Orange Juice 1L.jpg',
+    'juice'         => '/images/Orange Juice 1L.jpg',
+    'instant-coffee'=> '/images/Instant Coffee 100g.jpg',
+    'coffee'        => '/images/Instant Coffee 100g.jpg',
+    'green-tea'     => '/images/Green Tea Box.jpg',
+    'tea'           => '/images/Green Tea Box.jpg',
+    
+    // Snacks
+    'chips'         => '/images/Masala Chips Family Pack.jpg',
+    'masala-chips'  => '/images/Masala Chips Family Pack.jpg',
+    'family-chips'  => '/images/Masala Chips Family Pack.jpg',
+    'peanuts'       => '/images/Salted Roasted Peanuts 200g.jpg',
+    'roasted-peanuts'=> '/images/Salted Roasted Peanuts 200g.jpg',
+    'salted-peanuts'=> '/images/Salted Roasted Peanuts 200g.jpg',
+    'snacks'        => '/images/Snacks&Beverages.jpg',
+    'snacks-beverages' => '/images/Snacks&Beverages.jpg',
+    'beverages'     => '/images/Snacks&Beverages.jpg',
+    
+    // Generic category fallbacks
+    'frozen'        => '/images/Fresh-vegetables.jpg',
+    'frozen-foods'  => '/images/Fresh-vegetables.jpg',
+    'organic'       => '/images/Fresh-vegetables.jpg',
+    'premium'       => '/images/Fresh-fruits.jpg',
 ];
 
-// Expanded curated mappings for products causing errors
-// Override earlier local placeholder overrides with stable remote images (or keep if local file exists later)
-$productImages['red-lentils'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
-$productImages['masoor-dal'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
-$productImages['red-lentils-masoor'] = 'https://images.unsplash.com/photo-1605478371310-a9f1e96b4a3b?auto=format&fit=crop&w=800&q=70';
-$productImages['organic-eggs'] = 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=800&q=70';
-$productImages['green-vegetables'] = 'https://images.unsplash.com/photo-1582515073490-dc84f0f7e827?auto=format&fit=crop&w=800&q=70';
+// Expanded curated mappings for products previously pointing to remote images
+// Prefer local image files under /images or fallback to the uploads default
+$productImages['red-lentils'] = '/images/Red Lentils (Masoor) 1kg.jpg';
+$productImages['masoor-dal'] = '/images/Red Lentils (Masoor) 1kg.jpg';
+$productImages['red-lentils-masoor'] = '/images/Red Lentils (Masoor) 1kg.jpg';
+$productImages['organic-eggs'] = '/uploads/default-product.jpg';
+$productImages['green-vegetables'] = '/images/Fresh-vegetables.jpg';
 // Ensure specific keys used by cleaning logic are present
-$productImages['fresh-milk'] = 'https://images.unsplash.com/photo-1585238342028-4cbc9f5dc3f3?auto=format&fit=crop&w=800&q=70';
+$productImages['fresh-milk'] = '/images/Organic Milk 1L.jpg';
 
-// Wrap curated product URLs via proxy if enabled (only static images.unsplash.com)
+// Wrap curated product URLs via proxy if enabled (only absolute external URLs)
+// If image proxy is enabled, wrap any absolute http(s) external URLs; local paths are untouched
 if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
     foreach($productImages as $k=>$v){
-        if(str_starts_with($v,'https://images.unsplash.com/')){
+        if(str_starts_with($v,'http://') || str_starts_with($v,'https://')){
             $productImages[$k] = '/api/image-proxy.php?url='.rawurlencode($v);
         }
     }
@@ -116,18 +218,18 @@ if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
 
 // Category image mappings
 $categoryImages = [
-    // Curated local images chosen for closer relevance per category
-    1 => '/images/sydney-rae-t4XYbj1q_Cc-unsplash.jpg',             // Fresh Vegetables (mixed fresh produce)
-    2 => '/images/marcos-paulo-prado-0py70yxumAk-unsplash.jpg',     // Fresh Fruits
-    3 => '/images/nathan-dumlao-bRdRUUtbxO0-unsplash.jpg',          // Dairy Products (milk/latte context)
-    4 => '/images/micheile-henderson-3TgIneA4xjM-unsplash.jpg',     // Grains & Pulses
-    5 => '/images/kimberly-fowler-_L0jF0tt2kE-unsplash.jpg',        // Spices & Herbs
-    6 => '/images/sean-bernstein-BdrrunAzTjQ-unsplash.jpg',         // Snacks & Beverages (packaged goods)
+    // Use local images from public/images for categories
+    1 => '/images/Fresh-vegetables.jpg',    // Fresh Vegetables
+    2 => '/images/Fresh-fruits.jpg',        // Fresh Fruits
+    3 => '/images/FreshDairyproduct.jpg',   // Dairy Products
+    4 => '/images/Grains & Pulses.jpg',     // Grains & Pulses
+    5 => '/images/Spices&Herbs.jpg',        // Spices & Herbs
+    6 => '/images/Snacks&Beverages.jpg',    // Snacks & Beverages
 ];
 
 if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
     foreach($categoryImages as $k=>$v){
-        if(str_starts_with($v,'https://images.unsplash.com/')){
+        if(str_starts_with($v,'http://') || str_starts_with($v,'https://')){
             $categoryImages[$k] = '/api/image-proxy.php?url='.rawurlencode($v);
         }
     }
@@ -136,6 +238,22 @@ if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
 // Function to get product image by product name
 function getProductImage($productName) {
     global $productImages;
+    
+    // First, try exact match with the original name (case-insensitive)
+    $exactKey = strtolower(trim($productName));
+    if(isset($productImages[$exactKey])) {
+        return $productImages[$exactKey];
+    }
+    
+    // Try with parentheses replaced by dashes
+    $dashKey = str_replace(['(', ')', ' '], ['-', '-', '-'], $exactKey);
+    $dashKey = preg_replace('/-+/', '-', $dashKey); // collapse multiple dashes
+    $dashKey = trim($dashKey, '-'); // remove leading/trailing dashes
+    if(isset($productImages[$dashKey])) {
+        return $productImages[$dashKey];
+    }
+    
+    // Continue with the existing processing logic
     // Lowercase & remove parentheses
     $key = strtolower($productName);
     $key = str_replace(['(',')'], ' ', $key);
@@ -202,13 +320,12 @@ function getProductImage($productName) {
     ];
     if(isset($mappings[$key])) $key = $mappings[$key];
     if(isset($productImages[$key])) return $productImages[$key];
-    // Fallback dynamic query with cleaned words (replace hyphens with commas for broader Unsplash match)
-    // Restrict random queries to grocery domain to avoid unrelated people images
+    // Fallback dynamic query with cleaned words (disabled by default). Restrict random queries to grocery domain.
     $query = preg_replace('/[^a-z0-9\s]/',' ', $key);
     $query = trim($query) ?: 'fresh vegetables';
     $query .= ' grocery food';
     $dyn = getImageUrl('product', $query, 800, 800);
-    // Do NOT proxy dynamic source.unsplash.com (frequent 302 & random); return direct
+    // Do NOT proxy dynamic external random sources; return direct (if enabled)
     return $dyn;
 }
 

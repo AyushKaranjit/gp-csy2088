@@ -52,15 +52,31 @@ include_header($page_title, $page_description, $current_page);
         </div>
         <div class="categories-grid">
             <?php 
+            // Prefer local category images by slug under /images/categories/{slug}.{jpg,png}
             require_once __DIR__ . '/../template/image-service.php';
-            $category_images = [];
-            foreach($product_categories as $cid=>$cinfo){ $category_images[$cid] = getCategoryImage($cid); }
             ?>
             <?php foreach ($product_categories as $id => $category): ?>
                 <div class="category-card">
                     <a href="products.php?category=<?php echo $id; ?>" class="category-link">
                         <div class="category-image">
-                            <img src="<?php echo $category_images[$id] ?? 'uploads/default-product.jpg'; ?>" alt="<?php echo clean_output($category['name']); ?>" loading="lazy" onerror="handleImageError(this);">
+                                <?php
+                                // compute slug from category name and prefer local images
+                                $catName = $category['name'] ?? 'category';
+                                $slug = preg_replace('/[^a-z0-9]+/','-', strtolower(trim($catName)));
+                                $localJpg = '/images/categories/' . $slug . '.jpg';
+                                $localPng = '/images/categories/' . $slug . '.png';
+                                $absJpg = __DIR__ . $localJpg;
+                                $absPng = __DIR__ . $localPng;
+                                if (is_file($absJpg)) {
+                                    $catImg = $localJpg;
+                                } elseif (is_file($absPng)) {
+                                    $catImg = $localPng;
+                                } else {
+                                    // fall back to curated mapping or default
+                                    $catImg = getCategoryImage($id) ?: '/images/default-category.jpg';
+                                }
+                                ?>
+                                <img src="<?php echo $catImg; ?>" alt="<?php echo clean_output($category['name']); ?>" loading="lazy" onerror="handleImageError(this);">
                             <div class="category-overlay"><i class="<?php echo $category['icon']; ?>"></i></div>
                         </div>
                         <div class="category-info">
@@ -91,7 +107,7 @@ include_header($page_title, $page_description, $current_page);
                 $stmt = $db->execute($sql);
                 $featured_products = $stmt->fetchAll();
             } catch (Exception $e) { error_log('Featured products query failed: '.$e->getMessage()); }
-            if (!$featured_products) { $featured_products = [[ 'id'=>0,'name'=>'Sample Product','price'=>100.00,'original_price'=>null,'image'=>'uploads/default-product.jpg','category'=>'General','rating'=>4.5,'in_stock'=>false ]]; }
+            if (!$featured_products) { $featured_products = [[ 'id'=>0,'name'=>'Sample Product','price'=>100.00,'original_price'=>null,'image'=>'/images/default-product.jpg','category'=>'General','rating'=>4.5,'in_stock'=>false ]]; }
             foreach ($featured_products as $p) {
                 $pid = (int)$p['id'];
                 $pnameAttr = htmlspecialchars($p['name'], ENT_QUOTES);
@@ -222,9 +238,9 @@ include_header($page_title, $page_description, $current_page);
                         foreach ($testimonials as $testimonial): ?>
                         <div class="testimonial-card">
                                 <div class="testimonial-header">
-                                        <div class="testimonial-avatar">
-                                                <img src="<?php echo $testimonial['image']; ?>" alt="<?php echo clean_output($testimonial['name']); ?>" loading="lazy" onerror="this.onerror=null;this.src='uploads/default-product.jpg';">
-                                        </div>
+                                            <div class="testimonial-avatar">
+                                                <img src="<?php echo $testimonial['image']; ?>" alt="<?php echo clean_output($testimonial['name']); ?>" loading="lazy" onerror="this.onerror=null;this.src='/images/default-product.jpg';">
+                                            </div>
                                         <div class="testimonial-info">
                                                 <h4 class="testimonial-name"><?php echo clean_output($testimonial['name']); ?></h4>
                                                 <p class="testimonial-location"><?php echo clean_output($testimonial['location']); ?></p>
