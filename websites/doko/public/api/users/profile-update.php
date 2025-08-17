@@ -11,6 +11,11 @@ try {
         ApiResponse::error('Authentication required', 401);
     }
 
+    $userId = $_SESSION['user_id'] ?? null;
+    if (!$userId) {
+        ApiResponse::error('User ID not found in session', 401);
+    }
+
     // Accept multipart/form-data or JSON
     $input = [];
     if (isset($_SERVER['CONTENT_TYPE']) && stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
@@ -105,7 +110,7 @@ try {
             // Remove previous file (best effort)
             $pdoPrev = db()->getConnection();
             $prevStmt = $pdoPrev->prepare('SELECT profile_image FROM users WHERE user_id = ?');
-            $prevStmt->execute([$_SESSION['user_id']]);
+            $prevStmt->execute([$userId]);
             $prev = $prevStmt->fetch(PDO::FETCH_ASSOC);
             if ($prev && !empty($prev['profile_image']) && strpos($prev['profile_image'], 'profiles/') !== false) {
                 // Try both legacy (project root/uploads) and new (public/uploads) locations
@@ -115,7 +120,7 @@ try {
                 ];
                 foreach($candidates as $oldPath){ if ($oldPath && file_exists($oldPath)) { @unlink($oldPath); } }
             }
-            $relative = '/uploads/profiles/'.$filename; // web path
+            $relative = 'uploads/profiles/'.$filename; // web path (no leading slash for consistency)
             if ($hasProfileImage){
                 $updates[] = 'profile_image = ?';
                 $params[] = $relative;
@@ -125,11 +130,6 @@ try {
         }
     }
 
-    $userId = $_SESSION['user_id'] ?? null;
-    if (!$userId) {
-        ApiResponse::error('User ID not found in session', 401);
-    }
-    
     $params[] = $userId;
     // Choose primary key column name
     $pk = in_array('user_id',$columns) ? 'user_id' : (in_array('id',$columns)?'id':'user_id');

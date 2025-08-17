@@ -868,7 +868,7 @@ const CartModule = (function(){
     const emptyCartEl = document.getElementById('empty-cart');
     let cart = []; let loggedIn = false; window.__dokoCartData = cart;
     function getGuestCartRaw(){try{return JSON.parse(localStorage.getItem(window.GUEST_CART_KEY||'doko_guest_cart_v1'))||[]}catch(e){return[]}}
-    function normalizeGuestCart(raw){return raw.map(it=>({product_id:it.product_id,id:it.product_id,quantity:it.quantity,name:it.name||'Item #'+it.product_id,price:parseFloat(it.price||0),image:it.image||'images/default-product.jpg'}));}
+    function normalizeGuestCart(raw){return raw.map(it=>({product_id:it.product_id,id:it.product_id,quantity:it.quantity,name:it.name||'Item #'+it.product_id,price:parseFloat(it.price||0),image:it.image||'/uploads/default-product.jpg'}));}
     async function isLoggedInFast(){
         try {
             const r = await fetch(API_BASE+'users/auth-status.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
@@ -881,7 +881,7 @@ const CartModule = (function(){
             return false;
         }
     }
-    async function fetchServerCart(){try{const r=await fetch(API_BASE+'cart/get.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();if(j.success&&Array.isArray(j.items)){return j.items.map(it=>({id:it.product_id,product_id:it.product_id,name:it.name,quantity:it.quantity,price:it.price,image:it.image||'images/default-product.jpg'}))}}catch(e){console.warn('Server cart fetch failed',e);}return[]}
+    async function fetchServerCart(){try{const r=await fetch(API_BASE+'cart/get.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();if(j.success&&Array.isArray(j.items)){return j.items.map(it=>({id:it.product_id,product_id:it.product_id,name:it.name,quantity:it.quantity,price:it.price,image:it.image||'/uploads/default-product.jpg'}))}}catch(e){console.warn('Server cart fetch failed',e);}return[]}
     async function hydrateGuestDetails(items){if(!items.length)return items;const needs=items.some(it=>!it.name||!it.price||it.price===0);if(!needs)return items;try{const resp=await fetch(API_BASE+'products/bulk-details.php',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({product_ids:items.map(i=>i.product_id)})});const data=await resp.json();if(data.success&&data.items){const map=new Map(data.items.map(d=>[d.product_id,d]));return items.map(it=>{const d=map.get(it.product_id);return d?{...it,name:d.name,price:d.price,image:d.image}:it;})}}catch(e){console.warn('Guest hydrate failed',e);}return items}
     function escapeHtml(str){return(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
     function updateCartSummary(){const subtotal=cart.reduce((s,it)=>s+(Number(it.price)||0)*it.quantity,0);const deliveryCharge=subtotal>=1000?0:50;const total=subtotal+deliveryCharge;const sEl=document.getElementById('cart-subtotal');if(!sEl)return; sEl.textContent=`Rs. ${subtotal.toFixed(2)}`;document.getElementById('delivery-charge').textContent=deliveryCharge===0?'FREE':`Rs. ${deliveryCharge.toFixed(2)}`;document.getElementById('cart-total').textContent=`Rs. ${total.toFixed(2)}`;if(typeof updateCartCount==='function')updateCartCount();}
@@ -901,7 +901,7 @@ const CartModule = (function(){
             div.className='cart-item';
             div.dataset.index=idx;
             const qtyId=`cart-qty-${item.product_id}-${idx}`; // guaranteed unique even if duplicate product ids appear
-            div.innerHTML=`<div class=\"item-image\"><img src=\"${item.image}\" alt=\"${escapeHtml(item.name)}\" loading=\"lazy\"></div><div class=\"item-details\"><div class=\"item-name\">${escapeHtml(item.name)}</div><div class=\"item-price\">Rs. ${Number(item.price).toFixed(2)}</div><div class=\"item-quantity\"><button class=\"qty-btn qty-decrease\" data-index=\"${idx}\" type=\"button\" aria-label=\"Decrease quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-minus\"></i></button><input type=\"number\" class=\"qty-input\" id=\"${qtyId}\" name=\"cart_quantities[${item.product_id}]\" value=\"${item.quantity}\" min=\"1\" data-index=\"${idx}\" aria-label=\"Quantity for ${escapeHtml(item.name)}\" autocomplete=\"off\"><button class=\"qty-btn qty-increase\" data-index=\"${idx}\" type=\"button\" aria-label=\"Increase quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-plus\"></i></button></div></div><div class=\"item-total\">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div><div class=\"remove-item\" data-index=\"${idx}\" role=\"button\" aria-label=\"Remove ${escapeHtml(item.name)}\"><i class=\"fas fa-trash\"></i></div>`;
+            div.innerHTML=`<div class=\"item-image\"><img src=\"${item.image}\" alt=\"${escapeHtml(item.name)}\" loading=\"lazy\" onerror=\"this.onerror=null;this.src='/uploads/default-product.jpg';\"></div><div class=\"item-details\"><div class=\"item-name\">${escapeHtml(item.name)}</div><div class=\"item-price\">Rs. ${Number(item.price).toFixed(2)}</div><div class=\"item-quantity\"><button class=\"qty-btn qty-decrease\" data-index=\"${idx}\" type=\"button\" aria-label=\"Decrease quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-minus\"></i></button><input type=\"number\" class=\"qty-input\" id=\"${qtyId}\" name=\"cart_quantities[${item.product_id}]\" value=\"${item.quantity}\" min=\"1\" data-index=\"${idx}\" aria-label=\"Quantity for ${escapeHtml(item.name)}\" autocomplete=\"off\"><button class=\"qty-btn qty-increase\" data-index=\"${idx}\" type=\"button\" aria-label=\"Increase quantity for ${escapeHtml(item.name)}\"><i class=\"fas fa-plus\"></i></button></div></div><div class=\"item-total\">Rs. ${(Number(item.price)*item.quantity).toFixed(2)}</div><div class=\"remove-item\" data-index=\"${idx}\" role=\"button\" aria-label=\"Remove ${escapeHtml(item.name)}\"><i class=\"fas fa-trash\"></i></div>`;
             frag.appendChild(div);
         });
         if(emptyCartEl.parentNode){emptyCartEl.parentNode.insertBefore(frag, emptyCartEl);}else{emptyCartEl.before(frag);} 
@@ -922,7 +922,7 @@ const CartModule = (function(){
         }
         cart = []; window.__dokoCartData = cart; renderCart();
     }
-    return { init, getItems, clearAll };
+    return { init, getItems, clearAll, refresh: function(){ init(); } };
 })();
 document.addEventListener('DOMContentLoaded',()=>{
     CartModule.init();

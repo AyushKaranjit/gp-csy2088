@@ -47,6 +47,20 @@ try {
     // Non-fatal; continue with session values
 }
 
+// Helper function to normalize image paths
+function normalizeImagePath($imagePath) {
+    if (empty($imagePath)) return '';
+    // If it starts with /, remove it for consistency
+    if (substr($imagePath, 0, 1) === '/') {
+        $imagePath = substr($imagePath, 1);
+    }
+    // If it doesn't start with uploads/, add it
+    if (substr($imagePath, 0, 8) !== 'uploads/') {
+        $imagePath = 'uploads/' . $imagePath;
+    }
+    return '/' . $imagePath;
+}
+
 // Page-specific variables
 $page_title = page_title('My Profile');
 $page_description = 'Manage your DOKO account profile, personal information and preferences.';
@@ -74,7 +88,7 @@ include __DIR__ . '/../template/breadcrumb.php';
                 <div class="profile-card">
                     <div class="profile-avatar">
                         <?php if (!empty($currentUser['profile_image'])): ?>
-                            <img src="<?php echo htmlspecialchars($currentUser['profile_image']); ?>" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                            <img src="<?php echo htmlspecialchars(normalizeImagePath($currentUser['profile_image'])); ?>" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
                         <?php else: ?>
                             <i class="fas fa-user-circle"></i>
                         <?php endif; ?>
@@ -138,7 +152,7 @@ include __DIR__ . '/../template/breadcrumb.php';
                                 <div class="form-group" id="profile-image-preview-wrapper" style="display:flex;align-items:center;gap:1rem;">
                                     <div id="profile-image-preview" style="width:80px;height:80px;border:1px solid #ddd;border-radius:50%;background:#fafafa;background-size:cover;background-position:center;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#666;">
                                         <?php if (!empty($currentUser['profile_image'])): ?>
-                                            <img src="<?php echo htmlspecialchars($currentUser['profile_image']); ?>" alt="Profile" style="width:100%;height:100%;object-fit:cover;" />
+                                            <img src="<?php echo htmlspecialchars(normalizeImagePath($currentUser['profile_image'])); ?>" alt="Profile" style="width:100%;height:100%;object-fit:cover;" />
                                         <?php else: ?>No Image<?php endif; ?>
                                     </div>
                                 </div>
@@ -860,20 +874,26 @@ document.addEventListener('DOMContentLoaded', function(){
 
             showNotification('Profile updated', 'success');
             if(data.user && data.user.profile_image){
+                // Normalize image path for consistency
+                let imagePath = data.user.profile_image;
+                if (imagePath && !imagePath.startsWith('/')) {
+                    imagePath = '/' + imagePath;
+                }
+                
                 // Update preview
                 const prev = document.getElementById('profile-image-preview');
-                if(prev){ prev.innerHTML = '<img src="'+data.user.profile_image+'" style="width:100%;height:100%;object-fit:cover;" />'; }
+                if(prev){ prev.innerHTML = '<img src="'+imagePath+'" style="width:100%;height:100%;object-fit:cover;" />'; }
                 // Update sidebar avatar
                 const sidebarAvatar = document.querySelector('.profile-avatar');
                 if(sidebarAvatar){ 
-                    sidebarAvatar.innerHTML = '<img src="'+data.user.profile_image+'" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">'; 
+                    sidebarAvatar.innerHTML = '<img src="'+imagePath+'" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">'; 
                 }
                 // Update header avatar if present
                 const headerImg = document.querySelector('.user-info img');
-                if(headerImg){ headerImg.src = data.user.profile_image; }
+                if(headerImg){ headerImg.src = imagePath; }
                 // Update dropdown avatar if present
                 const dropdownAvatar = document.querySelector('.dropdown-avatar');
-                if(dropdownAvatar){ dropdownAvatar.src = data.user.profile_image; }
+                if(dropdownAvatar){ dropdownAvatar.src = imagePath; }
             }
         } catch(err){
             console.error(err); showNotification(err.message || 'Profile update failed','error');

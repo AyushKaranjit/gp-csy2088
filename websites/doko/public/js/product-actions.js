@@ -9,7 +9,38 @@
                 quantity = parseInt(quantity) || 1;
                 if (typeof window.addToCart === 'function') { window.addToCart(productId, quantity, productName); return; }
                 fetch('/api/cart/add.php', { method:'POST', headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'}, credentials:'same-origin', body: JSON.stringify({ product_id: productId, quantity }) })
-                .then(r=>r.json()).then(data=>{ if (data && data.success) { window.ProductManager.showNotification('Product added to cart!', 'success'); if (typeof updateCartCount==='function') updateCartCount(); } else if (data && data.message && /auth|login/i.test(data.message)) { window.ProductManager.showNotification('Please login to add items to cart','warning'); setTimeout(()=>{ window.location.href='/login.php?redirect='+encodeURIComponent(location.pathname); },1200); } else { window.ProductManager.showNotification((data && data.message) || 'Failed to add to cart','error'); } }).catch(e=>{ console.error('AddToCart error',e); window.ProductManager.showNotification('Network error adding to cart','error'); });
+                .then(r=>r.json()).then(data=>{ 
+                    if (data && data.success) { 
+                        window.ProductManager.showNotification('Product added to cart!', 'success'); 
+                        if (typeof updateCartCount==='function') updateCartCount(); 
+                    } else if (data && data.message && /auth|login/i.test(data.message)) { 
+                        // Handle guest cart when not logged in
+                        try {
+                            let guestCart = JSON.parse(localStorage.getItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1') || '[]');
+                            const existingIndex = guestCart.findIndex(item => parseInt(item.product_id) === parseInt(productId));
+                            
+                            if (existingIndex >= 0) {
+                                guestCart[existingIndex].quantity += quantity;
+                            } else {
+                                guestCart.push({
+                                    product_id: parseInt(productId),
+                                    quantity: quantity,
+                                    name: productName,
+                                    price: 0, // Will be hydrated later
+                                    image: '/uploads/default-product.jpg' // Default image
+                                });
+                            }
+                            localStorage.setItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1', JSON.stringify(guestCart));
+                            window.ProductManager.showNotification('Product added to guest cart!', 'success');
+                            if (typeof updateCartCount==='function') updateCartCount();
+                        } catch(e) {
+                            window.ProductManager.showNotification('Please login to add items to cart','warning'); 
+                            setTimeout(()=>{ window.location.href='/login.php?redirect='+encodeURIComponent(location.pathname); },1200); 
+                        }
+                    } else { 
+                        window.ProductManager.showNotification((data && data.message) || 'Failed to add to cart','error'); 
+                    } 
+                }).catch(e=>{ console.error('AddToCart error',e); window.ProductManager.showNotification('Network error adding to cart','error'); });
             },
 
             toggleWishlist: function(productId, ev){

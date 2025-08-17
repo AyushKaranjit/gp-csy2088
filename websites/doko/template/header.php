@@ -543,4 +543,89 @@
             });
         }
     });
+
+    // Cart count update function
+    function updateCartCount() {
+        fetch('/api/cart/get.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.total_items || 0;
+                    }
+                    
+                    // If we're on the cart page, trigger a cart refresh
+                    if (window.location.pathname.includes('cart.php') && typeof CartModule !== 'undefined' && CartModule.refresh) {
+                        CartModule.refresh();
+                    }
+                } else {
+                    // Handle guest cart count
+                    try {
+                        const guestCart = JSON.parse(localStorage.getItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1') || '[]');
+                        const totalItems = guestCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                        const cartCountElement = document.querySelector('.cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = totalItems;
+                        }
+                    } catch(e) {
+                        console.error('Error updating guest cart count:', e);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+                // Fallback to guest cart count
+                try {
+                    const guestCart = JSON.parse(localStorage.getItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1') || '[]');
+                    const totalItems = guestCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = totalItems;
+                    }
+                } catch(e) {
+                    console.error('Error with fallback cart count:', e);
+                }
+            });
+    }
+
+    // Wishlist count update function
+    function updateWishlistCount() {
+        fetch('/api/wishlist/wishlist.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    const wishlistCountElement = document.querySelector('.wishlist-count');
+                    if (wishlistCountElement) {
+                        wishlistCountElement.textContent = data.count || 0;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating wishlist count:', error);
+            });
+    }
+
+    // Update counts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartCount();
+        updateWishlistCount();
+    });
+
+    // Toggle user dropdown function
+    function toggleUserDropdown() {
+        const dropdown = document.querySelector('.user-dropdown');
+        if (dropdown) {
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const userInfo = document.querySelector('.user-info');
+        const dropdown = document.querySelector('.user-dropdown');
+        if (dropdown && userInfo && !userInfo.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
     </script>

@@ -216,6 +216,17 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
     transition: transform 0.3s ease;
 }
 
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.product-img:hover {
+    opacity: 0.9;
+}
+
 .product-card:hover .product-image {
     transform: scale(1.05);
 }
@@ -550,19 +561,7 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
 }
 </style>
 <script>
-// Ensure lazy loader shared with product-card is available on admin page (idempotent)
-(function(){
-    if(window.__DOKO_LAZY_INIT) return; window.__DOKO_LAZY_INIT = true;
-    const supportsObserver = 'IntersectionObserver' in window;
-    function setup(){
-        const imgs = document.querySelectorAll('img.lazy-blur[data-src]:not([data-lazy-bound])');
-        if(!supportsObserver){ imgs.forEach(loadImage); return; }
-        const io = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ loadImage(e.target); io.unobserve(e.target);} }); }, {rootMargin:'200px 0px'});
-        imgs.forEach(img=>{ img.dataset.lazyBound=1; io.observe(img); });
-    }
-    function loadImage(img){ const src=img.getAttribute('data-src'); if(!src) return; const hi=new Image(); hi.onload=()=>{img.src=src; img.classList.add('loaded');}; hi.onerror=()=>{img.dispatchEvent(new Event('error'));}; hi.src=src; }
-    if(document.readyState==='complete' || document.readyState==='interactive') setTimeout(setup,200); else document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,200));
-})();
+// Product management JavaScript will be added here if needed
 </script>
 
 <div class="products-container">
@@ -625,13 +624,11 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
                         $lqip = '/images/default-product.jpg';
                     ?>
                     <div class="product-image ratio-4x3">
-                        <img src="<?php echo htmlspecialchars($lqip); ?>"
-                             data-src="<?php echo htmlspecialchars($highRes); ?>"
+                        <img src="<?php echo htmlspecialchars($highRes); ?>"
                              alt="<?php echo htmlspecialchars($product['name']); ?>"
-                             class="product-img lazy-blur"
-                             loading="lazy"
-                             data-fallback="/images/default-product.jpg"
-                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/images/default-product.jpg';}" />
+                             class="product-img"
+                             data-fallback="/uploads/default-product.jpg"
+                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/uploads/default-product.jpg';}" />
                     </div>
                     
                     <div class="product-info">
@@ -908,56 +905,6 @@ function deleteProduct(productId, productName) {
 document.getElementById('productModal').addEventListener('click', function(event) {
     if (event.target === this) {
         closeProductModal();
-    }
-});
-
-// Lazy Loading for Product Images
-document.addEventListener('DOMContentLoaded', function() {
-    const lazyImages = document.querySelectorAll('img.lazy-blur');
-    
-    // Immediately load images that are in viewport on page load
-    const loadImageImmediately = (img) => {
-        const src = img.getAttribute('data-src');
-        if (src && src !== img.src) {
-            const newImg = new Image();
-            newImg.onload = function() {
-                img.src = src;
-                img.classList.remove('lazy-blur');
-                img.classList.add('loaded');
-            };
-            newImg.onerror = function() {
-                // On error, just remove the blur without changing src
-                img.classList.remove('lazy-blur');
-                img.classList.add('loaded');
-            };
-            newImg.src = src;
-        } else {
-            // Image already loaded or no data-src
-            img.classList.remove('lazy-blur');
-            img.classList.add('loaded');
-        }
-    };
-    
-    // Check if Intersection Observer is supported
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    loadImageImmediately(img);
-                    observer.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '50px' // Start loading images 50px before they enter viewport
-        });
-        
-        lazyImages.forEach(img => {
-            imageObserver.observe(img);
-        });
-    } else {
-        // Fallback for browsers without Intersection Observer
-        lazyImages.forEach(loadImageImmediately);
     }
 });
 </script>

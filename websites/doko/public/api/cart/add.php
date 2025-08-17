@@ -40,8 +40,12 @@ try {
     $cartPk = schema_cart_pk();
     $cartHasPrice = schema_cart_has_price();
     
-    // Fetch product (primary attempt enforcing active status)
-    $query = "SELECT {$productsPk} AS product_id, name, price, stock_quantity, status FROM products WHERE {$productsPk} = ? AND status = 'active'";
+    // Fetch product with image (primary attempt enforcing active status)
+    $query = "SELECT p.{$productsPk} AS product_id, p.name, p.price, p.stock_quantity, p.status,
+                     COALESCE(pi.image_url, '') AS product_image
+              FROM products p
+              LEFT JOIN product_images pi ON p.{$productsPk} = pi.product_id AND pi.is_primary = 1
+              WHERE p.{$productsPk} = ? AND p.status = 'active'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -104,6 +108,17 @@ try {
     $totalStmt->execute([$user_id]);
     $total = (float) ($totalStmt->fetchColumn() ?? 0);
 
+    // Determine image path for response
+    $image_url = '/uploads/default-product.jpg';
+    $candidate = $product['product_image'] ?? '';
+    if ($candidate) {
+        if (preg_match('#^https?://#', $candidate)) {
+            $image_url = $candidate; // external
+        } else {
+            $image_url = '/uploads/' . $candidate;
+        }
+    }
+
     ApiResponse::success([
         'message' => 'Product added to cart successfully',
         'total' => $total,
@@ -111,7 +126,8 @@ try {
             'product_id' => $product['product_id'],
             'name' => $product['name'],
             'price' => (float)$product['price'],
-            'quantity' => $finalQuantity
+            'quantity' => $finalQuantity,
+            'image' => $image_url
         ],
         'is_logged_in' => true,
         'reason' => 'added'
