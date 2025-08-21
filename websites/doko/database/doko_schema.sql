@@ -553,57 +553,93 @@ CREATE TABLE activity_logs (
 -- ============================================================================
 -- SAMPLE DATA INSERTION
 -- ============================================================================
+-- Combined seed data from all PHP seed files for easy import
 
--- Insert default admin user
-INSERT INTO users (username, email, password, first_name, last_name, role, status, email_verified) VALUES
-('admin', 'admin@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', 'active', TRUE);
+-- Insert default users (admin, manager, customer)
+INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, email_verified, created_at) VALUES
+('admin', 'admin@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Site', 'Admin', NULL, 'admin', 'active', TRUE, NOW()),
+('manager', 'manager@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Store', 'Manager', '+1234567890', 'manager', 'active', TRUE, NOW()),
+('customer', 'customer@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Default', 'Customer', NULL, 'customer', 'active', TRUE, NOW());
 
--- Insert sample categories
-INSERT INTO categories (name, slug, description, sort_order, is_featured) VALUES
-('Fruits & Vegetables', 'fruits-vegetables', 'Fresh fruits and vegetables', 1, TRUE),
-('Dairy & Eggs', 'dairy-eggs', 'Milk, cheese, yogurt, and eggs', 2, TRUE),
-('Meat & Seafood', 'meat-seafood', 'Fresh meat and seafood', 3, FALSE),
-('Bakery', 'bakery', 'Bread, cakes, and baked goods', 4, TRUE),
-('Pantry Staples', 'pantry-staples', 'Rice, flour, oil, and cooking essentials', 5, TRUE),
-('Snacks & Beverages', 'snacks-beverages', 'Snacks, drinks, and beverages', 6, TRUE),
-('Frozen Foods', 'frozen-foods', 'Frozen vegetables, meat, and ready meals', 7, FALSE),
-('Personal Care', 'personal-care', 'Health and beauty products', 8, FALSE),
-('Household Items', 'household-items', 'Cleaning supplies and household essentials', 9, FALSE),
-('Baby Products', 'baby-products', 'Baby food, diapers, and care products', 10, FALSE);
+-- Insert grocery categories
+INSERT INTO categories (name, slug, description, sort_order, is_featured, created_at) VALUES
+('Fruits & Vegetables', 'fruits-vegetables', 'Fresh fruits and vegetables', 1, TRUE, NOW()),
+('Dairy Products', 'dairy-products', 'Milk, cheese, yogurt, and dairy items', 2, TRUE, NOW()),
+('Bakery', 'bakery', 'Bread, cakes, and baked goods', 3, TRUE, NOW()),
+('Beverages', 'beverages', 'Juices, tea, coffee, and drinks', 4, TRUE, NOW()),
+('Meat & Seafood', 'meat-seafood', 'Fresh meat and seafood', 5, FALSE, NOW()),
+('Pantry Staples', 'pantry-staples', 'Rice, lentils, and cooking essentials', 6, TRUE, NOW()),
+('Spices', 'spices', 'Spices and seasonings', 7, TRUE, NOW()),
+('Snacks', 'snacks', 'Chips, nuts, and snack items', 8, TRUE, NOW());
 
 -- Insert sample brands
-INSERT INTO brands (name, slug, description) VALUES
-('Fresh Farm', 'fresh-farm', 'Local fresh produce brand'),
-('Dairy Best', 'dairy-best', 'Premium dairy products'),
-('Organic Valley', 'organic-valley', 'Certified organic products'),
-('Bakery Express', 'bakery-express', 'Fresh baked goods daily'),
-('Kitchen King', 'kitchen-king', 'Quality cooking essentials');
+INSERT INTO brands (name, slug, description, is_active, created_at) VALUES
+('Fresh Farm', 'fresh-farm', 'Local fresh produce brand', TRUE, NOW()),
+('Dairy Best', 'dairy-best', 'Premium dairy products', TRUE, NOW()),
+('Organic Valley', 'organic-valley', 'Certified organic products', TRUE, NOW()),
+('Bakery Express', 'bakery-express', 'Fresh baked goods daily', TRUE, NOW()),
+('Kitchen King', 'kitchen-king', 'Quality cooking essentials', TRUE, NOW());
 
--- Insert sample products
-INSERT INTO products (sku, name, slug, short_description, description, price, original_price, category_id, brand_id, stock_quantity, unit, weight, weight_unit, featured, status) VALUES
-('APPLE001', 'Fresh Red Apples', 'fresh-red-apples', 'Crispy and sweet red apples', 'Premium quality red apples sourced from local farms. Rich in vitamins and perfect for snacking.', 180.00, 200.00, 1, 1, 50, 'kg', 1.00, 'kg', TRUE, 'active'),
-('MILK001', 'Fresh Milk 1L', 'fresh-milk-1l', 'Pure and fresh cow milk', 'Farm fresh cow milk, pasteurized and packed with nutrients. Perfect for daily consumption.', 85.00, 90.00, 2, 2, 30, 'liter', 1.00, 'kg', TRUE, 'active'),
-('RICE001', 'Basmati Rice 5kg', 'basmati-rice-5kg', 'Premium basmati rice', 'Long grain basmati rice with authentic aroma and taste. Perfect for special occasions.', 650.00, 700.00, 5, 5, 25, 'bag', 5.00, 'kg', TRUE, 'active'),
-('BREAD001', 'Whole Wheat Bread', 'whole-wheat-bread', 'Healthy whole wheat bread', 'Soft and nutritious whole wheat bread, perfect for sandwiches and toast.', 45.00, 50.00, 4, 4, 40, 'loaf', 400.00, 'g', FALSE, 'active'),
-('BANANA001', 'Fresh Bananas', 'fresh-bananas', 'Sweet and ripe bananas', 'Rich in potassium and natural sweetness, perfect for smoothies and snacking.', 120.00, 130.00, 1, 1, 60, 'dozen', 1.50, 'kg', TRUE, 'active');
+-- Insert comprehensive grocery products
+INSERT INTO products (sku, name, slug, short_description, description, price, original_price, cost_price, category_id, brand_id, stock_quantity, unit, weight, weight_unit, featured, status, visibility, created_at) VALUES
+-- Fruits & Vegetables
+('APPLE001', 'Fresh Red Apples', 'fresh-red-apples', 'Crisp and juicy red apples sourced directly from mountain orchards', 'Crisp and juicy red apples sourced directly from mountain orchards. Rich in vitamins, fiber, and antioxidants. Perfect for snacking, baking, or adding to salads. Each apple is carefully selected for quality and freshness.', 150.00, 150.00, NULL, 1, 1, 50, 'kg', 1.00, 'kg', TRUE, 'active', 'public', NOW()),
+('BANANA001', 'Bananas (Ripe)', 'bananas-ripe', 'Sweet, perfectly ripened bananas packed with potassium', 'Sweet, perfectly ripened bananas packed with potassium and natural energy. Great for breakfast, smoothies, or healthy snacks. These tropical fruits are rich in vitamins B6 and C, supporting heart health and immune function.', 90.00, 90.00, NULL, 1, 1, 80, 'kg', 1.00, 'kg', TRUE, 'active', 'public', NOW()),
+('TOMATO001', 'Tomatoes (Local)', 'tomatoes-local', 'Fresh, vine-ripened local tomatoes bursting with flavor', 'Fresh, vine-ripened local tomatoes bursting with flavor and nutrients. Grown by local farmers using sustainable practices. Perfect for cooking, salads, or making fresh sauces. High in lycopene and vitamin C.', 70.00, 70.00, NULL, 1, 1, 60, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+('POTATO001', 'Potatoes (Washed)', 'potatoes-washed', 'Premium quality table potatoes, thoroughly washed', 'Premium quality table potatoes, thoroughly washed and ready to cook. Versatile root vegetables perfect for mashing, roasting, frying, or boiling. Rich in potassium, vitamin C, and dietary fiber. Sourced from certified farms.', 55.00, 55.00, NULL, 1, 1, 100, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+('SPINACH001', 'Spinach Bundle', 'spinach-bundle', 'Fresh, tender spinach leaves packed with iron', 'Fresh, tender spinach leaves packed with iron, vitamins, and minerals. Grown organically without harmful pesticides. Perfect for salads, smoothies, curries, or sautéing. A superfood that supports bone health and immunity.', 40.00, 40.00, NULL, 1, 1, 40, 'bundle', 250.00, 'g', FALSE, 'active', 'public', NOW()),
+
+-- Dairy Products  
+('MILK001', 'Organic Milk 1L', 'organic-milk-1l', 'Pure, creamy organic cow milk from grass-fed cows', 'Pure, creamy organic cow milk from grass-fed cows. Rich in calcium, protein, and essential vitamins. Pasteurized for safety while maintaining natural taste and nutritional value. Perfect for drinking, cereals, tea, and cooking.', 80.00, 80.00, NULL, 2, 2, 40, 'liter', 1.00, 'kg', TRUE, 'active', 'public', NOW()),
+('YOGURT001', 'Plain Yogurt 500g', 'plain-yogurt-500g', 'Smooth, creamy probiotic yogurt made from pure milk cultures', 'Smooth, creamy probiotic yogurt made from pure milk cultures. Rich in beneficial bacteria that support digestive health. High in protein and calcium. Great for breakfast, snacks, or as a healthy ingredient in cooking and baking.', 120.00, 120.00, NULL, 2, 2, 30, 'pack', 500.00, 'g', FALSE, 'active', 'public', NOW()),
+('BUTTER001', 'Salted Butter 200g', 'salted-butter-200g', 'Premium quality salted butter made from fresh cream', 'Premium quality salted butter made from fresh cream. Rich, creamy texture perfect for cooking, baking, or spreading on bread. Contains natural vitamins A and D. Made using traditional churning methods for authentic taste.', 250.00, 250.00, NULL, 2, 2, 25, 'pack', 200.00, 'g', FALSE, 'active', 'public', NOW()),
+('CHEESE001', 'Cheddar Cheese 250g', 'cheddar-cheese-250g', 'Aged cheddar cheese with a sharp, tangy flavor', 'Aged cheddar cheese with a sharp, tangy flavor. Made from high-quality milk and aged to perfection. Rich in protein and calcium. Perfect for sandwiches, cooking, or cheese platters. Vacuum-sealed for freshness.', 420.00, 420.00, NULL, 2, 2, 15, 'pack', 250.00, 'g', FALSE, 'active', 'public', NOW()),
+
+-- Bakery
+('BREAD001', 'Whole Wheat Bread', 'whole-wheat-bread', 'Nutritious whole wheat bread baked fresh daily', 'Nutritious whole wheat bread baked fresh daily using traditional recipes. Made with 100% whole grain flour, rich in fiber and nutrients. No artificial preservatives. Perfect for sandwiches, toast, or healthy meals.', 90.00, 90.00, NULL, 3, 4, 30, 'loaf', 400.00, 'g', FALSE, 'active', 'public', NOW()),
+('BROWNBREAD001', 'Brown Bread Loaf', 'brown-bread-loaf', 'Fiber-rich brown bread made with whole grains', 'Fiber-rich brown bread made with whole grains and natural ingredients. Baked fresh using time-honored techniques. High in nutrients and dietary fiber. Great for healthy eating and weight management. Soft texture, nutty flavor.', 95.00, 95.00, NULL, 3, 4, 20, 'loaf', 450.00, 'g', FALSE, 'active', 'public', NOW()),
+('BUNS001', 'Classic Burger Buns 6pc', 'classic-burger-buns-6pc', 'Soft, fluffy burger buns perfect for homemade burgers', 'Soft, fluffy burger buns perfect for homemade burgers and sandwiches. Made with high-quality flour and baked to golden perfection. Fresh, airy texture that holds fillings well. Pack of 6 individual buns.', 110.00, 110.00, NULL, 3, 4, 18, 'pack', 300.00, 'g', FALSE, 'active', 'public', NOW()),
+
+-- Beverages
+('ORANGE001', 'Orange Juice 1L', 'orange-juice-1l', '100% pure orange juice made from fresh, ripe oranges', '100% pure orange juice made from fresh, ripe oranges. No added sugar or artificial flavors. Rich in vitamin C, folate, and natural antioxidants. Freshly squeezed and pasteurized for safety. Refreshing and nutritious.', 220.00, 220.00, NULL, 4, 3, 25, 'liter', 1.00, 'kg', TRUE, 'active', 'public', NOW()),
+('GREENTEA001', 'Green Tea Box', 'green-tea-box', 'Premium quality green tea leaves rich in antioxidants', 'Premium quality green tea leaves rich in antioxidants and natural compounds. Supports metabolism and overall wellness. Carefully processed to preserve flavor and health benefits. Perfect for daily consumption. Contains 25 tea bags.', 180.00, 180.00, NULL, 4, 5, 34, 'box', 50.00, 'g', FALSE, 'active', 'public', NOW()),
+('COFFEE001', 'Instant Coffee 100g', 'instant-coffee-100g', 'Premium roasted coffee beans ground to perfection', 'Premium roasted coffee beans ground to perfection for instant preparation. Rich, aromatic flavor with smooth finish. Made from carefully selected coffee beans. Just add hot water for a perfect cup. Convenient and delicious.', 480.00, 480.00, NULL, 4, 5, 22, 'jar', 100.00, 'g', FALSE, 'active', 'public', NOW()),
+
+-- Meat & Seafood
+('CHICKEN001', 'Fresh Chicken 1kg', 'fresh-chicken-1kg', 'Farm-raised chicken, cleaned and ready to cook', 'Farm-raised chicken, cleaned and ready to cook. High in protein and essential amino acids. Raised without antibiotics or hormones. Perfect for curries, grilling, roasting, or soup. Vacuum-packed for freshness and hygiene.', 360.00, 360.00, NULL, 5, 1, 18, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+('FISH001', 'Rohu Fish 1kg', 'rohu-fish-1kg', 'Fresh river fish, cleaned and cut', 'Fresh river fish, cleaned and cut. Rich in omega-3 fatty acids and high-quality protein. Supports heart and brain health. Perfect for traditional curries, frying, or grilling. Sourced from clean, natural water bodies.', 520.00, 520.00, NULL, 5, 1, 10, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+
+-- Pantry Staples
+('RICE001', 'Basmati Rice 5kg', 'basmati-rice-5kg', 'Premium long-grain basmati rice with authentic aroma', 'Premium long-grain basmati rice with authentic aroma and flavor. Aged to perfection for fluffy, separate grains when cooked. Rich in carbohydrates and gluten-free. Perfect for biryanis, pilafs, and daily meals. Premium quality guaranteed.', 1180.00, 1180.00, NULL, 6, 5, 35, 'bag', 5.00, 'kg', TRUE, 'active', 'public', NOW()),
+('LENTILS001', 'Red Lentils (Masoor) 1kg', 'red-lentils-masoor-1kg', 'Protein-rich red lentils, cleaned and sorted', 'Protein-rich red lentils, cleaned and sorted for quality. Quick-cooking legumes perfect for dal, soups, and curries. High in fiber, folate, and plant-based protein. Essential for vegetarian diets. Sourced from certified farms.', 190.00, 190.00, NULL, 6, 5, 60, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+('CHICKPEAS001', 'Chickpeas 1kg', 'chickpeas-1kg', 'High-fiber chickpeas packed with protein', 'High-fiber chickpeas (garbanzo beans) packed with protein and nutrients. Versatile legumes perfect for curries, salads, hummus, and snacks. Rich in fiber, folate, and minerals. Supports heart health and digestion.', 210.00, 210.00, NULL, 6, 5, 55, 'kg', 1.00, 'kg', FALSE, 'active', 'public', NOW()),
+
+-- Spices
+('TURMERIC001', 'Turmeric Powder 200g', 'turmeric-powder-200g', 'Pure ground turmeric with anti-inflammatory properties', 'Pure ground turmeric with anti-inflammatory properties and vibrant color. Essential spice for Indian cooking with numerous health benefits. Rich in curcumin, supports immunity and joint health. Adds color and flavor to dishes.', 160.00, 160.00, NULL, 7, 5, 40, 'pack', 200.00, 'g', FALSE, 'active', 'public', NOW()),
+('CUMIN001', 'Cumin Seeds 200g', 'cumin-seeds-200g', 'Whole cumin seeds with distinctive aroma', 'Whole cumin seeds with distinctive aroma and earthy flavor. Essential for tempering and spice blends. Rich in antioxidants and aids digestion. Perfect for dal, vegetables, and meat dishes. Premium quality, carefully sorted.', 180.00, 180.00, NULL, 7, 5, 38, 'pack', 200.00, 'g', FALSE, 'active', 'public', NOW()),
+('CORIANDER001', 'Coriander Powder 200g', 'coriander-powder-200g', 'Aromatic ground coriander seeds with fresh flavor', 'Aromatic ground coriander seeds with fresh, citrusy flavor. Essential spice for curries, marinades, and spice blends. Rich in antioxidants and supports digestion. Adds depth and aroma to cooking. Finely ground for even distribution.', 150.00, 150.00, NULL, 7, 5, 42, 'pack', 200.00, 'g', FALSE, 'active', 'public', NOW()),
+
+-- Snacks
+('PEANUTS001', 'Salted Roasted Peanuts 200g', 'salted-roasted-peanuts-200g', 'Crunchy roasted peanuts with perfect salt seasoning', 'Crunchy roasted peanuts with perfect salt seasoning. High in protein, healthy fats, and energy. Great for snacking, parties, or adding to dishes. Roasted to golden perfection. Rich in vitamins E and niacin.', 130.00, 130.00, NULL, 8, 5, 50, 'pack', 200.00, 'g', FALSE, 'active', 'public', NOW()),
+('CHIPS001', 'Masala Chips Family Pack', 'masala-chips-family-pack', 'Spiced potato chips with authentic Indian masala', 'Spiced potato chips with authentic Indian masala flavoring. Made from fresh potatoes and traditional spice blends. Crispy texture with bold flavors. Perfect for parties, picnics, or family snacking. Large family-size pack.', 180.00, 180.00, NULL, 8, 5, 45, 'pack', 150.00, 'g', FALSE, 'active', 'public', NOW());
 
 -- Insert sample system settings
-INSERT INTO system_settings (setting_key, setting_value, setting_type, description, is_public) VALUES
-('site_name', 'DOKO Grocery', 'string', 'Website name', TRUE),
-('site_description', 'Fresh groceries delivered to your door', 'string', 'Website description', TRUE),
-('currency', 'NPR', 'string', 'Default currency', TRUE),
-('tax_rate', '13.00', 'number', 'Default tax rate percentage', FALSE),
-('min_order_amount', '500.00', 'number', 'Minimum order amount for checkout', TRUE),
-('free_shipping_threshold', '2000.00', 'number', 'Minimum amount for free shipping', TRUE),
-('delivery_fee', '100.00', 'number', 'Standard delivery fee', TRUE),
-('max_cart_items', '50', 'number', 'Maximum items allowed in cart', FALSE),
-('session_timeout', '3600', 'number', 'Session timeout in seconds', FALSE),
-('maintenance_mode', 'false', 'boolean', 'Enable maintenance mode', FALSE);
+INSERT INTO system_settings (setting_key, setting_value, setting_type, description, is_public, created_at) VALUES
+('site_name', 'DOKO Grocery', 'string', 'Website name', TRUE, NOW()),
+('site_description', 'Fresh groceries delivered to your door', 'string', 'Website description', TRUE, NOW()),
+('currency', 'NPR', 'string', 'Default currency', TRUE, NOW()),
+('tax_rate', '13.00', 'number', 'Default tax rate percentage', FALSE, NOW()),
+('min_order_amount', '500.00', 'number', 'Minimum order amount for checkout', TRUE, NOW()),
+('free_shipping_threshold', '2000.00', 'number', 'Minimum amount for free shipping', TRUE, NOW()),
+('delivery_fee', '100.00', 'number', 'Standard delivery fee', TRUE, NOW()),
+('max_cart_items', '50', 'number', 'Maximum items allowed in cart', FALSE, NOW()),
+('session_timeout', '3600', 'number', 'Session timeout in seconds', FALSE, NOW()),
+('maintenance_mode', 'false', 'boolean', 'Enable maintenance mode', FALSE, NOW());
 
--- Insert sample coupon
-INSERT INTO coupons (code, name, description, type, value, min_order_amount, starts_at, expires_at) VALUES
-('WELCOME10', 'Welcome Discount', 'Get 10% off on your first order', 'percentage', 10.00, 500.00, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
-('FREESHIP', 'Free Shipping', 'Free shipping on orders above Rs. 1000', 'free_shipping', 100.00, 1000.00, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY));
+-- Insert sample coupons
+INSERT INTO coupons (code, name, description, type, value, min_order_amount, starts_at, expires_at, created_at) VALUES
+('WELCOME10', 'Welcome Discount', 'Get 10% off on your first order', 'percentage', 10.00, 500.00, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW()),
+('FREESHIP', 'Free Shipping', 'Free shipping on orders above Rs. 1000', 'free_shipping', 100.00, 1000.00, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NOW());
 
 -- ============================================================================
 -- CREATE VIEWS FOR COMMON QUERIES
