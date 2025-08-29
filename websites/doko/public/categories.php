@@ -1,11 +1,9 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once __DIR__ . '/../template/config.php                <div class="subcategory-item">
-                    <div class="subcategory-icon">🌾</div>
-                    <h4>Pantry Staples</h4>
-                    <a href="products.php?category_id=6">Shop Now</a>
-                </div>/ Page-specific variables
+require_once __DIR__ . '/../template/config.php';
+
+// Page-specific variables
 $page_title = page_title('Product Categories');
 $page_description = 'Browse our wide selection of fresh groceries by category. Find everything from vegetables to snacks at DOKO.';
 $current_page = 'categories';
