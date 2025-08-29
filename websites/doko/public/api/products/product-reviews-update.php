@@ -20,11 +20,11 @@ try {
     $existing = $db->fetchRow('SELECT * FROM product_reviews WHERE review_id = ?', [$review_id]);
     if (!$existing) { ApiResponse::error('Review not found', 404); return; }
 
-    // Only admin or owner may edit
+    // Only owner may edit
     $isOwner = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $existing['user_id'];
-    if (!($auth->isAdmin() || $isOwner)) { ApiResponse::error('Permission denied', 403); return; }
+    if (!$isOwner) { ApiResponse::error('Permission denied', 403); return; }
 
-    $status = $auth->isAdmin() ? ($data['status'] ?? $existing['status']) : 'pending';
+    $status = 'approved';
 
     $stmt = $db->prepare('UPDATE product_reviews SET rating = ?, title = ?, review = ?, status = ?, updated_at = NOW() WHERE review_id = ?');
     $stmt->execute([$rating, $title, $review, $status, $review_id]);

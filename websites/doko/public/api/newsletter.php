@@ -12,12 +12,24 @@ try {
     $input = json_input();
     if (!$input) { ApiResponse::error('Invalid JSON data', 400); }
 
-    // Validate email
+    // Enhanced email validation
     if (!isset($input['email']) || !filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
         ApiResponse::error('Valid email address is required', 400);
     }
 
     $email = trim(strtolower($input['email']));
+    
+    // Additional email validation
+    if (strlen($email) > 100) {
+        ApiResponse::error('Email address is too long', 400);
+    }
+    
+    // Check for disposable email domains (basic check)
+    $disposableDomains = ['10minutemail.com', 'guerrillamail.com', 'mailinator.com'];
+    $domain = substr(strrchr($email, "@"), 1);
+    if (in_array($domain, $disposableDomains)) {
+        ApiResponse::error('Disposable email addresses are not allowed', 400);
+    }
 
     // Get database connection
     $db = Database::getInstance();

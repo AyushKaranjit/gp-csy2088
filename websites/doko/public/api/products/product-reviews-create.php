@@ -18,11 +18,11 @@ try {
     $userId = $_SESSION['user_id'];
 
     $db = db();
-    $stmt = $db->prepare("INSERT INTO product_reviews (product_id, user_id, rating, title, review, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
+    $stmt = $db->prepare("INSERT INTO product_reviews (product_id, user_id, rating, title, review, status, created_at) VALUES (?, ?, ?, ?, ?, 'approved', NOW())");
     $stmt->execute([$product_id, $userId, $rating, $title, $review]);
     $id = $db->lastInsertId();
 
-    ApiResponse::success(['review_id' => (int)$id, 'message' => 'Review submitted and awaiting moderation']);
+    ApiResponse::success(['review_id' => (int)$id, 'message' => 'Review submitted successfully']);
 } catch (Exception $e) {
     error_log('Reviews create error: ' . $e->getMessage());
     ApiResponse::error('Failed to create review', 500);

@@ -15,7 +15,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.4",
-        "phpunit/phpcov": "*",
+        "phpunit/phpcov": "^8.2",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {

@@ -1,10 +1,12 @@
 <?php
 /**
  * Cart API Unit Tests
- * Tests cart functionality
+ * Tests cart functionality via API endpoints
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Unit;
+
+use Doko\Tests\TestCase;
 
 class CartApiTest extends TestCase
 {

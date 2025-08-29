@@ -1,10 +1,13 @@
 <?php
 /**
  * Orders API Unit Tests
- * Tests order functionality
+ * Tests order functionality via API endpoints
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Unit;
+
+use Doko\Tests\TestCase;
+use Exception;
 
 class OrdersApiTest extends TestCase
 {
@@ -258,7 +261,7 @@ class OrdersApiTest extends TestCase
             'state' => $orderData['shipping_state'],
             'zip' => $orderData['shipping_zip']
         ]);
-        $stmt = $this->db->prepare("INSERT INTO orders (order_number, user_id, status, payment_status, subtotal, tax_amount, shipping_fee, discount_amount, total_amount, shipping_address, billing_address, payment_method, ordered_at, created_at) VALUES (?, ?, ?, 'pending', ?, 0, 0, 0, ?, ?, ?, ?, NOW(), NOW())");
+        $stmt = $this->getPdo()->prepare("INSERT INTO orders (order_number, user_id, status, payment_status, subtotal, tax_amount, shipping_fee, discount_amount, total_amount, shipping_address, billing_address, payment_method, ordered_at, created_at) VALUES (?, ?, ?, 'pending', ?, 0, 0, 0, ?, ?, ?, ?, NOW(), NOW())");
         $attempts = 0;
         while (true) {
             try {
@@ -283,23 +286,23 @@ class OrdersApiTest extends TestCase
             }
         }
         
-        $orderData['order_id'] = $this->db->lastInsertId();
+        $orderData['order_id'] = $this->getPdo()->lastInsertId();
         return $orderData;
     }
     
     private function createTestOrderItem($orderId, $productId, $quantity, $price)
     {
         // Fetch product details for required name & sku columns
-        $prod = $this->db->prepare("SELECT name, sku FROM products WHERE product_id = ? LIMIT 1");
+        $prod = $this->getPdo()->prepare("SELECT name, sku FROM products WHERE product_id = ? LIMIT 1");
         $prod->execute([$productId]);
         $p = $prod->fetch();
         $productName = $p ? $p['name'] : ('Prod #' . $productId);
         $productSku = $p && !empty($p['sku']) ? $p['sku'] : ('SKU' . $productId);
-        $stmt = $this->db->prepare("INSERT INTO order_items (order_id, product_id, variant_id, product_name, product_sku, quantity, unit_price, total_price, created_at) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, NOW())");
+        $stmt = $this->getPdo()->prepare("INSERT INTO order_items (order_id, product_id, variant_id, product_name, product_sku, quantity, unit_price, total_price, created_at) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, NOW())");
         $total = $quantity * $price;
         $stmt->execute([$orderId, $productId, $productName, $productSku, $quantity, $price, $total]);
         return [
-            'order_item_id' => $this->db->lastInsertId(),
+            'order_item_id' => $this->getPdo()->lastInsertId(),
             'order_id' => $orderId,
             'product_id' => $productId,
             'product_name' => $productName,

@@ -1,7 +1,7 @@
 <?php
 /** Product Search API (refactored) */
 require_once __DIR__ . '/../_bootstrap.php';
-require_once __DIR__ . '/../../src/Services/SearchTracker.php';
+require_once __DIR__ . '/../../../src/Services/SearchTracker.php';
 use Doko\Http\ApiResponse;
 require_method('GET');
 

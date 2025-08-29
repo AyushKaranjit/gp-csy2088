@@ -1,10 +1,12 @@
 <?php
 /**
  * API Endpoint Tests
- * Tests all API endpoints for proper HTTP responses and error handling
+ * Tests all API endpoints for proper functionality
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\API;
+
+use Doko\Tests\TestCase;
 
 class ApiEndpointTest extends TestCase
 {

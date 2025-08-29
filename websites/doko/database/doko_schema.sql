@@ -320,7 +320,7 @@ CREATE TABLE wishlist (
     INDEX idx_user_id (user_id)
 );
 
--- Enhanced reviews table
+-- Enhanced reviews table (no admin approval required)
 CREATE TABLE product_reviews (
     review_id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT NOT NULL,
@@ -331,7 +331,7 @@ CREATE TABLE product_reviews (
     review TEXT,
     images JSON, -- Store review images
     is_verified_purchase BOOLEAN DEFAULT FALSE,
-    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    status ENUM('approved', 'rejected') DEFAULT 'approved',
     helpful_votes INT DEFAULT 0,
     total_votes INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

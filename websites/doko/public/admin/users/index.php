@@ -45,7 +45,6 @@ try {
             MAX(o.created_at) as last_order_date
         FROM users u
         LEFT JOIN orders o ON u.user_id = o.user_id
-        WHERE u.role != 'admin'
         GROUP BY u.user_id
         ORDER BY u.created_at DESC
     ";
@@ -553,6 +552,7 @@ tbody tr:hover {
 }
 
 .role-customer { background: #dbeafe; color: #1e40af; }
+.role-manager { background: #fef3c7; color: #92400e; }
 .role-admin { background: #fee2e2; color: #991b1b; }
 
 .action-buttons {
@@ -869,19 +869,19 @@ tbody tr:hover {
     <div class="stats-summary">
         <div class="stat-item">
             <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['role'] === 'customer')); ?></div>
-            <div class="stat-label">Total Customers</div>
+            <div class="stat-label">Customers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['role'] === 'manager')); ?></div>
+            <div class="stat-label">Managers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['role'] === 'admin')); ?></div>
+            <div class="stat-label">Admins</div>
         </div>
         <div class="stat-item">
             <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['status'] === 'active')); ?></div>
             <div class="stat-label">Active Users</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['created_at'] >= date('Y-m-d', strtotime('-30 days')))); ?></div>
-            <div class="stat-label">New This Month</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number"><?php echo count(array_filter($users, fn($u) => $u['total_orders'] > 0)); ?></div>
-            <div class="stat-label">With Orders</div>
         </div>
     </div>
 
@@ -900,6 +900,8 @@ tbody tr:hover {
         <select class="filter-select" id="roleFilter" autocomplete="off" onchange="filterUsers()">
             <option value="">All Roles</option>
             <option value="customer">Customer</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
         </select>
     </div>
 
@@ -1048,6 +1050,15 @@ tbody tr:hover {
                     <option value="pending">Pending</option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="userRole">Role *</label>
+                <select id="userRole" name="role" autocomplete="off" required>
+                    <option value="customer">Customer</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
             
             <div class="form-actions">
                 <button type="button" class="btn-cancel" onclick="closeUserModal()">Cancel</button>
@@ -1098,6 +1109,7 @@ function editUser(userId) {
     document.getElementById('userEmail').value = user.email;
     document.getElementById('userPhone').value = user.phone || '';
     document.getElementById('userStatus').value = user.status;
+    document.getElementById('userRole').value = user.role;
     
     // Hide username and password fields for existing users
     document.getElementById('usernameGroup').style.display = 'none';
@@ -1171,6 +1183,7 @@ function openAddUserModal() {
     document.getElementById('modalTitle').textContent = 'Add New User';
     document.getElementById('userForm').reset();
     document.getElementById('userId').value = '';
+    document.getElementById('userRole').value = 'customer'; // Default role for new users
     
     // Show username and password fields for new users
     document.getElementById('usernameGroup').style.display = 'block';
@@ -1275,6 +1288,7 @@ function handleUpdateUser($db) {
     $email = $_POST['email'] ?? '';
     $phone = $_POST['phone'] ?? '';
     $status = $_POST['status'] ?? '';
+    $role = $_POST['role'] ?? '';
     
     if (!$user_id || empty($first_name) || empty($last_name) || empty($email)) {
         throw new Exception('User ID, first name, last name, and email are required');
@@ -1282,6 +1296,12 @@ function handleUpdateUser($db) {
     
     if (!in_array($status, ['active', 'inactive', 'suspended', 'pending'])) {
         throw new Exception('Invalid status');
+    }
+    
+    // Validate role
+    $validRoles = ['customer', 'manager', 'admin'];
+    if (!in_array($role, $validRoles)) {
+        throw new Exception('Invalid role');
     }
     
     // Check if email is already used by another user
@@ -1293,9 +1313,9 @@ function handleUpdateUser($db) {
         throw new Exception('Email is already in use by another user');
     }
     
-    $query = "UPDATE users SET first_name=?, last_name=?, email=?, phone=?, status=?, updated_at=NOW() WHERE user_id=?";
+    $query = "UPDATE users SET first_name=?, last_name=?, email=?, phone=?, status=?, role=?, updated_at=NOW() WHERE user_id=?";
     $stmt = $db->prepare($query);
-    $stmt->execute([$first_name, $last_name, $email, $phone, $status, $user_id]);
+    $stmt->execute([$first_name, $last_name, $email, $phone, $status, $role, $user_id]);
     
     echo json_encode(['success' => true, 'message' => 'User updated successfully']);
 }
@@ -1356,7 +1376,13 @@ function handleAddUser($db) {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $status = $_POST['status'] ?? 'active';
-    $role = 'customer'; // Always create as customer
+    $role = $_POST['role'] ?? 'customer'; // Get role from form, default to customer
+    
+    // Validate role
+    $validRoles = ['customer', 'manager', 'admin'];
+    if (!in_array($role, $validRoles)) {
+        throw new Exception('Invalid role specified');
+    }
     
     if (empty($first_name) || empty($last_name) || empty($email) || empty($username) || empty($password)) {
         throw new Exception('First name, last name, email, username, and password are required');

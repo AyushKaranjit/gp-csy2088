@@ -497,6 +497,18 @@ function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email||'').toString());
 }
 
+// Phone number validation
+function validatePhone(phone) {
+    return /^(\+977|977|0)?[0-9]{7,10}$/.test((phone||'').toString().replace(/\s+/g, ''));
+}
+
+// Password strength validation
+function validatePassword(password) {
+    if (password.length < 6) return { valid: false, message: 'Password must be at least 6 characters' };
+    if (password.length < 8) return { valid: true, strength: 'weak', message: 'Consider using a stronger password' };
+    return { valid: true, strength: 'good', message: 'Password strength is good' };
+}
+
 // Google OAuth Functions
 function initGoogleLogin() {
     if (typeof google === 'undefined') {
@@ -756,11 +768,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const password = formData.get('password') || '';
         const rememberMe = formData.get('remember_me');
 
+        // Enhanced validation
+        if (!email) {
+            safeShowNotification('Please enter your email address.', 'error');
+            submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;
+            return;
+        }
+
         if (!validateEmail(email)) {
             safeShowNotification('Please enter a valid email address.', 'error');
             submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;
             return;
         }
+
+        if (!password) {
+            safeShowNotification('Please enter your password.', 'error');
+            submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;
+            return;
+        }
+
         if (password.length < 6) {
             safeShowNotification('Password must be at least 6 characters.', 'error');
             submitBtn.classList.remove('loading'); submitBtn.innerHTML = originalContent; submitBtn.disabled = false;

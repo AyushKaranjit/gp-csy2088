@@ -1,10 +1,12 @@
 <?php
 /**
  * Products API Unit Tests
- * Tests product functionality
+ * Tests product functionality via API endpoints
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Unit;
+
+use Doko\Tests\TestCase;
 
 class ProductsApiTest extends TestCase
 {
@@ -188,28 +190,5 @@ class ProductsApiTest extends TestCase
             $this->assertGreaterThanOrEqual(20, $product['price']);
             $this->assertLessThanOrEqual(100, $product['price']);
         }
-    }
-    
-    protected function createTestCategory($data = [])
-    {
-        $defaultData = [
-            'name' => 'Test Category',
-            'description' => 'A test category',
-            'is_active' => 1
-        ];
-        
-        $categoryData = array_merge($defaultData, $data);
-        
-        $slug = strtolower(preg_replace('/[^a-z0-9]+/i','-', $categoryData['name'])) . '-' . substr(uniqid(), -4);
-        $stmt = $this->db->prepare("INSERT INTO categories (name, slug, description, is_active, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->execute([
-            $categoryData['name'],
-            $slug,
-            $categoryData['description'],
-            $categoryData['is_active'] ? 1 : 0
-        ]);
-        
-        $categoryData['category_id'] = $this->db->lastInsertId();
-        return $categoryData;
     }
 }

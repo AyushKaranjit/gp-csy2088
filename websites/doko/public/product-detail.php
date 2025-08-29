@@ -72,21 +72,15 @@ try {
     $related_stmt = $db->execute($related_query, [$product['category_id'], $product_id]);
     $related_products = $related_stmt->fetchAll();
     
-    // Fetch product reviews (approved). Also allow the logged-in user to see their own pending reviews
+    // Fetch product reviews (all approved reviews)
     require_once __DIR__ . '/../src/Controllers/AuthController.php';
     // Instantiate the AuthController class (there is no global helper function in this repo)
     $auth = new AuthController();
     $currentUserId = $auth->isLoggedIn() ? ($_SESSION['user_id'] ?? null) : null;
 
     $reviewsQuery = "SELECT r.*, u.username, u.profile_image FROM product_reviews r LEFT JOIN users u ON r.user_id = u.user_id
-                     WHERE r.product_id = ? AND (r.status = 'approved'";
-    $params = [$product_id];
-    if ($currentUserId) {
-        $reviewsQuery .= " OR r.user_id = ?";
-        $params[] = $currentUserId;
-    }
-    $reviewsQuery .= ") ORDER BY r.created_at DESC";
-    $reviewsStmt = $db->execute($reviewsQuery, $params);
+                     WHERE r.product_id = ? AND r.status = 'approved' ORDER BY r.created_at DESC";
+    $reviewsStmt = $db->execute($reviewsQuery, [$product_id]);
     $product_reviews = $reviewsStmt->fetchAll();
 
     // Calculate average rating and count from reviews table (approved only)
@@ -370,10 +364,7 @@ require_once __DIR__ . '/../template/header.php';
                                     <?php if ($rev['title']): ?><h4><?php echo htmlspecialchars($rev['title']); ?></h4><?php endif; ?>
                                     <p><?php echo nl2br(htmlspecialchars($rev['review'])); ?></p>
                                     <div class="review-actions">
-                                        <?php if (is_object($auth) && $auth->isAdmin()): ?>
-                                            <button class="btn btn-danger btn-sm review-delete" data-id="<?php echo $rev['review_id']; ?>">Delete</button>
-                                            <button class="btn btn-outline btn-sm review-edit" data-id="<?php echo $rev['review_id']; ?>">Edit</button>
-                                        <?php elseif (is_object($auth) && $auth->isLoggedIn() && $currentUserId && $currentUserId == $rev['user_id']): ?>
+                                        <?php if (is_object($auth) && $auth->isLoggedIn() && $currentUserId && $currentUserId == $rev['user_id']): ?>
                                             <button class="btn btn-outline btn-sm review-edit" data-id="<?php echo $rev['review_id']; ?>">Edit</button>
                                             <button class="btn btn-danger btn-sm review-delete" data-id="<?php echo $rev['review_id']; ?>">Delete</button>
                                         <?php endif; ?>

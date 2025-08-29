@@ -4,10 +4,21 @@
  * Tests authentication functionality
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Unit;
+
+use Doko\Tests\TestCase;
+use AuthController;
 
 class AuthControllerTest extends TestCase
 {
+    private $auth;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->auth = new AuthController();
+    }
+
     public function testCanCreateAuthController()
     {
         $this->assertInstanceOf(AuthController::class, $this->auth);

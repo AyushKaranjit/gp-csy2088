@@ -14,13 +14,6 @@ if (file_exists($bootstrap)) {
     require_once $bootstrap;
 }
 
-// Include the TestCase base class (after bootstrap so fallback DB isn't used if real one exists)
-if (!class_exists('TestCase')) {
-    require_once __DIR__ . '/TestCase.php';
-} else {
-    require_once __DIR__ . '/TestCase.php'; // still include for utility trait
-}
-
 /**
  * Simple Test Runner Class
  */

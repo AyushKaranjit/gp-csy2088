@@ -179,20 +179,23 @@ include_header($page_title, $page_description, $current_page);
                         <!-- Display flash messages -->
                         <?php display_flash_message(); ?>
                         
-                        <form class="contact-form" method="POST" action="contact.php">
+                        <form class="contact-form" method="POST" action="contact.php" id="contact-form">
                             <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="name">Full Name *</label>
                                     <input type="text" id="name" name="name" required autocomplete="name" 
-                                           value="<?php echo isset($_POST['name']) ? clean_output($_POST['name']) : ''; ?>">
+                                           value="<?php echo isset($_POST['name']) ? clean_output($_POST['name']) : ''; ?>"
+                                           minlength="2" maxlength="50">
+                                    <div class="field-error" id="name-error"></div>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="email">Email Address *</label>
                                     <input type="email" id="email" name="email" required autocomplete="email"
                                            value="<?php echo isset($_POST['email']) ? clean_output($_POST['email']) : ''; ?>">
+                                    <div class="field-error" id="email-error"></div>
                                 </div>
                             </div>
                             
@@ -200,7 +203,10 @@ include_header($page_title, $page_description, $current_page);
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
                                     <input type="tel" id="phone" name="phone" autocomplete="tel"
-                                           value="<?php echo isset($_POST['phone']) ? clean_output($_POST['phone']) : ''; ?>">
+                                           value="<?php echo isset($_POST['phone']) ? clean_output($_POST['phone']) : ''; ?>"
+                                           pattern="[\+]?[0-9\s\-\(\)]*" inputmode="numeric">
+                                    <small class="form-help">Format: +977-98XXXXXXXX or 98XXXXXXXX</small>
+                                    <div class="field-error" id="phone-error"></div>
                                 </div>
                                 
                                 <div class="form-group">
@@ -215,16 +221,19 @@ include_header($page_title, $page_description, $current_page);
                                         <option value="suggestion" <?php echo (isset($_POST['subject']) && $_POST['subject'] == 'suggestion') ? 'selected' : ''; ?>>Suggestion</option>
                                         <option value="partnership" <?php echo (isset($_POST['subject']) && $_POST['subject'] == 'partnership') ? 'selected' : ''; ?>>Partnership</option>
                                     </select>
+                                    <div class="field-error" id="subject-error"></div>
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="message">Message *</label>
                                 <textarea id="message" name="message" rows="6" required 
-                                          placeholder="Please describe your inquiry in detail..."><?php echo isset($_POST['message']) ? clean_output($_POST['message']) : ''; ?></textarea>
+                                          placeholder="Please describe your inquiry in detail..." 
+                                          minlength="10" maxlength="1000"><?php echo isset($_POST['message']) ? clean_output($_POST['message']) : ''; ?></textarea>
+                                <div class="field-error" id="message-error"></div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg" id="contact-submit">
                                 <i class="fas fa-paper-plane"></i>
                                 Send Message
                             </button>
@@ -705,6 +714,33 @@ include_header($page_title, $page_description, $current_page);
         padding: 1.5rem;
     }
 }
+
+/* Form validation styles */
+.field-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+    border-color: #dc3545;
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-color: #28a745;
+}
+
+.form-help {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
 </style>
 
 <script>
@@ -799,7 +835,155 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(injectMap,1200);
     }
 });
-</script>
+
+// Contact form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contact-form');
+    if (!contactForm) return;
+    
+    // Validation functions
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+    
+    function validatePhone(phone) {
+        if (!phone.trim()) return true; // Optional field
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        return /^(\+977|977|0)?[0-9]{7,10}$/.test(cleanPhone) && cleanPhone.replace(/[^\d]/g, '').length >= 10;
+    }
+    
+    function validateName(name) {
+        return name.trim().length >= 2 && name.trim().length <= 50 && /^[a-zA-Z\s]+$/.test(name.trim());
+    }
+    
+    function showFieldError(fieldId, message) {
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        const field = document.getElementById(fieldId);
+        if (field) field.style.borderColor = '#dc3545';
+    }
+    
+    function clearFieldError(fieldId) {
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+        const field = document.getElementById(fieldId);
+        if (field) field.style.borderColor = '#ddd';
+    }
+    
+    // Real-time validation
+    const fields = ['name', 'email', 'phone', 'subject', 'message'];
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('blur', function() {
+                validateField(fieldId);
+            });
+            
+            field.addEventListener('input', function() {
+                clearFieldError(fieldId);
+            });
+        }
+    });
+    
+    function validateField(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return true;
+        
+        const value = field.value.trim();
+        
+        switch(fieldId) {
+            case 'name':
+                if (!value) {
+                    showFieldError(fieldId, 'Name is required.');
+                    return false;
+                }
+                if (!validateName(value)) {
+                    showFieldError(fieldId, 'Name must be 2-50 characters and contain only letters.');
+                    return false;
+                }
+                break;
+                
+            case 'email':
+                if (!value) {
+                    showFieldError(fieldId, 'Email is required.');
+                    return false;
+                }
+                if (!validateEmail(value)) {
+                    showFieldError(fieldId, 'Please enter a valid email address.');
+                    return false;
+                }
+                break;
+                
+            case 'phone':
+                if (value && !validatePhone(value)) {
+                    showFieldError(fieldId, 'Please enter a valid phone number.');
+                    return false;
+                }
+                break;
+                
+            case 'subject':
+                if (!value) {
+                    showFieldError(fieldId, 'Please select a subject.');
+                    return false;
+                }
+                break;
+                
+            case 'message':
+                if (!value) {
+                    showFieldError(fieldId, 'Message is required.');
+                    return false;
+                }
+                if (value.length < 10) {
+                    showFieldError(fieldId, 'Message must be at least 10 characters long.');
+                    return false;
+                }
+                if (value.length > 1000) {
+                    showFieldError(fieldId, 'Message must not exceed 1000 characters.');
+                    return false;
+                }
+                break;
+        }
+        
+        clearFieldError(fieldId);
+        return true;
+    }
+    
+    // Form submission
+    contactForm.addEventListener('submit', function(e) {
+        // Validate all fields
+        let isValid = true;
+        fields.forEach(fieldId => {
+            if (!validateField(fieldId)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('.field-error:not(:empty)');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = document.getElementById('contact-submit');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        submitBtn.disabled = true;
+        
+        // Allow form to submit
+        return true;
+    });
+});
 
 <?php
 // Include footer

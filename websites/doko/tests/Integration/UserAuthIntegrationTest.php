@@ -1,10 +1,12 @@
 <?php
 /**
- * User Registration and Login Integration Test
+ * User Authentication Integration Tests
  * Tests complete user authentication workflow
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Integration;
+
+use Doko\Tests\TestCase;
 
 class UserAuthIntegrationTest extends TestCase
 {
@@ -157,7 +159,7 @@ class UserAuthIntegrationTest extends TestCase
         $this->assertStringContainsString('not active', strtolower($loginResponse['message']));
         
         // 3. Activate user (simulate admin action)
-        $stmt = $this->db->prepare("UPDATE users SET status = 'active' WHERE user_id = ?");
+        $stmt = $this->getPdo()->prepare("UPDATE users SET status = 'active' WHERE user_id = ?");
         $stmt->execute([$inactiveUser['user_id']]);
         
         // 4. Try to login again (should succeed)

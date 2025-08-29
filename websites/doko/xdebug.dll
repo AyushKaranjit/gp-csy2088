@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Xdebug: 404 Not Found — Too Many Bugs</title>
+	<title>Xdebug: Downloads</title>
 	<meta name="ROBOTS" content="ALL" />
 	<meta name="MSSmartTagsPreventParsing" content="true" />
 	<meta name="DESCRIPTION" content="Xdebug: A powerful debugger for PHP" />
@@ -29,11 +29,111 @@
 	<div class="content_width" id="support">If you find Xdebug useful, please consider <a href='/support'>supporting the project</a>.</div>
 
 	<main class="content_width">
-<h1>404 Not Found — Too Many Bugs</h1>
+<h1>Downloads</h1>
 
-<img style="width: 100%" src='/images/bugs.jpg' alt="Unidentified Tortoise Beetles. Part of Don Ehlen's 'Insect Safari' collection. — https://commons.wikimedia.org/wiki/File:Insect_Safari_-_beetle_36.jpg — Joe Mabel"/>
+<p>Please refer to the <a href="/docs/install">installation</a> instructions on
+how to install Xdebug.</p>
 
-<br /><br />
+<h2>Source</h2>
+
+<p>Xdebug is hosted in GIT. The source code can be browsed through <a
+href='https://github.com/xdebug/xdebug'>github</a> and can be checked out with:
+</p>
+<pre>
+git clone https://github.com/xdebug/xdebug.git
+</pre>
+
+<a name='releases'></a>
+<a name='3_4_5'></a>
+<h2>Latest Release</h2>
+<strong>Xdebug 3.4.5</strong>
+<div class='copy'>Release date: 2025-07-14</div>
+
+<div class="front_releases">
+	<ul>
+		<li>Linux, macOS:
+			<ul class="releases">
+				<li><a title="SHA256:&nbsp;f58442306ce55fe3b811c31759a247242989164f2a7933f05c8d59b06665b9c9" href='/files/xdebug-3.4.5.tgz'>source</a></li>
+			</ul>
+		</li>
+					<li>Windows binaries:<br/>
+
+				<ul class="releases">
+											<li><a title="SHA256:&nbsp;2d8bd01c0fb7be15f6190858526051af07b6db3e519dce32122e673545eb117e" href='/files/php_xdebug-3.4.5-8.0-nts-vs16-x86_64.dll'>PHP 8.0 VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;4b758308f516c2d0fbd524b0f82d2def8430adf5e9d8c923c2d2572fcf553790" href='/files/php_xdebug-3.4.5-8.0-ts-vs16-x86_64.dll'>PHP 8.0 TS VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;0f11de40161eba22fab0290f80d275dc1cde62e69f6739f2a4d78f190a0789ce" href='/files/php_xdebug-3.4.5-8.1-nts-vs16-x86_64.dll'>PHP 8.1 VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;f83372b69d3eeeb1f6dc79c325c35113d5da2daa329c760811f4bc5a03dfd2ee" href='/files/php_xdebug-3.4.5-8.1-ts-vs16-x86_64.dll'>PHP 8.1 TS VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;e82f63ec3499352603f9bacd731ac7acd44d0d76e2d721e7b261dff8ec319a79" href='/files/php_xdebug-3.4.5-8.2-nts-vs16-x86_64.dll'>PHP 8.2 VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;00f438fd2a3e361724e0d6ebca5d0236b7bfe91bc3d9216bccf9e97230cfb8de" href='/files/php_xdebug-3.4.5-8.2-ts-vs16-x86_64.dll'>PHP 8.2 TS VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;0800bae0fb4740e85a2b58ca795d7098aabd8e5ff051ef9440e934fc18624787" href='/files/php_xdebug-3.4.5-8.3-nts-vs16-x86_64.dll'>PHP 8.3 VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;bd4b28d9cb87d065a8eff5b00426721daea1c81b3ef7d3d3def7a69dbd7c009e" href='/files/php_xdebug-3.4.5-8.3-ts-vs16-x86_64.dll'>PHP 8.3 TS VS16 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;6249d4e173e5ce5895349ce8bddadf73359eabdbcb6b12dce097e8069efdfc48" href='/files/php_xdebug-3.4.5-8.4-nts-vs17-x86_64.dll'>PHP 8.4 VS17 (64 bit)</a></li>
+											<li><a title="SHA256:&nbsp;8467e9546dd0c20be0aa90e0d9bb2da01aa820cce58ce1f54ef760141b9ec906" href='/files/php_xdebug-3.4.5-8.4-ts-vs17-x86_64.dll'>PHP 8.4 TS VS17 (64 bit)</a></li>
+									</ul>
+
+			</li>
+			</ul>
+</div>
+
+<a name='debugclient'></a>
+<a name='dbgpClient'></a>
+<h2>Command Line Debug Client</h2>
+
+<p>
+A lightweight debugging client, mainly used for debugging the DBGp
+implementation with Xdebug. It can show raw protocol information.
+</p>
+<p>
+This binary may be used free of charge, but as-is and without warranty. Source
+code will be available in the future.
+</p>
+
+<div class="front_releases">
+	<ul class="releases">
+		<li><a title="Linux" href="/files/binaries/dbgpClient">Linux (x86_64)</a></title>
+		<li><a title="Linux-ARM" href="/files/binaries/dbgpClient-arm64">Linux (arm64)</a></title>
+		<li><a title="macOS" href="/files/binaries/dbgpClient-macos">macOS (x86_64)</a></title>
+		<li><a title="macOS-ARM" href="/files/binaries/dbgpClient-macos-arm64">macOS (arm64)</a></title>
+		<li><a title="Windows" href="/files/binaries/dbgpClient.exe">Windows (x86_64)</a></title>
+	</ul>
+</div>
+<p>Please refer to the <a href="/docs/dbgpClient">documentation</a> to learn
+about how to use the debug client.</p>
+
+<a name='dbgpProxy'></a>
+<h2>DBGp Proxy</h2>
+
+<p>
+A proxy implementation for the DBGp protocol. For some situations, it allows
+for multiple developers to debug their application in a shared remote server.
+For more complex situations, <a href="https://xdebug.cloud">Xdebug Cloud</a>
+provides a superior alternative.
+</p>
+<p>
+This binary may be used free of charge, but as-is and without warranty. Source
+code will be available in the future.
+</p>
+
+<div class="front_releases">
+	<ul class="releases">
+		<li><a title="Linux" href="/files/binaries/dbgpProxy">Linux (x86_64)</a></title>
+		<li><a title="Linux-ARM" href="/files/binaries/dbgpProxy-arm64">Linux (arm64)</a></title>
+		<li><a title="macOS" href="/files/binaries/dbgpProxy-macos">macOS (x86_64)</a></title>
+		<li><a title="macOS-ARM" href="/files/binaries/dbgpProxy-macos-arm64">macOS (arm64)</a></title>
+		<li><a title="Windows" href="/files/binaries/dbgpProxy.exe">Windows (x86_64)</a></title>
+		<li><a title="IBMi" href="/files/binaries/dbgpProxy-IBMi">IBMi (ppc64)</a></title>
+	</ul>
+</div>
+<p>Please refer to the <a href="/docs/dbgpProxy">documentation</a> to learn
+about how to use the DBGp proxy tool.</p>
+
+<a name='historical'></a>
+<h2>Historical Releases</h2>
+
+<p>Previous releases can be found on the <a
+href='/download/historical'>historical releases</a> page. Please refer to the
+<a href="/docs/compat#versions">compatibility matrix</a> to find out which one are still
+supported.</p>
 </main>
 
 

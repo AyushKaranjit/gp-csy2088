@@ -85,13 +85,14 @@ if (!empty($_SESSION['logged_in'])) {
                             <div class="input-feedback" id="email-feedback"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="phone">Phone Number</label>
-                            <div class="input-group">
-                                <i class="fas fa-phone"></i>
-                                <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required autocomplete="tel">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <div class="input-group">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="[\+]?[0-9\s\-\(\)]*" inputmode="numeric" autocomplete="tel" oninput="formatPhoneNumber(this)">
+                                </div>
+                                <small class="form-help">Format: +977-98XXXXXXXX or 98XXXXXXXX</small>
                             </div>
-                        </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -653,6 +654,35 @@ function validateEmail(email) {
     return emailRegex.test(email);
 }
 
+// Phone validation for Nepal
+function validatePhone(phone) {
+    // Remove all spaces and special characters except + and digits
+    const cleanPhone = phone.replace(/[^\d+]/g, '');
+    // Check for valid Nepali phone number formats
+    const phoneRegex = /^(\+977|977|0)?[0-9]{7,10}$/;
+    return phoneRegex.test(cleanPhone) && cleanPhone.replace(/[^\d]/g, '').length >= 10;
+}
+
+// Real-time phone number formatting
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.startsWith('977')) {
+        value = '+' + value;
+    } else if (value.startsWith('0')) {
+        value = '+977' + value.substring(1);
+    } else if (!value.startsWith('+')) {
+        value = '+977' + value;
+    }
+
+    // Format as +977-XXXXXXXXXX
+    if (value.length >= 13) {
+        value = value.substring(0, 13);
+        input.value = value.replace(/(\+977)(\d{0,10})/, '$1-$2');
+    } else {
+        input.value = value;
+    }
+}
+
 // Form validation and submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('register-form');
@@ -771,8 +801,8 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Passwords do not match.');
             submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
         }
-        if (phone && !/^[0-9]{7,15}$/.test(phone)) {
-            alert('Please enter a valid phone number (digits only).');
+        if (phone && !validatePhone(phone)) {
+            alert('Please enter a valid Nepali phone number (e.g., +977-9851234567 or 9851234567).');
             submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
         }
 

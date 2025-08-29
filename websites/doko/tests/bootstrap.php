@@ -32,16 +32,10 @@ if (file_exists(PROJECT_ROOT . '/vendor/autoload.php')) {
     // Silent fallback include path
     
     // Fallback: Include project files manually
-    if (file_exists(CONFIG_DIR . '/database.php')) {
-        require_once CONFIG_DIR . '/database.php';
-    }
     if (file_exists(SRC_DIR . '/Controllers/AuthController.php')) {
         require_once SRC_DIR . '/Controllers/AuthController.php';
     }
 }
-
-// Include test helpers
-require_once TEST_ROOT . '/TestCase.php';
 
 // Set up test database configuration
 class TestDatabaseConfig {

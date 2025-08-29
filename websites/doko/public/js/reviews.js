@@ -31,7 +31,6 @@
             if(!list) return;
             list.innerHTML = '';
             latestReviews = json.reviews || [];
-            const isAdmin = !!json.is_admin;
             // Render Google-like reviews: header with average + count, then cards with truncated text and Read more
             const reviews = json.reviews || [];
             const header = document.createElement('div');
@@ -56,8 +55,7 @@
                     div.dataset.reviewId = r.review_id;
 
                     const statusClass = r.status === 'approved' ? 'status-approved' : r.status === 'rejected' ? 'status-rejected' : 'status-pending';
-                    const statusBadge = isAdmin && r.status ? `<span class="review-badge ${statusClass}">${escapeHtml(r.status)}</span>` : 
-                                       (!isAdmin && r.status && r.status !== 'approved') ? `<span class="review-badge ${statusClass}">${escapeHtml(r.status)}</span>` : '';
+                    const statusBadge = r.status && r.status !== 'approved' ? `<span class="review-badge ${statusClass}">${escapeHtml(r.status)}</span>` : '';
 
                     // truncate review text for compact view
                     const rawText = r.review || '';
@@ -83,8 +81,6 @@
                             <div class="gr-actions">
                                 ${r.can_edit?`<button class="btn btn-outline btn-sm review-edit" data-id="${r.review_id}">Edit</button>`:''}
                                 ${r.can_delete?`<button class="btn btn-danger btn-sm review-delete" data-id="${r.review_id}">Delete</button>`:''}
-                                ${isAdmin && r.status === 'pending' ?`<button class="btn btn-success btn-sm review-approve" data-id="${r.review_id}">Approve</button>
-                                <button class="btn btn-warning btn-sm review-reject" data-id="${r.review_id}">Reject</button>`:''}
                             </div>
                         </div>
                     `;
@@ -210,26 +206,6 @@
                 document.getElementById('review-text').value = found.review || '';
                 setStarWidgetValue(found.rating || 5);
                 window.scrollTo({top: document.querySelector('.review-form').offsetTop - 20, behavior:'smooth'});
-            }
-
-            // Admin moderation
-            const approveBtn = e.target.closest('.review-approve');
-            if (approveBtn) {
-                const id = approveBtn.dataset.id;
-                const found = latestReviews.find(r => String(r.review_id) === String(id));
-                if(!found) { alert('Review data not available'); return; }
-                const payload = { review_id: Number(id), rating: Number(found.rating||5), title: found.title||'', review: found.review||'', status: 'approved' };
-                api('/api/products/product-reviews-update.php', {method:'PUT', body: JSON.stringify(payload)})
-                .then(resp=>{ if(resp.success){ refreshReviews(productId); alert('Review approved'); } else alert(resp.message||'Failed'); });
-            }
-            const rejectBtn = e.target.closest('.review-reject');
-            if (rejectBtn) {
-                const id = rejectBtn.dataset.id;
-                const found = latestReviews.find(r => String(r.review_id) === String(id));
-                if(!found) { alert('Review data not available'); return; }
-                const payload = { review_id: Number(id), rating: Number(found.rating||1), title: found.title||'', review: found.review||'', status: 'rejected' };
-                api('/api/products/product-reviews-update.php', {method:'PUT', body: JSON.stringify(payload)})
-                .then(resp=>{ if(resp.success){ refreshReviews(productId); alert('Review rejected'); } else alert(resp.message||'Failed'); });
             }
         });
 

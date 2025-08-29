@@ -1,10 +1,12 @@
 <?php
 /**
- * Shopping Workflow Integration Test
- * Tests complete shopping experience from product browse to order completion
+ * Shopping Workflow Integration Tests
+ * Tests complete shopping workflow from product selection to checkout
  */
 
-require_once __DIR__ . '/../TestCase.php';
+namespace Doko\Tests\Integration;
+
+use Doko\Tests\TestCase;
 
 class ShoppingWorkflowIntegrationTest extends TestCase
 {
@@ -251,26 +253,5 @@ class ShoppingWorkflowIntegrationTest extends TestCase
         $productResponse = $this->getRequest('/api/products/product-detail.php?id=' . $product['product_id']);
         $this->assertEquals(0, $productResponse['product']['stock_quantity']);
         $this->assertFalse($productResponse['product']['in_stock']);
-    }
-    
-    protected function createTestCategory($data = [])
-    {
-        $defaultData = [
-            'name' => 'Test Category',
-            'description' => 'A test category',
-            'status' => 'active'
-        ];
-        $categoryData = array_merge($defaultData, $data);
-        $slug = strtolower(preg_replace('/[^a-z0-9]+/i','-', $categoryData['name'])) . '-' . substr(uniqid(), -4);
-        $stmt = $this->db->prepare("INSERT INTO categories (name, slug, description, status, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->execute([
-            $categoryData['name'],
-            $slug,
-            $categoryData['description'],
-            $categoryData['status']
-        ]);
-        $categoryData['category_id'] = $this->db->lastInsertId();
-        $categoryData['slug'] = $slug;
-        return $categoryData;
     }
 }

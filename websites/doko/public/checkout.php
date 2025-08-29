@@ -537,6 +537,82 @@ document.addEventListener('DOMContentLoaded', function() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('delivery_date').min = tomorrow.toISOString().split('T')[0];
     
+    // Validation functions
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+    
+    function validatePhone(phone) {
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        return /^(\+977|977|0)?[0-9]{7,10}$/.test(cleanPhone) && cleanPhone.replace(/[^\d]/g, '').length >= 10;
+    }
+    
+    function validateAddress(address) {
+        return address.trim().length >= 10 && address.trim().length <= 200;
+    }
+    
+    function validateArea(area) {
+        return area.trim().length >= 3 && area.trim().length <= 50;
+    }
+    
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        const existingError = field.parentElement.querySelector('.field-error');
+        if (existingError) existingError.remove();
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.style.cssText = 'color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;';
+        errorDiv.textContent = message;
+        field.parentElement.appendChild(errorDiv);
+        field.style.borderColor = '#dc3545';
+    }
+    
+    function clearFieldError(fieldId) {
+        const fieldElement = document.getElementById(fieldId);
+        const existingError = fieldElement.parentElement.querySelector('.field-error');
+        if (existingError) existingError.remove();
+        fieldElement.style.borderColor = '#ddd';
+    }
+
+// Validation functions
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePhone(phone) {
+    const cleanPhone = phone.replace(/[^\d+]/g, '');
+    return /^(\+977|977|0)?[0-9]{7,10}$/.test(cleanPhone) && cleanPhone.replace(/[^\d]/g, '').length >= 10;
+}
+
+function validateAddress(address) {
+    return address.trim().length >= 10 && address.trim().length <= 200;
+}
+
+function validateArea(area) {
+    return area.trim().length >= 3 && area.trim().length <= 50;
+}
+
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const existingError = field.parentElement.querySelector('.field-error');
+    if (existingError) existingError.remove();
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.style.cssText = 'color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;';
+    errorDiv.textContent = message;
+    field.parentElement.appendChild(errorDiv);
+    field.style.borderColor = '#dc3545';
+}
+
+function clearFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const error = field.parentElement.querySelector('.field-error');
+    if (error) error.remove();
+    field.style.borderColor = '#ddd';
+}
+    
     // Load order items
     function loadOrderItems() {
         const container = document.getElementById('order-items');
@@ -614,17 +690,32 @@ document.addEventListener('DOMContentLoaded', function() {
             total: parseFloat(document.getElementById('order-total').textContent.replace('Rs. ', ''))
         };
         
-        // Basic client-side checks
+        // Enhanced client-side validation
         const required = [
-            { el: 'address', name: 'Address' },
+            { el: 'address', name: 'Address', validator: validateAddress },
             { el: 'city', name: 'City' },
-            { el: 'area', name: 'Area' },
+            { el: 'area', name: 'Area', validator: validateArea },
             { el: 'delivery_date', name: 'Delivery Date' },
             { el: 'delivery_time', name: 'Delivery Time' }
         ];
+        
         for (const r of required) {
             const v = (formData.get(r.el) || '').toString().trim();
-            if (!v) { alert(`${r.name} is required.`); checkoutSubmitting = false; return; }
+            if (!v) { 
+                showFieldError(r.el, `${r.name} is required.`);
+                checkoutSubmitting = false; 
+                return; 
+            }
+            
+            // Additional validation for specific fields
+            if (r.validator && !r.validator(v)) {
+                let message = `${r.name} is invalid.`;
+                if (r.el === 'address') message = 'Address must be 10-200 characters long.';
+                if (r.el === 'area') message = 'Area must be 3-50 characters long.';
+                showFieldError(r.el, message);
+                checkoutSubmitting = false;
+                return;
+            }
         }
 
         // Validate delivery date is not in the past

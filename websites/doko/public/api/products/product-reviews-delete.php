@@ -20,7 +20,7 @@ try {
     if (!$existing) { ApiResponse::error('Review not found', 404); return; }
 
     $isOwner = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $existing['user_id'];
-    if (!($auth->isAdmin() || $isOwner)) { ApiResponse::error('Permission denied', 403); return; }
+    if (!$isOwner) { ApiResponse::error('Permission denied', 403); return; }
 
     $db->execute('DELETE FROM product_reviews WHERE review_id = ?', [$id]);
     ApiResponse::success(['message' => 'Review deleted']);

@@ -10,33 +10,35 @@ try {
     $db = db();
     $auth = auth_controller();
     $currentUserId = $auth->isLoggedIn() ? ($_SESSION['user_id'] ?? null) : null;
-    $isAdmin = is_object($auth) && $auth->isAdmin();
 
-    // Admins should be able to see all reviews for moderation; others see approved + their own pending
-    if ($isAdmin) {
-        $query = "SELECT r.*, u.username, u.profile_image FROM product_reviews r LEFT JOIN users u ON r.user_id = u.user_id
-                  WHERE r.product_id = ? ORDER BY r.created_at DESC";
-        $params = [$product_id];
-    } else {
-        $query = "SELECT r.*, u.username, u.profile_image FROM product_reviews r LEFT JOIN users u ON r.user_id = u.user_id
-                  WHERE r.product_id = ? AND (r.status = 'approved'";
-        $params = [$product_id];
-        if ($currentUserId) { $query .= " OR r.user_id = ?"; $params[] = $currentUserId; }
-        $query .= ") ORDER BY r.created_at DESC";
-    }
+    // All users can see all approved reviews
+    $query = "SELECT r.*, u.username, u.profile_image FROM product_reviews r LEFT JOIN users u ON r.user_id = u.user_id
+              WHERE r.product_id = ? AND r.status = 'approved' ORDER BY r.created_at DESC";
+    $params = [$product_id];
 
     $rows = $db->fetchAll($query, $params);
 
-    // Attach permission flags and normalize output
+    // Attach permission flags
     $out = [];
     foreach ($rows as $r) {
         $r['can_edit'] = ($currentUserId && isset($r['user_id']) && $currentUserId == $r['user_id']);
         $r['can_delete'] = $r['can_edit'];
-        $r['can_moderate'] = $isAdmin;
         $out[] = $r;
     }
 
-    ApiResponse::success(['reviews' => $out, 'current_user_id' => $currentUserId, 'is_admin' => $isAdmin]);
+    ApiResponse::success(['reviews' => $out, 'current_user_id' => $currentUserId]);
+
+    $rows = $db->fetchAll($query, $params);
+
+    // Attach permission flags
+    $out = [];
+    foreach ($rows as $r) {
+        $r['can_edit'] = ($currentUserId && isset($r['user_id']) && $currentUserId == $r['user_id']);
+        $r['can_delete'] = $r['can_edit'];
+        $out[] = $r;
+    }
+
+    ApiResponse::success(['reviews' => $out, 'current_user_id' => $currentUserId]);
 } catch (Exception $e) {
     error_log('Reviews list error: ' . $e->getMessage());
     ApiResponse::error('Failed to load reviews', 500);
