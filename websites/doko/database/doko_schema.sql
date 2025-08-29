@@ -1,10 +1,17 @@
 -- DOKO Grocery E-commerce Database Schema (Redesigned)
 -- CSY2088 Project - Complete New Database Structure
 -- Created: August 5, 2025
+-- Updated: August 29, 2025 (Import-Ready Version)
 
--- Drop existing database and create new one
-DROP DATABASE IF EXISTS doko_ecommerce;
-CREATE DATABASE doko_ecommerce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Set SQL mode and character set for compatibility
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+-- Database setup (commented out DROP DATABASE for security)
+-- DROP DATABASE IF EXISTS doko_ecommerce;  -- Commented out for import safety
+CREATE DATABASE IF NOT EXISTS doko_ecommerce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE doko_ecommerce;
 
 -- ============================================================================
@@ -34,13 +41,13 @@ CREATE TABLE users (
     locked_until TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_email (email),
     INDEX idx_username (username),
     INDEX idx_google_id (google_id),
     INDEX idx_status (status),
     INDEX idx_role (role)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- User addresses table for multiple delivery addresses
 CREATE TABLE user_addresses (
@@ -57,11 +64,11 @@ CREATE TABLE user_addresses (
     is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_is_default (is_default)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- User sessions for security tracking
 CREATE TABLE user_sessions (
@@ -74,11 +81,11 @@ CREATE TABLE user_sessions (
     is_active BOOLEAN DEFAULT TRUE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- PRODUCT MANAGEMENT TABLES
@@ -100,13 +107,13 @@ CREATE TABLE categories (
     is_featured BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (parent_id) REFERENCES categories(category_id) ON DELETE SET NULL,
     INDEX idx_parent_id (parent_id),
     INDEX idx_slug (slug),
     INDEX idx_is_active (is_active),
     INDEX idx_sort_order (sort_order)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Brands table for product brands
 CREATE TABLE brands (
@@ -119,10 +126,10 @@ CREATE TABLE brands (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_slug (slug),
     INDEX idx_is_active (is_active)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enhanced products table
 CREATE TABLE products (
@@ -160,7 +167,7 @@ CREATE TABLE products (
     view_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE SET NULL,
     FOREIGN KEY (brand_id) REFERENCES brands(brand_id) ON DELETE SET NULL,
     INDEX idx_sku (sku),
@@ -172,7 +179,7 @@ CREATE TABLE products (
     INDEX idx_price (price),
     INDEX idx_stock_quantity (stock_quantity),
     FULLTEXT idx_search (name, short_description, description)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Product images table
 CREATE TABLE product_images (
@@ -183,11 +190,11 @@ CREATE TABLE product_images (
     is_primary BOOLEAN DEFAULT FALSE,
     sort_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     INDEX idx_product_id (product_id),
     INDEX idx_is_primary (is_primary)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Product variants table (for different sizes, colors, etc.)
 CREATE TABLE product_variants (
@@ -203,11 +210,11 @@ CREATE TABLE product_variants (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     INDEX idx_product_id (product_id),
     INDEX idx_sku (sku)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- SHOPPING & ORDER MANAGEMENT TABLES
@@ -224,7 +231,7 @@ CREATE TABLE cart (
     price DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id) ON DELETE CASCADE,
@@ -232,7 +239,7 @@ CREATE TABLE cart (
     INDEX idx_session_id (session_id),
     INDEX idx_product_id (product_id),
     UNIQUE KEY unique_cart_item (user_id, session_id, product_id, variant_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enhanced orders table
 CREATE TABLE orders (
@@ -241,33 +248,33 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     status ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded') DEFAULT 'pending',
     payment_status ENUM('pending', 'paid', 'failed', 'refunded', 'partially_refunded') DEFAULT 'pending',
-    
+
     -- Order totals
     subtotal DECIMAL(10,2) NOT NULL,
     tax_amount DECIMAL(10,2) DEFAULT 0.00,
     shipping_fee DECIMAL(10,2) DEFAULT 0.00,
     discount_amount DECIMAL(10,2) DEFAULT 0.00,
     total_amount DECIMAL(10,2) NOT NULL,
-    
+
     -- Shipping information
     shipping_address JSON NOT NULL,
     billing_address JSON,
     shipping_method VARCHAR(50),
     tracking_number VARCHAR(100),
-    
+
     -- Payment information
     payment_method ENUM('cash_on_delivery', 'esewa', 'khalti', 'imepay', 'fonepay', 'bank_transfer') DEFAULT 'cash_on_delivery',
     payment_reference VARCHAR(100),
-    
+
     -- Delivery information
     delivery_date DATE,
     delivery_time_slot VARCHAR(50),
     delivery_instructions TEXT,
-    
+
     -- Order notes and tracking
     notes TEXT,
     admin_notes TEXT,
-    
+
     -- Timestamps
     ordered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     confirmed_at TIMESTAMP NULL,
@@ -275,14 +282,14 @@ CREATE TABLE orders (
     delivered_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     INDEX idx_order_number (order_number),
     INDEX idx_user_id (user_id),
     INDEX idx_status (status),
     INDEX idx_payment_status (payment_status),
     INDEX idx_ordered_at (ordered_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enhanced order items table
 CREATE TABLE order_items (
@@ -297,13 +304,13 @@ CREATE TABLE order_items (
     total_price DECIMAL(10,2) NOT NULL,
     product_snapshot JSON, -- Store product details at time of order
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE RESTRICT,
     FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id) ON DELETE RESTRICT,
     INDEX idx_order_id (order_id),
     INDEX idx_product_id (product_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- CUSTOMER ENGAGEMENT TABLES
@@ -315,12 +322,12 @@ CREATE TABLE wishlist (
     user_id INT NOT NULL,
     product_id INT NOT NULL,
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     UNIQUE KEY unique_wishlist (user_id, product_id),
     INDEX idx_user_id (user_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Enhanced reviews table (no admin approval required)
 CREATE TABLE product_reviews (
@@ -338,7 +345,7 @@ CREATE TABLE product_reviews (
     total_votes INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE SET NULL,
@@ -346,7 +353,7 @@ CREATE TABLE product_reviews (
     INDEX idx_user_id (user_id),
     INDEX idx_rating (rating),
     INDEX idx_status (status)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Review helpfulness tracking
 CREATE TABLE review_votes (
@@ -355,11 +362,11 @@ CREATE TABLE review_votes (
     user_id INT NOT NULL,
     is_helpful BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (review_id) REFERENCES product_reviews(review_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     UNIQUE KEY unique_vote (review_id, user_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- MARKETING & PROMOTIONS TABLES
@@ -385,11 +392,11 @@ CREATE TABLE coupons (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_code (code),
     INDEX idx_is_active (is_active),
     INDEX idx_expires_at (expires_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Coupon usage tracking
 CREATE TABLE coupon_usage (
@@ -399,13 +406,13 @@ CREATE TABLE coupon_usage (
     order_id INT NOT NULL,
     discount_amount DECIMAL(10,2) NOT NULL,
     used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     INDEX idx_coupon_id (coupon_id),
     INDEX idx_user_id (user_id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- NOTIFICATION & COMMUNICATION TABLES
@@ -423,12 +430,12 @@ CREATE TABLE notifications (
     sent_via ENUM('web', 'email', 'sms', 'push') DEFAULT 'web',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     read_at TIMESTAMP NULL,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_is_read (is_read),
     INDEX idx_type (type)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Newsletter subscriptions
 CREATE TABLE newsletter_subscriptions (
@@ -439,11 +446,11 @@ CREATE TABLE newsletter_subscriptions (
     preferences JSON, -- Store subscription preferences
     subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     unsubscribed_at TIMESTAMP NULL,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_email (email),
     INDEX idx_status (status)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- INVENTORY & STOCK MANAGEMENT TABLES
@@ -464,14 +471,14 @@ CREATE TABLE stock_movements (
     notes TEXT,
     created_by INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_product_id (product_id),
     INDEX idx_movement_type (movement_type),
     INDEX idx_created_at (created_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- ANALYTICS & REPORTING TABLES
@@ -487,13 +494,13 @@ CREATE TABLE product_views (
     user_agent TEXT,
     referrer VARCHAR(255),
     viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_product_id (product_id),
     INDEX idx_user_id (user_id),
     INDEX idx_viewed_at (viewed_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Search queries tracking
 CREATE TABLE search_queries (
@@ -505,13 +512,13 @@ CREATE TABLE search_queries (
     clicked_product_id INT NULL,
     ip_address VARCHAR(45),
     searched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     FOREIGN KEY (clicked_product_id) REFERENCES products(product_id) ON DELETE SET NULL,
     INDEX idx_query_text (query_text),
     INDEX idx_user_id (user_id),
     INDEX idx_searched_at (searched_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- SYSTEM CONFIGURATION TABLES
@@ -527,10 +534,10 @@ CREATE TABLE system_settings (
     is_public BOOLEAN DEFAULT FALSE, -- Whether setting can be accessed by frontend
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_setting_key (setting_key),
     INDEX idx_is_public (is_public)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Activity logs for admin actions
 CREATE TABLE activity_logs (
@@ -544,13 +551,13 @@ CREATE TABLE activity_logs (
     ip_address VARCHAR(45),
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_user_id (user_id),
     INDEX idx_action (action),
     INDEX idx_entity_type (entity_type),
     INDEX idx_created_at (created_at)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- SAMPLE DATA INSERTION
@@ -867,3 +874,6 @@ To migrate from the old database:
 3. Import and transform data to fit new structure
 4. Update application code to use new table structure
 */
+
+-- Commit the transaction
+COMMIT;
