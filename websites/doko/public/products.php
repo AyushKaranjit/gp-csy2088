@@ -6,13 +6,19 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../template/image-service.php';
 
 // Get filter parameters
-$category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
+$category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : (isset($_GET['category']) ? (int)$_GET['category'] : null);
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort_by = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 $min_price = isset($_GET['min_price']) ? (float)$_GET['min_price'] : 0;
 $max_price = isset($_GET['max_price']) ? (float)$_GET['max_price'] : 10000;
 
 // Page-specific variables
+if (!function_exists('page_title')) {
+    function page_title($title) {
+        return "DOKO - " . $title;
+    }
+}
+
 $page_title = page_title('Products');
 if ($category_id && isset($product_categories[$category_id])) {
     $page_title = page_title($product_categories[$category_id]['name']);
@@ -67,7 +73,7 @@ include_header($page_title, $page_description, $current_page);
                         </li>
                         <?php foreach ($product_categories as $id => $category): ?>
                         <li class="<?php echo $category_id == $id ? 'active' : ''; ?>">
-                            <a href="products.php?category=<?php echo $id; ?>">
+                            <a href="products.php?category_id=<?php echo $id; ?>">
                                 <i class="<?php echo $category['icon']; ?>"></i>
                                 <?php echo clean_output($category['name']); ?>
                             </a>

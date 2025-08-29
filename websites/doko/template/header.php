@@ -282,12 +282,34 @@
                                 <i class="fas fa-th-large"></i> Categories
                             </a>
                             <div class="dropdown-menu">
-                                <a href="products.php?category=1" class="dropdown-item">🥬 Fresh Vegetables</a>
-                                <a href="products.php?category=2" class="dropdown-item">🍎 Fresh Fruits</a>
-                                <a href="products.php?category=3" class="dropdown-item">🥛 Dairy Products</a>
-                                <a href="products.php?category=4" class="dropdown-item">🌾 Grains & Pulses</a>
-                                <a href="products.php?category=5" class="dropdown-item">🌿 Spices & Herbs</a>
-                                <a href="products.php?category=6" class="dropdown-item">🍪 Snacks & Beverages</a>
+                                <?php
+                                // Load categories for dropdown
+                                if (!isset($product_categories)) {
+                                    try {
+                                        require_once __DIR__ . '/../config/database.php';
+                                        $db = Database::getInstance();
+                                        $stmt = $db->execute("SELECT category_id, name FROM categories WHERE is_active = 1 ORDER BY sort_order LIMIT 8");
+                                        $dropdown_categories = $stmt->fetchAll();
+                                    } catch (Exception $e) {
+                                        $dropdown_categories = [];
+                                    }
+                                } else {
+                                    $dropdown_categories = $product_categories;
+                                }
+
+                                $category_icons = [
+                                    1 => '🥬', 2 => '🍎', 3 => '🥛', 4 => '🌾',
+                                    5 => '🌿', 6 => '🍪', 7 => '🥩', 8 => '🍿'
+                                ];
+
+                                foreach ($dropdown_categories as $id => $category):
+                                    $icon = $category_icons[$id] ?? '🛒';
+                                    $name = is_array($category) ? $category['name'] : $category;
+                                ?>
+                                <a href="products.php?category_id=<?php echo $id; ?>" class="dropdown-item"><?php echo $icon; ?> <?php echo htmlspecialchars($name); ?></a>
+                                <?php endforeach; ?>
+                                <div class="dropdown-divider"></div>
+                                <a href="categories.php" class="dropdown-item"><i class="fas fa-th-large"></i> All Categories</a>
                             </div>
                         </li>
                         <li class="nav-item">

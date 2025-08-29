@@ -50,7 +50,7 @@ class OrdersApiTest extends TestCase
         $this->loginUser($user);
         
         // Create test order
-        $order = $this->createTestOrder($user['user_id']);
+        $order = $this->createTestOrderWithUser($user['user_id']);
         
         // Get user orders
         $response = $this->getRequest('/api/orders/orders-list.php');
@@ -77,9 +77,9 @@ class OrdersApiTest extends TestCase
         $this->loginUser($user);
         
         $product = $this->createTestProduct(['name' => 'Order Detail Product', 'price' => 25.00]);
-        $order = $this->createTestOrder($user['user_id'], [
-            'total_amount' => 50.00,
-            'status' => 'pending'
+                $order = $this->createTestOrderWithUser($user['user_id'], [
+            'status' => 'pending',
+            'total_amount' => 150.00
         ]);
         
         // Add order item
@@ -105,7 +105,7 @@ class OrdersApiTest extends TestCase
         $this->loginUser($adminUser);
         
         $customer = $this->createTestUser(['role' => 'customer']);
-        $order = $this->createTestOrder($customer['user_id'], ['status' => 'pending']);
+        $order = $this->createTestOrderWithUser($customer['user_id'], ['status' => 'pending']);
         
         // Update order status
         $response = $this->postRequest('/api/orders/update-status.php', [
@@ -127,7 +127,7 @@ class OrdersApiTest extends TestCase
         $user = $this->createTestUser();
         $this->loginUser($user);
         
-        $order = $this->createTestOrder($user['user_id'], ['status' => 'pending']);
+        $order = $this->createTestOrderWithUser($user['user_id'], ['status' => 'pending']);
         
         // Cancel order
         $response = $this->postRequest('/api/orders/cancel-order.php', [
@@ -148,7 +148,7 @@ class OrdersApiTest extends TestCase
         $user = $this->createTestUser();
         $this->loginUser($user);
         
-        $order = $this->createTestOrder($user['user_id'], ['status' => 'shipped']);
+        $order = $this->createTestOrderWithUser($user['user_id'], ['status' => 'shipped']);
         
         // Try to cancel shipped order
         $response = $this->postRequest('/api/orders/cancel-order.php', [
@@ -199,9 +199,9 @@ class OrdersApiTest extends TestCase
         $user = $this->createTestUser();
         $this->loginUser($user);
         
-        $pendingOrder = $this->createTestOrder($user['user_id'], ['status' => 'pending']);
-        $shippedOrder = $this->createTestOrder($user['user_id'], ['status' => 'shipped']);
-        $deliveredOrder = $this->createTestOrder($user['user_id'], ['status' => 'delivered']);
+        $pendingOrder = $this->createTestOrderWithUser($user['user_id'], ['status' => 'pending']);
+        $shippedOrder = $this->createTestOrderWithUser($user['user_id'], ['status' => 'shipped']);
+        $deliveredOrder = $this->createTestOrderWithUser($user['user_id'], ['status' => 'delivered']);
         
         // Get pending orders
         $response = $this->getRequest('/api/orders/orders-list.php?status=pending');
@@ -222,8 +222,8 @@ class OrdersApiTest extends TestCase
         $user2 = $this->createTestUser(['email' => 'user2@test.com']);
         
         // Create orders for both users
-        $order1 = $this->createTestOrder($user1['user_id']);
-        $order2 = $this->createTestOrder($user2['user_id']);
+        $order1 = $this->createTestOrderWithUser($user1['user_id']);
+        $order2 = $this->createTestOrderWithUser($user2['user_id']);
         
         // Login as user1
         $this->loginUser($user1);
@@ -235,7 +235,7 @@ class OrdersApiTest extends TestCase
         $this->assertStringContainsString('access denied', strtolower($response['message']));
     }
     
-    private function createTestOrder($userId, $data = [])
+    protected function createTestOrderWithUser($userId, $data = [])
     {
         $defaultData = [
             'total_amount' => 99.99,

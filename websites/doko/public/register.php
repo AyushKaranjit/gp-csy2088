@@ -776,6 +776,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 newsletter: formData.get('newsletter') ? true : false,
                 registrationDate: new Date().toISOString()
             };
+            
+            // Subscribe to newsletter if requested
+            if (userData.newsletter) {
+                fetch('/api/newsletter.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (!result.success) {
+                        console.warn('Newsletter subscription failed:', result.message);
+                    }
+                })
+                .catch(error => {
+                    console.warn('Newsletter subscription error:', error);
+                });
+            }
+            
             sessionStorage.setItem('doko_user', JSON.stringify(userData));
             alert('Account created successfully! Welcome to DOKO family.');
             window.location.href = 'login.php?registered=true';

@@ -47,10 +47,10 @@ include_header($page_title, $page_description, $current_page);
                 $featured_offers = [
                     [
                         'id' => 1,
-                        'title' => 'Fresh Vegetables Sale',
-                        'description' => 'Up to 30% off on all fresh vegetables',
+                        'title' => 'Fruits & Vegetables Sale',
+                        'description' => 'Up to 30% off on all fresh fruits and vegetables',
                         'discount' => '30% OFF',
-                        'image' => product_image('Fresh Vegetables'),
+                        'image' => product_image('fruits-vegetables'),
                         'valid_until' => '2025-08-10',
                         'code' => 'VEGGIE30',
                         'min_order' => 500
@@ -60,7 +60,7 @@ include_header($page_title, $page_description, $current_page);
                         'title' => 'Dairy Products Special',
                         'description' => 'Buy 2 Get 1 Free on all dairy products',
                         'discount' => 'Buy 2 Get 1',
-                        'image' => product_image('Dairy Products'),
+                        'image' => product_image('dairy-products'),
                         'valid_until' => '2025-08-15',
                         'code' => 'DAIRY321',
                         'min_order' => 300
@@ -77,7 +77,7 @@ include_header($page_title, $page_description, $current_page);
                     ],
                     [
                         'id' => 4,
-                        'title' => 'Bulk Rice Discount',
+                        'title' => 'Pantry Staples Discount',
                         'description' => '20% off on rice orders above 10kg',
                         'discount' => '20% OFF',
                         'image' => product_image('Basmati Rice'),
@@ -136,10 +136,10 @@ include_header($page_title, $page_description, $current_page);
             <div class="category-offers-grid">
                 <?php
                 $category_offers = [
-                    ['category' => 'Fresh Fruits', 'discount' => '25% OFF', 'code' => 'FRUIT25', 'url' => 'products.php?category=2'],
-                    ['category' => 'Spices & Herbs', 'discount' => '15% OFF', 'code' => 'SPICE15', 'url' => 'products.php?category=5'],
-                    ['category' => 'Grains & Pulses', 'discount' => '10% OFF', 'code' => 'GRAIN10', 'url' => 'products.php?category=4'],
-                    ['category' => 'Snacks & Beverages', 'discount' => 'Buy 3 Get 1', 'code' => 'SNACK31', 'url' => 'products.php?category=6']
+                    ['category' => 'Fruits & Vegetables', 'discount' => '25% OFF', 'code' => 'FRUIT25', 'url' => 'products.php?category_id=1'],
+                    ['category' => 'Spices', 'discount' => '15% OFF', 'code' => 'SPICE15', 'url' => 'products.php?category_id=7'],
+                    ['category' => 'Pantry Staples', 'discount' => '10% OFF', 'code' => 'GRAIN10', 'url' => 'products.php?category_id=6'],
+                    ['category' => 'Snacks', 'discount' => 'Buy 3 Get 1', 'code' => 'SNACK31', 'url' => 'products.php?category_id=8']
                 ];
 
                 foreach ($category_offers as $offer): ?>

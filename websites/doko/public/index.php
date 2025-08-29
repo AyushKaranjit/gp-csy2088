@@ -3,7 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once __DIR__.'/../template/config.php';
 require_once __DIR__.'/../config/database.php';
-$page_title = page_title('Home');
+$page_title = 'Home'; // Replace with a static title or define the page_title function elsewhere
 $page_description = 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service at DOKO.';
 $current_page = 'home';
 include_header($page_title, $page_description, $current_page);

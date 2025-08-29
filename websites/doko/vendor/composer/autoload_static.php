@@ -4,13 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867
+class ComposerStaticInita27cc673a56d13dee2de063565bca9a3
 {
     public static $files = array (
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         'c72349b1fe8d0deeedd3a52e8aa814d8' => __DIR__ . '/..' . '/mockery/mockery/library/helpers.php',
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
-        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         'ec6359a19d7738cd40ba34bdc38ecbeb' => __DIR__ . '/../..' . '/config/database.php',
         '2dd2522902e1f5a18a493995edfa4654' => __DIR__ . '/../..' . '/template/config.php',
     );
@@ -108,6 +108,9 @@ class ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867
         'Doctrine\\Instantiator\\Exception\\UnexpectedValueException' => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator/Exception/UnexpectedValueException.php',
         'Doctrine\\Instantiator\\Instantiator' => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator/Instantiator.php',
         'Doctrine\\Instantiator\\InstantiatorInterface' => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator/InstantiatorInterface.php',
+        'Doko\\Http\\ApiResponse' => __DIR__ . '/../..' . '/src/Http/ApiResponse.php',
+        'Doko\\Http\\Csrf' => __DIR__ . '/../..' . '/src/Http/Csrf.php',
+        'Doko\\Http\\Validation' => __DIR__ . '/../..' . '/src/Http/Validation.php',
         'Hamcrest\\Arrays\\IsArray' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArray.php',
         'Hamcrest\\Arrays\\IsArrayContaining' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArrayContaining.php',
         'Hamcrest\\Arrays\\IsArrayContainingInAnyOrder' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Arrays/IsArrayContainingInAnyOrder.php',
@@ -1121,6 +1124,18 @@ class ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867
         'SebastianBergmann\\ObjectReflector\\Exception' => __DIR__ . '/..' . '/sebastian/object-reflector/src/Exception.php',
         'SebastianBergmann\\ObjectReflector\\InvalidArgumentException' => __DIR__ . '/..' . '/sebastian/object-reflector/src/InvalidArgumentException.php',
         'SebastianBergmann\\ObjectReflector\\ObjectReflector' => __DIR__ . '/..' . '/sebastian/object-reflector/src/ObjectReflector.php',
+        'SebastianBergmann\\PHPCOV\\Application' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/Application.php',
+        'SebastianBergmann\\PHPCOV\\Arguments' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/Arguments.php',
+        'SebastianBergmann\\PHPCOV\\ArgumentsBuilder' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/ArgumentsBuilder.php',
+        'SebastianBergmann\\PHPCOV\\ArgumentsBuilderException' => __DIR__ . '/..' . '/phpunit/phpcov/src/exceptions/ArgumentsBuilderException.php',
+        'SebastianBergmann\\PHPCOV\\Command' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/Command.php',
+        'SebastianBergmann\\PHPCOV\\Exception' => __DIR__ . '/..' . '/phpunit/phpcov/src/exceptions/Exception.php',
+        'SebastianBergmann\\PHPCOV\\ExecuteCommand' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/ExecuteCommand.php',
+        'SebastianBergmann\\PHPCOV\\HelpCommand' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/HelpCommand.php',
+        'SebastianBergmann\\PHPCOV\\MergeCommand' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/MergeCommand.php',
+        'SebastianBergmann\\PHPCOV\\PatchCoverage' => __DIR__ . '/..' . '/phpunit/phpcov/src/PatchCoverage.php',
+        'SebastianBergmann\\PHPCOV\\PatchCoverageCommand' => __DIR__ . '/..' . '/phpunit/phpcov/src/cli/PatchCoverageCommand.php',
+        'SebastianBergmann\\PHPCOV\\RequiredArgumentMissingException' => __DIR__ . '/..' . '/phpunit/phpcov/src/exceptions/RequiredArgumentMissingException.php',
         'SebastianBergmann\\RecursionContext\\Context' => __DIR__ . '/..' . '/sebastian/recursion-context/src/Context.php',
         'SebastianBergmann\\RecursionContext\\Exception' => __DIR__ . '/..' . '/sebastian/recursion-context/src/Exception.php',
         'SebastianBergmann\\RecursionContext\\InvalidArgumentException' => __DIR__ . '/..' . '/sebastian/recursion-context/src/InvalidArgumentException.php',
@@ -1170,9 +1185,9 @@ class ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit83bb5fd6a57e3c6d60f6060416903867::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita27cc673a56d13dee2de063565bca9a3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita27cc673a56d13dee2de063565bca9a3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInita27cc673a56d13dee2de063565bca9a3::$classMap;
 
         }, null, ClassLoader::class);
     }

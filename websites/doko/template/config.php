@@ -49,15 +49,73 @@ $navigation_menu = [
     'contact' => ['title' => 'Contact', 'url' => 'contact.php']
 ];
 
-// Product Categories
-$product_categories = [
-    1 => ['name' => 'Fresh Vegetables', 'icon' => 'fas fa-carrot'],
-    2 => ['name' => 'Fresh Fruits', 'icon' => 'fas fa-apple-alt'],
-    3 => ['name' => 'Dairy Products', 'icon' => 'fas fa-cheese'],
-    4 => ['name' => 'Grains & Pulses', 'icon' => 'fas fa-seedling'],
-    5 => ['name' => 'Spices & Herbs', 'icon' => 'fas fa-pepper-hot'],
-    6 => ['name' => 'Snacks & Beverages', 'icon' => 'fas fa-cookie-bite']
-];
+/**
+ * Get appropriate icon for category based on slug
+ */
+if (!function_exists('getCategoryIcon')) {
+    function getCategoryIcon($slug) {
+        $iconMap = [
+            'fruits-vegetables' => 'fas fa-carrot',
+            'dairy-products' => 'fas fa-cheese',
+            'bakery' => 'fas fa-bread-slice',
+            'beverages' => 'fas fa-coffee',
+            'meat-seafood' => 'fas fa-drumstick-bite',
+            'pantry-staples' => 'fas fa-seedling',
+            'spices' => 'fas fa-pepper-hot',
+            'snacks' => 'fas fa-cookie-bite'
+        ];
+
+        return $iconMap[$slug] ?? 'fas fa-shopping-bag';
+    }
+}
+
+/**
+ * Generate formatted page title
+ */
+if (!function_exists('page_title')) {
+    function page_title($page_name) {
+        return SITE_NAME . ' | ' . $page_name;
+    }
+}
+
+// Product Categories - Load from database
+$product_categories = [];
+try {
+    // Include database configuration if not already included
+    if (!class_exists('Database')) {
+        require_once __DIR__ . '/../config/database.php';
+    }
+
+    $db = Database::getInstance();
+    $stmt = $db->execute("
+        SELECT category_id, name, slug, description
+        FROM categories
+        WHERE is_active = 1
+        ORDER BY sort_order
+    ");
+    $categories = $stmt->fetchAll();
+
+    // Convert to the expected format for homepage
+    foreach ($categories as $category) {
+        $product_categories[$category['category_id']] = [
+            'name' => $category['name'],
+            'icon' => getCategoryIcon($category['slug']) // We'll define this function
+        ];
+    }
+} catch (Exception $e) {
+    // Fallback to basic categories if database fails
+    $product_categories = [
+        1 => ['name' => 'Fruits & Vegetables', 'icon' => 'fas fa-carrot'],
+        2 => ['name' => 'Dairy Products', 'icon' => 'fas fa-cheese'],
+        3 => ['name' => 'Bakery', 'icon' => 'fas fa-bread-slice'],
+        4 => ['name' => 'Beverages', 'icon' => 'fas fa-coffee'],
+        5 => ['name' => 'Meat & Seafood', 'icon' => 'fas fa-drumstick-bite'],
+        6 => ['name' => 'Pantry Staples', 'icon' => 'fas fa-seedling'],
+        7 => ['name' => 'Spices', 'icon' => 'fas fa-pepper-hot'],
+        8 => ['name' => 'Snacks', 'icon' => 'fas fa-cookie-bite']
+    ];
+    error_log('Failed to load categories from database: ' . $e->getMessage());
+}
 
 /**
  * Include header template with page-specific variables
@@ -87,15 +145,6 @@ if (!function_exists('include_footer')) {
         $GLOBALS['additional_js'] = $additional_js;
         $GLOBALS['inline_js'] = $inline_js;
         include __DIR__ . '/footer.php';
-    }
-}
-
-/**
- * Generate page title with site name
- */
-if (!function_exists('page_title')) {
-    function page_title($title) {
-        return $title . ' - ' . SITE_NAME;
     }
 }
 

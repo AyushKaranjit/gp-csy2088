@@ -114,7 +114,7 @@ require_once __DIR__ . '/../template/header.php';
                 <a href="products.php">Products</a>
                 <?php if ($product['category_name']): ?>
                 <span>›</span>
-                <a href="products.php?category=<?php echo $product['category_slug']; ?>">
+                <a href="products.php?category_id=<?php echo $product['category_id']; ?>">
                     <?php echo htmlspecialchars($product['category_name']); ?>
                 </a>
                 <?php endif; ?>
@@ -257,7 +257,7 @@ require_once __DIR__ . '/../template/header.php';
                         <?php if ($product['category_name']): ?>
                         <div class="detail-item">
                             <strong>Category:</strong> 
-                            <a href="products.php?category=<?php echo $product['category_slug']; ?>">
+                            <a href="products.php?category_id=<?php echo $product['category_id']; ?>">
                                 <?php echo htmlspecialchars($product['category_name']); ?>
                             </a>
                         </div>

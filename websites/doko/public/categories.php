@@ -1,12 +1,31 @@
 <?php
 // Start session and include configuration
 session_start();
-require_once __DIR__ . '/../template/config.php';
-
-// Page-specific variables
+require_once __DIR__ . '/../template/config.php                <div class="subcategory-item">
+                    <div class="subcategory-icon">🌾</div>
+                    <h4>Pantry Staples</h4>
+                    <a href="products.php?category_id=6">Shop Now</a>
+                </div>/ Page-specific variables
 $page_title = page_title('Product Categories');
 $page_description = 'Browse our wide selection of fresh groceries by category. Find everything from vegetables to snacks at DOKO.';
 $current_page = 'categories';
+
+// Get categories from database
+try {
+    $db = Database::getInstance();
+    $stmt = $db->execute("
+        SELECT c.category_id, c.name, c.slug, c.description, COUNT(p.product_id) as product_count
+        FROM categories c
+        LEFT JOIN products p ON c.category_id = p.category_id AND p.status = 'active'
+        WHERE c.is_active = 1
+        GROUP BY c.category_id, c.name, c.slug, c.description
+        ORDER BY c.sort_order
+    ");
+    $categories = $stmt->fetchAll();
+} catch (Exception $e) {
+    $categories = [];
+    error_log('Categories page error: ' . $e->getMessage());
+}
 
 // Breadcrumb items
 $breadcrumb_items = [
@@ -37,247 +56,67 @@ include_header($page_title, $page_description, $current_page);
     <section class="section">
         <div class="container">
             <div class="categories-grid">
-                <!-- Fresh Vegetables -->
-                <div class="category-card featured">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('vegetables'); ?>" alt="Fresh Vegetables">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Fresh Vegetables</h3>
-                                <p>Farm-fresh vegetables delivered daily</p>
-                                <div class="product-count">120+ Products</div>
+                <?php if (empty($categories)): ?>
+                    <div class="no-categories">
+                        <p>No categories available at the moment. Please check back later.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($categories as $category): ?>
+                        <div class="category-card<?php echo $category['category_id'] <= 2 ? ' featured' : ''; ?>">
+                            <div class="category-image">
+                                <img src="<?php echo product_image($category['slug']); ?>" alt="<?php echo htmlspecialchars($category['name']); ?>">
+                                <div class="category-overlay">
+                                    <div class="category-info">
+                                        <h3><?php echo htmlspecialchars($category['name']); ?></h3>
+                                        <p><?php echo htmlspecialchars(isset($category['description']) ? $category['description'] : 'Quality products for your daily needs'); ?></p>
+                                        <div class="product-count"><?php echo htmlspecialchars($category['product_count']); ?> Products</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="category-footer">
+                                <a href="products.php?category_id=<?php echo $category['category_id']; ?>" class="btn btn-primary">Shop Now</a>
                             </div>
                         </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=1" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Fresh Fruits -->
-                <div class="category-card featured">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('fruits'); ?>" alt="Fresh Fruits">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Fresh Fruits</h3>
-                                <p>Sweet, juicy fruits for healthy living</p>
-                                <div class="product-count">85+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=2" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Dairy Products -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('dairy'); ?>" alt="Dairy Products">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Dairy Products</h3>
-                                <p>Fresh milk, cheese, yogurt and more</p>
-                                <div class="product-count">45+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=3" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Grains & Pulses -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('grains'); ?>" alt="Grains & Pulses">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Grains & Pulses</h3>
-                                <p>Quality rice, lentils, and cereals</p>
-                                <div class="product-count">65+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=4" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Spices & Herbs -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('spices'); ?>" alt="Spices & Herbs">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Spices & Herbs</h3>
-                                <p>Authentic spices for flavorful cooking</p>
-                                <div class="product-count">95+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=5" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Snacks & Beverages -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('snacks'); ?>" alt="Snacks & Beverages">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Snacks & Beverages</h3>
-                                <p>Healthy snacks and refreshing drinks</p>
-                                <div class="product-count">75+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=6" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Meat & Seafood -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('meat'); ?>" alt="Meat & Seafood">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Meat & Seafood</h3>
-                                <p>Fresh meat and seafood selection</p>
-                                <div class="product-count">35+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=7" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Bakery Items -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('bakery'); ?>" alt="Bakery Items">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Bakery Items</h3>
-                                <p>Fresh bread, cakes, and baked goods</p>
-                                <div class="product-count">25+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=8" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Frozen Foods -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('frozen'); ?>" alt="Frozen Foods">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Frozen Foods</h3>
-                                <p>Convenient frozen meals and ingredients</p>
-                                <div class="product-count">30+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=9" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Personal Care -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('personal-care'); ?>" alt="Personal Care">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Personal Care</h3>
-                                <p>Health and beauty essentials</p>
-                                <div class="product-count">40+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=10" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Household Items -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('household'); ?>" alt="Household Items">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Household Items</h3>
-                                <p>Cleaning supplies and home essentials</p>
-                                <div class="product-count">55+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=11" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
-
-                <!-- Baby Products -->
-                <div class="category-card">
-                    <div class="category-image">
-                        <img src="<?php echo product_image('baby'); ?>" alt="Baby Products">
-                        <div class="category-overlay">
-                            <div class="category-info">
-                                <h3>Baby Products</h3>
-                                <p>Safe and gentle products for babies</p>
-                                <div class="product-count">20+ Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="category-footer">
-                        <a href="products.php?category=12" class="btn btn-primary">Shop Now</a>
-                    </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </section>
 
-    <!-- Popular Subcategories -->
+    <!-- Popular Categories -->
     <section class="section subcategories-section">
         <div class="container">
-            <h2 class="section-title">Popular Subcategories</h2>
+            <h2 class="section-title">Popular Categories</h2>
             <div class="subcategories-grid">
                 <div class="subcategory-item">
                     <div class="subcategory-icon">🥕</div>
-                    <h4>Root Vegetables</h4>
-                    <a href="products.php?subcategory=root-vegetables">Shop Now</a>  
-                </div>
-                <div class="subcategory-item">
-                    <div class="subcategory-icon">🍎</div>
-                    <h4>Seasonal Fruits</h4>
-                    <a href="products.php?subcategory=seasonal-fruits">Shop Now</a>
+                    <h4>Fruits & Vegetables</h4>
+                    <a href="products.php?category_id=1">Shop Now</a>
                 </div>
                 <div class="subcategory-item">
                     <div class="subcategory-icon">🥛</div>
-                    <h4>Organic Dairy</h4>
-                    <a href="products.php?subcategory=organic-dairy">Shop Now</a>
-                </div>
-                <div class="subcategory-item">
-                    <div class="subcategory-icon">🌶️</div>
-                    <h4>Hot Spices</h4>
-                    <a href="products.php?subcategory=hot-spices">Shop Now</a>
-                </div>
-                <div class="subcategory-item">
-                    <div class="subcategory-icon">🍪</div>
-                    <h4>Healthy Snacks</h4>
-                    <a href="products.php?subcategory=healthy-snacks">Shop Now</a>
+                    <h4>Dairy Products</h4>
+                    <a href="products.php?category_id=2">Shop Now</a>
                 </div>
                 <div class="subcategory-item">
                     <div class="subcategory-icon">🍞</div>
-                    <h4>Fresh Bread</h4>
-                    <a href="products.php?subcategory=fresh-bread">Shop Now</a>
+                    <h4>Bakery</h4>
+                    <a href="products.php?category_id=3">Shop Now</a>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">🧃</div>
+                    <h4>Beverages</h4>
+                    <a href="products.php?category_id=4">Shop Now</a>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">🥩</div>
+                    <h4>Meat & Seafood</h4>
+                    <a href="products.php?category_id=5">Shop Now</a>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">�</div>
+                    <h4>Pantry Staples</h4>
+                    <a href="products.php?category_id=6">Shop Now</a>
                 </div>
             </div>
         </div>

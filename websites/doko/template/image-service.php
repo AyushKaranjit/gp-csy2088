@@ -216,16 +216,50 @@ if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
     }
 }
 
-// Category image mappings
-$categoryImages = [
-    // Use local images from public/images for categories
-    1 => '/images/Fresh-vegetables.jpg',    // Fresh Vegetables
-    2 => '/images/Fresh-fruits.jpg',        // Fresh Fruits
-    3 => '/images/FreshDairyproduct.jpg',   // Dairy Products
-    4 => '/images/Grains & Pulses.jpg',     // Grains & Pulses
-    5 => '/images/Spices&Herbs.jpg',        // Spices & Herbs
-    6 => '/images/Snacks&Beverages.jpg',    // Snacks & Beverages
-];
+// Category image mappings - Load from database
+$categoryImages = [];
+try {
+    if (!class_exists('Database')) {
+        require_once __DIR__ . '/../config/database.php';
+    }
+    $db = Database::getInstance();
+    $stmt = $db->execute("SELECT category_id, slug FROM categories WHERE is_active = 1 ORDER BY category_id");
+    $categories = $stmt->fetchAll();
+
+    foreach ($categories as $category) {
+        $slug = $category['slug'];
+        $imagePath = "/images/categories/{$slug}.jpg";
+        // Check if category image exists, fallback to default
+        if (file_exists(__DIR__ . '/../public' . $imagePath)) {
+            $categoryImages[$category['category_id']] = $imagePath;
+        } else {
+            // Fallback to generic category images based on slug
+            $fallbackImages = [
+                'fruits-vegetables' => '/images/Fresh-vegetables.jpg',
+                'dairy-products' => '/images/FreshDairyproduct.jpg',
+                'bakery' => '/images/BrownBreadLoaf.jpg',
+                'beverages' => '/images/Orange Juice 1L.jpg',
+                'meat-seafood' => '/images/Fresh Chicken 1kg.jpg',
+                'pantry-staples' => '/images/Grains & Pulses.jpg',
+                'spices' => '/images/Coriander Powder 200g.jpg',
+                'snacks' => '/images/Masala Chips Family Pack.jpg'
+            ];
+            $categoryImages[$category['category_id']] = $fallbackImages[$slug] ?? '/images/default-category.jpg';
+        }
+    }
+} catch (Exception $e) {
+    // Fallback to basic mappings if database fails
+    $categoryImages = [
+        1 => '/images/Fresh-vegetables.jpg',
+        2 => '/images/Fresh-fruits.jpg',
+        3 => '/images/FreshDairyproduct.jpg',
+        4 => '/images/Grains & Pulses.jpg',
+        5 => '/images/Spices&Herbs.jpg',
+        6 => '/images/Snacks&Beverages.jpg',
+        7 => '/images/Fresh Chicken 1kg.jpg',
+        8 => '/images/Masala Chips Family Pack.jpg'
+    ];
+}
 
 if(defined('IMAGE_PROXY_ENABLED') && IMAGE_PROXY_ENABLED){
     foreach($categoryImages as $k=>$v){

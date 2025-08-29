@@ -491,6 +491,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const orderIdParam = params.get('order_id');
     let orderData = null;
 
+    // Check if we have order data from PHP session
+    <?php if ($order_data): ?>
+    orderData = <?php echo json_encode($order_data); ?>;
+    hydrateFromSession(orderData);
+    return;
+    <?php endif; ?>
+
     function showFallbackRedirect(){
         window.location.href = 'index.php';
     }

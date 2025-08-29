@@ -19,7 +19,6 @@ $page_title = page_title('Checkout');
 $page_description = 'Complete your order and get fresh groceries delivered to your doorstep.';
 $current_page = 'checkout';
 
-// Breadcrumb items
 $breadcrumb_items = [
     ['title' => 'Home', 'url' => 'index.php'],
     ['title' => 'Shopping Cart', 'url' => 'cart.php'],
@@ -519,8 +518,8 @@ include_header($page_title, $page_description, $current_page);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Load cart items
-    const cart = JSON.parse(localStorage.getItem('doko_cart')) || [];
+    // Load cart items from the global cart data
+    const cart = window.__dokoCartData || [];
     
     // Set minimum delivery date to tomorrow
     const tomorrow = new Date();
@@ -594,7 +593,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 delivery_time: formData.get('delivery_time')
             },
             payment_method: formData.get('payment_method'),
-            items: cart,
+            items: cart.map(item => ({
+                id: item.product_id || item.id,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                image: item.image
+            })),
             total: parseFloat(document.getElementById('order-total').textContent.replace('Rs. ', ''))
         };
         
@@ -627,13 +632,40 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         submitBtn.disabled = true;
 
-        setTimeout(() => {
-            // Clear cart
-            localStorage.removeItem('doko_cart');
-            // Redirect to order confirmation
-            sessionStorage.setItem('order_data', JSON.stringify(orderData));
-            window.location.href = 'order-confirmation.php';
-        }, 900);
+        // Send order data to API
+        fetch('api/orders/place-order.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear cart using CartModule if available
+                if (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.clearAll === 'function') {
+                    CartModule.clearAll();
+                } else {
+                    // Fallback: clear localStorage
+                    localStorage.removeItem('doko_cart');
+                    window.__dokoCartData = [];
+                }
+                // Redirect to order confirmation
+                window.location.href = data.data.redirect || 'order-confirmation.php';
+            } else {
+                throw new Error(data.message || 'Failed to place order');
+            }
+        })
+        .catch(error => {
+            console.error('Order placement error:', error);
+            alert('Error placing order. Please try again.');
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            checkoutSubmitting = false;
+        });
     });
     
     // Promo code functionality
