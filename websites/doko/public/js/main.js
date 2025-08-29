@@ -1,3 +1,14 @@
+/*
+ * DOKO E-Commerce Website - Main JavaScript File
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * Author: Team Graduation
+ * Version: 1.0
+ * Date: 2025
+ */
+
 // Main global JS helpers (initial minimal scaffold)
 // Ensures addToCartWithQuantity etc. exist on pages that did not explicitly include product-actions earlier.
 (function(){

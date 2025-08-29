@@ -1,4 +1,15 @@
 <?php
+/**
+ * DOKO E-Commerce Website - Shopping Cart Page
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by the student developer to demonstrate web development skills.
+ *
+ * @author Student Developer
+ * @version 1.0
+ * @date 2025
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

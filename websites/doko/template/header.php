@@ -1,3 +1,15 @@
+<?php
+/**
+ * DOKO E-Commerce Website - Header Template
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * @author Team Graduation
+ * @version 1.0
+ * @date 2025
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

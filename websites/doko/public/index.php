@@ -1,9 +1,20 @@
 <?php
+/**
+ * DOKO E-Commerce Website - Homepage
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * @author Team Graduation
+ * @version 1.0
+ * @date 2025
+ */
+
 // Clean rebuilt index removing duplicated nested sections
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once __DIR__.'/../template/config.php';
 require_once __DIR__.'/../config/database.php';
-$page_title = 'Home'; // Replace with a static title or define the page_title function elsewhere
+$page_title = 'Home';
 $page_description = 'Fresh groceries delivered to your doorstep across Nepal. Quality products, competitive prices, and reliable service at DOKO.';
 $current_page = 'home';
 include_header($page_title, $page_description, $current_page);

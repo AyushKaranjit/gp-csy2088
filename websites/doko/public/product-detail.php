@@ -1,7 +1,13 @@
 <?php
 /**
- * Product Detail Page
- * DOKO Grocery E-commerce
+ * DOKO E-Commerce Website - Product Detail Page
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by the student developer to demonstrate web development skills.
+ *
+ * @author Student Developer
+ * @version 1.0
+ * @date 2025
  */
 
 // Start session safely - BEFORE any output

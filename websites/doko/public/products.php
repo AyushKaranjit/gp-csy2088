@@ -1,4 +1,15 @@
 <?php
+/**
+ * DOKO E-Commerce Website - Products Page
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * @author Team Graduation
+ * @version 1.0
+ * @date 2025
+ */
+
 // Start session and include configuration
 session_start();
 require_once __DIR__ . '/../template/config.php';
@@ -13,11 +24,6 @@ $min_price = isset($_GET['min_price']) ? (float)$_GET['min_price'] : 0;
 $max_price = isset($_GET['max_price']) ? (float)$_GET['max_price'] : 10000;
 
 // Page-specific variables
-if (!function_exists('page_title')) {
-    function page_title($title) {
-        return "DOKO - " . $title;
-    }
-}
 
 $page_title = page_title('Products');
 if ($category_id && isset($product_categories[$category_id])) {

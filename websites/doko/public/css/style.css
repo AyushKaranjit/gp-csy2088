@@ -1,3 +1,14 @@
+/*
+ * DOKO E-Commerce Website - Main Stylesheet
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * Author: Team Graduation
+ * Version: 1.0
+ * Date: 2025
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 /* Fix user dropdown menu overlapping navbar */
 .header-action.user-dropdown {

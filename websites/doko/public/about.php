@@ -1,4 +1,15 @@
 <?php
+/**
+ * DOKO E-Commerce Website - About Us Page
+ *
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * @author Team Graduation
+ * @version 1.0
+ * @date 2025
+ */
+
 // Start session and include configuration
 session_start();
 require_once __DIR__ . '/../template/config.php';

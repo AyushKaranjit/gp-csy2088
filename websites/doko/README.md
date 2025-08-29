@@ -1,6 +1,17 @@
 # DOKO E-Commerce Website
 
-A modern e-commerce platform built with PHP, MySQL, and JavaScript.
+**Team Name:** Graduation
+
+A modern e-commerce platform built with PHP, MySQL, and JavaScript for educational purposes by Team Graduation.
+
+## Academic Integrity Statement
+
+This website was developed as part of an academic project for educational purposes. All code was written by the student developers from Team Graduation to demonstrate web development skills and understanding of e-commerce systems. This project serves as a portfolio piece to showcase programming abilities and is not intended for commercial use.
+
+**Team:** Graduation
+**Author:** Team Graduation - Student Developers
+**Date:** 2025
+**Purpose:** Educational Project
 
 ## 📁 Project Structure
 

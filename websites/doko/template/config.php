@@ -1,7 +1,14 @@
 <?php
 /**
- * Template Configuration and Helper Functions
- * This file contains common configuration and helper functions for all templates
+ * DOKO E-Commerce Website - Template Configuration
+ *
+ * This file contains configuration and helper functions for the DOKO e-commerce website.
+ * This website was developed as part of an academic project for educational purposes.
+ * All code was written by Team Graduation to demonstrate web development skills.
+ *
+ * @author Team Graduation
+ * @version 1.0
+ * @date 2025
  */
 
 // Include image service
@@ -99,7 +106,7 @@ try {
     foreach ($categories as $category) {
         $product_categories[$category['category_id']] = [
             'name' => $category['name'],
-            'icon' => getCategoryIcon($category['slug']) // We'll define this function
+            'icon' => getCategoryIcon($category['slug'])
         ];
     }
 } catch (Exception $e) {
