@@ -507,8 +507,8 @@ tbody tr:hover {
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #e5e7eb;
     display: flex;
@@ -516,6 +516,8 @@ tbody tr:hover {
     justify-content: center;
     font-weight: 600;
     color: #6b7280;
+    font-size: 0.75rem;
+    flex-shrink: 0;
 }
 
 .user-details h4 {

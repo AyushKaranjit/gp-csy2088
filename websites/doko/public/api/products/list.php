@@ -87,7 +87,7 @@ try {
     $formatted_products = [];
     foreach ($products as $product) {
         // Determine image path (support external absolute URL or local upload filename)
-        $image_url = '/uploads/default-product.jpg';
+        $image_url = '/images/default-product.jpg';
         $candidate = $product['primary_image'] ?? ($product['image_url'] ?? '');
         if ($candidate) {
             if (preg_match('#^https?://#i', $candidate)) {

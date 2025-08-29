@@ -588,10 +588,24 @@ body.admin-ready .products-container {
         <?php if (!empty($products)): ?>
             <?php foreach ($products as $product): ?>
                 <div class="product-card" data-category="<?php echo $product['category_id']; ?>" data-status="<?php echo $product['status']; ?>">
-                    <img src="<?php echo !empty($product['image_url']) ? '../../../uploads/' . $product['image_url'] : '../../../uploads/default-product.jpg'; ?>" 
-                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                    <?php
+                        // Use the same image resolution logic as the public products page
+                        require_once '../../../../template/image-service.php';
+                        $resolvedExternal = getProductImage($product['name']);
+                        $img = trim((string)($product['image_url'] ?? ''));
+
+                        // Prefer curated external if local image is default or missing
+                        if ($img === '' || stripos($img, 'default') !== false) {
+                            $img = $resolvedExternal ?: $img;
+                        }
+
+                        if($img === '' ){ $img = '../../../images/default-product.jpg'; }
+                        $displayImage = $img;
+                    ?>
+                    <img src="<?php echo htmlspecialchars($displayImage); ?>"
+                         alt="<?php echo htmlspecialchars($product['name']); ?>"
                          class="product-image"
-                         onerror="this.src='../../../uploads/default-product.jpg'">
+                         onerror="this.src='../../../images/default-product.jpg'">
                     
                     <div class="product-info">
                         <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>

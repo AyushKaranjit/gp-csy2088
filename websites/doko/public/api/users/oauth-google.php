@@ -47,6 +47,15 @@ try {
     
     // Ensure session started
     if (session_status() === PHP_SESSION_NONE) {
+        // Set session cookie parameters for better browser compatibility
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => false,
+            'httponly' => false,
+            'samesite' => 'Lax'
+        ]);
         session_start();
     }
     

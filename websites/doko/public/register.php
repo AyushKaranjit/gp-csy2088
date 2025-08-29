@@ -11,6 +11,15 @@
  */
 
 // Start session and include configuration
+// Set session cookie parameters for better browser compatibility
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => false,
+    'samesite' => 'Lax'
+]);
 session_start();
 require_once __DIR__ . '/../template/config.php';
 
@@ -806,40 +815,60 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = originalContent; submitBtn.disabled = false; registerSubmitting = false; return;
         }
 
-        // Simulate registration process
-        setTimeout(() => {
-            const userData = {
+        // Submit registration data to API
+        fetch('api/users/auth-register.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                username: email, // Use email as username for simplicity
+                email: email,
+                password: password,
                 first_name: formData.get('first_name'),
                 last_name: formData.get('last_name'),
-                email: email,
-                phone: phone,
-                city: formData.get('city'),
-                newsletter: formData.get('newsletter') ? true : false,
-                registrationDate: new Date().toISOString()
-            };
-            
-            // Subscribe to newsletter if requested
-            if (userData.newsletter) {
-                fetch('/api/newsletter.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (!result.success) {
-                        console.warn('Newsletter subscription failed:', result.message);
-                    }
-                })
-                .catch(error => {
-                    console.warn('Newsletter subscription error:', error);
-                });
+                phone: phone
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Subscribe to newsletter if requested
+                if (formData.get('newsletter')) {
+                    fetch('/api/newsletter.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(response => response.json())
+                    .then(newsletterResult => {
+                        if (!newsletterResult.success) {
+                            console.warn('Newsletter subscription failed:', newsletterResult.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.warn('Newsletter subscription error:', error);
+                    });
+                }
+                
+                alert('Account created successfully! Welcome to DOKO family. Please login with your credentials.');
+                window.location.href = 'login.php?registered=true';
+            } else {
+                alert('Registration failed: ' + (result.message || 'Unknown error'));
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+                registerSubmitting = false;
             }
-            
-            sessionStorage.setItem('doko_user', JSON.stringify(userData));
-            alert('Account created successfully! Welcome to DOKO family.');
-            window.location.href = 'login.php?registered=true';
-        }, 900);
+        })
+        .catch(error => {
+            console.error('Registration error:', error);
+            alert('Network error. Please try again.');
+            submitBtn.innerHTML = originalContent;
+            submitBtn.disabled = false;
+            registerSubmitting = false;
+        });
     });
     
     // Social login handlers

@@ -24,7 +24,18 @@ try {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { ApiResponse::error('Invalid email format', 400); return; }
     
     // Ensure session started for cookie persistence in tests
-    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    if (session_status() === PHP_SESSION_NONE) { 
+        // Set session cookie parameters for better browser compatibility
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => false,
+            'httponly' => false,
+            'samesite' => 'Lax'
+        ]);
+        session_start(); 
+    }
 
     // Use AuthController for login
     $auth = new AuthController();

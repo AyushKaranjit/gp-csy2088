@@ -566,9 +566,9 @@ CREATE TABLE activity_logs (
 
 -- Insert default users (admin, manager, customer)
 INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, email_verified, created_at) VALUES
-('admin', 'admin@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Site', 'Admin', NULL, 'admin', 'active', TRUE, NOW()),
-('manager', 'manager@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Store', 'Manager', '+1234567890', 'manager', 'active', TRUE, NOW()),
-('customer', 'customer@doko.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Default', 'Customer', NULL, 'customer', 'active', TRUE, NOW());
+('admin', 'admin@doko.com', '$2y$10$F88ORTR/cu1DfpHpVZaB3edYlkwfcK9KNRaSQTV9KHLG0s/CM3pWq', 'Site', 'Admin', NULL, 'admin', 'active', TRUE, NOW()),
+('manager', 'manager@doko.com', '$2y$10$NP5qfSmQkOKR5YdVreLt6uJUHzddiRSEuZUXC4m4oDbJDtxDdsbOy', 'Store', 'Manager', '+1234567890', 'manager', 'active', TRUE, NOW()),
+('customer', 'customer@doko.com', '$2y$10$m1njODHrW0tZcDwkaUr3Re6xyARj5wyiustXmCK1iqofUL03TvpSa', 'Default', 'Customer', NULL, 'customer', 'active', TRUE, NOW());
 
 -- Insert grocery categories
 INSERT INTO categories (name, slug, description, sort_order, is_featured, created_at) VALUES

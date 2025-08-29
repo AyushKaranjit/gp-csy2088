@@ -42,7 +42,7 @@ try {
         $total += $itemTotal; $totalItems += (int)$r['quantity'];
         
         // Determine image path (support external absolute URL or local upload filename)
-        $image_url = '/uploads/default-product.jpg';
+        $image_url = '/images/default-product.jpg';
         $candidate = $r['product_image'] ?? '';
         if ($candidate) {
             if (preg_match('#^https?://#', $candidate)) {

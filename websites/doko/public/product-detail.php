@@ -139,7 +139,7 @@ require_once __DIR__ . '/../template/header.php';
                         <img id="main-product-image" 
                              src="<?php echo htmlspecialchars($resolved_image); ?>" 
                              alt="<?php echo htmlspecialchars($product['name']); ?>"
-                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src='/uploads/default-product.jpg';}else{this.src='/images/Fresh-vegetables.jpg';}"
+                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src='/images/default-product.jpg';}else{this.src='/images/Fresh-vegetables.jpg';}"
                              loading="lazy">
                     </div>
                     

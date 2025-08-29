@@ -2,6 +2,15 @@
 /**
  * Simple logout script
  */
+// Set session cookie parameters for better browser compatibility
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => false,
+    'samesite' => 'Lax'
+]);
 session_start();
 require_once __DIR__ . '/../src/Controllers/AuthController.php';
 

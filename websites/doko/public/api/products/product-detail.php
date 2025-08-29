@@ -29,7 +29,7 @@ try {
     if (!$product) { ApiResponse::error('Product not found', 404); return; }
     
     // Format product data
-    $image_url = '/uploads/default-product.jpg';
+    $image_url = '/images/default-product.jpg';
     $candidate = $product['primary_image'] ?? ($product['image_url'] ?? '');
     if ($candidate) {
         if (preg_match('#^https?://#i', $candidate)) {

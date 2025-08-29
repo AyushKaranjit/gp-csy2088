@@ -55,7 +55,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     exit;
 }
 
-if (!function_exists('ensure_session')) { function ensure_session(): void { if (session_status() === PHP_SESSION_NONE) { session_start(); } } }
+if (!function_exists('ensure_session')) { function ensure_session(): void { 
+    if (session_status() === PHP_SESSION_NONE) { 
+        // Set session cookie parameters for better browser compatibility
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => false,
+            'httponly' => false,
+            'samesite' => 'Lax'
+        ]);
+        session_start(); 
+    } 
+} }
 // Modified to avoid hard exit during tests; returns after sending error allowing test runner to continue
 if (!function_exists('require_method')) { function require_method(string|array $methods): void { $methods=(array)$methods; $req=$_SERVER['REQUEST_METHOD']??'GET'; if(!in_array($req,$methods,true)){ ApiResponse::error('Method not allowed',405,['allowed'=>$methods]); return; } } }
 if (!function_exists('json_input')) { function json_input(): array {

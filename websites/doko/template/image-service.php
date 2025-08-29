@@ -7,7 +7,7 @@
 // Generate a local image URL (use local default when no specific image found)
 function getImageUrl($category, $name, $width = 600, $height = 600) {
     // We no longer rely on external image services. Return the local default product image.
-    return '/uploads/default-product.jpg';
+    return '/images/default-product.jpg';
 }
 
 // Function to get product image with multiple fallbacks
@@ -201,7 +201,7 @@ $productImages = [
 $productImages['red-lentils'] = '/images/Red Lentils (Masoor) 1kg.jpg';
 $productImages['masoor-dal'] = '/images/Red Lentils (Masoor) 1kg.jpg';
 $productImages['red-lentils-masoor'] = '/images/Red Lentils (Masoor) 1kg.jpg';
-$productImages['organic-eggs'] = '/uploads/default-product.jpg';
+$productImages['organic-eggs'] = '/images/default-product.jpg';
 $productImages['green-vegetables'] = '/images/Fresh-vegetables.jpg';
 // Ensure specific keys used by cleaning logic are present
 $productImages['fresh-milk'] = '/images/Organic Milk 1L.jpg';

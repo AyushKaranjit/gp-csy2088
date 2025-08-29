@@ -306,7 +306,7 @@ function product_image($product_name, $width = 300, $height = 300) {
     
     // Return default image (use an existing local image if uploads/default-product.jpg is missing)
     // Prefer existing hero/slider image from /images as a fallback
-    $default1 = '/uploads/default-product.jpg';
+    $default1 = '/images/default-product.jpg';
     $fallback = '/images/Slider1.jpg';
     $absDefault = __DIR__ . '/../public' . $default1;
     if (is_file($absDefault)) return $default1;

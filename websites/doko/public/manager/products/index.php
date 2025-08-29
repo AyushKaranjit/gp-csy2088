@@ -55,6 +55,15 @@ try {
     $stmt = $db->query($categoryQuery);
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Debug: Log categories count
+    error_log("Manager Products: Loaded " . count($categories) . " categories");
+
+    // Debug: Log first category if available
+    if (!empty($categories)) {
+        $firstCategory = $categories[0];
+        error_log("Manager Products: First category - ID: {$firstCategory['category_id']}, Name: {$firstCategory['name']}");
+    }
+    
 } catch (Exception $e) {
     $error = "Error loading products: " . $e->getMessage();
     $products = [];
@@ -221,6 +230,10 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
     height: 100%;
     object-fit: cover;
     transition: opacity 0.3s ease;
+}
+
+.product-img[errored] {
+    transition: none;
 }
 
 .product-img:hover {
@@ -589,11 +602,15 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
         </div>
         <select class="filter-select" id="categoryFilter" onchange="filterProducts()">
             <option value="">All Categories</option>
-            <?php foreach ($categories as $category): ?>
-                <option value="<?php echo htmlspecialchars($category['category_id']); ?>">
-                    <?php echo htmlspecialchars($category['name']); ?>
-                </option>
-            <?php endforeach; ?>
+            <?php if (!empty($categories)): ?>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?php echo htmlspecialchars($category['category_id'] ?? ''); ?>">
+                        <?php echo htmlspecialchars($category['name'] ?? 'Unknown Category'); ?>
+                    </option>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <option value="" disabled>No categories available</option>
+            <?php endif; ?>
         </select>
         <select class="filter-select" id="statusFilter" onchange="filterProducts()">
             <option value="">All Status</option>
@@ -606,59 +623,64 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
     <div class="products-grid" id="productsGrid">
         <?php if (!empty($products)): ?>
             <?php foreach ($products as $product): ?>
-                <div class="product-card" data-category="<?php echo $product['category_id']; ?>" data-status="<?php echo $product['status']; ?>">
+                <div class="product-card" data-category="<?php echo $product['category_id'] ?? 0; ?>" data-status="<?php echo $product['status'] ?? 'inactive'; ?>">
                     <?php
-                        $imgFile = $product['primary_image'] ?? $product['image_url'] ?? '';
-                        $imgFile = trim((string)$imgFile);
-                        $isExternal = preg_match('#^https?://#i', $imgFile);
-                        if($imgFile === '' || $imgFile === 'uploads/products/default.svg') {
-                            $highRes = '/images/default-product.jpg';
-                        } elseif ($isExternal) {
-                            $highRes = $imgFile; // direct external link
-                        } else {
-                            // stored relative path already? Normalize
-                            if(strpos($imgFile, '/uploads/') === 0) { $highRes = $imgFile; }
-                            elseif(strpos($imgFile,'uploads/') === 0) { $highRes = '/' . $imgFile; }
-                            else { $highRes = '/uploads/' . ltrim($imgFile,'/'); }
+                        // Use the same image resolution logic as the public products page
+                        require_once '../../../template/image-service.php';
+                        $resolvedExternal = getProductImage($product['name'] ?? 'Unknown Product');
+                        $img = trim((string)($product['primary_image'] ?? $product['image_url'] ?? ''));
+                        $isExternalOriginal = preg_match('~^https?://~i', $img);
+
+                        // Prefer curated external if local image is default or missing
+                        if ($img === '' || stripos($img, 'default') !== false || !$isExternalOriginal) {
+                            $img = $resolvedExternal ?: $img;
                         }
+
+                        $isExternal = preg_match('~^https?://~i', $img);
+                        if(!$isExternal && (strpos($img,'uploads/')===0 || strpos($img,'/uploads/')===0)) {
+                            // keep relative local paths; leave as-is
+                        }
+                        if($img === '' ){ $img = '/images/default-product.jpg'; }
+                        $highRes = $img;
                         $lqip = '/images/default-product.jpg';
                     ?>
                     <div class="product-image ratio-4x3">
                         <img src="<?php echo htmlspecialchars($highRes); ?>"
-                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                             alt="<?php echo htmlspecialchars($product['name'] ?? 'Unknown Product'); ?>"
                              class="product-img"
-                             data-fallback="/uploads/default-product.jpg"
-                             onerror="if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/uploads/default-product.jpg';}" />
+                             data-fallback="/images/default-product.jpg"
+                             onerror="this.setAttribute('errored','1'); if(!this.dataset.errored){this.dataset.errored=1;this.src=this.getAttribute('data-fallback');}else{this.src='/images/default-product.jpg';}" />
                     </div>
                     
                     <div class="product-info">
-                        <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
+                        <h3 class="product-name"><?php echo htmlspecialchars($product['name'] ?? 'Unknown Product'); ?></h3>
                         <div class="product-category"><?php echo htmlspecialchars($product['category_name'] ?? 'Uncategorized'); ?></div>
-                        <div class="product-price">NPR <?php echo number_format($product['price'], 0); ?></div>
+                        <div class="product-price">NPR <?php echo number_format($product['price'] ?? 0, 0); ?></div>
                         
                         <div class="product-stock">
                             <span class="stock-badge <?php 
-                                if ($product['stock_quantity'] <= 0) echo 'stock-out-of-stock';
-                                elseif ($product['stock_quantity'] <= 10) echo 'stock-low-stock';
+                                $stockQty = $product['stock_quantity'] ?? 0;
+                                if ($stockQty <= 0) echo 'stock-out-of-stock';
+                                elseif ($stockQty <= 10) echo 'stock-low-stock';
                                 else echo 'stock-in-stock';
                             ?>">
                                 <?php 
-                                    if ($product['stock_quantity'] <= 0) echo 'Out of Stock';
-                                    elseif ($product['stock_quantity'] <= 10) echo 'Low Stock (' . $product['stock_quantity'] . ')';
-                                    else echo 'In Stock (' . $product['stock_quantity'] . ')';
+                                    if ($stockQty <= 0) echo 'Out of Stock';
+                                    elseif ($stockQty <= 10) echo 'Low Stock (' . $stockQty . ')';
+                                    else echo 'In Stock (' . $stockQty . ')';
                                 ?>
                             </span>
                         </div>
                         
                         <div class="product-actions">
-                            <button class="btn-action btn-edit" onclick="editProduct(<?php echo $product['product_id']; ?>)">
+                            <button class="btn-action btn-edit" onclick="editProduct(<?php echo $product['product_id'] ?? 0; ?>)">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <button class="btn-action btn-toggle-status" onclick="toggleProductStatus(<?php echo $product['product_id']; ?>, '<?php echo $product['status']; ?>')">
-                                <i class="fas fa-toggle-<?php echo $product['status'] === 'active' ? 'on' : 'off'; ?>"></i>
-                                <?php echo $product['status'] === 'active' ? 'Active' : 'Inactive'; ?>
+                            <button class="btn-action btn-toggle-status" onclick="toggleProductStatus(<?php echo $product['product_id'] ?? 0; ?>, '<?php echo $product['status'] ?? 'inactive'; ?>')">
+                                <i class="fas fa-toggle-<?php echo ($product['status'] ?? 'inactive') === 'active' ? 'on' : 'off'; ?>"></i>
+                                <?php echo ($product['status'] ?? 'inactive') === 'active' ? 'Active' : 'Inactive'; ?>
                             </button>
-                            <button class="btn-action btn-delete" onclick="deleteProduct(<?php echo $product['product_id']; ?>, '<?php echo htmlspecialchars($product['name']); ?>')">
+                            <button class="btn-action btn-delete" onclick="deleteProduct(<?php echo $product['product_id'] ?? 0; ?>, '<?php echo htmlspecialchars($product['name'] ?? 'Unknown Product'); ?>')">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
@@ -692,14 +714,18 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
             </div>
             
             <div class="form-group">
-                <label for="productCategory">Category</label>
-                <select id="productCategory" name="category_id">
-                    <option value="">Select Category</option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?php echo $category['category_id']; ?>">
-                            <?php echo htmlspecialchars($category['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
+                <label for="productCategory">Category *</label>
+                <select id="productCategory" name="category_id" required>
+                    <option value="">Select Category (<?php echo count($categories); ?> available)</option>
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo $category['category_id'] ?? ''; ?>">
+                                <?php echo htmlspecialchars($category['name'] ?? 'Unknown Category'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="" disabled style="color: #ef4444;">No categories available - Please check database connection</option>
+                    <?php endif; ?>
                 </select>
             </div>
             
@@ -827,7 +853,15 @@ function editProduct(productId) {
 
 function saveProduct(event) {
     event.preventDefault();
-    
+
+    // Validate required fields
+    const categorySelect = document.getElementById('productCategory');
+    if (!categorySelect.value) {
+        alert('Please select a category for the product');
+        categorySelect.focus();
+        return;
+    }
+
     const formData = new FormData(document.getElementById('productForm'));
     formData.append('action', document.getElementById('productId').value ? 'update' : 'add');
     formData.append('api', '1');
@@ -957,6 +991,11 @@ function handleAddProduct($db) {
         throw new Exception('Name and valid price are required');
     }
 
+    // Validate category selection
+    if (empty($category_id)) {
+        throw new Exception('Please select a category for the product');
+    }
+
     // Basic required fields for enhanced schema (provide placeholders where necessary)
     $sku = 'SKU-' . strtoupper(uniqid());
     $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($name))) . '-' . substr(md5(uniqid()), 0, 6);
@@ -988,6 +1027,11 @@ function handleUpdateProduct($db) {
 
     if (!$product_id || empty($name) || $price <= 0) {
         throw new Exception('Product ID, name and valid price are required');
+    }
+
+    // Validate category selection
+    if (empty($category_id)) {
+        throw new Exception('Please select a category for the product');
     }
 
     $query = "UPDATE products SET name=?, category_id=?, description=?, price=?, stock_quantity=?, updated_at=NOW() WHERE product_id=?";

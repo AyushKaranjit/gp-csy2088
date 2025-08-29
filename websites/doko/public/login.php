@@ -11,6 +11,15 @@
  */
 
 // Start session and include configuration
+// Set session cookie parameters for better browser compatibility
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => false,
+    'samesite' => 'Lax'
+]);
 session_start();
 require_once __DIR__ . '/../template/config.php';
 require_once __DIR__ . '/../config/env.php'; // Load environment variables
@@ -689,6 +698,7 @@ function handleGoogleCallback(response) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({
                 credential: response.credential
             })
@@ -800,6 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     email: email,
                     password: password

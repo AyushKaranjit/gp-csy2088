@@ -109,7 +109,7 @@ try {
     $total = (float) ($totalStmt->fetchColumn() ?? 0);
 
     // Determine image path for response
-    $image_url = '/uploads/default-product.jpg';
+    $image_url = '/images/default-product.jpg';
     $candidate = $product['product_image'] ?? '';
     if ($candidate) {
         if (preg_match('#^https?://#', $candidate)) {
