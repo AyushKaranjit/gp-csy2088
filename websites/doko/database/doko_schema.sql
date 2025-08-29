@@ -23,6 +23,7 @@ CREATE TABLE users (
     date_of_birth DATE,
     gender ENUM('male', 'female', 'other'),
     profile_image VARCHAR(255),
+    google_id VARCHAR(50) UNIQUE NULL,
     role ENUM('customer', 'admin', 'manager', 'vendor') DEFAULT 'customer',
     status ENUM('active', 'inactive', 'suspended', 'pending') DEFAULT 'pending',
     email_verified BOOLEAN DEFAULT FALSE,
@@ -36,6 +37,7 @@ CREATE TABLE users (
     
     INDEX idx_email (email),
     INDEX idx_username (username),
+    INDEX idx_google_id (google_id),
     INDEX idx_status (status),
     INDEX idx_role (role)
 );
