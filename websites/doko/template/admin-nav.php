@@ -73,4 +73,4 @@ function doko_admin_active(string $section, string $script): string {
   }
   if(document.readyState==='complete' || document.readyState==='interactive') setTimeout(fetchCount, 300); else document.addEventListener('DOMContentLoaded',()=>setTimeout(fetchCount,300));
 })();
-</script>
+</script>`
