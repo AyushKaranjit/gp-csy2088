@@ -16,16 +16,22 @@ require_once __DIR__ . '/../template/config.php';
 
 // Check if order data exists
 $order_data = null;
+$order_id_from_url = isset($_GET['order_id']) ? $_GET['order_id'] : null;
+
 if (isset($_SESSION['order_data'])) {
     $order_data = $_SESSION['order_data'];
     unset($_SESSION['order_data']); // Remove after use
-} elseif (isset($_GET['session'])) {
-    // Check session storage through JavaScript
-    // Order data will be loaded via JavaScript
+} elseif ($order_id_from_url) {
+    // Will try to fetch from API
+    $order_data = null;
 }
 
-// Generate order ID
-$order_id = 'DOKO' . date('Ymd') . strtoupper(substr(uniqid(), -6));
+// Generate order ID if not available
+if (!$order_id_from_url && !$order_data) {
+    $order_id = 'DOKO' . date('Ymd') . strtoupper(substr(uniqid(), -6));
+} else {
+    $order_id = $order_id_from_url ?: ($order_data['order_id'] ?? 'DOKO' . date('Ymd') . strtoupper(substr(uniqid(), -6)));
+}
 
 // Page-specific variables
 $page_title = page_title('Order Confirmation');
@@ -63,10 +69,16 @@ include_header($page_title, $page_description, $current_page);
             <div class="order-details-card">
                 <div class="order-header">
                     <h2>Order Details</h2>
-                    <div class="order-id">Order ID: <strong><?php echo $order_id; ?></strong></div>
+                    <div class="order-id">Order ID: <strong><?php echo htmlspecialchars($order_id); ?></strong></div>
                 </div>
 
-                <div class="order-content">
+                <!-- Loading indicator -->
+                <div id="order-loading" class="loading-indicator" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
+                    <p style="margin-top: 1rem; color: var(--light-text);">Loading order details...</p>
+                </div>
+
+                <div id="order-content" style="display: none;">
                     <!-- Order Items -->
                     <div class="order-section">
                         <h3><i class="fas fa-shopping-bag"></i> Items Ordered</h3>
@@ -510,14 +522,44 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
 
     function showFallbackRedirect(){
-        window.location.href = 'index.php';
+        // Instead of redirecting, show a message and provide navigation options
+        document.querySelector('.confirmation-container').innerHTML = `
+            <div class="error-message" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; color: #e74c3c; margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 style="color: #e74c3c; margin-bottom: 1rem;">Order Not Found</h2>
+                <p style="color: #666; margin-bottom: 2rem;">
+                    We couldn't find your order details. This might happen if you refreshed the page or the session expired.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="index.php" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
+                        <i class="fas fa-home"></i> Go to Homepage
+                    </a>
+                    <a href="profile.php" class="btn btn-outline" style="padding: 0.75rem 1.5rem;">
+                        <i class="fas fa-user"></i> View My Orders
+                    </a>
+                </div>
+            </div>
+        `;
     }
 
     // Primary: if order_id present, fetch from API
     if (orderIdParam) {
-        fetch('api/users/order-detail.php?order_id=' + encodeURIComponent(orderIdParam), {credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}})
-            .then(r=>r.json())
-            .then(j=>{
+        // Add timeout to prevent infinite loading
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        fetch('api/users/order-detail.php?order_id=' + encodeURIComponent(orderIdParam), {
+            credentials:'same-origin', 
+            headers:{'X-Requested-With':'XMLHttpRequest'},
+            signal: controller.signal
+        })
+            .then(r => {
+                clearTimeout(timeoutId);
+                return r.json();
+            })
+            .then(j => {
                 if(j && j.success && j.order){
                     hydrateFromApi(j.order);
                 } else {
@@ -525,7 +567,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     loadFromSession();
                 }
             })
-            .catch(()=>{ loadFromSession(); });
+            .catch((error) => {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    console.warn('Order detail request timed out');
+                } else {
+                    console.error('Error fetching order details:', error);
+                }
+                loadFromSession();
+            });
     } else {
         loadFromSession();
     }
@@ -541,6 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function hydrateFromApi(order){
+        hideLoading();
         // order from API has different structure than session simulation
         orderData = order;
         // Items
@@ -576,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function hydrateFromSession(data){
+        hideLoading();
         orderData = data;
         // Items
         const container = document.getElementById('order-items-list');
@@ -604,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="info-item"><div class="info-label">Address:</div><div class="info-value">${d.address||''}</div></div>
                 <div class="info-item"><div class="info-label">City:</div><div class="info-value">${(d.city||'').toString()}</div></div>
                 <div class="info-item"><div class="info-label">Area:</div><div class="info-value">${d.area||''}</div></div>
-                ${(d.landmark?`<div class=\"info-item\"><div class=\"info-label\">Landmark:</div><div class=\"info-value\">${d.landmark}</div></div>`:'')}
+                ${(d.landmark?`<div class="info-item"><div class="info-label">Landmark:</div><div class="info-value">${d.landmark}</div></div>`:'')}
             </div>`;
         document.getElementById('payment-info').innerHTML = `<div class="info-item"><span style="font-weight:600">Method:</span> ${orderData.payment_method}</div>`;
         const subtotal = (orderData.items||[]).reduce((t,i)=>t + (i.price * i.quantity),0);
@@ -612,6 +664,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('conf-subtotal').textContent = 'Rs. ' + subtotal.toFixed(2);
         document.getElementById('conf-delivery').textContent = deliveryCharge===0 ? 'FREE' : 'Rs. ' + deliveryCharge.toFixed(2);
         document.getElementById('conf-total').textContent = 'Rs. ' + (orderData.total|| (subtotal+deliveryCharge)).toFixed(2);
+    }
+
+    function hideLoading() {
+        const loadingEl = document.getElementById('order-loading');
+        const contentEl = document.getElementById('order-content');
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (contentEl) contentEl.style.display = 'block';
     }
 });
 </script>

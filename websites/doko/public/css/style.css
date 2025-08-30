@@ -1405,6 +1405,7 @@ a:hover {
     gap: 1rem;
     margin-bottom: 2.5rem;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .hero-features {

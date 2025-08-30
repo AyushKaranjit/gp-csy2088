@@ -1051,16 +1051,23 @@ include_header($page_title, $page_description, $current_page);
     async function placeOrder() {
         const form = document.getElementById('checkout-form');
 
+        // Check if cart has items
+        const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
+            ? CartModule.getItems()
+            : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
+            
+        if (!currentCart || currentCart.length === 0) {
+            alert('Your cart is empty. Please add items before placing an order.');
+            return;
+        }
+
         // Comprehensive validation
         if (!validateCheckoutForm()) {
             return;
         }
 
+        // Collect form data
         const formData = new FormData(form);
-
-        const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
-            ? CartModule.getItems()
-            : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
         const orderData = {
             delivery_address: formData.get('delivery_address'),
             phone: formData.get('phone'),
@@ -1074,6 +1081,12 @@ include_header($page_title, $page_description, $current_page);
         };
         
         const submitBtn = document.querySelector('.modal-footer .btn-primary');
+        
+        // Prevent multiple submissions
+        if (submitBtn.disabled) {
+            return; // Already processing
+        }
+        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
         
@@ -1115,13 +1128,16 @@ include_header($page_title, $page_description, $current_page);
             };
 
             // Use the proper place-order endpoint
+            console.log('Sending order payload:', orderPayload); // Debug log
             const response = await fetch('api/orders/place-order.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest' },
                 body: JSON.stringify(orderPayload)
             });
 
+            console.log('Response status:', response.status); // Debug log
             const result = await response.json();
+            console.log('API response:', result); // Debug log
             if (result && result.success) {
                 if (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.clearAll === 'function') {
                     CartModule.clearAll();
@@ -1131,14 +1147,44 @@ include_header($page_title, $page_description, $current_page);
                 }
                 hideCheckoutModal();
                 const orderId = result.order_id || (result.data && (result.data.order_id || result.data.id)) || 'N/A';
+                
+                // Store order data in sessionStorage as backup
+                try {
+                    sessionStorage.setItem('order_data', JSON.stringify({
+                        order_id: orderId,
+                        order_number: result.order_number || 'DOKO' + Date.now(),
+                        customer: orderPayload.customer,
+                        delivery: orderPayload.delivery,
+                        payment_method: orderPayload.payment_method,
+                        items: orderPayload.items,
+                        total: orderPayload.total,
+                        ordered_at: new Date().toISOString()
+                    }));
+                } catch(e) {
+                    console.warn('Failed to store order data in sessionStorage:', e);
+                }
+                
                 alert('Order placed successfully! Order ID: ' + orderId);
                 window.location.href = 'order-confirmation.php?order_id=' + orderId;
             } else {
-                alert('Error placing order: ' + (result ? result.message : 'Unknown server response'));
+                const errorMessage = result ? (result.message || 'Unknown error occurred') : 'Server returned invalid response';
+                console.error('Order placement failed:', errorMessage, result);
+                alert('Error placing order: ' + errorMessage + '. Please try again.');
             }
         } catch (error) {
             console.error('Error placing order:', error);
-            alert('Error placing order. Please try again.');
+            
+            let errorMessage = 'Error placing order. Please try again.';
+            
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your internet connection and try again.';
+            } else if (error.message.includes('JSON')) {
+                errorMessage = 'Server response error. Please try again or contact support.';
+            } else if (error.message) {
+                errorMessage = 'Error: ' + error.message;
+            }
+            
+            alert(errorMessage);
         }
         
         submitBtn.disabled = false;
