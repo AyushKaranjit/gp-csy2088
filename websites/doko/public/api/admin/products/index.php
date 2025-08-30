@@ -984,9 +984,43 @@ function handleDeleteProduct($db) {
         throw new Exception('Product ID is required');
     }
     
+    // First, get the product's category_id before deletion
+    $getProductQuery = "SELECT category_id FROM products WHERE product_id = ?";
+    $getProductStmt = $db->prepare($getProductQuery);
+    $getProductStmt->execute([$product_id]);
+    $product = $getProductStmt->fetch();
+    
+    if (!$product) {
+        throw new Exception('Product not found');
+    }
+    
+    $category_id = $product['category_id'];
+    
+    // Delete the product
     $query = "DELETE FROM products WHERE product_id = ?";
     $stmt = $db->prepare($query);
     $stmt->execute([$product_id]);
+    
+    // Check if the category has any remaining products
+    if ($category_id) {
+        $checkCategoryQuery = "SELECT COUNT(*) as product_count FROM products WHERE category_id = ?";
+        $checkCategoryStmt = $db->prepare($checkCategoryQuery);
+        $checkCategoryStmt->execute([$category_id]);
+        $result = $checkCategoryStmt->fetch();
+        
+        // If no products remain in the category, delete the category
+        if ($result['product_count'] == 0) {
+            $deleteCategoryQuery = "DELETE FROM categories WHERE category_id = ?";
+            $deleteCategoryStmt = $db->prepare($deleteCategoryQuery);
+            $deleteCategoryStmt->execute([$category_id]);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Product and empty category deleted successfully'
+            ]);
+            return;
+        }
+    }
     
     echo json_encode(['success' => true, 'message' => 'Product deleted successfully']);
 }

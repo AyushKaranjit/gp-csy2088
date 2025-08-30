@@ -167,12 +167,43 @@ class Product {
 
     // Delete product (admin only)
     public function deleteProduct($product_id) {
-    // Mark as inactive using status enum
-    $query = "UPDATE " . $this->table_name . " SET status = 'inactive' WHERE product_id = :product_id";
+        // First, get the product's category_id before deletion
+        $getProductQuery = "SELECT category_id FROM " . $this->table_name . " WHERE product_id = :product_id";
+        $getProductStmt = $this->conn->prepare($getProductQuery);
+        $getProductStmt->bindParam(":product_id", $product_id);
+        $getProductStmt->execute();
+        $product = $getProductStmt->fetch();
+        
+        if (!$product) {
+            return false;
+        }
+        
+        $category_id = $product['category_id'];
+        
+        // Mark as inactive using status enum
+        $query = "UPDATE " . $this->table_name . " SET status = 'inactive' WHERE product_id = :product_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":product_id", $product_id);
+        $result = $stmt->execute();
         
-        return $stmt->execute();
+        if ($result && $category_id) {
+            // Check if the category has any remaining active products
+            $checkCategoryQuery = "SELECT COUNT(*) as product_count FROM " . $this->table_name . " WHERE category_id = :category_id AND status = 'active'";
+            $checkCategoryStmt = $this->conn->prepare($checkCategoryQuery);
+            $checkCategoryStmt->bindParam(":category_id", $category_id);
+            $checkCategoryStmt->execute();
+            $categoryResult = $checkCategoryStmt->fetch();
+            
+            // If no active products remain in the category, mark category as inactive
+            if ($categoryResult['product_count'] == 0) {
+                $deleteCategoryQuery = "UPDATE categories SET status = 'inactive', updated_at = NOW() WHERE category_id = :category_id";
+                $deleteCategoryStmt = $this->conn->prepare($deleteCategoryQuery);
+                $deleteCategoryStmt->bindParam(":category_id", $category_id);
+                $deleteCategoryStmt->execute();
+            }
+        }
+        
+        return $result;
     }
 
     // Update stock

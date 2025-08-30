@@ -289,11 +289,48 @@ function handleDeleteProduct($db) {
     }
     
     try {
+        $product_id = $input['product_id'];
+        
+        // First, get the product's category_id before deletion
+        $getProductQuery = "SELECT category_id FROM products WHERE product_id = ?";
+        $getProductStmt = $db->prepare($getProductQuery);
+        $getProductStmt->execute([$product_id]);
+        $product = $getProductStmt->fetch();
+        
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Product not found']);
+            return;
+        }
+        
+        $category_id = $product['category_id'];
+        
         // Soft delete - set status to inactive
         $sql = "UPDATE products SET status = 'inactive', updated_at = NOW() WHERE product_id = ?";
-        $stmt = $db->execute($sql, [$input['product_id']]);
+        $stmt = $db->execute($sql, [$product_id]);
         
         if ($stmt->rowCount() > 0) {
+            // Check if the category has any remaining active products
+            if ($category_id) {
+                $checkCategoryQuery = "SELECT COUNT(*) as product_count FROM products WHERE category_id = ? AND status = 'active'";
+                $checkCategoryStmt = $db->prepare($checkCategoryQuery);
+                $checkCategoryStmt->execute([$category_id]);
+                $result = $checkCategoryStmt->fetch();
+                
+                // If no active products remain in the category, soft delete the category
+                if ($result['product_count'] == 0) {
+                    $deleteCategoryQuery = "UPDATE categories SET status = 'inactive', updated_at = NOW() WHERE category_id = ?";
+                    $deleteCategoryStmt = $db->prepare($deleteCategoryQuery);
+                    $deleteCategoryStmt->execute([$category_id]);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Product deleted successfully. Category was also deleted as it contained no active products.'
+                    ]);
+                    return;
+                }
+            }
+            
             echo json_encode([
                 'success' => true,
                 'message' => 'Product deleted successfully'
