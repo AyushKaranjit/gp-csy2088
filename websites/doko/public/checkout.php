@@ -529,8 +529,30 @@ include_header($page_title, $page_description, $current_page);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Load cart items from the global cart data
-    const cart = window.__dokoCartData || [];
+    // Load cart items from the global cart data or localStorage
+    let cart = window.__dokoCartData || [];
+    
+    // If no cart data in global variable, try to load from localStorage
+    if (!cart.length) {
+        try {
+            const guestCartKey = 'doko_guest_cart_v1';
+            const storedCart = localStorage.getItem(guestCartKey);
+            if (storedCart) {
+                const rawCart = JSON.parse(storedCart);
+                cart = rawCart.map(item => ({
+                    product_id: item.product_id,
+                    id: item.product_id,
+                    quantity: item.quantity,
+                    name: item.name || 'Item #' + item.product_id,
+                    price: parseFloat(item.price || 0),
+                    image: item.image || '/images/default-product.jpg'
+                }));
+                window.__dokoCartData = cart;
+            }
+        } catch (e) {
+            console.warn('Failed to load cart from localStorage:', e);
+        }
+    }
     
     // Set minimum delivery date to tomorrow
     const tomorrow = new Date();
@@ -646,11 +668,22 @@ function clearFieldError(fieldId) {
     function updateOrderSummary() {
         const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
         const deliveryCharge = subtotal >= 1000 ? 0 : 50;
-        const discount = 0; // Will be calculated based on promo codes
+        const discount = window.appliedPromoCode ? window.appliedPromoCode.discount : 0;
         const total = subtotal + deliveryCharge - discount;
         
         document.getElementById('order-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
         document.getElementById('order-delivery').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
+        
+        // Update discount display
+        const discountEl = document.getElementById('order-discount');
+        const discountRowEl = document.getElementById('order-discount-row');
+        if (discount > 0 && discountEl && discountRowEl) {
+            discountEl.textContent = `-Rs. ${discount.toFixed(2)}`;
+            discountRowEl.style.display = 'flex';
+        } else if (discountRowEl) {
+            discountRowEl.style.display = 'none';
+        }
+        
         document.getElementById('order-total').textContent = `Rs. ${total.toFixed(2)}`;
     }
     

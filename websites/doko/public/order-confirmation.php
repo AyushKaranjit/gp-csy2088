@@ -20,7 +20,8 @@ $order_id_from_url = isset($_GET['order_id']) ? $_GET['order_id'] : null;
 
 if (isset($_SESSION['order_data'])) {
     $order_data = $_SESSION['order_data'];
-    unset($_SESSION['order_data']); // Remove after use
+    // Don't unset immediately - allow page refreshes
+    // unset($_SESSION['order_data']); // Commented out to allow refreshes
 } elseif ($order_id_from_url) {
     // Will try to fetch from API
     $order_data = null;
@@ -517,6 +518,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we have order data from PHP session
     <?php if ($order_data): ?>
     orderData = <?php echo json_encode($order_data); ?>;
+    // Store in sessionStorage as backup
+    try {
+        sessionStorage.setItem('order_data', JSON.stringify(orderData));
+    } catch(e) {
+        console.warn('Failed to store order data in sessionStorage:', e);
+    }
     hydrateFromSession(orderData);
     return;
     <?php endif; ?>
@@ -638,9 +645,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="order-item-details">
                     <div class="order-item-name">${item.name}</div>
-                    <div class="order-item-quantity">Quantity: ${item.quantity} × Rs. ${(item.price).toFixed(2)}</div>
+                    <div class="order-item-quantity">Quantity: ${item.quantity} × Rs. ${((item.price || item.unit_price) || 0).toFixed(2)}</div>
                 </div>
-                <div class="order-item-price">Rs. ${(item.price * item.quantity).toFixed(2)}</div>
+                <div class="order-item-price">Rs. ${(((item.price || item.unit_price) || 0) * item.quantity).toFixed(2)}</div>
             </div>`).join('');
         // Customer info
         const c = orderData.customer||{};
@@ -659,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${(d.landmark?`<div class="info-item"><div class="info-label">Landmark:</div><div class="info-value">${d.landmark}</div></div>`:'')}
             </div>`;
         document.getElementById('payment-info').innerHTML = `<div class="info-item"><span style="font-weight:600">Method:</span> ${orderData.payment_method}</div>`;
-        const subtotal = (orderData.items||[]).reduce((t,i)=>t + (i.price * i.quantity),0);
+        const subtotal = (orderData.items||[]).reduce((t,i)=>t + ((i.price || i.unit_price) * i.quantity),0);
         const deliveryCharge = subtotal >= 1000 ? 0 : 50;
         document.getElementById('conf-subtotal').textContent = 'Rs. ' + subtotal.toFixed(2);
         document.getElementById('conf-delivery').textContent = deliveryCharge===0 ? 'FREE' : 'Rs. ' + deliveryCharge.toFixed(2);

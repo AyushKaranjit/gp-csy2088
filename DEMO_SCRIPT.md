@@ -3,7 +3,7 @@
 
 ---
 
-## Introduction (1 minute)
+## Introduction (30 seconds)
 
 "Hello everyone! I'm excited to present DOKO, an e-commerce website that I developed as part of my web development project. DOKO is a grocery delivery platform designed specifically for Nepal, where customers can order fresh groceries and have them delivered to their doorstep.
 
@@ -11,141 +11,220 @@ The name 'DOKO' comes from the Nepali word for basket, which perfectly represent
 
 ---
 
-## Feature Walkthrough (8 minutes)
-
-### 1. Homepage & Navigation (1.5 minutes)
+## 1. DESIGN - UI/UX & Architecture (2 minutes)
 
 **[Open website at localhost]**
 
-"Let me start with our homepage. As you can see, we have a clean and user-friendly design with:
+"Let me start with the design aspects of DOKO:
 
-- **Hero Section**: Features rotating background images with our main value propositions
-- **Navigation Bar**: Easy access to all main sections
-- **Category Grid**: Quick access to different product categories like fruits, vegetables, dairy products
-- **Featured Products**: Highlighting popular items
-- **Delivery Features**: Free delivery over Rs. 1000, same-day delivery, and 100% fresh guarantee"
+### Visual Design & User Experience
+- **Clean, Modern Interface**: Professional design with consistent color scheme
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **Intuitive Navigation**: Easy-to-use menu system with clear categories
+- **Visual Hierarchy**: Important elements are prominently displayed
 
-**Action**: Scroll through homepage, hover over navigation items
-
-### 2. User Registration & Login (1 minute)
-
-**[Navigate to register.php]**
-
-"For new users, we have a simple registration process. Users can create an account with basic information like name, email, and password. The system validates all inputs and ensures secure password storage."
-
-**[Navigate to login.php]**
-
-"Existing users can easily log in. The system maintains user sessions and provides personalized experience once logged in."
-
-**Action**: Show registration form, then login form (don't actually register/login unless needed)
-
-### 3. Product Catalog & Search (1.5 minutes)
-
-**[Navigate to products.php]**
-
-"Our product catalog is the heart of the website. Here customers can:
-
-- **Browse all products** with clear images and pricing
-- **Filter by categories** - fruits, vegetables, dairy, grains, etc.
-- **Search functionality** to quickly find specific items
-- **Product cards** showing name, price, and quick add-to-cart option
-- **Responsive grid layout** that works on all devices"
-
-**[Click on a product]**
-
-"Each product has a detailed page with description, nutritional information, and customer reviews."
-
-**Action**: Search for "apple", filter by category, click on a product
-
-### 4. Shopping Cart System (1.5 minutes)
-
-**[Navigate to cart.php or add items to cart]**
-
-"Our shopping cart system is fully functional:
-
-- **Add items** from product pages or quick-add buttons
-- **Update quantities** directly in the cart
-- **Remove items** if needed
-- **Price calculation** with subtotal, taxes, and delivery charges
-- **Save cart** between sessions for logged-in users
-- **Real-time updates** using JavaScript"
-
-**Action**: Add/remove items, update quantities, show price calculations
-
-### 5. Wishlist Feature (1 minute)
-
-**[Navigate to wishlist.php]**
-
-"Users can save their favorite products to a wishlist for future purchases. This is especially useful for regular customers who buy the same items frequently. They can easily move items from wishlist to cart when ready to order."
-
-**Action**: Add item to wishlist, show wishlist page
-
-### 6. Checkout Process (1 minute)
-
-**[Navigate to checkout.php]**
-
-"Our checkout process is streamlined and secure:
-
-- **Delivery address** with multiple saved addresses option
-- **Payment methods** including cash on delivery and digital payments
-- **Order summary** with all items and final pricing
-- **Delivery time selection** for customer convenience
-- **Order confirmation** page with tracking details"
-
-**Action**: Go through checkout steps (don't complete order)
-
-### 7. Admin Panel (1.5 minutes)
-
-**[Navigate to admin panel]**
-
-"For website management, I've built a comprehensive admin panel:
-
-- **Dashboard** with sales analytics and key metrics
-- **Product Management**: Add, edit, delete products with image uploads
-- **Category Management**: Organize products into categories
-- **Order Management**: Track and update order status
-- **User Management**: View and manage customer accounts
-- **Analytics**: Charts showing sales trends and popular products"
-
-**Action**: Show admin dashboard, product management, order tracking
-
----
-
-## Technical Highlights (30 seconds)
-
-"From a technical perspective, DOKO is built using:
-- **Frontend**: HTML, CSS, JavaScript with responsive design
-- **Backend**: PHP with object-oriented programming
+### Technical Architecture
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Backend**: PHP 8.0 with Object-Oriented Programming
 - **Database**: MySQL with proper relationships and indexing
-- **API**: RESTful APIs for cart, products, and user management
-- **Security**: Input validation, SQL injection prevention, secure sessions
-- **Deployment**: Docker containers for easy setup and deployment"
+- **API**: RESTful APIs for seamless data communication
+- **Security**: Input validation, CSRF protection, secure sessions
+
+### Key Design Features:
+- **Hero Section**: Rotating background images with call-to-action
+- **Category Grid**: Visual product categorization
+- **Product Cards**: Consistent design with images, prices, and actions
+- **Form Design**: User-friendly forms with validation feedback"
+
+**Action**: Show homepage design, responsive behavior, color scheme
 
 ---
 
-## Conclusion (30 seconds)
+## 2. PAGE - Core Pages & Functionality (3 minutes)
 
-"DOKO represents a complete e-commerce solution that addresses real-world needs in the Nepali market. It demonstrates modern web development practices while maintaining simplicity and user-friendliness. The website is fully functional and ready for real-world deployment.
+**[Navigate through key pages]**
 
-Thank you for your attention. I'm happy to answer any questions!"
+"Now let me demonstrate the main pages and their functionality:
+
+### Homepage (index.php)
+- Hero section with rotating images
+- Featured categories and products
+- Delivery information and guarantees
+- Quick access to main features
+
+### Product Catalog (products.php)
+- Complete product listing with search and filters
+- Category-based browsing
+- Product details with images and descriptions
+- Add to cart functionality
+
+### User Authentication
+- **Registration** (register.php): New user signup with validation
+- **Login** (login.php): Secure user authentication
+- **Profile** (profile.php): User account management
+
+### Shopping Experience
+- **Cart** (cart.php): Shopping cart with quantity updates
+- **Checkout** (checkout.php): Complete order process
+- **Order Confirmation**: Order summary and tracking
+
+### Admin Panel
+- **Dashboard**: Analytics and key metrics
+- **Product Management**: CRUD operations for products
+- **Order Management**: Order tracking and status updates"
+
+**Action**: Navigate through each page, show key features
 
 ---
 
-## Demo Tips:
+## 3. CRUD - Create, Read, Update, Delete Operations (4 minutes)
 
-1. **Have sample data ready** - products, users, orders
-2. **Test all features beforehand** to ensure smooth demo
-3. **Prepare for common issues** like slow loading or database connections
-4. **Keep backup screenshots** in case of technical difficulties
-5. **Practice timing** to stay within 10 minutes
-6. **Engage audience** by asking "Can everyone see this?" during navigation
+**[Focus on CRUD operations]**
+
+"The heart of any e-commerce platform is the ability to manage data. Let me demonstrate the CRUD operations:
+
+### Product Management (Admin Panel)
+
+#### CREATE - Adding New Products
+**[Navigate to admin products page]**
+- Add new product with image upload
+- Set product details: name, price, description, category
+- Upload product images with validation
+- Set stock quantities and availability
+
+#### READ - Viewing Products
+- Product listing with pagination
+- Search and filter functionality
+- Product details view
+- Image gallery display
+
+#### UPDATE - Editing Products
+- Edit existing product information
+- Update prices and descriptions
+- Change product images
+- Modify stock levels
+
+#### DELETE - Removing Products
+- Safe product deletion
+- Confirmation dialogs
+- Stock management updates
+
+### User Management (Admin Panel)
+
+#### CREATE - User Registration
+- New user account creation
+- Profile information management
+- Address and contact details
+
+#### READ - User Information
+- User profile viewing
+- Order history display
+- Account status and preferences
+
+#### UPDATE - Profile Management
+- Personal information updates
+- Password changes
+- Address modifications
+- Profile picture uploads
+
+#### DELETE - Account Management
+- User account deactivation
+- Data cleanup procedures
+
+### Order Management
+
+#### CREATE - Order Processing
+- Order placement through checkout
+- Payment processing
+- Order confirmation generation
+
+#### READ - Order Tracking
+- Order history and details
+- Status tracking
+- Delivery information
+
+#### UPDATE - Order Status
+- Status updates (pending → processing → shipped → delivered)
+- Delivery tracking updates
+- Customer communication
+
+#### DELETE - Order Cancellation
+- Order cancellation process
+- Refund processing
+- Inventory adjustments"
+
+**Action**: Demonstrate each CRUD operation with real examples
 
 ---
 
-## Emergency Backup Plan:
+## 4. FINISH - Summary & Q&A (1 minute)
 
-If website is down during demo:
-1. Use screenshots/video recording of working website
-2. Explain features using static images
-3. Show code structure and highlight key files
-4. Demonstrate local database schema and API endpoints
+**[Return to homepage]**
+
+"To wrap up, DOKO represents a complete e-commerce solution that demonstrates:
+
+### Technical Achievements
+- **Full-Stack Development**: Frontend to backend integration
+- **Database Design**: Proper relationships and data integrity
+- **API Development**: RESTful endpoints for data operations
+- **Security Implementation**: Protection against common web vulnerabilities
+- **Performance Optimization**: Fast loading and responsive design
+
+### Business Features
+- **Complete Shopping Flow**: From browsing to delivery
+- **User Management**: Registration, authentication, profiles
+- **Admin Panel**: Complete backend management system
+- **Order Processing**: Full order lifecycle management
+
+### Deployment Ready
+- **Docker Containerization**: Easy deployment and scaling
+- **Production Configuration**: Nginx, PHP, MySQL setup
+- **Error Handling**: Graceful error management
+- **Logging**: System monitoring and debugging
+
+DOKO is a fully functional e-commerce platform ready for real-world deployment. Thank you for your attention!"
+
+---
+
+## Demo Flow Checklist:
+
+### Design Phase:
+- [ ] Homepage visual design
+- [ ] Responsive behavior (mobile/desktop)
+- [ ] Color scheme and branding
+- [ ] Navigation structure
+- [ ] Form designs and validation
+
+### Page Phase:
+- [ ] Homepage functionality
+- [ ] Product catalog browsing
+- [ ] User registration/login
+- [ ] Shopping cart operations
+- [ ] Checkout process
+- [ ] Admin panel overview
+
+### CRUD Phase:
+- [ ] Product creation (admin)
+- [ ] Product reading (catalog)
+- [ ] Product updates (admin)
+- [ ] Product deletion (admin)
+- [ ] User profile management
+- [ ] Order processing
+- [ ] Admin user management
+
+### Finish Phase:
+- [ ] Technical summary
+- [ ] Business value
+- [ ] Deployment readiness
+- [ ] Q&A preparation
+
+---
+
+## Emergency Backup:
+
+If demo fails:
+1. Use screenshots of working features
+2. Show database schema and relationships
+3. Explain code structure and key files
+4. Demonstrate API endpoints
+5. Show Docker configuration
