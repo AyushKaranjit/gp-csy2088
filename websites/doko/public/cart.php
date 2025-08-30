@@ -548,6 +548,61 @@ include_header($page_title, $page_description, $current_page);
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* Validation Styles */
+.form-group .error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.validation-summary {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    color: #721c24;
+}
+
+.validation-summary strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.validation-summary ul {
+    margin: 0.5rem 0 0 1.5rem;
+    padding: 0;
+}
+
+.validation-summary li {
+    margin-bottom: 0.25rem;
+}
+
+/* Enhanced form styling */
+.checkout-modal-content .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.checkout-modal-content .form-control {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.checkout-modal-content .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.checkout-modal-content .form-control.error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
 </style>
 
 <script>
@@ -636,7 +691,7 @@ include_header($page_title, $page_description, $current_page);
                     <div class="form-group">
             <label for="checkout_phone">Phone Number *</label>
             <input type="tel" id="checkout_phone" name="phone" class="form-control" 
-                               placeholder="+977-9851234567" required>
+                               placeholder="+977 9851234567" required>
                     </div>
                     
                     <div class="form-group">
@@ -679,7 +734,8 @@ include_header($page_title, $page_description, $current_page);
                     <div class="form-group">
                         <label for="checkout_special_instructions">Special Instructions (Optional)</label>
                         <textarea id="checkout_special_instructions" name="special_instructions" class="form-control" rows="2" 
-                                  placeholder="Any special delivery instructions..."></textarea>
+                                  placeholder="Any special delivery instructions..." maxlength="200"></textarea>
+                        <small class="text-muted" id="instructions-counter" style="float: right; margin-top: 0.25rem;">0/200 characters</small>
                     </div>
                     
                     <div class="order-summary">
@@ -743,6 +799,56 @@ include_header($page_title, $page_description, $current_page);
             console.error('Error loading user profile:', error);
         }
         updateCheckoutSummary();
+
+        // Add phone number formatting after profile is loaded
+        setupPhoneNumberFormatting();
+    }
+
+    // Setup phone number formatting
+    function setupPhoneNumberFormatting() {
+        const phoneInput = document.getElementById('checkout_phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+                // Format as Nepali phone number
+                if (value.length >= 10) {
+                    if (value.startsWith('977')) {
+                        // Already has country code, remove it for formatting
+                        const withoutCountry = value.substring(3);
+                        if (withoutCountry.length >= 10) {
+                            e.target.value = `+977 ${withoutCountry.substring(0, 3)} ${withoutCountry.substring(3, 6)} ${withoutCountry.substring(6, 10)}`;
+                        }
+                    } else if (value.startsWith('0')) {
+                        // Remove leading 0 and format
+                        const withoutZero = value.substring(1);
+                        if (withoutZero.length >= 9) {
+                            e.target.value = `+977 ${withoutZero.substring(0, 3)} ${withoutZero.substring(3, 6)} ${withoutZero.substring(6, 9)}`;
+                        }
+                    } else {
+                        // Direct 10-digit number
+                        if (value.length >= 10) {
+                            e.target.value = `+977 ${value.substring(0, 3)} ${value.substring(3, 6)} ${value.substring(6, 9)}`;
+                        }
+                    }
+                } else if (value.length > 0) {
+                    e.target.value = value; // Show as-is for incomplete numbers
+                }
+            });
+
+            phoneInput.addEventListener('blur', function(e) {
+                const value = e.target.value.trim();
+                if (value) {
+                    const cleanPhone = value.replace(/[\s\-\(\)\+]/g, '');
+                    const phoneRegex = /^(\+977|977|0)?9[6789]\d{8}$/;
+
+                    if (!phoneRegex.test(cleanPhone)) {
+                        showFieldError(e.target, 'Please enter a valid Nepali phone number (e.g., +977 9851234567)');
+                        // Don't clear the field, just show error
+                    }
+                }
+            });
+        }
     }
     
     // Update checkout summary
@@ -751,10 +857,10 @@ include_header($page_title, $page_description, $current_page);
         const subtotalEl = document.getElementById('checkout-subtotal');
         const deliveryEl = document.getElementById('checkout-delivery');
         const totalEl = document.getElementById('checkout-total');
-        
+
         let itemsHtml = '';
         let subtotal = 0;
-        
+
     (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []).forEach(item => {
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
@@ -765,27 +871,193 @@ include_header($page_title, $page_description, $current_page);
                 </div>
             `;
         });
-        
+
         const deliveryCharge = subtotal >= 1000 ? 0 : 50;
         const total = subtotal + deliveryCharge;
-        
+
         itemsContainer.innerHTML = itemsHtml;
         subtotalEl.textContent = `Rs. ${subtotal.toFixed(2)}`;
         deliveryEl.textContent = subtotal >= 1000 ? 'FREE' : 'Rs. 50';
         totalEl.textContent = `Rs. ${total.toFixed(2)}`;
     }
+
+    // Comprehensive form validation
+    function validateCheckoutForm() {
+        const deliveryAddress = document.getElementById('checkout_delivery_address');
+        const phoneNumber = document.getElementById('checkout_phone');
+        const paymentMethod = document.getElementById('checkout_payment_method');
+        const specialInstructions = document.getElementById('checkout_special_instructions');
+        const transactionId = document.getElementById('checkout_transaction_id');
+
+        let isValid = true;
+        let errors = [];
+
+        // Clear previous error states
+        clearValidationErrors();
+
+        // 1. Delivery Address Validation
+        const address = deliveryAddress.value.trim();
+        if (!address) {
+            showFieldError(deliveryAddress, 'Delivery address is required');
+            errors.push('Delivery address is required');
+            isValid = false;
+        } else if (address.length < 10) {
+            showFieldError(deliveryAddress, 'Please provide a complete delivery address (minimum 10 characters)');
+            errors.push('Delivery address is too short');
+            isValid = false;
+        } else if (address.length > 500) {
+            showFieldError(deliveryAddress, 'Delivery address is too long (maximum 500 characters)');
+            errors.push('Delivery address is too long');
+            isValid = false;
+        }
+
+        // 2. Phone Number Validation
+        const phone = phoneNumber.value.trim();
+        if (!phone) {
+            showFieldError(phoneNumber, 'Phone number is required');
+            errors.push('Phone number is required');
+            isValid = false;
+        } else {
+            // Nepali phone number validation - more comprehensive pattern
+            const phoneRegex = /^(\+977[\s\-]?|977[\s\-]?|0)?9[6789]\d{8}$/;
+            const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+
+            if (!phoneRegex.test(cleanPhone)) {
+                showFieldError(phoneNumber, 'Please enter a valid Nepali phone number (e.g., +977 9851234567, 9851234567, or 09851234567)');
+                errors.push('Invalid phone number format');
+                isValid = false;
+            }
+        }
+
+        // 3. Payment Method Validation
+        const selectedPayment = paymentMethod.value;
+        if (!selectedPayment) {
+            showFieldError(paymentMethod, 'Please select a payment method');
+            errors.push('Payment method is required');
+            isValid = false;
+        }
+
+        // 4. Transaction ID validation for online/bank transfer
+        if ((selectedPayment === 'online_payment' || selectedPayment === 'bank_transfer') && transactionId) {
+            const txId = transactionId.value.trim();
+            if (!txId) {
+                showFieldError(transactionId, 'Transaction ID/Reference number is required for this payment method');
+                errors.push('Transaction ID is required');
+                isValid = false;
+            } else if (txId.length < 3) {
+                showFieldError(transactionId, 'Transaction ID must be at least 3 characters long');
+                errors.push('Transaction ID is too short');
+                isValid = false;
+            } else if (txId.length > 50) {
+                showFieldError(transactionId, 'Transaction ID is too long (maximum 50 characters)');
+                errors.push('Transaction ID is too long');
+                isValid = false;
+            }
+        }
+
+        // 5. Special Instructions Validation (optional but with limits)
+        const instructions = specialInstructions.value.trim();
+        if (instructions && instructions.length > 200) {
+            showFieldError(specialInstructions, 'Special instructions are too long (maximum 200 characters)');
+            errors.push('Special instructions are too long');
+            isValid = false;
+        }
+
+        // 6. Check if cart is empty
+        const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
+            ? CartModule.getItems()
+            : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
+
+        if (!currentCart || currentCart.length === 0) {
+            alert('Your cart is empty. Please add some items before placing an order.');
+            isValid = false;
+        }
+
+        // Show summary of errors if any
+        if (!isValid && errors.length > 0) {
+            showValidationSummary(errors);
+        }
+
+        return isValid;
+    }
+
+    // Show field-specific error
+    function showFieldError(field, message) {
+        field.classList.add('error');
+        field.style.borderColor = '#dc3545';
+
+        // Remove existing error message
+        const existingError = field.parentNode.querySelector('.field-error');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.style.color = '#dc3545';
+        errorDiv.style.fontSize = '0.875rem';
+        errorDiv.style.marginTop = '0.25rem';
+        errorDiv.textContent = message;
+
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    // Clear all validation errors
+    function clearValidationErrors() {
+        // Clear field errors
+        const errorFields = document.querySelectorAll('.modal-body .error');
+        errorFields.forEach(field => {
+            field.classList.remove('error');
+            field.style.borderColor = '';
+        });
+
+        // Remove error messages
+        const errorMessages = document.querySelectorAll('.modal-body .field-error');
+        errorMessages.forEach(msg => msg.remove());
+    }
+
+    // Show validation summary
+    function showValidationSummary(errors) {
+        // Remove existing summary
+        const existingSummary = document.querySelector('.validation-summary');
+        if (existingSummary) {
+            existingSummary.remove();
+        }
+
+        // Create summary
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'validation-summary';
+        summaryDiv.style.backgroundColor = '#f8d7da';
+        summaryDiv.style.border = '1px solid #f5c6cb';
+        summaryDiv.style.borderRadius = '0.375rem';
+        summaryDiv.style.padding = '0.75rem';
+        summaryDiv.style.marginBottom = '1rem';
+        summaryDiv.style.color = '#721c24';
+
+        summaryDiv.innerHTML = `
+            <strong>Please fix the following errors:</strong>
+            <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+        `;
+
+        // Insert at the top of the form
+        const form = document.getElementById('checkout-form');
+        form.insertBefore(summaryDiv, form.firstChild);
+    }
     
     // Place order
     async function placeOrder() {
         const form = document.getElementById('checkout-form');
-        const formData = new FormData(form);
-        
-        // Validate required fields
-        if (!form.checkValidity()) {
-            form.reportValidity();
+
+        // Comprehensive validation
+        if (!validateCheckoutForm()) {
             return;
         }
-        
+
+        const formData = new FormData(form);
+
         const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
             ? CartModule.getItems()
             : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
@@ -806,33 +1078,50 @@ include_header($page_title, $page_description, $current_page);
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
         
         try {
-            // Primary: use legacy consolidated endpoint /api/orders/orders.php (expects shipping_* fields)
-            let payload = {
-                shipping_address: orderData.delivery_address,
-                shipping_city: 'Kathmandu',
-                shipping_state: 'Bagmati',
-                shipping_zip: '00000',
-                payment_method: (orderData.payment_method === 'online_payment') ? 'cash_on_delivery' : (orderData.payment_method||'cash_on_delivery')
+            // Get user information first
+            const userResponse = await fetch('api/users/profile.php', {
+                headers: {'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},
+                credentials:'same-origin'
+            });
+            const userResult = await userResponse.json();
+            const user = userResult.success ? userResult.user || userResult.data : null;
+
+            // Prepare order data in the correct format for place-order.php
+            const orderPayload = {
+                customer: {
+                    first_name: user?.first_name || 'Customer',
+                    last_name: user?.last_name || '',
+                    email: user?.email || '',
+                    phone: orderData.phone
+                },
+                delivery: {
+                    address: orderData.delivery_address,
+                    city: 'Kathmandu',
+                    area: 'Kathmandu Valley',
+                    delivery_date: new Date().toISOString().split('T')[0],
+                    delivery_time: 'Anytime',
+                    landmark: '',
+                    delivery_notes: orderData.special_instructions || ''
+                },
+                payment_method: orderData.payment_method === 'online_payment' ? 'esewa' :
+                              orderData.payment_method === 'bank_transfer' ? 'esewa' : 'cod',
+                items: orderData.cart_items.map(item => ({
+                    id: item.product_id,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                total: currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0) +
+                       (currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0) >= 1000 ? 0 : 50)
             };
-            const response = await fetch('api/orders/orders.php', {
+
+            // Use the proper place-order endpoint
+            const response = await fetch('api/orders/place-order.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(orderPayload)
             });
-            let text = await response.text();
-            let result; try { result = JSON.parse(text); } catch(parseErr){ console.warn('Order JSON parse failed', parseErr, text); result = null; }
-            // If deprecated (410) or not found, fallback to users/customer-orders.php contract
-            if (!result || !result.success) {
-                if (result && result.status === 410 || (response.status === 404 || response.status === 410)) {
-                    const fallbackResp = await fetch('api/users/customer-orders.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest' },
-                        body: JSON.stringify(orderData)
-                    });
-                    const fbText = await fallbackResp.text();
-                    try { result = JSON.parse(fbText); } catch(e){ console.warn('Fallback order parse failed', e, fbText); }
-                }
-            }
+
+            const result = await response.json();
             if (result && result.success) {
                 if (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.clearAll === 'function') {
                     CartModule.clearAll();
@@ -841,9 +1130,9 @@ include_header($page_title, $page_description, $current_page);
                     try { localStorage.setItem(window.GUEST_CART_KEY||'doko_guest_cart_v1','[]'); } catch(e) {}
                 }
                 hideCheckoutModal();
-                const on = (result.data && (result.data.order_number || result.data.order_id)) ? (result.data.order_number || 'ORDER-'+result.data.order_id) : 'ORDER';
-                alert('Order placed successfully! Order Number: ' + on);
-                window.location.href = 'profile.php?section=order-history';
+                const orderId = result.order_id || (result.data && (result.data.order_id || result.data.id)) || 'N/A';
+                alert('Order placed successfully! Order ID: ' + orderId);
+                window.location.href = 'order-confirmation.php?order_id=' + orderId;
             } else {
                 alert('Error placing order: ' + (result ? result.message : 'Unknown server response'));
             }

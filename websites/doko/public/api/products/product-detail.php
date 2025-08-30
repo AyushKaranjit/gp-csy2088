@@ -15,7 +15,7 @@ try {
     $productsPk = schema_products_pk();
     
     // Get product details with category information
-    $query = "SELECT p.{$productsPk} AS product_id, p.name, p.description, p.price, p.original_price,
+    $query = "SELECT p.{$productsPk} AS product_id, p.name, p.slug, p.description, p.price, p.original_price,
                      p.stock_quantity, p.unit, p.category_id, p.created_at, p.updated_at, p.status,
                      c.name as category_name, pi.image_url AS primary_image
               FROM products p
@@ -34,8 +34,19 @@ try {
     if ($candidate) {
         if (preg_match('#^https?://#i', $candidate)) {
             $image_url = $candidate;
-        } elseif (file_exists(__DIR__ . '/../../uploads/' . $candidate)) {
+        } elseif (preg_match('#^/images/#', $candidate)) {
+            $image_url = $candidate;
+        } elseif (file_exists(__DIR__ . '/uploads/' . $candidate)) {
             $image_url = '/uploads/' . $candidate;
+        } elseif (file_exists(__DIR__ . '/images/' . $candidate)) {
+            $image_url = '/images/' . $candidate;
+        }
+    }
+    // Fallback to slug-based image
+    if ($image_url === '/images/default-product.jpg' && !empty($product['slug'])) {
+        $slug_candidate = $product['slug'] . '.jpg';
+        if (file_exists(__DIR__ . '/images/' . $slug_candidate)) {
+            $image_url = '/images/' . $slug_candidate;
         }
     }
     

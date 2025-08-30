@@ -27,7 +27,7 @@
                                     quantity: quantity,
                                     name: productName,
                                     price: 0, // Will be hydrated later
-                                    image: '/uploads/default-product.jpg' // Default image
+                                    image: '/images/default-product.jpg' // Default image
                                 });
                             }
                             localStorage.setItem(window.GUEST_CART_KEY || 'doko_guest_cart_v1', JSON.stringify(guestCart));

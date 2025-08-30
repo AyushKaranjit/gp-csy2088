@@ -16,7 +16,7 @@ try {
     }
     if (count($ids) > 100) $ids = array_slice($ids,0,100); // safety limit
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $sql = "SELECT p.$productsPk AS product_id, p.name, p.price, p.stock_quantity, p.status, COALESCE(pi.image_url, '') AS image_url
+    $sql = "SELECT p.$productsPk AS product_id, p.name, p.slug, p.price, p.stock_quantity, p.status, COALESCE(pi.image_url, '') AS image_url
             FROM products p
             LEFT JOIN product_images pi ON p.$productsPk = pi.product_id AND pi.is_primary = 1
             WHERE p.$productsPk IN ($placeholders)";
@@ -29,8 +29,19 @@ try {
         if ($candidate) {
             if (preg_match('#^https?://#i', $candidate)) {
                 $image_url = $candidate;
-            } elseif (file_exists(__DIR__ . '/../../uploads/' . $candidate)) {
+            } elseif (preg_match('#^/images/#', $candidate)) {
+                $image_url = $candidate;
+            } elseif (file_exists(__DIR__ . '/uploads/' . $candidate)) {
                 $image_url = '/uploads/' . $candidate;
+            } elseif (file_exists(__DIR__ . '/images/' . $candidate)) {
+                $image_url = '/images/' . $candidate;
+            }
+        }
+        // Fallback to slug-based image
+        if ($image_url === '/images/default-product.jpg' && !empty($r['slug'])) {
+            $slug_candidate = $r['slug'] . '.jpg';
+            if (file_exists(__DIR__ . '/images/' . $slug_candidate)) {
+                $image_url = '/images/' . $slug_candidate;
             }
         }
         $out[] = [

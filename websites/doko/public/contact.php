@@ -157,20 +157,20 @@ include_header($page_title, $page_description, $current_page);
                 <div class="contact-form-content">
                     <div class="contact-form-text">
                         <h2>Send Us a Message</h2>
-                        <p>Have a question, suggestion, or need help with your order? Fill out the form below and we'll get back to you as soon as possible.</p>
+                        <p style="color: black;">Have a question, suggestion, or need help with your order? Fill out the form below and we'll get back to you as soon as possible.</p>
                         
                         <div class="contact-features">
                             <div class="feature">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Quick response within 24 hours</span>
+                                <span style="color: black;">Quick response within 24 hours</span>
                             </div>
                             <div class="feature">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Dedicated customer support team</span>
+                                <span style="color: black;">Dedicated customer support team</span>
                             </div>
                             <div class="feature">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Multiple ways to reach us</span>
+                                <span style="color: black;">Multiple ways to reach us</span>
                             </div>
                         </div>
                     </div>
@@ -249,7 +249,7 @@ include_header($page_title, $page_description, $current_page);
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Frequently Asked Questions</h2>
-                <p class="section-subtitle">Find quick answers to common questions</p>
+                <p class="section-subtitle" style="color: black;">Find quick answers to common questions</p>
             </div>
             
             <div class="faq-grid">
@@ -257,27 +257,27 @@ include_header($page_title, $page_description, $current_page);
                 $faqs = [
                     [
                         'question' => 'What are your delivery hours?',
-                        'answer' => 'We deliver 7 days a week from 7:00 AM to 9:00 PM. Same-day delivery is available for orders placed before 2:00 PM.'
+                        'answer' => '<span style="color: black;">We deliver 7 days a week from 7:00 AM to 9:00 PM. Same-day delivery is available for orders placed before 2:00 PM.</span>'
                     ],
                     [
                         'question' => 'Do you offer free delivery?',
-                        'answer' => 'Yes! We offer free delivery on all orders above Rs. 1000 within Kathmandu Valley. For orders below Rs. 1000, a delivery charge of Rs. 50 applies.'
+                        'answer' => '<span style="color: black;">Yes! We offer free delivery on all orders above Rs. 1000 within Kathmandu Valley. For orders below Rs. 1000, a delivery charge of Rs. 50 applies.</span>'
                     ],
                     [
                         'question' => 'How can I track my order?',
-                        'answer' => 'Once your order is confirmed, you\'ll receive an SMS with tracking details. You can also track your order by logging into your account on our website.'
+                        'answer' => '<span style="color: black;">Once your order is confirmed, you\'ll receive an SMS with tracking details. You can also track your order by logging into your account on our website.</span>'
                     ],
                     [
                         'question' => 'What if I receive damaged products?',
-                        'answer' => 'We guarantee product quality. If you receive damaged or unsatisfactory products, contact us immediately for a replacement or full refund.'
+                        'answer' => '<span style="color: black;">We guarantee product quality. If you receive damaged or unsatisfactory products, contact us immediately for a replacement or full refund.</span>'
                     ],
                     [
                         'question' => 'Can I modify or cancel my order?',
-                        'answer' => 'You can modify or cancel your order within 30 minutes of placing it. After that, please contact our customer support for assistance.'
+                        'answer' => '<span style="color: black;">You can modify or cancel your order within 30 minutes of placing it. After that, please contact our customer support for assistance.</span>'
                     ],
                     [
                         'question' => 'Do you accept cash on delivery?',
-                        'answer' => 'Yes, we accept cash on delivery as well as online payments through various methods including mobile banking and digital wallets.'
+                        'answer' => '<span style="color: black;">Yes, we accept cash on delivery as well as online payments through various methods including mobile banking and digital wallets.</span>'
                     ]
                 ];
 
@@ -288,14 +288,14 @@ include_header($page_title, $page_description, $current_page);
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer" id="faq-<?php echo $index; ?>">
-                        <p><?php echo clean_output($faq['answer']); ?></p>
+                        <p><?php echo $faq['answer']; ?></p>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
             
             <div class="faq-footer">
-                <p>Still have questions? <a href="#contact-form">Contact us directly</a> and we'll be happy to help!</p>
+                <p style="color: black;">Still have questions? <a href="#contact-form">Contact us directly</a> and we'll be happy to help!</p>
             </div>
         </div>
     </section>
@@ -305,7 +305,7 @@ include_header($page_title, $page_description, $current_page);
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Find Us</h2>
-                <p class="section-subtitle">Visit our store or find us on the map</p>
+                <p class="section-subtitle" style="color: black;">Visit our store or find us on the map</p>
             </div>
             
             <div class="map-container">
@@ -319,6 +319,7 @@ include_header($page_title, $page_description, $current_page);
                         loading="lazy"
                         onload="this.classList.add('loaded');"
                         onerror="this.onerror=null;this.src='/images/kathmandu-map.svg';this.classList.add('loaded');" />
+                    <div id="map-status" class="map-status">Loading interactive map...</div>
                     <div class="map-overlay-lite" aria-label="Map quick actions">
                         <a href="https://www.google.com/maps/place/Thamel,+Kathmandu" target="_blank" rel="noopener" class="btn btn-outline btn-sm" title="Open in Google Maps">
                             <i class="fas fa-external-link-alt"></i>
@@ -602,7 +603,7 @@ include_header($page_title, $page_description, $current_page);
     background: var(--light-bg);
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.3s ease, padding 0.3s ease;
 }
 
 .faq-answer.active {
@@ -654,8 +655,20 @@ include_header($page_title, $page_description, $current_page);
     transition: opacity .6s ease;
 }
 .map-static-img.loaded { opacity: 1; }
-.map-wrapper iframe.google-map-bg {position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .6s ease;}
-.map-wrapper iframe.google-map-bg.visible{opacity:1;}
+.map-wrapper iframe.google-map-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    z-index: 1;
+}
+
+.map-wrapper iframe.google-map-bg.visible {
+    opacity: 1;
+}
 
 .map-wrapper iframe {
     position: absolute;
@@ -675,6 +688,57 @@ include_header($page_title, $page_description, $current_page);
 .map-overlay-lite .btn { padding: .4rem .6rem; }
 
 .map-noscript { padding: 1rem; background:#fff; font-size:.9rem; }
+
+/* Map loading status */
+.map-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-weight: 500;
+    color: var(--primary-color);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.map-status::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--primary-color);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hide map status when map loads */
+.map-wrapper[data-map-loaded="1"] .map-status {
+    display: none;
+}
+
+.map-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    z-index: 10;
+}
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
@@ -750,27 +814,30 @@ document.addEventListener('DOMContentLoaded', function() {
         question.addEventListener('click', function() {
             const faqIndex = this.dataset.faq;
             const answer = document.getElementById(`faq-${faqIndex}`);
-            
+
+            if (!answer) {
+                console.error('FAQ answer not found for index:', faqIndex);
+                return;
+            }
+
             // Close all other FAQ items
             document.querySelectorAll('.faq-question').forEach(q => {
                 if (q !== this) {
                     q.classList.remove('active');
                 }
             });
-            
+
             document.querySelectorAll('.faq-answer').forEach(a => {
                 if (a !== answer) {
                     a.classList.remove('active');
                 }
             });
-            
+
             // Toggle current FAQ item
             this.classList.toggle('active');
             answer.classList.toggle('active');
         });
-    });
-    
-    // Close alert functionality
+    });    // Close alert functionality
     document.querySelectorAll('.close').forEach(button => {
         button.addEventListener('click', function() {
             this.parentElement.style.display = 'none';
@@ -817,23 +884,72 @@ document.addEventListener('DOMContentLoaded', function() {
     const wrapper = document.getElementById('map-wrapper');
     function injectMap(){
         if(!wrapper || wrapper.dataset.mapLoaded) return;
+
+        console.log('Injecting Google Map...');
+
         const iframe=document.createElement('iframe');
         iframe.className='google-map-bg';
         iframe.loading='lazy';
         iframe.referrerPolicy='no-referrer-when-downgrade';
         iframe.allowFullscreen=true;
-        iframe.src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.258318116201!2d85.30860447524144!3d27.70903142514662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19d7d8b3db01%3A0x4ddf5b8e1b1c2b4d!2sThamel%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1691400000000';
-        iframe.addEventListener('load',()=>{ iframe.classList.add('visible'); });
+
+        // Simple and reliable Google Maps embed URL for Thamel, Kathmandu
+        // Using basic embed format that works without API key
+        iframe.src='https://maps.google.com/maps?q=27.7154,85.3078&hl=en&z=15&output=embed';
+
+        iframe.addEventListener('load', function(){
+            console.log('Google Map loaded successfully');
+            iframe.classList.add('visible');
+            // Hide loading status
+            const statusDiv = document.getElementById('map-status');
+            if (statusDiv) {
+                statusDiv.style.display = 'none';
+            }
+        });
+
+        iframe.addEventListener('error', function(){
+            console.error('Failed to load Google Map');
+            // Show error message
+            const statusDiv = document.getElementById('map-status');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Map failed to load';
+                statusDiv.style.color = '#dc3545';
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+            // Fallback: show static map
+            const staticImg = wrapper.querySelector('.map-static-img');
+            if (staticImg) {
+                staticImg.style.display = 'block';
+            }
+        });
+
         wrapper.appendChild(iframe);
         wrapper.dataset.mapLoaded='1';
     }
+
     if('IntersectionObserver' in window && wrapper){
-        const io=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){injectMap();io.disconnect();}});},{rootMargin:'0px 0px 200px 0px'});
+        console.log('Using IntersectionObserver for map loading');
+        const io=new IntersectionObserver(entries=>{
+            entries.forEach(en=>{
+                if(en.isIntersecting){
+                    console.log('Map section is visible, loading map...');
+                    injectMap();
+                    io.disconnect();
+                }
+            });
+        },{rootMargin:'0px 0px 200px 0px'});
         io.observe(wrapper);
     } else {
+        console.log('Using fallback timeout for map loading');
         // Fallback: inject after slight delay
         setTimeout(injectMap,1200);
     }
+
+    // Auto-load map immediately instead of waiting for intersection
+    console.log('Auto-loading map immediately...');
+    setTimeout(injectMap, 500); // Load after 500ms to ensure DOM is ready
 });
 
 // Contact form validation
@@ -979,11 +1095,43 @@ document.addEventListener('DOMContentLoaded', function() {
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         submitBtn.disabled = true;
-        
         // Allow form to submit
         return true;
     });
 });
+
+</script>
+
+<!-- Simple FAQ toggle functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Simple FAQ script loaded');
+
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    console.log('Found FAQ questions:', faqQuestions.length);
+
+    faqQuestions.forEach(function(question, index) {
+        question.addEventListener('click', function() {
+            console.log('FAQ clicked:', index);
+            const answer = document.getElementById('faq-' + index);
+
+            if (answer) {
+                // Close all other answers
+                document.querySelectorAll('.faq-answer').forEach(function(ans) {
+                    ans.classList.remove('active');
+                });
+                document.querySelectorAll('.faq-question').forEach(function(q) {
+                    q.classList.remove('active');
+                });
+
+                // Toggle current answer
+                answer.classList.add('active');
+                this.classList.add('active');
+            }
+        });
+    });
+});
+</script>
 
 <?php
 // Include footer

@@ -82,22 +82,35 @@ try {
         
         // Set proper image URL with fallback
         if (!empty($product['image_url'])) {
-            // Check if it's already a full URL or just a filename
-            if (strpos($product['image_url'], '/uploads/') === 0) {
-                // Already a proper path
+            // Check if it's already a full URL
+            if (preg_match('#^https?://#i', $product['image_url'])) {
+                // External URL, keep as is
+            } elseif (strpos($product['image_url'], '/images/') === 0) {
+                // Already a proper /images/ path
                 $imagePath = $_SERVER['DOCUMENT_ROOT'] . $product['image_url'];
+            } elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/images/' . $product['image_url'])) {
+                // File exists in /images/
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/images/' . $product['image_url'];
+                $product['image_url'] = '/images/' . $product['image_url'];
+            } elseif (strpos($product['image_url'], '/uploads/') === 0) {
+                // Already a proper /uploads/ path
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . $product['image_url'];
+            } elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $product['image_url'])) {
+                // File exists in /uploads/
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $product['image_url'];
+                $product['image_url'] = '/uploads/' . $product['image_url'];
             } else {
-                // Just a filename, construct path
-                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/products/' . $product['image_url'];
-                $product['image_url'] = '/uploads/products/' . $product['image_url'];
+                // File doesn't exist, use default
+                $product['image_url'] = '/images/default-product.jpg';
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/images/default-product.jpg';
             }
             
-            // Check if file exists, otherwise use default
+            // Double-check if file exists, otherwise use default
             if (!file_exists($imagePath)) {
-                $product['image_url'] = '/uploads/products/default.jpg';
+                $product['image_url'] = '/images/default-product.jpg';
             }
         } else {
-            $product['image_url'] = '/uploads/products/default.jpg';
+            $product['image_url'] = '/images/default-product.jpg';
         }
         
         // Add stock status

@@ -64,27 +64,6 @@
     position: relative;
     z-index: 1004;
 }
-/* Ensure user dropdown menu overlays navbar */
-.header-action.user-dropdown .user-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    min-width: 180px;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    border-radius: 8px;
-    z-index: 1002;
-    display: none;
-}
-.header-action.user-dropdown.active .user-dropdown-menu,
-.header-action.user-dropdown .user-dropdown-menu.active {
-    display: block;
-}
-.header-action.user-dropdown .user-info {
-    cursor: pointer;
-    position: relative;
-    z-index: 1003;
-}
 /* Ensure user dropdown overlays navbar */
 .user-dropdown-outside {
     position: relative;
@@ -170,7 +149,7 @@ h6 { font-size: 1rem; }
 
 p {
     margin-bottom: 1rem;
-    color: white;
+    color: var(--dark-text);
 }
 
 a {
@@ -709,6 +688,7 @@ a:hover {
     padding: 0;
     position: relative;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
 }
 
 .nav-container {
@@ -717,6 +697,10 @@ a:hover {
     align-items: center;
     position: relative;
     background: #16a34a !important;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 .nav-list {
@@ -725,10 +709,15 @@ a:hover {
     margin: 0;
     padding: 0;
     flex: 1;
+    justify-content: center;
+    align-items: center;
 }
 
 .nav-item {
     position: relative;
+    flex: 1;
+    text-align: center;
+    max-width: 150px;
 }
 
 .nav-link {
@@ -740,6 +729,7 @@ a:hover {
     text-decoration: none;
     position: relative;
     overflow: hidden;
+    text-align: center;
 }
 
 .nav-link::before {
@@ -850,6 +840,7 @@ a:hover {
         visibility: hidden;
         transition: var(--transition);
         box-shadow: var(--shadow);
+        justify-content: flex-start;
     }
     
     .nav-list.active {
@@ -861,6 +852,8 @@ a:hover {
     .nav-item {
         width: 100%;
         border-bottom: 1px solid rgba(255,255,255,0.1);
+        flex: none;
+        text-align: left;
     }
     
     .nav-link {

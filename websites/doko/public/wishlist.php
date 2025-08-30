@@ -246,14 +246,14 @@ function displayWishlistItems(products, isLoggedIn) {
     const html = `
         <div class="wishlist-grid">
             ${products.map(product => {
-                // Normalize image URL from API (may already start with /uploads)
+                // Normalize image URL from API (may already start with /images)
                 let img = product.image_url || '';
                 if(!img || /default-product/.test(img)){ img = '/images/default-product.jpg'; }
                 if (img.startsWith('/')) {
                     img = img; // already absolute relative to origin
                 } else if (!/^https?:/i.test(img)) {
-                    // If not absolute, prepend /uploads/ unless already has uploads/
-                    if (!img.startsWith('uploads/')) img = 'uploads/' + img;
+                    // If not absolute, prepend /images/ unless already has images/
+                    if (!img.startsWith('images/')) img = 'images/' + img;
                     img = '/' + img.replace(/^\/+/, '');
                 }
                 return `

@@ -58,7 +58,7 @@ include_header($page_title, $page_description, $current_page);
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <h3>Orders & Delivery</h3>
-                    <p>Track orders, delivery info, and order issues</p>
+                    <p style="color: black;">Track orders, delivery info, and order issues</p>
                     <a href="#orders" class="btn btn-outline">Learn More</a>
                 </div>
                 <div class="help-category">
@@ -66,7 +66,7 @@ include_header($page_title, $page_description, $current_page);
                         <i class="fas fa-credit-card"></i>
                     </div>
                     <h3>Payment & Billing</h3>
-                    <p>Payment methods, refunds, and billing questions</p>
+                    <p style="color: black;">Payment methods, refunds, and billing questions</p>
                     <a href="#payment" class="btn btn-outline">Learn More</a>
                 </div>
                 <div class="help-category">
@@ -74,7 +74,7 @@ include_header($page_title, $page_description, $current_page);
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <h3>Account & Profile</h3>
-                    <p>Manage your account, password, and preferences</p>
+                    <p style="color: black;">Manage your account, password, and preferences</p>
                     <a href="#account" class="btn btn-outline">Learn More</a>
                 </div>
                 <div class="help-category">
@@ -82,7 +82,7 @@ include_header($page_title, $page_description, $current_page);
                         <i class="fas fa-undo"></i>
                     </div>
                     <h3>Returns & Refunds</h3>
-                    <p>Return policy, refund process, and exchanges</p>
+                    <p style="color: black;">Return policy, refund process, and exchanges</p>
                     <a href="#returns" class="btn btn-outline">Learn More</a>
                 </div>
             </div>
@@ -102,7 +102,7 @@ include_header($page_title, $page_description, $current_page);
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer" id="faq-1">
-                            <p>Browse our products, add items to your cart, and proceed to checkout. You'll need to provide delivery information and choose a payment method.</p>
+                            <p style="color: black;">Browse our products, add items to your cart, and proceed to checkout. You'll need to provide delivery information and choose a payment method.</p>
                         </div>
                     </div>
                     <div class="faq-item">
@@ -111,7 +111,7 @@ include_header($page_title, $page_description, $current_page);
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer" id="faq-2">
-                            <p>The minimum order amount is Rs. 500. Orders above Rs. 2000 qualify for free delivery.</p>
+                            <p style="color: black;">The minimum order amount is Rs. 500. Orders above Rs. 2000 qualify for free delivery.</p>
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@ include_header($page_title, $page_description, $current_page);
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer" id="faq-3">
-                            <p>We deliver across Kathmandu Valley including Kathmandu, Lalitpur, and Bhaktapur. We're expanding to other cities soon.</p>
+                            <p style="color: black;">We deliver across Kathmandu Valley including Kathmandu, Lalitpur, and Bhaktapur. We're expanding to other cities soon.</p>
                         </div>
                     </div>
                     <div class="faq-item">
@@ -133,7 +133,16 @@ include_header($page_title, $page_description, $current_page);
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer" id="faq-4">
-                            <p>Standard delivery takes 1-2 business days. Express delivery is available for same-day or next-day delivery.</p>
+                            <p style="color: black;">Standard delivery takes 1-2 business days. Express delivery is available for same-day or next-day delivery.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question" data-faq="5">
+                            <span>What are your delivery hours?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" id="faq-5">
+                            <p style="color: black;">We deliver 7 days a week from 7:00 AM to 9:00 PM. Same-day delivery is available for orders placed before 2:00 PM.</p>
                         </div>
                     </div>
                 </div>
@@ -146,30 +155,30 @@ include_header($page_title, $page_description, $current_page);
         <div class="container">
             <div class="support-card">
                 <h2>Still need help?</h2>
-                <p>Our customer support team is here to assist you</p>
+                <p style="color: black;">Our customer support team is here to assist you</p>
                 <div class="support-options">
                     <div class="support-option">
                         <i class="fas fa-phone"></i>
                         <div>
                             <h4>Call Us</h4>
-                            <p>+977-9851234567</p>
-                            <small>Mon-Fri: 9AM-6PM</small>
+                            <p style="color: black;">+977-9851234567</p>
+                            <small style="color: black;">Mon-Fri: 9AM-6PM</small>
                         </div>
                     </div>
                     <div class="support-option">
                         <i class="fas fa-envelope"></i>
                         <div>
                             <h4>Email Us</h4>
-                            <p>support@doko.com.np</p>
-                            <small>Response within 24 hours</small>
+                            <p style="color: black;">support@doko.com.np</p>
+                            <small style="color: black;">Response within 24 hours</small>
                         </div>
                     </div>
                     <div class="support-option">
                         <i class="fas fa-comments"></i>
                         <div>
                             <h4>Live Chat</h4>
-                            <p>Chat with our team</p>
-                            <small>Available now</small>
+                            <p style="color: black;">Chat with our team</p>
+                            <small style="color: black;">Available now</small>
                         </div>
                     </div>
                 </div>

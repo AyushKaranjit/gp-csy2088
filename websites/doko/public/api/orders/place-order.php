@@ -103,7 +103,10 @@ try {
 
     // Get product details from database
         $product = $db->execute(
-            "SELECT product_id, name, price, stock_quantity, sku FROM products WHERE product_id = ?",
+            "SELECT p.product_id, p.name, p.price, p.stock_quantity, p.sku, COALESCE(pi.image_url, '/images/default-product.jpg') AS image_url
+             FROM products p
+             LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
+             WHERE p.product_id = ?",
             [$item['id']]
         )->fetch();
 
@@ -117,6 +120,17 @@ try {
             exit;
         }
 
+        // Determine image path
+        $image_url = '/images/default-product.jpg';
+        $candidate = $product['image_url'];
+        if ($candidate) {
+            if (preg_match('#^https?://#i', $candidate)) {
+                $image_url = $candidate;
+            } elseif (file_exists(__DIR__ . '/../images/' . $candidate)) {
+                $image_url = '/images/' . $candidate;
+            }
+        }
+
         $lineTotal = $product['price'] * $item['quantity'];
         $subtotal += $lineTotal;
 
@@ -126,7 +140,8 @@ try {
             'sku' => $product['sku'] ?? 'SKU' . $product['product_id'],
             'quantity' => $item['quantity'],
             'unit_price' => $product['price'],
-            'total_price' => $lineTotal
+            'total_price' => $lineTotal,
+            'image' => $image_url
         ];
     }
 
@@ -178,13 +193,18 @@ try {
     $itemStmt = $db->prepare("
         INSERT INTO order_items (
             order_id, product_id, product_name, product_sku,
-            quantity, unit_price, total_price, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+            quantity, unit_price, total_price, product_snapshot, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
     ");
 
     $stockStmt = $db->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
 
     foreach ($orderItems as $item) {
+        $snapshot = json_encode([
+            'name' => $item['name'],
+            'price' => $item['unit_price'],
+            'image' => $item['image']
+        ]);
         $itemStmt->execute([
             $orderId,
             $item['product_id'],
@@ -192,7 +212,8 @@ try {
             $item['sku'],
             $item['quantity'],
             $item['unit_price'],
-            $item['total_price']
+            $item['total_price'],
+            $snapshot
         ]);
 
         $stockStmt->execute([$item['quantity'], $item['product_id']]);

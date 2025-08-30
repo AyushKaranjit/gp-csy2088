@@ -114,8 +114,19 @@ try {
     if ($candidate) {
         if (preg_match('#^https?://#', $candidate)) {
             $image_url = $candidate; // external
-        } else {
+        } elseif (preg_match('#^/images/#', $candidate)) {
+            $image_url = $candidate; // already has /images/ prefix
+        } elseif (file_exists(__DIR__ . '/uploads/' . $candidate)) {
             $image_url = '/uploads/' . $candidate;
+        } elseif (file_exists(__DIR__ . '/images/' . $candidate)) {
+            $image_url = '/images/' . $candidate;
+        }
+    }
+    // Fallback to slug-based image
+    if ($image_url === '/images/default-product.jpg' && !empty($product['slug'])) {
+        $slug_candidate = $product['slug'] . '.jpg';
+        if (file_exists(__DIR__ . '/images/' . $slug_candidate)) {
+            $image_url = '/images/' . $slug_candidate;
         }
     }
 

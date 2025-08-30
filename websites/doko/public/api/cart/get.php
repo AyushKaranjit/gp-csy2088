@@ -25,8 +25,8 @@ try {
     $productsPk = schema_products_pk();
     $cartPk = schema_cart_pk();
 
-    $sql = "SELECT c.{$cartPk} AS cart_id, c.product_id, c.quantity, c.created_at, p.name, p.price, p.stock_quantity,
-                   COALESCE(pi.image_url, '/images/default-product.jpg') AS product_image
+    $sql = "SELECT c.{$cartPk} AS cart_id, c.product_id, c.quantity, c.created_at, p.name, p.slug, p.price, p.stock_quantity,
+                   COALESCE(pi.image_url, '') AS product_image
             FROM cart c
             JOIN products p ON c.product_id = p.{$productsPk}
             LEFT JOIN product_images pi ON p.{$productsPk} = pi.product_id AND pi.is_primary = 1
@@ -47,8 +47,19 @@ try {
         if ($candidate) {
             if (preg_match('#^https?://#', $candidate)) {
                 $image_url = $candidate; // external
-            } else {
+            } elseif (preg_match('#^/images/#', $candidate)) {
+                $image_url = $candidate; // already has /images/ prefix
+            } elseif (file_exists(__DIR__ . '/uploads/' . $candidate)) {
                 $image_url = '/uploads/' . $candidate;
+            } elseif (file_exists(__DIR__ . '/images/' . $candidate)) {
+                $image_url = '/images/' . $candidate;
+            }
+        }
+        // Fallback to slug-based image
+        if ($image_url === '/images/default-product.jpg' && !empty($r['slug'])) {
+            $slug_candidate = $r['slug'] . '.jpg';
+            if (file_exists(__DIR__ . '/images/' . $slug_candidate)) {
+                $image_url = '/images/' . $slug_candidate;
             }
         }
         

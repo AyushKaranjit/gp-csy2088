@@ -102,3 +102,10 @@ window.HeroBackgroundSlider = window.HeroBackgroundSlider || (function(){
 
   return { init };
 })();
+
+// Auto-initialize on DOMContentLoaded if hero slider exists
+document.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('hero-slide-track')) {
+    window.HeroBackgroundSlider.init();
+  }
+});

@@ -239,21 +239,21 @@ include_header($page_title, $page_description, $current_page);
                     'location' => 'Kathmandu',
                     'rating' => 5,
                     'comment' => 'Ordering groceries is now effortless. Fresh produce and timely delivery every time!',
-                    'image' => 'uploads/default-product.jpg'
+                    'image' => '/images/Default_profile.jpg'
                 ],
                 [
                     'name' => 'Happy Shopper',
                     'location' => 'Lalitpur',
                     'rating' => 5,
                     'comment' => 'Great quality and reliable service. Prices are reasonable and selection is growing.',
-                    'image' => 'uploads/default-product.jpg'
+                    'image' => '/images/Default_profile.jpg'
                 ],
                 [
                     'name' => 'Regular Buyer',
                     'location' => 'Bhaktapur',
                     'rating' => 4,
                     'comment' => 'Wide variety and consistent freshness. A couple more local organic options would be perfect.',
-                    'image' => 'uploads/default-product.jpg'
+                    'image' => '/images/Default_profile.jpg'
                 ]
             ];
 
@@ -261,7 +261,7 @@ include_header($page_title, $page_description, $current_page);
                         <div class="testimonial-card">
                                 <div class="testimonial-header">
                                             <div class="testimonial-avatar">
-                                                <img src="<?php echo $testimonial['image']; ?>" alt="<?php echo clean_output($testimonial['name']); ?>" loading="lazy" onerror="this.onerror=null;this.src='/images/default-product.jpg';">
+                                                <img src="<?php echo $testimonial['image']; ?>" alt="<?php echo clean_output($testimonial['name']); ?>" loading="lazy" onerror="this.onerror=null;this.src='/images/Default_profile.jpg';">
                                             </div>
                                         <div class="testimonial-info">
                                                 <h4 class="testimonial-name"><?php echo clean_output($testimonial['name']); ?></h4>
@@ -302,5 +302,5 @@ include_header($page_title, $page_description, $current_page);
 
 <?php
 // Footer with inline JS init
-include_footer([], "document.addEventListener('DOMContentLoaded',function(){if(typeof HeroBackgroundSlider!=='undefined'){HeroBackgroundSlider.init();}const f=document.querySelector('.newsletter-form-element');if(f){f.addEventListener('submit',function(e){e.preventDefault();const email=this.querySelector('input[name=email]').value.trim();if(!email)return;fetch('api/newsletter.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).then(r=>r.json()).then(d=>{alert(d.success?'Thank you for subscribing!':'Error: '+d.message);if(d.success) this.reset();}).catch(err=>{console.error('Newsletter error',err);alert('An error occurred.');});});}});");
+include_footer([], "document.addEventListener('DOMContentLoaded',function(){const f=document.querySelector('.newsletter-form-element');if(f){f.addEventListener('submit',function(e){e.preventDefault();const email=this.querySelector('input[name=email]').value.trim();if(!email)return;fetch('api/newsletter.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).then(r=>r.json()).then(d=>{alert(d.success?'Thank you for subscribing!':'Error: '+d.message);if(d.success) this.reset();}).catch(err=>{console.error('Newsletter error',err);alert('An error occurred.');});});}});");
 ?>

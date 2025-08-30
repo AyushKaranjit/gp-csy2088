@@ -35,8 +35,10 @@ try {
     $billingAddress = json_decode($order['billing_address'] ?? 'null', true) ?: [];
 
     // Fetch items
-    $itemsStmt = $pdo->prepare("SELECT oi.order_item_id, oi.product_id, oi.product_name, oi.product_sku, oi.quantity, oi.unit_price, oi.total_price, oi.product_snapshot
-                                 FROM order_items oi WHERE oi.order_id = ? ORDER BY oi.order_item_id ASC");
+    $itemsStmt = $pdo->prepare("SELECT oi.order_item_id, oi.product_id, oi.product_name, oi.product_sku, oi.quantity, oi.unit_price, oi.total_price, oi.product_snapshot, p.slug
+                                 FROM order_items oi
+                                 JOIN products p ON oi.product_id = p.product_id
+                                 WHERE oi.order_id = ? ORDER BY oi.order_item_id ASC");
     $itemsStmt->execute([$orderId]);
     $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -52,7 +54,23 @@ try {
             $imgStmt->execute([$it['product_id']]);
             $imgRow = $imgStmt->fetch(PDO::FETCH_ASSOC);
             if ($imgRow && !empty($imgRow['image_url'])) {
-                $it['image'] = $imgRow['image_url'];
+                $candidate = $imgRow['image_url'];
+                if (preg_match('#^https?://#i', $candidate)) {
+                    $it['image'] = $candidate;
+                } elseif (preg_match('#^/images/#', $candidate)) {
+                    $it['image'] = $candidate;
+                } elseif (file_exists(__DIR__ . '/../images/' . $candidate)) {
+                    $it['image'] = '/images/' . $candidate;
+                } else {
+                    $it['image'] = '/images/default-product.jpg';
+                }
+            }
+        }
+        // Fallback to slug-based image
+        if ($it['image'] === '/images/default-product.jpg' && !empty($it['slug'])) {
+            $slug_candidate = $it['slug'] . '.jpg';
+            if (file_exists(__DIR__ . '/../images/' . $slug_candidate)) {
+                $it['image'] = '/images/' . $slug_candidate;
             }
         }
         if (!$it['image']) { $it['image'] = '/images/default-product.jpg'; }

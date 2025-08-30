@@ -173,7 +173,7 @@ include_header($page_title, $page_description, $current_page);
                         'name' => 'Utsab Thami Magar',
                         'role' => 'Developer',
                         'bio' => 'Full-stack developer specializing in PHP and JavaScript, contributing to DOKO\'s e-commerce platform development.',
-                        'image' => 'uploads/default-product.jpg',
+                        'image' => '/images/Default_profile.jpg',
                         'email' => '',
                         'social' => [
                             'linkedin' => '#',
@@ -185,7 +185,7 @@ include_header($page_title, $page_description, $current_page);
                         'name' => 'Anuskar Sigdel',
                         'role' => 'Developer',
                         'bio' => 'Backend developer focused on database optimization and API development for seamless user experiences.',
-                        'image' => 'uploads/default-product.jpg',
+                        'image' => '/images/Default_profile.jpg',
                         'email' => '',
                         'social' => [
                             'linkedin' => '#',
@@ -197,7 +197,7 @@ include_header($page_title, $page_description, $current_page);
                         'name' => 'Ayush Karanjit',
                         'role' => 'Lead Developer',
                         'bio' => 'Project lead and full-stack developer driving the technical vision and implementation of DOKO\'s grocery platform.',
-                        'image' => 'uploads/default-product.jpg',
+                        'image' => '/images/Default_profile.jpg',
                         'email' => 'aayush.2024105@nami.edu.np',
                         'social' => [
                             'linkedin' => '#',
@@ -209,7 +209,7 @@ include_header($page_title, $page_description, $current_page);
                         'name' => 'Sandhaya Kumari',
                         'role' => 'Developer',
                         'bio' => 'Frontend developer creating intuitive user interfaces and enhancing customer experience across the platform.',
-                        'image' => 'uploads/default-product.jpg',
+                        'image' => '/images/Default_profile.jpg',
                         'email' => '',
                         'social' => [
                             'linkedin' => '#',
@@ -221,7 +221,7 @@ include_header($page_title, $page_description, $current_page);
                         'name' => 'Jesina Bastola',
                         'role' => 'Developer',
                         'bio' => 'Quality assurance specialist and developer ensuring robust functionality and smooth user experiences.',
-                        'image' => 'uploads/default-product.jpg',
+                        'image' => '/images/Default_profile.jpg',
                         'email' => '',
                         'social' => [
                             'linkedin' => '#',
@@ -554,14 +554,21 @@ include_header($page_title, $page_description, $current_page);
     }
 
     .member-image {
-        height: 250px;
+        width: 200px;
+        height: 200px;
         overflow: hidden;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
     }
 
     .member-image img {
-        width: 100%;
-        height: 100%;
+        width: 180px;
+        height: 180px;
         object-fit: cover;
+        border-radius: 50%;
         transition: var(--transition);
     }
 
