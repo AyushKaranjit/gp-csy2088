@@ -102,6 +102,7 @@ $footer_class = 'footer';
     $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__), '/\\');
     $main_js_exists = file_exists($doc_root . '/js/main.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'main.js');
     $mobile_js_exists = file_exists($doc_root . '/js/mobile-nav.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'mobile-nav.js');
+    $mobile_enhanced_exists = file_exists($doc_root . '/js/mobile-enhanced.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'mobile-enhanced.js');
     $product_actions_exists = file_exists($doc_root . '/js/product-actions.js') || file_exists(dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $js_path . 'product-actions.js');
     ?>
     
@@ -121,6 +122,12 @@ $footer_class = 'footer';
     <script src="<?php echo $js_path; ?>mobile-nav.js?v=<?php echo date('YmdHis'); ?>" onerror="console.log('Mobile nav script failed to load, using fallback')"></script>
     <?php else: ?>
     <script>console.warn('mobile-nav.js not found at path: <?php echo $js_path; ?>mobile-nav.js, using fallback');</script>
+    <?php endif; ?>
+    
+    <?php if ($mobile_enhanced_exists): ?>
+    <script src="<?php echo $js_path; ?>mobile-enhanced.js?v=<?php echo date('YmdHis'); ?>" onerror="console.log('Enhanced mobile script failed to load')"></script>
+    <?php else: ?>
+    <script>console.warn('mobile-enhanced.js not found at path: <?php echo $js_path; ?>mobile-enhanced.js');</script>
     <?php endif; ?>
     
     <!-- Fallback mobile navigation -->
