@@ -358,7 +358,7 @@ include __DIR__ . '/../template/breadcrumb.php';
 <!-- Add/Edit Address Modal -->
 <div class="modal" id="add-address-modal" style="display:none;align-items:center;justify-content:center;">
     <div class="modal-content" style="background:#fff;border-radius:10px;max-width:520px;width:95%;padding:1.25rem;box-shadow:0 10px 30px rgba(0,0,0,0.2);position:relative;">
-        <button class="close-btn" onclick="closeModal('add-address-modal')" style="position:absolute;right:12px;top:10px;border:none;background:transparent;font-size:1.25rem;cursor:pointer">&times;</button>
+        <button class="close-btn" onclick="if (typeof closeModal === 'function') closeModal('add-address-modal'); else { document.getElementById('add-address-modal').style.display='none'; document.body.style.overflow=''; }" style="position:absolute;right:12px;top:10px;border:none;background:transparent;font-size:1.25rem;cursor:pointer">&times;</button>
         <h3 id="address-modal-title" style="margin-top:0;margin-bottom:1rem;">Add New Address</h3>
         <form id="add-address-form" data-mode="add">
             <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
@@ -408,7 +408,7 @@ include __DIR__ . '/../template/breadcrumb.php';
                 <label for="is_default" style="margin:0;">Set as default address</label>
             </div>
             <div class="form-group" style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('add-address-modal')">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="if (typeof closeModal === 'function') closeModal('add-address-modal'); else { document.getElementById('add-address-modal').style.display='none'; document.body.style.overflow=''; }">Cancel</button>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Address</button>
             </div>
         </form>
@@ -561,7 +561,7 @@ include __DIR__ . '/../template/breadcrumb.php';
                 const data = await resp.json();
                 if (!data.success) throw new Error(data.message || 'Failed to save');
                 if (typeof showNotification === 'function') showNotification(isEdit ? 'Address updated' : 'Address added', 'success');
-                if (typeof closeModal === 'function') closeModal('add-address-modal'); else document.getElementById('add-address-modal').style.display='none';
+                if (typeof closeModal === 'function') closeModal('add-address-modal'); else { document.getElementById('add-address-modal').style.display='none'; document.body.style.overflow=''; }
                 form.reset();
                 loadAddresses();
             } catch (e) {
@@ -979,6 +979,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Profile form submission handled by main.js via apiFetch to /api/users/profile-update.php
 
+// Simple modal functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
 // Simple notification system
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
@@ -1099,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 catch(e){ console.warn('address save parse failed', e); }
                 if (r.ok && j.success) {
                     alert('Address saved');
-                    if (typeof closeModal === 'function') closeModal('add-address-modal'); else document.getElementById('add-address-modal').style.display='none';
+                    if (typeof closeModal === 'function') closeModal('add-address-modal'); else { document.getElementById('add-address-modal').style.display='none'; document.body.style.overflow=''; }
                     loadAddresses();
                 } else {
                     alert(j.message || 'Failed to save address');
