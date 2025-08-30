@@ -1026,9 +1026,7 @@ function showNotification(message, type = 'info') {
 }
 </style>
 
-// Include footer
-include_footer();
-?>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){

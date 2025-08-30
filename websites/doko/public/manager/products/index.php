@@ -464,6 +464,72 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
     border-top: 2px solid #f1f5f9;
 }
 
+/* Category Input Group Styles */
+.category-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.category-input-group select {
+    flex: 1;
+}
+
+.btn-add-category {
+    padding: 0.75rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+}
+
+.btn-add-category:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.category-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.btn-save-category {
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.3s ease;
+}
+
+.btn-save-category:hover {
+    background: #2563eb;
+}
+
+.btn-cancel-category {
+    padding: 0.5rem 1rem;
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.3s ease;
+}
+
+.btn-cancel-category:hover {
+    background: #4b5563;
+}
+
 .btn-cancel, .btn-save {
     padding: 0.875rem 1.75rem;
     border: none;
@@ -715,18 +781,30 @@ async function dokoDeleteImage(){ const id=prompt('Image ID to delete:'); if(!id
             
             <div class="form-group">
                 <label for="productCategory">Category *</label>
-                <select id="productCategory" name="category_id" required>
-                    <option value="">Select Category (<?php echo count($categories); ?> available)</option>
-                    <?php if (!empty($categories)): ?>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo $category['category_id'] ?? ''; ?>">
-                                <?php echo htmlspecialchars($category['name'] ?? 'Unknown Category'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option value="" disabled style="color: #ef4444;">No categories available - Please check database connection</option>
-                    <?php endif; ?>
-                </select>
+                <div class="category-input-group">
+                    <select id="productCategory" name="category_id" required>
+                        <option value="">Select Category (<?php echo count($categories); ?> available)</option>
+                        <?php if (!empty($categories)): ?>
+                            <?php foreach ($categories as $category): ?>
+                                <option value="<?php echo $category['category_id'] ?? ''; ?>">
+                                    <?php echo htmlspecialchars($category['name'] ?? 'Unknown Category'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <option value="new">+ Add New Category</option>
+                    </select>
+                    <button type="button" class="btn-add-category" onclick="showAddCategoryModal()" title="Add New Category">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div id="newCategoryGroup" class="form-group" style="display: none;">
+                    <label for="newCategoryName">New Category Name *</label>
+                    <input type="text" id="newCategoryName" placeholder="Enter new category name">
+                    <div class="category-actions">
+                        <button type="button" class="btn-save-category" onclick="addNewCategory()">Add Category</button>
+                        <button type="button" class="btn-cancel-category" onclick="cancelNewCategory()">Cancel</button>
+                    </div>
+                </div>
             </div>
             
             <div class="form-group">
@@ -935,6 +1013,71 @@ function deleteProduct(productId, productName) {
     });
 }
 
+// Category management functions
+function showAddCategoryModal() {
+    document.getElementById('newCategoryGroup').style.display = 'block';
+    document.getElementById('newCategoryName').focus();
+}
+
+function cancelNewCategory() {
+    document.getElementById('newCategoryGroup').style.display = 'none';
+    document.getElementById('newCategoryName').value = '';
+}
+
+async function addNewCategory() {
+    const categoryName = document.getElementById('newCategoryName').value.trim();
+    
+    if (!categoryName) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'add_category');
+        formData.append('name', categoryName);
+        formData.append('api', '1');
+        
+        const response = await fetch('index.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Add new category to dropdown
+            const categorySelect = document.getElementById('productCategory');
+            const newOption = document.createElement('option');
+            newOption.value = data.category_id;
+            newOption.textContent = categoryName;
+            categorySelect.insertBefore(newOption, categorySelect.lastElementChild);
+            
+            // Select the new category
+            categorySelect.value = data.category_id;
+            
+            // Hide the new category form
+            cancelNewCategory();
+            
+            alert('Category added successfully!');
+        } else {
+            alert('Error adding category: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding category. Please try again.');
+    }
+}
+
+// Handle category selection change
+document.getElementById('productCategory').addEventListener('change', function() {
+    const selectedValue = this.value;
+    if (selectedValue === 'new') {
+        showAddCategoryModal();
+        this.value = ''; // Reset selection
+    }
+});
+
 // Close modal when clicking outside
 document.getElementById('productModal').addEventListener('click', function(event) {
     if (event.target === this) {
@@ -968,6 +1111,10 @@ function handleApiRequest() {
                 
             case 'toggle_status':
                 handleToggleStatus($db);
+                break;
+                
+            case 'add_category':
+                handleAddCategory($db);
                 break;
                 
             default:
@@ -1079,6 +1226,41 @@ function handleToggleStatus($db) {
     $stmt->execute([$status, $product_id]);
     
     echo json_encode(['success' => true, 'message' => 'Product status updated successfully']);
+}
+
+function handleAddCategory($db) {
+    $name = trim($_POST['name'] ?? '');
+    
+    if (empty($name)) {
+        throw new Exception('Category name is required');
+    }
+    
+    // Check if category already exists
+    $checkQuery = "SELECT category_id FROM categories WHERE name = ? AND is_active = 1";
+    $stmt = $db->prepare($checkQuery);
+    $stmt->execute([$name]);
+    
+    if ($stmt->fetch()) {
+        throw new Exception('Category with this name already exists');
+    }
+    
+    // Generate slug
+    $slug = preg_replace('/[^a-z0-9]+/', '-', strtolower(trim($name)));
+    $slug = trim($slug, '-');
+    
+    // Insert new category
+    $query = "INSERT INTO categories (name, slug, is_active, created_at) VALUES (?, ?, 1, NOW())";
+    $stmt = $db->prepare($query);
+    $stmt->execute([$name, $slug]);
+    
+    $categoryId = $db->lastInsertId();
+    
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Category added successfully',
+        'category_id' => $categoryId,
+        'name' => $name
+    ]);
 }
 
 function handleImageUpload($file) {

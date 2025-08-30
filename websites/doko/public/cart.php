@@ -613,17 +613,67 @@ include_header($page_title, $page_description, $current_page);
         
         // Mock promo codes
         const promoCodes = {
-            'WELCOME15': { type: 'percentage', value: 15, minOrder: 500 },
             'VEGGIE30': { type: 'percentage', value: 30, minOrder: 500 },
             'DAIRY321': { type: 'fixed', value: 100, minOrder: 300 },
-            'WEEKEND': { type: 'free_delivery', value: 0, minOrder: 0 }
+            'WEEKEND': { type: 'free_delivery', value: 0, minOrder: 0 },
+            'RICE20': { type: 'percentage', value: 20, minOrder: 1000 }
         };
         
         if (promoCodes[promoCode]) {
-            alert('Promo code applied successfully!');
-            // Apply discount logic here
+            const code = promoCodes[promoCode];
+
+            // Get current cart from CartModule or fallback
+            const currentCart = (typeof CartModule !== 'undefined' && CartModule && typeof CartModule.getItems === 'function')
+                ? CartModule.getItems()
+                : (Array.isArray(window.__dokoCartData) ? window.__dokoCartData : []);
+
+            const subtotal = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Check minimum order requirement
+            if (subtotal < code.minOrder) {
+                alert(`Minimum order of Rs. ${code.minOrder} required for this promo code.`);
+                return;
+            }
+
+            // Apply discount
+            let discount = 0;
+            if (code.type === 'percentage') {
+                discount = (subtotal * code.value) / 100;
+            } else if (code.type === 'fixed') {
+                discount = Math.min(code.value, subtotal);
+            }
+
+            // Store promo code info
+            window.appliedPromoCode = {
+                code: promoCode,
+                discount: discount,
+                type: code.type,
+                value: code.value
+            };
+
+            // Update UI
+            const discountEl = document.getElementById('discount-amount');
+            const discountRowEl = document.getElementById('discount-row');
+            if (discountEl) {
+                discountEl.textContent = '-Rs. ' + discount.toFixed(2);
+            }
+            if (discountRowEl) {
+                discountRowEl.style.display = 'flex';
+            }
+
+            document.getElementById('promo-code').value = promoCode;
+            document.getElementById('promo-code').disabled = true;
+            document.getElementById('apply-promo').textContent = 'Applied';
+            document.getElementById('apply-promo').disabled = true;
+
+            // Update totals if function exists
+            if (typeof updateCartSummary === 'function') {
+                updateCartSummary();
+            }
+
+            alert(`Promo code applied! You saved Rs. ${discount.toFixed(2)}`);
         } else {
-            alert('Invalid promo code');
+            alert('Invalid promo code. Please check the offers page for valid codes.');
         }
     });
     
@@ -1248,7 +1298,31 @@ const CartModule = (function(){
     async function fetchServerCart(){try{const r=await fetch(API_BASE+'cart/get.php',{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});const j=await r.json();if(j.success&&Array.isArray(j.items)){return j.items.map(it=>({id:it.product_id,product_id:it.product_id,name:it.name,quantity:it.quantity,price:it.price,image:it.image||'/images/default-product.jpg'}))}}catch(e){console.warn('Server cart fetch failed',e);}return[]}
     async function hydrateGuestDetails(items){if(!items.length)return items;const needs=items.some(it=>!it.name||!it.price||it.price===0);if(!needs)return items;try{const resp=await fetch(API_BASE+'products/bulk-details.php',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify({product_ids:items.map(i=>i.product_id)})});const data=await resp.json();if(data.success&&data.items){const map=new Map(data.items.map(d=>[d.product_id,d]));return items.map(it=>{const d=map.get(it.product_id);return d?{...it,name:d.name,price:d.price,image:d.image}:it;})}}catch(e){console.warn('Guest hydrate failed',e);}return items}
     function escapeHtml(str){return(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));}
-    function updateCartSummary(){const subtotal=cart.reduce((s,it)=>s+(Number(it.price)||0)*it.quantity,0);const deliveryCharge=subtotal>=1000?0:50;const total=subtotal+deliveryCharge;const sEl=document.getElementById('cart-subtotal');if(!sEl)return; sEl.textContent=`Rs. ${subtotal.toFixed(2)}`;document.getElementById('delivery-charge').textContent=deliveryCharge===0?'FREE':`Rs. ${deliveryCharge.toFixed(2)}`;document.getElementById('cart-total').textContent=`Rs. ${total.toFixed(2)}`;if(typeof updateCartCount==='function')updateCartCount();}
+    function updateCartSummary(){
+        const subtotal = cart.reduce((s,it) => s + (Number(it.price)||0) * it.quantity, 0);
+        const deliveryCharge = subtotal >= 1000 ? 0 : 50;
+        const discount = window.appliedPromoCode ? window.appliedPromoCode.discount : 0;
+        const total = subtotal + deliveryCharge - discount;
+
+        const sEl = document.getElementById('cart-subtotal');
+        if(!sEl) return;
+
+        sEl.textContent = `Rs. ${subtotal.toFixed(2)}`;
+        document.getElementById('delivery-charge').textContent = deliveryCharge === 0 ? 'FREE' : `Rs. ${deliveryCharge.toFixed(2)}`;
+
+        // Update discount display
+        const discountEl = document.getElementById('discount-amount');
+        const discountRowEl = document.getElementById('discount-row');
+        if (discount > 0 && discountEl && discountRowEl) {
+            discountEl.textContent = `-Rs. ${discount.toFixed(2)}`;
+            discountRowEl.style.display = 'flex';
+        } else if (discountRowEl) {
+            discountRowEl.style.display = 'none';
+        }
+
+        document.getElementById('cart-total').textContent = `Rs. ${total.toFixed(2)}`;
+        if(typeof updateCartCount === 'function') updateCartCount();
+    }
     function renderCart(){
         if(!container||!emptyCartEl)return;
         if(!cart.length){

@@ -776,19 +776,90 @@ function clearFieldError(fieldId) {
         
         // Mock promo codes (same as cart page)
         const promoCodes = {
-            'WELCOME15': { type: 'percentage', value: 15, minOrder: 500 },
             'VEGGIE30': { type: 'percentage', value: 30, minOrder: 500 },
             'DAIRY321': { type: 'fixed', value: 100, minOrder: 300 },
-            'WEEKEND': { type: 'free_delivery', value: 0, minOrder: 0 }
+            'WEEKEND': { type: 'free_delivery', value: 0, minOrder: 0 },
+            'RICE20': { type: 'percentage', value: 20, minOrder: 1000 }
         };
         
         if (promoCodes[promoCode]) {
-            alert('Promo code applied successfully!');
-            // Apply discount logic here
+            const code = promoCodes[promoCode];
+            const subtotalEl = document.getElementById('checkout-subtotal');
+            const subtotal = subtotalEl ? parseFloat(subtotalEl.textContent.replace('Rs. ', '')) || 0 : 0;
+
+            // Check minimum order requirement
+            if (subtotal < code.minOrder) {
+                alert(`Minimum order of Rs. ${code.minOrder} required for this promo code.`);
+                return;
+            }
+
+            // Apply discount
+            let discount = 0;
+            if (code.type === 'percentage') {
+                discount = (subtotal * code.value) / 100;
+            } else if (code.type === 'fixed') {
+                discount = Math.min(code.value, subtotal);
+            }
+
+            // Store promo code info
+            window.appliedPromoCode = {
+                code: promoCode,
+                discount: discount,
+                type: code.type,
+                value: code.value
+            };
+
+            // Update UI
+            const discountEl = document.getElementById('checkout-discount');
+            if (discountEl) {
+                discountEl.textContent = '-Rs. ' + discount.toFixed(2);
+            }
+
+            document.getElementById('checkout-promo').value = promoCode;
+            document.getElementById('checkout-promo').disabled = true;
+            document.getElementById('apply-checkout-promo').textContent = 'Applied';
+            document.getElementById('apply-checkout-promo').disabled = true;
+
+            // Update totals
+            updateCheckoutTotals();
+
+            alert(`Promo code applied! You saved Rs. ${discount.toFixed(2)}`);
         } else {
-            alert('Invalid promo code');
+            alert('Invalid promo code. Please check the offers page for valid codes.');
         }
     });
+    
+    // Function to update checkout totals
+    function updateCheckoutTotals() {
+        const subtotalEl = document.getElementById('order-subtotal');
+        const deliveryEl = document.getElementById('order-delivery');
+        const discountEl = document.getElementById('order-discount');
+        const discountRowEl = document.getElementById('order-discount-row');
+        const totalEl = document.getElementById('order-total');
+        
+        if (!subtotalEl || !totalEl) return;
+        
+        const subtotal = parseFloat(subtotalEl.textContent.replace('Rs. ', '')) || 0;
+        const deliveryCharge = subtotal >= 1000 ? 0 : 50;
+        const discount = window.appliedPromoCode ? window.appliedPromoCode.discount : 0;
+        const total = subtotal + deliveryCharge - discount;
+        
+        // Update delivery charge
+        if (deliveryEl) {
+            deliveryEl.textContent = deliveryCharge === 0 ? 'FREE' : 'Rs. ' + deliveryCharge.toFixed(2);
+        }
+        
+        // Update discount display
+        if (discount > 0 && discountEl && discountRowEl) {
+            discountEl.textContent = '-Rs. ' + discount.toFixed(2);
+            discountRowEl.style.display = 'flex';
+        } else if (discountRowEl) {
+            discountRowEl.style.display = 'none';
+        }
+        
+        // Update total
+        totalEl.textContent = 'Rs. ' + total.toFixed(2);
+    }
     
     // Initialize
     loadOrderItems();
