@@ -31,6 +31,9 @@ _api_require('src/Http/ApiResponse.php');
 _api_require('src/Http/Csrf.php');
 _api_require('src/Controllers/AuthController.php');
 
+// Include Composer autoloader for namespace support
+_api_require('vendor/autoload.php');
+
 use Doko\Http\ApiResponse;
 use Doko\Http\Csrf;
 

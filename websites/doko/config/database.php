@@ -31,6 +31,12 @@ class Database {
     private static $instance = null;
 
     private function __construct() {
+        // If in test mode and test PDO is available, use it
+        if ((getenv('TEST_MODE') || isset($_ENV['TEST_MODE'])) && isset($GLOBALS['test_pdo'])) {
+            $this->pdo = $GLOBALS['test_pdo'];
+            return;
+        }
+        
         $this->detectEnvironment();
         $this->connect();
     }
@@ -135,11 +141,29 @@ class Database {
     }
 
     public static function getInstance() {
-        if (!self::$instance) self::$instance = new self();
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
         return self::$instance;
     }
 
-    public function getConnection() { return $this->pdo; }
+    /**
+     * Set test database connection for unit testing
+     */
+    public static function setTestConnection(PDO $pdo) {
+        if (getenv('TEST_MODE') || isset($_ENV['TEST_MODE'])) {
+            if (!self::$instance) self::$instance = new self();
+            self::$instance->pdo = $pdo;
+        }
+    }
+
+    public function getConnection() { 
+        // If in test mode and we have a test connection set, use it
+        if ((getenv('TEST_MODE') || isset($_ENV['TEST_MODE'])) && isset($GLOBALS['test_pdo'])) {
+            return $GLOBALS['test_pdo'];
+        }
+        return $this->pdo; 
+    }
 
     public function prepare($sql) { return $this->pdo->prepare($sql); }
     public function query($sql) { return $this->pdo->query($sql); }

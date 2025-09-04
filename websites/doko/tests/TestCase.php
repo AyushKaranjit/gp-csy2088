@@ -39,6 +39,22 @@ abstract class TestCase extends PHPUnitTestCase
 
         // Clean up test data after each test
         self::cleanupTestData();
+        
+        // Clear session state between tests
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+        $_SESSION = [];
+        
+        // Clear test headers
+        unset($_SERVER['HTTP_X_TEST_USER_ID']);
+        unset($_SERVER['HTTP_X_TEST_USER_EMAIL']);
+        unset($_SERVER['HTTP_X_TEST_USER_USERNAME']);
+        unset($_SERVER['HTTP_X_TEST_USER_ROLE']);
+        
+        // Clear test JSON input
+        unset($GLOBALS['__TEST_JSON_INPUT']);
     }
 
     /**
@@ -88,12 +104,30 @@ abstract class TestCase extends PHPUnitTestCase
             // Update the test database name to the main database
             self::$testDatabase = $config['database'];
 
+            // Set the test connection in Database singleton
+            if (class_exists('Database')) {
+                \Database::setTestConnection(self::$pdo);
+                $GLOBALS['test_pdo'] = self::$pdo;
+            }
+
             // Don't import schema since the main database should already have it
             return;
         }
 
         // Import schema into test database
         self::importDatabaseSchema();
+
+        // Switch to test database
+        self::$pdo->exec("USE $testDbName");
+
+        // Set the test database name
+        self::$testDatabase = $config['database'] . '_test';
+
+        // Set the test connection in Database singleton
+        if (class_exists('Database')) {
+            \Database::setTestConnection(self::$pdo);
+            $GLOBALS['test_pdo'] = self::$pdo;
+        }
     }
 
     /**
@@ -221,6 +255,11 @@ abstract class TestCase extends PHPUnitTestCase
             'updated_at' => date('Y-m-d H:i:s')
         ], $overrides);
 
+        // Hash password if it's provided as plain text
+        if (isset($userData['password']) && !password_get_info($userData['password'])['algo']) {
+            $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
+        }
+
         $columns = implode(', ', array_keys($userData));
         $placeholders = implode(', ', array_fill(0, count($userData), '?'));
 
@@ -288,10 +327,6 @@ abstract class TestCase extends PHPUnitTestCase
         $categoryData['category_id'] = self::$pdo->lastInsertId();
         return $categoryData;
     }
-
-    /**
-     * Simulate user login by setting HTTP headers for test bridge
-     */
     protected function loginUser(array $userData): void
     {
         // Set HTTP headers that AuthController's test bridge will use
@@ -306,9 +341,12 @@ abstract class TestCase extends PHPUnitTestCase
         }
 
         $_SESSION['user_id'] = $userData['user_id'];
-        $_SESSION['user_email'] = $userData['email'];
-        $_SESSION['user_name'] = $userData['first_name'] . ' ' . $userData['last_name'];
-        $_SESSION['user_role'] = $userData['role'];
+        $_SESSION['username'] = $userData['username'];
+        $_SESSION['email'] = $userData['email'];
+        $_SESSION['first_name'] = $userData['first_name'];
+        $_SESSION['last_name'] = $userData['last_name'];
+        $_SESSION['role'] = $userData['role'];
+        $_SESSION['logged_in'] = true;
     }
 
     /**
@@ -316,8 +354,14 @@ abstract class TestCase extends PHPUnitTestCase
      */
     protected function getRequest(string $url, array $params = []): array
     {
-        // Set up $_GET parameters
-        $_GET = $params;
+        // Parse query parameters from URL
+        $parsedUrl = parse_url($url);
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $urlParams);
+            $_GET = array_merge($urlParams, $params);
+        } else {
+            $_GET = $params;
+        }
 
         // Set REQUEST_URI for routing
         $_SERVER['REQUEST_URI'] = $url;
@@ -350,8 +394,20 @@ abstract class TestCase extends PHPUnitTestCase
      */
     protected function postRequest(string $url, array $data = []): array
     {
+        // Parse query parameters from URL
+        $parsedUrl = parse_url($url);
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $urlParams);
+            $_GET = $urlParams;
+        } else {
+            $_GET = [];
+        }
+
         // Set up $_POST data
         $_POST = $data;
+
+        // Set test JSON input for APIs that expect JSON
+        $GLOBALS['__TEST_JSON_INPUT'] = $data;
 
         // Set REQUEST_URI for routing
         $_SERVER['REQUEST_URI'] = $url;
@@ -388,6 +444,11 @@ abstract class TestCase extends PHPUnitTestCase
         $path = ltrim($url, '/');
         if (strpos($path, 'api/') === 0) {
             $path = substr($path, 4);
+        }
+
+        // Remove query parameters
+        if (strpos($path, '?') !== false) {
+            $path = strstr($path, '?', true);
         }
 
         // Convert to file path

@@ -19,6 +19,24 @@ class AuthControllerTest extends TestCase
         $this->auth = new AuthController();
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        
+        // Clear session between tests
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+        $_SESSION = [];
+        
+        // Clear test headers
+        unset($_SERVER['HTTP_X_TEST_USER_ID']);
+        unset($_SERVER['HTTP_X_TEST_USER_EMAIL']);
+        unset($_SERVER['HTTP_X_TEST_USER_USERNAME']);
+        unset($_SERVER['HTTP_X_TEST_USER_ROLE']);
+    }
+
     public function testCanCreateAuthController()
     {
         $this->assertInstanceOf(AuthController::class, $this->auth);

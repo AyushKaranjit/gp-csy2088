@@ -244,7 +244,14 @@ class AuthController {
             session_unset();
             session_destroy();
         }
-    return ['success' => true, 'message' => 'Logout successful'];
+        
+        // Clear test headers to prevent session repopulation
+        unset($_SERVER['HTTP_X_TEST_USER_ID']);
+        unset($_SERVER['HTTP_X_TEST_USER_EMAIL']);
+        unset($_SERVER['HTTP_X_TEST_USER_USERNAME']);
+        unset($_SERVER['HTTP_X_TEST_USER_ROLE']);
+        
+        return ['success' => true, 'message' => 'Logout successful'];
     }
 }
 ?>

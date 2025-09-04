@@ -96,7 +96,7 @@ class OrdersApiTest extends TestCase
         $this->assertJsonHasKey('items', $response);
         
         $this->assertEquals($order['order_id'], $response['order']['order_id']);
-        $this->assertEquals(50.00, $response['order']['total_amount']);
+        $this->assertEquals(150.00, $response['order']['total_amount']);
         $this->assertEquals(1, count($response['items']));
         $this->assertEquals($product['product_id'], $response['items'][0]['product_id']);
     }

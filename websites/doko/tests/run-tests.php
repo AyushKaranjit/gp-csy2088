@@ -63,14 +63,32 @@ class TestRunner
         try {
             require_once $testFile;
             
-            // Get class name from file name
-            $className = str_replace('.php', '', basename($testFile));
+            // Get class name from file name and determine namespace
+            $baseName = str_replace('.php', '', basename($testFile));
+            $relativePath = str_replace(__DIR__ . '/', '', $testFile);
+            $pathParts = explode('/', $relativePath);
+            $testType = $pathParts[0]; // Unit, Integration, API
             
-            if (class_exists($className)) {
-                $testInstance = new $className();
-                $this->runTestMethods($testInstance, $className);
+            // Map directory to namespace
+            $namespaceMap = [
+                'Unit' => 'Doko\\Tests\\Unit',
+                'Integration' => 'Doko\\Tests\\Integration', 
+                'API' => 'Doko\\Tests\\API'
+            ];
+            
+            $namespace = isset($namespaceMap[$testType]) ? $namespaceMap[$testType] : 'Doko\\Tests';
+            $fullClassName = $namespace . '\\' . $baseName;
+            
+            if (class_exists($fullClassName)) {
+                // Call setUpBeforeClass if it exists
+                if (method_exists($fullClassName, 'setUpBeforeClass')) {
+                    $fullClassName::setUpBeforeClass();
+                }
+                
+                $testInstance = new $fullClassName();
+                $this->runTestMethods($testInstance, $fullClassName);
             } else {
-                echo "  ❌ Class $className not found\n";
+                echo "  ❌ Class $fullClassName not found\n";
                 $this->testsFailed++;
             }
         } catch (Exception $e) {

@@ -152,11 +152,11 @@ class CartApiTest extends TestCase
         // Add products with specific quantities
     $this->postRequest('/api/cart/add.php', [
             'product_id' => $product1['product_id'],
-            'quantity' => 2  // 2 × $10.00 = $20.00
+            'quantity' => 2 
         ]);
     $this->postRequest('/api/cart/add.php', [
             'product_id' => $product2['product_id'],
-            'quantity' => 1  // 1 × $25.50 = $25.50
+            'quantity' => 1  
         ]);
         
         // Get cart and verify total
