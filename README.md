@@ -87,7 +87,6 @@ websites/doko/
 * Cart (canonical): `add.php`, `update.php`, `remove.php`, `clear.php`, `get.php` under `/api/cart/` (all legacy wrappers removed)
 * Wishlist: unified `/api/wishlist/wishlist.php` (GET list, POST add/toggle, DELETE remove). All former legacy variants have been removed after migration.
 
-  # DOKO E-commerce Unit Testing Framework
 
 ## Overview
 Comprehensive unit testing framework for the DOKO e-commerce system covering authentication, cart functionality, products, orders, and API endpoints.
@@ -359,4 +358,5 @@ The application uses MySQL with the following main tables:
 - Error handling is implemented throughout
 - File uploads are stored in `uploads/` directory
 - Session management for user authentication
+
 
